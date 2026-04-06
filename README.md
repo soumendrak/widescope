@@ -86,29 +86,12 @@ make clean         # remove Rust, WASM package, UI dist, and node_modules artifa
 
 ## Deployment on Cloudflare Pages
 
-This repo deploys directly via **Cloudflare Pages** (no GitHub Actions required for deployment).
+This repo is set up to publish the static `ui/dist/` bundle to **Cloudflare Pages** from GitHub Actions.
 
-The generated WASM package (`crates/widescope-core/pkg/`) is committed to the repository, so Cloudflare Pages only needs to run the Vite build.
-
-### Cloudflare Pages settings
-
-| Setting | Value |
-|---|---|
-| Framework preset | None |
-| Root directory | `/` (repository root) |
-| Build command | `cd ui && npm ci && npm run build` |
-| Build output directory | `ui/dist` |
-
-### First-time setup
-
-1. Rebuild the WASM package locally whenever Rust code changes:
-   ```bash
-   make build-wasm
-   ```
-2. Commit the updated `crates/widescope-core/pkg/` to the repository.
-3. Create a Cloudflare Pages project named `widescope` connected to this repository.
-4. Apply the build settings from the table above.
-5. Optionally set a custom domain in Cloudflare Pages.
+1. Create a Cloudflare Pages project named `widescope`.
+2. Add the GitHub repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+3. Push to `main` to trigger the deploy workflow.
+4. Set a custom domain in Cloudflare Pages if you want the repo website field to use your own domain.
 
 Recommended repo website value after setup:
 
