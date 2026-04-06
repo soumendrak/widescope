@@ -1,0 +1,817 @@
+{
+  "metadata": {
+    "source": "phoenix-export",
+    "fixture": "multi-agent-complex"
+  },
+  "spans": [
+    {
+      "name": "research.agent_loop",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-root-001"
+      },
+      "parent_id": null,
+      "span_kind": "AGENT",
+      "start_time": "2024-04-07T17:30:00Z",
+      "end_time": "2024-04-07T17:30:09.600000Z",
+      "start_time_unix_nano": "1712511000000000000",
+      "end_time_unix_nano": "1712511009600000000",
+      "status_code": "OK",
+      "attributes": {
+        "openinference.span.kind": "AGENT",
+        "workflow.name": "competitive-intelligence",
+        "tenant.id": "tenant-labs",
+        "regions.touched": [
+          "us-east-1",
+          "ap-south-1",
+          "eu-central-1"
+        ],
+        "analyst.personas": [
+          "finance",
+          "security",
+          "market",
+          "legal"
+        ],
+        "scenario.weights": [
+          0.3,
+          0.25,
+          0.28,
+          0.17
+        ],
+        "execution.policy": {
+          "max_rounds": 4,
+          "parallel_tools": true,
+          "fallback": "summary-only"
+        }
+      },
+      "events": []
+    },
+    {
+      "name": "planner.round_0",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-plan-000"
+      },
+      "parent_id": "oi2-root-001",
+      "span_kind": "CHAIN",
+      "start_time": "2024-04-07T17:30:00.300000Z",
+      "end_time": "2024-04-07T17:30:00.640000Z",
+      "start_time_unix_nano": "1712511000300000000",
+      "end_time_unix_nano": "1712511000640000000",
+      "status_code": "OK",
+      "attributes": {
+        "openinference.span.kind": "CHAIN",
+        "langchain.request.type": "chain",
+        "langchain.request.model": "gpt-4.1-mini",
+        "langchain.usage.prompt_tokens": 120,
+        "langchain.usage.completion_tokens": 44,
+        "planning.objectives": [
+          "find-new-facts",
+          "verify-citations"
+        ],
+        "planning.metadata": {
+          "round": 0,
+          "temperature": 0.1,
+          "beam": 2
+        }
+      },
+      "events": []
+    },
+    {
+      "name": "retrieval.round_0",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-retrieval-0-0"
+      },
+      "parent_id": "oi2-plan-000",
+      "span_kind": "RETRIEVER",
+      "start_time": "2024-04-07T17:30:00.410000Z",
+      "end_time": "2024-04-07T17:30:00.910000Z",
+      "start_time_unix_nano": "1712511000410000000",
+      "end_time_unix_nano": "1712511000910000000",
+      "status_code": "OK",
+      "status_message": null,
+      "attributes": {
+        "openinference.span.kind": "RETRIEVER",
+        "round.index": 0,
+        "branch.index": 0,
+        "candidate.ids": [
+          "cand-0-0",
+          "cand-0-1",
+          "cand-0-2"
+        ],
+        "score.vector": [
+          0.62,
+          0.69,
+          0.76
+        ],
+        "metadata": {
+          "branch": "retrieval",
+          "priority": "low",
+          "source_mix": [
+            "web"
+          ]
+        }
+      },
+      "events": [
+        {
+          "name": "branch.metrics",
+          "timestamp": "2024-04-07T17:30:00.890000Z",
+          "attributes": {
+            "attempts": 1,
+            "cache_hit": true,
+            "results_visible": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "tool.round_0",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-tool-0-1"
+      },
+      "parent_id": "oi2-plan-000",
+      "span_kind": "TOOL",
+      "start_time": "2024-04-07T17:30:00.590000Z",
+      "end_time": "2024-04-07T17:30:01.210000Z",
+      "start_time_unix_nano": "1712511000590000000",
+      "end_time_unix_nano": "1712511001210000000",
+      "status_code": "OK",
+      "status_message": null,
+      "attributes": {
+        "openinference.span.kind": "TOOL",
+        "round.index": 0,
+        "branch.index": 1,
+        "candidate.ids": [
+          "cand-0-0",
+          "cand-0-1",
+          "cand-0-2",
+          "cand-0-3"
+        ],
+        "score.vector": [
+          0.62,
+          0.69,
+          0.76,
+          0.83
+        ],
+        "metadata": {
+          "branch": "tool",
+          "priority": "medium",
+          "source_mix": [
+            "web",
+            "kb"
+          ]
+        }
+      },
+      "events": [
+        {
+          "name": "branch.metrics",
+          "timestamp": "2024-04-07T17:30:01.190000Z",
+          "attributes": {
+            "attempts": 1,
+            "cache_hit": false,
+            "results_visible": 3
+          }
+        }
+      ]
+    },
+    {
+      "name": "llm.round_0",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-llm-0-2"
+      },
+      "parent_id": "oi2-plan-000",
+      "span_kind": "LLM",
+      "start_time": "2024-04-07T17:30:00.770000Z",
+      "end_time": "2024-04-07T17:30:01.510000Z",
+      "start_time_unix_nano": "1712511000770000000",
+      "end_time_unix_nano": "1712511001510000000",
+      "status_code": "OK",
+      "status_message": null,
+      "attributes": {
+        "openinference.span.kind": "LLM",
+        "round.index": 0,
+        "branch.index": 2,
+        "candidate.ids": [
+          "cand-0-0",
+          "cand-0-1",
+          "cand-0-2",
+          "cand-0-3",
+          "cand-0-4"
+        ],
+        "score.vector": [
+          0.62,
+          0.69,
+          0.76,
+          0.83,
+          0.9
+        ],
+        "metadata": {
+          "branch": "llm",
+          "priority": "high",
+          "source_mix": [
+            "web",
+            "kb",
+            "crm"
+          ]
+        },
+        "llm.model_name": "gpt-4.1",
+        "llm.provider": "openai",
+        "llm.token_count.prompt": 540,
+        "llm.token_count.completion": 360,
+        "llm.token_count.total": 900,
+        "llm.invocation_parameters.temperature": 0.15,
+        "llm.invocation_parameters.max_tokens": 1024
+      },
+      "events": [
+        {
+          "name": "branch.metrics",
+          "timestamp": "2024-04-07T17:30:01.490000Z",
+          "attributes": {
+            "attempts": 1,
+            "cache_hit": false,
+            "results_visible": 4
+          }
+        }
+      ]
+    },
+    {
+      "name": "planner.round_1",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-plan-001"
+      },
+      "parent_id": "oi2-root-001",
+      "span_kind": "CHAIN",
+      "start_time": "2024-04-07T17:30:02.400000Z",
+      "end_time": "2024-04-07T17:30:02.740000Z",
+      "start_time_unix_nano": "1712511002400000000",
+      "end_time_unix_nano": "1712511002740000000",
+      "status_code": "OK",
+      "attributes": {
+        "openinference.span.kind": "CHAIN",
+        "langchain.request.type": "chain",
+        "langchain.request.model": "gpt-4.1-mini",
+        "langchain.usage.prompt_tokens": 153,
+        "langchain.usage.completion_tokens": 61,
+        "planning.objectives": [
+          "find-new-facts",
+          "verify-citations",
+          "contrast-claims"
+        ],
+        "planning.metadata": {
+          "round": 1,
+          "temperature": 0.15000000000000002,
+          "beam": 3
+        }
+      },
+      "events": []
+    },
+    {
+      "name": "retrieval.round_1",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-retrieval-1-0"
+      },
+      "parent_id": "oi2-plan-001",
+      "span_kind": "RETRIEVER",
+      "start_time": "2024-04-07T17:30:02.510000Z",
+      "end_time": "2024-04-07T17:30:03.080000Z",
+      "start_time_unix_nano": "1712511002510000000",
+      "end_time_unix_nano": "1712511003080000000",
+      "status_code": "OK",
+      "status_message": null,
+      "attributes": {
+        "openinference.span.kind": "RETRIEVER",
+        "round.index": 1,
+        "branch.index": 0,
+        "candidate.ids": [
+          "cand-1-0",
+          "cand-1-1",
+          "cand-1-2"
+        ],
+        "score.vector": [
+          0.64,
+          0.71,
+          0.78
+        ],
+        "metadata": {
+          "branch": "retrieval",
+          "priority": "low",
+          "source_mix": [
+            "web"
+          ]
+        }
+      },
+      "events": [
+        {
+          "name": "branch.metrics",
+          "timestamp": "2024-04-07T17:30:03.060000Z",
+          "attributes": {
+            "attempts": 2,
+            "cache_hit": false,
+            "results_visible": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "tool.round_1",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-tool-1-1"
+      },
+      "parent_id": "oi2-plan-001",
+      "span_kind": "TOOL",
+      "start_time": "2024-04-07T17:30:02.690000Z",
+      "end_time": "2024-04-07T17:30:03.380000Z",
+      "start_time_unix_nano": "1712511002690000000",
+      "end_time_unix_nano": "1712511003380000000",
+      "status_code": "OK",
+      "status_message": null,
+      "attributes": {
+        "openinference.span.kind": "TOOL",
+        "round.index": 1,
+        "branch.index": 1,
+        "candidate.ids": [
+          "cand-1-0",
+          "cand-1-1",
+          "cand-1-2",
+          "cand-1-3"
+        ],
+        "score.vector": [
+          0.64,
+          0.71,
+          0.78,
+          0.85
+        ],
+        "metadata": {
+          "branch": "tool",
+          "priority": "medium",
+          "source_mix": [
+            "web",
+            "kb"
+          ]
+        }
+      },
+      "events": [
+        {
+          "name": "branch.metrics",
+          "timestamp": "2024-04-07T17:30:03.360000Z",
+          "attributes": {
+            "attempts": 2,
+            "cache_hit": false,
+            "results_visible": 3
+          }
+        }
+      ]
+    },
+    {
+      "name": "llm.round_1",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-llm-1-2"
+      },
+      "parent_id": "oi2-plan-001",
+      "span_kind": "LLM",
+      "start_time": "2024-04-07T17:30:02.870000Z",
+      "end_time": "2024-04-07T17:30:03.680000Z",
+      "start_time_unix_nano": "1712511002870000000",
+      "end_time_unix_nano": "1712511003680000000",
+      "status_code": "OK",
+      "status_message": null,
+      "attributes": {
+        "openinference.span.kind": "LLM",
+        "round.index": 1,
+        "branch.index": 2,
+        "candidate.ids": [
+          "cand-1-0",
+          "cand-1-1",
+          "cand-1-2",
+          "cand-1-3",
+          "cand-1-4"
+        ],
+        "score.vector": [
+          0.64,
+          0.71,
+          0.78,
+          0.85,
+          0.92
+        ],
+        "metadata": {
+          "branch": "llm",
+          "priority": "high",
+          "source_mix": [
+            "web",
+            "kb",
+            "crm"
+          ]
+        },
+        "llm.model_name": "claude-3.7-sonnet",
+        "llm.provider": "anthropic",
+        "llm.token_count.prompt": 660,
+        "llm.token_count.completion": 360,
+        "llm.token_count.total": 1020,
+        "llm.invocation_parameters.temperature": 0.22,
+        "llm.invocation_parameters.max_tokens": 1280
+      },
+      "events": [
+        {
+          "name": "branch.metrics",
+          "timestamp": "2024-04-07T17:30:03.660000Z",
+          "attributes": {
+            "attempts": 2,
+            "cache_hit": false,
+            "results_visible": 4
+          }
+        }
+      ]
+    },
+    {
+      "name": "planner.round_2",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-plan-002"
+      },
+      "parent_id": "oi2-root-001",
+      "span_kind": "CHAIN",
+      "start_time": "2024-04-07T17:30:04.500000Z",
+      "end_time": "2024-04-07T17:30:04.840000Z",
+      "start_time_unix_nano": "1712511004500000000",
+      "end_time_unix_nano": "1712511004840000000",
+      "status_code": "OK",
+      "attributes": {
+        "openinference.span.kind": "CHAIN",
+        "langchain.request.type": "chain",
+        "langchain.request.model": "gpt-4.1-mini",
+        "langchain.usage.prompt_tokens": 186,
+        "langchain.usage.completion_tokens": 78,
+        "planning.objectives": [
+          "find-new-facts",
+          "verify-citations",
+          "contrast-claims",
+          "surface-risks"
+        ],
+        "planning.metadata": {
+          "round": 2,
+          "temperature": 0.2,
+          "beam": 4
+        }
+      },
+      "events": []
+    },
+    {
+      "name": "retrieval.round_2",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-retrieval-2-0"
+      },
+      "parent_id": "oi2-plan-002",
+      "span_kind": "RETRIEVER",
+      "start_time": "2024-04-07T17:30:04.610000Z",
+      "end_time": "2024-04-07T17:30:05.250000Z",
+      "start_time_unix_nano": "1712511004610000000",
+      "end_time_unix_nano": "1712511005250000000",
+      "status_code": "OK",
+      "status_message": null,
+      "attributes": {
+        "openinference.span.kind": "RETRIEVER",
+        "round.index": 2,
+        "branch.index": 0,
+        "candidate.ids": [
+          "cand-2-0",
+          "cand-2-1",
+          "cand-2-2"
+        ],
+        "score.vector": [
+          0.66,
+          0.73,
+          0.8
+        ],
+        "metadata": {
+          "branch": "retrieval",
+          "priority": "low",
+          "source_mix": [
+            "web"
+          ]
+        }
+      },
+      "events": [
+        {
+          "name": "branch.metrics",
+          "timestamp": "2024-04-07T17:30:05.230000Z",
+          "attributes": {
+            "attempts": 1,
+            "cache_hit": true,
+            "results_visible": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "tool.round_2",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-tool-2-1"
+      },
+      "parent_id": "oi2-plan-002",
+      "span_kind": "TOOL",
+      "start_time": "2024-04-07T17:30:04.790000Z",
+      "end_time": "2024-04-07T17:30:05.550000Z",
+      "start_time_unix_nano": "1712511004790000000",
+      "end_time_unix_nano": "1712511005550000000",
+      "status_code": "ERROR",
+      "status_message": "Rate limit from external news API",
+      "attributes": {
+        "openinference.span.kind": "TOOL",
+        "round.index": 2,
+        "branch.index": 1,
+        "candidate.ids": [
+          "cand-2-0",
+          "cand-2-1",
+          "cand-2-2",
+          "cand-2-3"
+        ],
+        "score.vector": [
+          0.66,
+          0.73,
+          0.8,
+          0.87
+        ],
+        "metadata": {
+          "branch": "tool",
+          "priority": "medium",
+          "source_mix": [
+            "web",
+            "kb"
+          ]
+        }
+      },
+      "events": [
+        {
+          "name": "branch.metrics",
+          "timestamp": "2024-04-07T17:30:05.530000Z",
+          "attributes": {
+            "attempts": 1,
+            "cache_hit": false,
+            "results_visible": 3
+          }
+        }
+      ]
+    },
+    {
+      "name": "llm.round_2",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-llm-2-2"
+      },
+      "parent_id": "oi2-plan-002",
+      "span_kind": "LLM",
+      "start_time": "2024-04-07T17:30:04.970000Z",
+      "end_time": "2024-04-07T17:30:05.850000Z",
+      "start_time_unix_nano": "1712511004970000000",
+      "end_time_unix_nano": "1712511005850000000",
+      "status_code": "OK",
+      "status_message": null,
+      "attributes": {
+        "openinference.span.kind": "LLM",
+        "round.index": 2,
+        "branch.index": 2,
+        "candidate.ids": [
+          "cand-2-0",
+          "cand-2-1",
+          "cand-2-2",
+          "cand-2-3",
+          "cand-2-4"
+        ],
+        "score.vector": [
+          0.66,
+          0.73,
+          0.8,
+          0.87,
+          0.94
+        ],
+        "metadata": {
+          "branch": "llm",
+          "priority": "high",
+          "source_mix": [
+            "web",
+            "kb",
+            "crm"
+          ]
+        },
+        "llm.model_name": "gemini-2.5-pro",
+        "llm.provider": "google",
+        "llm.token_count.prompt": 780,
+        "llm.token_count.completion": 360,
+        "llm.token_count.total": 1140,
+        "llm.invocation_parameters.temperature": 0.29,
+        "llm.invocation_parameters.max_tokens": 1536
+      },
+      "events": [
+        {
+          "name": "branch.metrics",
+          "timestamp": "2024-04-07T17:30:05.830000Z",
+          "attributes": {
+            "attempts": 1,
+            "cache_hit": false,
+            "results_visible": 4
+          }
+        }
+      ]
+    },
+    {
+      "name": "planner.round_3",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-plan-003"
+      },
+      "parent_id": "oi2-root-001",
+      "span_kind": "CHAIN",
+      "start_time": "2024-04-07T17:30:06.600000Z",
+      "end_time": "2024-04-07T17:30:06.940000Z",
+      "start_time_unix_nano": "1712511006600000000",
+      "end_time_unix_nano": "1712511006940000000",
+      "status_code": "OK",
+      "attributes": {
+        "openinference.span.kind": "CHAIN",
+        "langchain.request.type": "chain",
+        "langchain.request.model": "gpt-4.1-mini",
+        "langchain.usage.prompt_tokens": 219,
+        "langchain.usage.completion_tokens": 95,
+        "planning.objectives": [
+          "find-new-facts",
+          "verify-citations"
+        ],
+        "planning.metadata": {
+          "round": 3,
+          "temperature": 0.25,
+          "beam": 5
+        }
+      },
+      "events": []
+    },
+    {
+      "name": "retrieval.round_3",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-retrieval-3-0"
+      },
+      "parent_id": "oi2-plan-003",
+      "span_kind": "RETRIEVER",
+      "start_time": "2024-04-07T17:30:06.710000Z",
+      "end_time": "2024-04-07T17:30:07.420000Z",
+      "start_time_unix_nano": "1712511006710000000",
+      "end_time_unix_nano": "1712511007420000000",
+      "status_code": "OK",
+      "status_message": null,
+      "attributes": {
+        "openinference.span.kind": "RETRIEVER",
+        "round.index": 3,
+        "branch.index": 0,
+        "candidate.ids": [
+          "cand-3-0",
+          "cand-3-1",
+          "cand-3-2"
+        ],
+        "score.vector": [
+          0.68,
+          0.75,
+          0.82
+        ],
+        "metadata": {
+          "branch": "retrieval",
+          "priority": "low",
+          "source_mix": [
+            "web"
+          ]
+        }
+      },
+      "events": [
+        {
+          "name": "branch.metrics",
+          "timestamp": "2024-04-07T17:30:07.400000Z",
+          "attributes": {
+            "attempts": 2,
+            "cache_hit": false,
+            "results_visible": 2
+          }
+        }
+      ]
+    },
+    {
+      "name": "tool.round_3",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-tool-3-1"
+      },
+      "parent_id": "oi2-plan-003",
+      "span_kind": "TOOL",
+      "start_time": "2024-04-07T17:30:06.890000Z",
+      "end_time": "2024-04-07T17:30:07.720000Z",
+      "start_time_unix_nano": "1712511006890000000",
+      "end_time_unix_nano": "1712511007720000000",
+      "status_code": "OK",
+      "status_message": null,
+      "attributes": {
+        "openinference.span.kind": "TOOL",
+        "round.index": 3,
+        "branch.index": 1,
+        "candidate.ids": [
+          "cand-3-0",
+          "cand-3-1",
+          "cand-3-2",
+          "cand-3-3"
+        ],
+        "score.vector": [
+          0.68,
+          0.75,
+          0.82,
+          0.89
+        ],
+        "metadata": {
+          "branch": "tool",
+          "priority": "medium",
+          "source_mix": [
+            "web",
+            "kb"
+          ]
+        }
+      },
+      "events": [
+        {
+          "name": "branch.metrics",
+          "timestamp": "2024-04-07T17:30:07.700000Z",
+          "attributes": {
+            "attempts": 2,
+            "cache_hit": false,
+            "results_visible": 3
+          }
+        }
+      ]
+    },
+    {
+      "name": "llm.round_3",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabd",
+        "span_id": "oi2-llm-3-2"
+      },
+      "parent_id": "oi2-plan-003",
+      "span_kind": "LLM",
+      "start_time": "2024-04-07T17:30:07.070000Z",
+      "end_time": "2024-04-07T17:30:08.020000Z",
+      "start_time_unix_nano": "1712511007070000000",
+      "end_time_unix_nano": "1712511008020000000",
+      "status_code": "OK",
+      "status_message": null,
+      "attributes": {
+        "openinference.span.kind": "LLM",
+        "round.index": 3,
+        "branch.index": 2,
+        "candidate.ids": [
+          "cand-3-0",
+          "cand-3-1",
+          "cand-3-2",
+          "cand-3-3",
+          "cand-3-4"
+        ],
+        "score.vector": [
+          0.68,
+          0.75,
+          0.82,
+          0.89,
+          0.96
+        ],
+        "metadata": {
+          "branch": "llm",
+          "priority": "high",
+          "source_mix": [
+            "web",
+            "kb",
+            "crm"
+          ]
+        },
+        "llm.model_name": "gpt-4.1",
+        "llm.provider": "openai",
+        "llm.token_count.prompt": 900,
+        "llm.token_count.completion": 360,
+        "llm.token_count.total": 1260,
+        "llm.invocation_parameters.temperature": 0.36,
+        "llm.invocation_parameters.max_tokens": 1792
+      },
+      "events": [
+        {
+          "name": "branch.metrics",
+          "timestamp": "2024-04-07T17:30:08Z",
+          "attributes": {
+            "attempts": 2,
+            "cache_hit": false,
+            "results_visible": 4
+          }
+        }
+      ]
+    }
+  ]
+}

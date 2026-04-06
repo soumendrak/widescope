@@ -1,0 +1,471 @@
+{
+  "metadata": {
+    "source": "arize-phoenix",
+    "export_version": "0.1.0",
+    "workspace": "llm-observability-lab",
+    "labels": [
+      "agent",
+      "retrieval",
+      "tool-use",
+      "evaluation"
+    ],
+    "dimensions": {
+      "tenants": 3,
+      "experiments": [
+        "baseline",
+        "hybrid-rag",
+        "tool-heavy"
+      ],
+      "regions": [
+        "us-east-1",
+        "eu-west-1"
+      ]
+    }
+  },
+  "spans": [
+    {
+      "name": "agent.session",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabc",
+        "span_id": "oi-root-001"
+      },
+      "parent_id": null,
+      "span_kind": "AGENT",
+      "start_time": "2024-04-07T17:13:20Z",
+      "end_time": "2024-04-07T17:13:24.800000Z",
+      "start_time_unix_nano": "1712510000000000000",
+      "end_time_unix_nano": "1712510004800000000",
+      "status_code": "OK",
+      "attributes": {
+        "openinference.span.kind": "AGENT",
+        "session.id": "sess-9f3c8a",
+        "tenant.id": "tenant-acme-enterprise",
+        "region": "us-east-1",
+        "request.route": "/copilot/assist",
+        "conversation.turns": 14,
+        "conversation.topics": [
+          "pricing",
+          "sla",
+          "compliance",
+          "deployment"
+        ],
+        "ui.panels_open": [
+          "trace",
+          "citations",
+          "cost",
+          "evaluation"
+        ],
+        "sampling.strategy": {
+          "name": "tail-based",
+          "rate": 0.35,
+          "burst_limit": 12
+        },
+        "feature.flags": [
+          "citations-v2",
+          "tool-streaming",
+          "rerank-ensemble"
+        ],
+        "latency.budget.ms": 5000
+      },
+      "events": [
+        {
+          "name": "session.context",
+          "timestamp": "2024-04-07T17:13:20.050000Z",
+          "attributes": {
+            "user.intent": "compare enterprise plans and compliance guarantees",
+            "browser": "firefox",
+            "viewport": {
+              "width": 1512,
+              "height": 982
+            },
+            "active_filters": [
+              "security",
+              "legal",
+              "pricing"
+            ]
+          }
+        }
+      ],
+      "input_value": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "You are an enterprise sales copilot."
+          },
+          {
+            "role": "user",
+            "content": "Compare the secure deployment options and include citations."
+          }
+        ],
+        "attachments": [
+          {
+            "kind": "pdf",
+            "name": "SOC2-overview.pdf",
+            "pages": [
+              1,
+              2,
+              7
+            ]
+          },
+          {
+            "kind": "web",
+            "url": "https://example.invalid/pricing"
+          }
+        ]
+      },
+      "output_value": {
+        "decision": "route_to_hybrid_rag",
+        "confidence": 0.87,
+        "policy_checks": [
+          "pii-redaction",
+          "citation-required",
+          "region-lock"
+        ]
+      }
+    },
+    {
+      "name": "planner.break_down_question",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabc",
+        "span_id": "oi-plan-002"
+      },
+      "parent_id": "oi-root-001",
+      "span_kind": "CHAIN",
+      "start_time": "2024-04-07T17:13:20.090000Z",
+      "end_time": "2024-04-07T17:13:20.780000Z",
+      "start_time_unix_nano": "1712510000090000000",
+      "end_time_unix_nano": "1712510000780000000",
+      "status_code": "OK",
+      "attributes": {
+        "openinference.span.kind": "CHAIN",
+        "langchain.request.type": "chain",
+        "langchain.request.model": "gpt-4.1-mini",
+        "langchain.usage.prompt_tokens": 245,
+        "langchain.usage.completion_tokens": 68,
+        "langchain.usage.total_tokens": 313,
+        "chain.strategy": "map-plan-refine",
+        "subtasks": [
+          "security-posture",
+          "compliance",
+          "pricing-comparison",
+          "citations"
+        ],
+        "confidence.vector": [
+          0.91,
+          0.84,
+          0.72,
+          0.89
+        ],
+        "planner.metadata": {
+          "beam_width": 4,
+          "max_depth": 3,
+          "dedupe_policy": "semantic-similarity"
+        }
+      },
+      "events": []
+    },
+    {
+      "name": "retriever.enterprise_docs",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabc",
+        "span_id": "oi-ret-003"
+      },
+      "parent_id": "oi-root-001",
+      "span_kind": "RETRIEVER",
+      "start_time": "2024-04-07T17:13:20.220000Z",
+      "end_time": "2024-04-07T17:13:21.460000Z",
+      "start_time_unix_nano": "1712510000220000000",
+      "end_time_unix_nano": "1712510001460000000",
+      "status_code": "OK",
+      "attributes": {
+        "openinference.span.kind": "RETRIEVER",
+        "retrieval.index": "enterprise-knowledge-v4",
+        "retrieval.query.rewrite_count": 3,
+        "retrieval.shards_hit": [
+          "pricing",
+          "security",
+          "legal",
+          "docs"
+        ],
+        "retrieval.score_distribution": [
+          0.98,
+          0.93,
+          0.88,
+          0.77,
+          0.66
+        ],
+        "retrieval.filters": {
+          "region": "global",
+          "document_types": [
+            "faq",
+            "security-whitepaper",
+            "msa",
+            "pricing-sheet"
+          ]
+        },
+        "retrieval.doc_ids": [
+          "doc-security-2026-001",
+          "doc-msa-2026-redline-77",
+          "doc-pricing-tier-matrix-v9",
+          "doc-regional-deployments-asia",
+          "doc-citation-style-guide"
+        ]
+      },
+      "events": [
+        {
+          "name": "retrieval.summary",
+          "timestamp": "2024-04-07T17:13:21.420000Z",
+          "attributes": {
+            "documents_considered": 124,
+            "documents_returned": 5,
+            "strategy_mix": [
+              "dense",
+              "sparse",
+              "metadata-filtered"
+            ]
+          }
+        }
+      ],
+      "output_value": {
+        "documents": [
+          {
+            "id": "doc-security-2026-001",
+            "score": 0.98,
+            "snippet": "Regional isolation and single-tenant VPC deployment..."
+          },
+          {
+            "id": "doc-msa-2026-redline-77",
+            "score": 0.93,
+            "snippet": "Enterprise customers may request custom DPAs and audit clauses..."
+          },
+          {
+            "id": "doc-pricing-tier-matrix-v9",
+            "score": 0.88,
+            "snippet": "Advanced governance is available in Enterprise Plus..."
+          }
+        ]
+      }
+    },
+    {
+      "name": "reranker.cross_encoder",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabc",
+        "span_id": "oi-rerank-004"
+      },
+      "parent_id": "oi-ret-003",
+      "span_kind": "RERANKER",
+      "start_time": "2024-04-07T17:13:21Z",
+      "end_time": "2024-04-07T17:13:21.610000Z",
+      "start_time_unix_nano": "1712510001000000000",
+      "end_time_unix_nano": "1712510001610000000",
+      "status_code": "OK",
+      "attributes": {
+        "openinference.span.kind": "RERANKER",
+        "reranker.model_name": "bge-reranker-v2-m3",
+        "reranker.batch_size": 8,
+        "reranker.candidate_count": 24,
+        "reranker.top_n": 6,
+        "reranker.features": [
+          "title-overlap",
+          "semantic-score",
+          "recency-bias"
+        ],
+        "reranker.thresholds": [
+          0.93,
+          0.89,
+          0.81
+        ],
+        "reranker.metadata": {
+          "device": "cpu",
+          "threads": 12,
+          "quantized": true
+        }
+      },
+      "events": []
+    },
+    {
+      "name": "llm.answer_with_citations",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabc",
+        "span_id": "oi-llm-005"
+      },
+      "parent_id": "oi-root-001",
+      "span_kind": "LLM",
+      "start_time": "2024-04-07T17:13:21.700000Z",
+      "end_time": "2024-04-07T17:13:24.100000Z",
+      "start_time_unix_nano": "1712510001700000000",
+      "end_time_unix_nano": "1712510004100000000",
+      "status_code": "OK",
+      "attributes": {
+        "openinference.span.kind": "LLM",
+        "llm.model_name": "gpt-4.1",
+        "llm.provider": "openai",
+        "llm.token_count.prompt": 1842,
+        "llm.token_count.completion": 612,
+        "llm.token_count.total": 2454,
+        "llm.invocation_parameters.temperature": 0.2,
+        "llm.invocation_parameters.top_p": 0.92,
+        "llm.invocation_parameters.max_tokens": 1200,
+        "citation.doc_ids": [
+          "doc-security-2026-001",
+          "doc-pricing-tier-matrix-v9",
+          "doc-msa-2026-redline-77"
+        ],
+        "grounding.scores": [
+          0.99,
+          0.96,
+          0.91
+        ],
+        "safety.categories": [
+          "legal",
+          "security",
+          "pricing"
+        ],
+        "prompt.template.variables": {
+          "tone": "consultative",
+          "format": "table-plus-bullets",
+          "must_include_regions": [
+            "us",
+            "eu",
+            "apac"
+          ]
+        }
+      },
+      "events": [
+        {
+          "name": "prompt.rendered",
+          "timestamp": "2024-04-07T17:13:21.760000Z",
+          "attributes": {
+            "section_order": [
+              "summary",
+              "comparison-table",
+              "citations",
+              "next-steps"
+            ],
+            "prompt_hash": "oi-prompt-f3141592",
+            "retrieved_doc_count": 6
+          }
+        },
+        {
+          "name": "output.stream.chunk",
+          "timestamp": "2024-04-07T17:13:23.100000Z",
+          "attributes": {
+            "chunk_index": 11,
+            "token_count": 128,
+            "finish_reason_partial": "tool-call-inline-citation"
+          }
+        }
+      ],
+      "input_value": {
+        "messages": [
+          {
+            "role": "system",
+            "content": "Respond with citations and note trade-offs."
+          },
+          {
+            "role": "user",
+            "content": "Compare secure deployment options."
+          }
+        ]
+      },
+      "output_value": {
+        "answer_sections": [
+          "executive-summary",
+          "deployment-comparison",
+          "pricing-notes",
+          "citations"
+        ],
+        "contains_table": true,
+        "citation_count": 7
+      }
+    },
+    {
+      "name": "tool.fetch_pricing_api",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabc",
+        "span_id": "oi-tool-006"
+      },
+      "parent_id": "oi-llm-005",
+      "span_kind": "TOOL",
+      "start_time": "2024-04-07T17:13:22.420000Z",
+      "end_time": "2024-04-07T17:13:22.990000Z",
+      "start_time_unix_nano": "1712510002420000000",
+      "end_time_unix_nano": "1712510002990000000",
+      "status_code": "ERROR",
+      "status_message": "Pricing cache shard timed out; fallback used",
+      "attributes": {
+        "openinference.span.kind": "TOOL",
+        "tool.name": "fetch_pricing_api",
+        "tool.endpoint": "/v2/pricing/enterprise",
+        "tool.retry_count": 2,
+        "tool.backends": [
+          "redis-cache",
+          "pricing-db",
+          "static-fallback"
+        ],
+        "tool.latency_breakdown_ms": [
+          41,
+          112,
+          293
+        ],
+        "tool.request.headers": {
+          "x-region": "global",
+          "x-product": "enterprise-plus",
+          "x-request-class": "interactive"
+        },
+        "error.class": "UpstreamTimeout",
+        "error.is_transient": true
+      },
+      "events": [
+        {
+          "name": "tool.retry",
+          "timestamp": "2024-04-07T17:13:22.700000Z",
+          "attributes": {
+            "attempt": 2,
+            "backoff_ms": 180,
+            "observed_status": 504
+          }
+        }
+      ]
+    },
+    {
+      "name": "embedding.follow_up_suggestions",
+      "context": {
+        "trace_id": "8f2e4aa1bb23c91cf00da91a7fb8eabc",
+        "span_id": "oi-embed-007"
+      },
+      "parent_id": "oi-root-001",
+      "span_kind": "EMBEDDING",
+      "start_time": "2024-04-07T17:13:20.850000Z",
+      "end_time": "2024-04-07T17:13:21.180000Z",
+      "start_time_unix_nano": "1712510000850000000",
+      "end_time_unix_nano": "1712510001180000000",
+      "status_code": "OK",
+      "attributes": {
+        "openinference.span.kind": "EMBEDDING",
+        "llm.model_name": "text-embedding-3-large",
+        "llm.provider": "openai",
+        "llm.token_count.prompt": 93,
+        "embedding.embeddings.0.embedding.vector": 3072,
+        "embedding.candidate_labels": [
+          "deployment",
+          "security",
+          "pricing",
+          "compliance",
+          "citations"
+        ],
+        "embedding.norms": [
+          1.0,
+          0.998,
+          0.993,
+          1.004
+        ],
+        "embedding.metadata": {
+          "dedupe": "cosine>0.98",
+          "store": "pgvector"
+        }
+      },
+      "events": []
+    }
+  ]
+}

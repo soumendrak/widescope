@@ -1,11 +1,4 @@
-import init, {
-  init as wasmInit,
-  parse_trace,
-  compute_flamegraph,
-  compute_timeline,
-  compute_waterfall,
-  get_span_detail,
-} from '../../../crates/widescope-core/pkg/widescope_core';
+import init, * as widescopeCore from '../../../crates/widescope-core/pkg/widescope_core';
 import { BUNDLED_CONVENTIONS } from './conventions-bundle';
 import type {
   FlameGraphLayout,
@@ -15,8 +8,15 @@ import type {
   TimelineLayout,
   TraceSummary,
   WasmError,
-  WaterfallLayout,
 } from './types';
+
+const {
+  init: wasmInit,
+  parse_trace,
+  compute_flamegraph,
+  compute_timeline,
+  get_span_detail,
+} = widescopeCore;
 
 let initWarnings: ParseWarning[] = [];
 
@@ -43,12 +43,16 @@ export function getTimelineLayout(): TimelineLayout {
   return JSON.parse(compute_timeline()) as TimelineLayout;
 }
 
-export function getWaterfallLayout(): WaterfallLayout {
-  return JSON.parse(compute_waterfall()) as WaterfallLayout;
-}
-
 export function getSpanDetail(spanId: string): SpanDetail {
   return JSON.parse(get_span_detail(spanId)) as SpanDetail;
+}
+
+export function searchSpans(query: string): string[] {
+  const search = (widescopeCore as { search_spans?: (value: string) => string }).search_spans;
+  if (!search) {
+    return [];
+  }
+  return JSON.parse(search(query)) as string[];
 }
 
 export function safeParseWasmError(err: unknown): WasmError {

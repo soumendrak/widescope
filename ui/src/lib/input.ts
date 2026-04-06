@@ -1,6 +1,6 @@
 import { traceState } from '../stores/trace';
-import { selectedSpanId } from '../stores/selection';
-import { parseTrace, getFlameGraphLayout, getWaterfallLayout, safeParseWasmError } from './wasm';
+import { focusedSpanId, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from '../stores/selection';
+import { parseTrace, getFlameGraphLayout, getTimelineLayout, safeParseWasmError } from './wasm';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 
@@ -43,12 +43,16 @@ export function handleRawInput(text: string, isSample: boolean, showLoading = tr
     traceState.setLoading();
   }
   selectedSpanId.set(null);
+  hoveredSpanId.set(null);
+  focusedSpanId.set(null);
+  searchQuery.set('');
+  searchResults.set([]);
 
   try {
     const summary = parseTrace(text);
     const flameLayout = getFlameGraphLayout();
-    const waterfallLayout = getWaterfallLayout();
-    traceState.setLoaded(summary, flameLayout, null, waterfallLayout, isSample);
+    const timelineLayout = getTimelineLayout();
+    traceState.setLoaded(summary, flameLayout, timelineLayout, isSample);
     return true;
   } catch (err) {
     const wasmError = safeParseWasmError(err);

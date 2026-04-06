@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import type { FlameGraphLayout, FlameNode } from '../lib/types';
-  import { selectedSpanId, hoveredSpanId, focusedSpanId } from '../stores/selection';
+  import { selectedSpanId, hoveredSpanId, focusedSpanId, searchResults } from '../stores/selection';
 
   export let layout: FlameGraphLayout;
 
@@ -46,10 +46,38 @@
   let siblingsAfter = new Map<string, string[]>();
   let rootIds: string[] = [];
 
+  type CanvasPalette = {
+    axisBorder: string;
+    textMuted: string;
+    textStrong: string;
+    codeText: string;
+    accent: string;
+    searchStroke: string;
+    dangerOverlay: string;
+  };
+
   export function focusView(): void {
     if (!container) return;
     container.scrollIntoView({ block: 'nearest' });
     container.focus();
+  }
+
+  function themeColor(name: string, fallback: string): string {
+    if (!container) return fallback;
+    const value = getComputedStyle(container).getPropertyValue(name).trim();
+    return value || fallback;
+  }
+
+  function getCanvasPalette(): CanvasPalette {
+    return {
+      axisBorder: themeColor('--color-border', '#334155'),
+      textMuted: themeColor('--color-text-muted', '#94a3b8'),
+      textStrong: themeColor('--color-text', '#e2e8f0'),
+      codeText: themeColor('--color-code-text', '#ffffff'),
+      accent: themeColor('--color-accent', '#3b82f6'),
+      searchStroke: '#fbbf24',
+      dangerOverlay: 'rgba(239,68,68,0.45)',
+    };
   }
 
   // ── Reactive layout ingestion ─────────────────────────────────────
@@ -166,11 +194,15 @@
     const sel = $selectedSpanId;
     const hov = $hoveredSpanId;
     const foc = $focusedSpanId;
+    const activeSearchResults = $searchResults;
+    const hasSearch = activeSearchResults.length > 0;
+    const searchMatchSet = new Set(activeSearchResults);
+    const palette = getCanvasPalette();
 
     for (const node of layout.nodes) {
-      drawNode(node, sel, hov, foc);
+      drawNode(node, sel, hov, foc, hasSearch, searchMatchSet, palette);
     }
-    drawTimeAxis();
+    drawTimeAxis(palette);
   }
 
   function toPixelX(normX: number): number {
@@ -185,7 +217,10 @@
     node: FlameNode,
     sel: string | null,
     hov: string | null,
-    foc: string | null
+    foc: string | null,
+    hasSearch: boolean,
+    searchMatchSet: Set<string>,
+    palette: CanvasPalette
   ) {
     const px = toPixelX(node.x);
     const pw = toPixelW(node.width);
@@ -194,28 +229,39 @@
     const py = node.depth * ROW_HEIGHT;
     const minW = 1;
     const rw = Math.max(pw, minW);
+    const isSearchMatch = !hasSearch || searchMatchSet.has(node.span_id);
 
     const baseColor = colorMap.get(node.color_key) ?? '#64748b';
+    ctx!.save();
+    if (hasSearch && !isSearchMatch) {
+      ctx!.globalAlpha = 0.22;
+    }
     ctx!.fillStyle = baseColor;
     ctx!.fillRect(px, py, rw, ROW_HEIGHT - 1);
 
     if (node.is_error) {
-      ctx!.fillStyle = 'rgba(239,68,68,0.45)';
+      ctx!.fillStyle = palette.dangerOverlay;
       ctx!.fillRect(px, py, rw, ROW_HEIGHT - 1);
     }
 
+    if (hasSearch && isSearchMatch) {
+      ctx!.strokeStyle = palette.searchStroke;
+      ctx!.lineWidth = 1.5;
+      ctx!.strokeRect(px + 0.75, py + 0.75, rw - 1.5, ROW_HEIGHT - 2.5);
+    }
+
     if (node.span_id === sel) {
-      ctx!.strokeStyle = '#fff';
+      ctx!.strokeStyle = palette.codeText;
       ctx!.lineWidth = 2;
       ctx!.strokeRect(px + 1, py + 1, rw - 2, ROW_HEIGHT - 3);
     } else if (node.span_id === hov) {
-      ctx!.strokeStyle = 'rgba(255,255,255,0.6)';
+      ctx!.strokeStyle = palette.textStrong;
       ctx!.lineWidth = 1;
       ctx!.strokeRect(px + 0.5, py + 0.5, rw - 1, ROW_HEIGHT - 2);
     }
 
     if (node.span_id === foc && node.span_id !== sel) {
-      ctx!.strokeStyle = '#fff';
+      ctx!.strokeStyle = palette.textStrong;
       ctx!.lineWidth = 2;
       ctx!.setLineDash([3, 3]);
       ctx!.strokeRect(px + 1, py + 1, rw - 2, ROW_HEIGHT - 3);
@@ -224,25 +270,26 @@
 
     if (node.is_llm && pw > 14) {
       ctx!.font = '10px sans-serif';
-      ctx!.fillStyle = 'rgba(255,255,255,0.9)';
+      ctx!.fillStyle = palette.codeText;
       ctx!.fillText('⚡', px + 2, py + ROW_HEIGHT - 7);
     }
 
     if (pw > MIN_LABEL_PX) {
       ctx!.font = '11px system-ui, sans-serif';
-      ctx!.fillStyle = '#fff';
+      ctx!.fillStyle = palette.codeText;
       ctx!.save();
       ctx!.rect(px + 2, py, rw - 4, ROW_HEIGHT - 1);
       ctx!.clip();
       ctx!.fillText(node.label, px + (node.is_llm ? 14 : 4), py + ROW_HEIGHT - 7);
       ctx!.restore();
     }
+    ctx!.restore();
   }
 
-  function drawTimeAxis() {
+  function drawTimeAxis(palette: CanvasPalette) {
     const y = (layout.max_depth + 1) * ROW_HEIGHT;
     if (!ctx) return;
-    ctx.fillStyle = 'var(--color-border, #e2e8f0)';
+    ctx.fillStyle = palette.axisBorder;
     ctx.fillRect(0, y, canvasW, 1);
 
     const totalNs = layout.trace_duration_ns;
@@ -250,7 +297,7 @@
 
     const tickCount = Math.max(4, Math.floor(canvasW / 120));
     ctx.font = '10px monospace';
-    ctx.fillStyle = 'var(--color-text-muted, #94a3b8)';
+    ctx.fillStyle = palette.textMuted;
 
     for (let i = 0; i <= tickCount; i++) {
       const normX = i / tickCount;
@@ -452,11 +499,13 @@
     if (id) ensureVisible(id);
     scheduleRender();
   });
+  const unsubSearch = searchResults.subscribe(() => scheduleRender());
 
   onDestroy(() => {
     unsubSel();
     unsubHov();
     unsubFoc();
+    unsubSearch();
     cancelAnimationFrame(animFrameId);
   });
 
@@ -532,16 +581,17 @@
 
   .ctrl-btn {
     padding: 0.2rem 0.5rem;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: rgba(255, 255, 255, 0.8);
+    background: var(--color-panel-subtle, rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--color-border, #334155);
+    color: var(--color-text, #e2e8f0);
     border-radius: 4px;
     font-size: 0.75rem;
     cursor: pointer;
   }
 
   .ctrl-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--color-accent, #3b82f6);
+    background: var(--color-panel-highlight, rgba(255, 255, 255, 0.04));
   }
 
   .sr-only {

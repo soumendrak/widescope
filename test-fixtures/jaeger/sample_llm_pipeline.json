@@ -1,0 +1,174 @@
+{
+  "data": [
+    {
+      "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+      "processes": {
+        "p1": { "serviceName": "gateway" },
+        "p2": { "serviceName": "rag-retriever" },
+        "p3": { "serviceName": "llm-service" }
+      },
+      "spans": [
+        {
+          "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+          "spanID": "0000000000000001",
+          "operationName": "POST /api/chat",
+          "references": [],
+          "startTime": 1700000000000000,
+          "duration": 4230000,
+          "processID": "p1",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "server" },
+            { "key": "http.method", "type": "string", "value": "POST" },
+            { "key": "http.url", "type": "string", "value": "/api/chat" },
+            { "key": "http.status_code", "type": "int64", "value": 200 },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+          "spanID": "0000000000000002",
+          "operationName": "rag.pipeline",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4", "spanID": "0000000000000001" }
+          ],
+          "startTime": 1700000000100000,
+          "duration": 1700000,
+          "processID": "p2",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "internal" },
+            { "key": "rag.query", "type": "string", "value": "What is the capital of France?" },
+            { "key": "rag.top_k", "type": "int64", "value": 5 },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+          "spanID": "0000000000000003",
+          "operationName": "vector.search",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4", "spanID": "0000000000000002" }
+          ],
+          "startTime": 1700000000200000,
+          "duration": 750000,
+          "processID": "p2",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "db.system", "type": "string", "value": "chroma" },
+            { "key": "db.operation", "type": "string", "value": "query" },
+            { "key": "db.statement", "type": "string", "value": "embedding similarity search" },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+          "spanID": "0000000000000004",
+          "operationName": "context.rerank",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4", "spanID": "0000000000000002" }
+          ],
+          "startTime": 1700000001000000,
+          "duration": 750000,
+          "processID": "p2",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "internal" },
+            { "key": "rerank.model", "type": "string", "value": "cross-encoder/ms-marco-MiniLM-L-6-v2" },
+            { "key": "rerank.top_n", "type": "int64", "value": 3 },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+          "spanID": "0000000000000005",
+          "operationName": "chat",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4", "spanID": "0000000000000001" }
+          ],
+          "startTime": 1700000001900000,
+          "duration": 2200000,
+          "processID": "p3",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "gen_ai.system", "type": "string", "value": "openai" },
+            { "key": "gen_ai.operation.name", "type": "string", "value": "chat" },
+            { "key": "gen_ai.request.model", "type": "string", "value": "gpt-4o" },
+            { "key": "gen_ai.request.temperature", "type": "float64", "value": 0.7 },
+            { "key": "gen_ai.request.max_tokens", "type": "int64", "value": 1024 },
+            { "key": "gen_ai.usage.input_tokens", "type": "int64", "value": 512 },
+            { "key": "gen_ai.usage.output_tokens", "type": "int64", "value": 256 },
+            { "key": "gen_ai.usage.total_tokens", "type": "int64", "value": 768 },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": [
+            {
+              "timestamp": 1700000001950000,
+              "fields": [
+                { "key": "event", "type": "string", "value": "gen_ai.content.prompt" },
+                {
+                  "key": "gen_ai.prompt",
+                  "type": "string",
+                  "value": "[{\"role\":\"system\",\"content\":\"You are a helpful assistant.\"},{\"role\":\"user\",\"content\":\"What is the capital of France? Context: Paris is the capital...\"}]"
+                }
+              ]
+            },
+            {
+              "timestamp": 1700000004050000,
+              "fields": [
+                { "key": "event", "type": "string", "value": "gen_ai.content.completion" },
+                {
+                  "key": "gen_ai.completion",
+                  "type": "string",
+                  "value": "[{\"role\":\"assistant\",\"content\":\"The capital of France is Paris.\"}]"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+          "spanID": "0000000000000006",
+          "operationName": "embeddings",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4", "spanID": "0000000000000001" }
+          ],
+          "startTime": 1700000000050000,
+          "duration": 49000,
+          "processID": "p3",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "gen_ai.system", "type": "string", "value": "openai" },
+            { "key": "gen_ai.operation.name", "type": "string", "value": "embeddings" },
+            { "key": "gen_ai.request.model", "type": "string", "value": "text-embedding-3-small" },
+            { "key": "gen_ai.usage.input_tokens", "type": "int64", "value": 12 },
+            { "key": "gen_ai.usage.output_tokens", "type": "int64", "value": 0 },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+          "spanID": "0000000000000007",
+          "operationName": "tool_call.search_web",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4", "spanID": "0000000000000005" }
+          ],
+          "startTime": 1700000002500000,
+          "duration": 700000,
+          "processID": "p3",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "gen_ai.system", "type": "string", "value": "openai" },
+            { "key": "gen_ai.operation.name", "type": "string", "value": "chat" },
+            { "key": "tool.name", "type": "string", "value": "search_web" },
+            { "key": "tool.call.arguments", "type": "string", "value": "{\"query\": \"capital of France\"}" },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        }
+      ]
+    }
+  ]
+}

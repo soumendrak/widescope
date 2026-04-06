@@ -1,4 +1,5 @@
 pub mod otlp_json;
+pub mod jaeger;
 
 use serde_json::Value;
 use crate::errors::WideError;
@@ -40,9 +41,7 @@ pub fn parse(raw_input: &str) -> Result<(Vec<Span>, InputFormat), WideError> {
 
     let spans = match &format {
         InputFormat::OtlpJson => otlp_json::parse_otlp(&value)?,
-        InputFormat::JaegerJson => {
-            return Err(WideError::UnrecognizedFormat);
-        }
+        InputFormat::JaegerJson => jaeger::parse_jaeger(&value)?,
         InputFormat::OpenInferenceJson => {
             return Err(WideError::UnrecognizedFormat);
         }

@@ -1,0 +1,1555 @@
+{
+  "data": [
+    {
+      "traceID": "d4c3b2a190887766554433221100ffee",
+      "processes": {
+        "gw": {
+          "serviceName": "edge-gateway"
+        },
+        "auth": {
+          "serviceName": "auth-service"
+        },
+        "orch": {
+          "serviceName": "orchestrator"
+        },
+        "search": {
+          "serviceName": "vector-search"
+        },
+        "rank": {
+          "serviceName": "reranker"
+        },
+        "llm": {
+          "serviceName": "llm-router"
+        },
+        "tool": {
+          "serviceName": "tool-runner"
+        },
+        "bill": {
+          "serviceName": "billing-service"
+        }
+      },
+      "spans": [
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-root-001",
+          "operationName": "POST /v1/copilot/reply",
+          "references": [],
+          "startTime": 1712512000000000,
+          "duration": 5800000,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "POST"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/v1/copilot/reply"
+            },
+            {
+              "key": "tenant.id",
+              "type": "string",
+              "value": "tenant-finops"
+            },
+            {
+              "key": "http.request_content_length",
+              "type": "int64",
+              "value": 18842
+            },
+            {
+              "key": "feature.flags",
+              "type": "string",
+              "value": "[\"ui-citations\", \"policy-guardrails\", \"shadow-eval\"]"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-auth-002",
+          "operationName": "auth.validate_session",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-root-001"
+            }
+          ],
+          "startTime": 1712512000060000,
+          "duration": 410000,
+          "processID": "auth",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "auth.methods",
+              "type": "string",
+              "value": "[\"sso\", \"mfa\", \"device-cookie\"]"
+            },
+            {
+              "key": "session.risk_score",
+              "type": "double",
+              "value": 0.19
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512000390000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "mfa.checked"
+                },
+                {
+                  "key": "providers",
+                  "type": "string",
+                  "value": "okta,webauthn"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-orch-003",
+          "operationName": "workflow.orchestrate",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-root-001"
+            }
+          ],
+          "startTime": 1712512000120000,
+          "duration": 5200000,
+          "processID": "orch",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "workflow.stages",
+              "type": "string",
+              "value": "[\"plan\", \"retrieve\", \"rerank\", \"llm\", \"tools\", \"eval\"]"
+            },
+            {
+              "key": "workflow.parallel_branches",
+              "type": "int64",
+              "value": 5
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-000",
+          "operationName": "search.stage",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-orch-003"
+            }
+          ],
+          "startTime": 1712512000500000,
+          "duration": 900000,
+          "processID": "search",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "branch.id",
+              "type": "int64",
+              "value": 0
+            },
+            {
+              "key": "branch.name",
+              "type": "string",
+              "value": "search"
+            },
+            {
+              "key": "candidate.count",
+              "type": "int64",
+              "value": 6
+            },
+            {
+              "key": "score.spread",
+              "type": "string",
+              "value": "[0.92, 0.85, 0.78, 0.71]"
+            },
+            {
+              "key": "labels",
+              "type": "string",
+              "value": "[\"prod\", \"interactive\", \"citation-heavy\", \"shard-0\"]"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512000950000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "search.checkpoint"
+                },
+                {
+                  "key": "step",
+                  "type": "int64",
+                  "value": 1
+                },
+                {
+                  "key": "artifact.ids",
+                  "type": "string",
+                  "value": "[\"search-artifact-0-0\", \"search-artifact-0-1\", \"search-artifact-0-2\"]"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-000-c0",
+          "operationName": "search.subtask.0",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-000"
+            }
+          ],
+          "startTime": 1712512000570000,
+          "duration": 180000,
+          "processID": "search",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 0
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.2, 0.4, 0.6, 0.8]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "dense"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512000740000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 10
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 0.74
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-000-c1",
+          "operationName": "search.subtask.1",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-000"
+            }
+          ],
+          "startTime": 1712512000690000,
+          "duration": 310000,
+          "processID": "search",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.23, 0.43, 0.63, 0.83]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "sparse"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512000990000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 17
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 0.83
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-001",
+          "operationName": "rank.stage",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-orch-003"
+            }
+          ],
+          "startTime": 1712512000930000,
+          "duration": 1270000,
+          "processID": "rank",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "branch.id",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "branch.name",
+              "type": "string",
+              "value": "rank"
+            },
+            {
+              "key": "candidate.count",
+              "type": "int64",
+              "value": 9
+            },
+            {
+              "key": "score.spread",
+              "type": "string",
+              "value": "[0.91, 0.84, 0.77, 0.7]"
+            },
+            {
+              "key": "labels",
+              "type": "string",
+              "value": "[\"prod\", \"interactive\", \"citation-heavy\", \"shard-1\"]"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512001565000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "rank.checkpoint"
+                },
+                {
+                  "key": "step",
+                  "type": "int64",
+                  "value": 2
+                },
+                {
+                  "key": "artifact.ids",
+                  "type": "string",
+                  "value": "[\"rank-artifact-1-0\", \"rank-artifact-1-1\", \"rank-artifact-1-2\", \"rank-artifact-1-3\"]"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-001-c0",
+          "operationName": "rank.subtask.0",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-001"
+            }
+          ],
+          "startTime": 1712512001000000,
+          "duration": 200000,
+          "processID": "rank",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 0
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.2, 0.4, 0.6, 0.8]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "dense"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512001190000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 10
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 0.74
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-001-c1",
+          "operationName": "rank.subtask.1",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-001"
+            }
+          ],
+          "startTime": 1712512001120000,
+          "duration": 330000,
+          "processID": "rank",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.23, 0.43, 0.63, 0.83]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "sparse"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512001440000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 17
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 0.83
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-001-c2",
+          "operationName": "rank.subtask.2",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-001"
+            }
+          ],
+          "startTime": 1712512001240000,
+          "duration": 460000,
+          "processID": "rank",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 2
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.26, 0.46, 0.66, 0.86]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "hybrid"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512001690000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 24
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 0.92
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-002",
+          "operationName": "llm.stage",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-orch-003"
+            }
+          ],
+          "startTime": 1712512001360000,
+          "duration": 1640000,
+          "processID": "llm",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "branch.id",
+              "type": "int64",
+              "value": 2
+            },
+            {
+              "key": "branch.name",
+              "type": "string",
+              "value": "llm"
+            },
+            {
+              "key": "candidate.count",
+              "type": "int64",
+              "value": 12
+            },
+            {
+              "key": "score.spread",
+              "type": "string",
+              "value": "[0.9, 0.83, 0.76, 0.69]"
+            },
+            {
+              "key": "labels",
+              "type": "string",
+              "value": "[\"prod\", \"interactive\", \"citation-heavy\", \"shard-2\"]"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            },
+            {
+              "key": "gen_ai.system",
+              "type": "string",
+              "value": "openai"
+            },
+            {
+              "key": "gen_ai.operation.name",
+              "type": "string",
+              "value": "chat"
+            },
+            {
+              "key": "gen_ai.request.model",
+              "type": "string",
+              "value": "gpt-4.1"
+            },
+            {
+              "key": "gen_ai.usage.input_tokens",
+              "type": "int64",
+              "value": 2280
+            },
+            {
+              "key": "gen_ai.usage.output_tokens",
+              "type": "int64",
+              "value": 744
+            },
+            {
+              "key": "gen_ai.usage.total_tokens",
+              "type": "int64",
+              "value": 3024
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512002180000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "llm.checkpoint"
+                },
+                {
+                  "key": "step",
+                  "type": "int64",
+                  "value": 3
+                },
+                {
+                  "key": "artifact.ids",
+                  "type": "string",
+                  "value": "[\"llm-artifact-2-0\", \"llm-artifact-2-1\", \"llm-artifact-2-2\", \"llm-artifact-2-3\", \"llm-artifact-2-4\"]"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-002-c0",
+          "operationName": "llm.subtask.0",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-002"
+            }
+          ],
+          "startTime": 1712512001430000,
+          "duration": 220000,
+          "processID": "llm",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 0
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.2, 0.4, 0.6, 0.8]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "dense"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512001640000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 10
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 0.74
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-002-c1",
+          "operationName": "llm.subtask.1",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-002"
+            }
+          ],
+          "startTime": 1712512001550000,
+          "duration": 350000,
+          "processID": "llm",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.23, 0.43, 0.63, 0.83]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "sparse"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512001890000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 17
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 0.83
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-002-c2",
+          "operationName": "llm.subtask.2",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-002"
+            }
+          ],
+          "startTime": 1712512001670000,
+          "duration": 480000,
+          "processID": "llm",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 2
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.26, 0.46, 0.66, 0.86]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "hybrid"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512002140000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 24
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 0.92
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-002-c3",
+          "operationName": "llm.subtask.3",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-002"
+            }
+          ],
+          "startTime": 1712512001790000,
+          "duration": 610000,
+          "processID": "llm",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 3
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.29, 0.49, 0.69, 0.89]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "semantic"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512002390000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 31
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 1.01
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-003",
+          "operationName": "tool.stage",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-orch-003"
+            }
+          ],
+          "startTime": 1712512001790000,
+          "duration": 2010000,
+          "processID": "tool",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "branch.id",
+              "type": "int64",
+              "value": 3
+            },
+            {
+              "key": "branch.name",
+              "type": "string",
+              "value": "tool"
+            },
+            {
+              "key": "candidate.count",
+              "type": "int64",
+              "value": 15
+            },
+            {
+              "key": "score.spread",
+              "type": "string",
+              "value": "[0.89, 0.82, 0.75, 0.68]"
+            },
+            {
+              "key": "labels",
+              "type": "string",
+              "value": "[\"prod\", \"interactive\", \"citation-heavy\", \"shard-3\"]"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "ERROR"
+            },
+            {
+              "key": "error",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "key": "error.message",
+              "type": "string",
+              "value": "Upstream policy check timed out; partial response used"
+            },
+            {
+              "key": "tool.backends",
+              "type": "string",
+              "value": "[\"crm\", \"notion\", \"zendesk\", \"slack\"]"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512002795000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "tool.checkpoint"
+                },
+                {
+                  "key": "step",
+                  "type": "int64",
+                  "value": 4
+                },
+                {
+                  "key": "artifact.ids",
+                  "type": "string",
+                  "value": "[\"tool-artifact-3-0\", \"tool-artifact-3-1\", \"tool-artifact-3-2\", \"tool-artifact-3-3\", \"tool-artifact-3-4\", \"tool-artifact-3-5\"]"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-003-c0",
+          "operationName": "tool.subtask.0",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-003"
+            }
+          ],
+          "startTime": 1712512001860000,
+          "duration": 240000,
+          "processID": "tool",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 0
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.2, 0.4, 0.6, 0.8]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "dense"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512002090000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 10
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 0.74
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-003-c1",
+          "operationName": "tool.subtask.1",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-003"
+            }
+          ],
+          "startTime": 1712512001980000,
+          "duration": 370000,
+          "processID": "tool",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.23, 0.43, 0.63, 0.83]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "sparse"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512002340000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 17
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 0.83
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-004",
+          "operationName": "bill.stage",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-orch-003"
+            }
+          ],
+          "startTime": 1712512002220000,
+          "duration": 2380000,
+          "processID": "bill",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "branch.id",
+              "type": "int64",
+              "value": 4
+            },
+            {
+              "key": "branch.name",
+              "type": "string",
+              "value": "bill"
+            },
+            {
+              "key": "candidate.count",
+              "type": "int64",
+              "value": 18
+            },
+            {
+              "key": "score.spread",
+              "type": "string",
+              "value": "[0.88, 0.81, 0.74, 0.67]"
+            },
+            {
+              "key": "labels",
+              "type": "string",
+              "value": "[\"prod\", \"interactive\", \"citation-heavy\", \"shard-4\"]"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512003410000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "bill.checkpoint"
+                },
+                {
+                  "key": "step",
+                  "type": "int64",
+                  "value": 5
+                },
+                {
+                  "key": "artifact.ids",
+                  "type": "string",
+                  "value": "[\"bill-artifact-4-0\", \"bill-artifact-4-1\", \"bill-artifact-4-2\", \"bill-artifact-4-3\", \"bill-artifact-4-4\", \"bill-artifact-4-5\", \"bill-artifact-4-6\"]"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-004-c0",
+          "operationName": "bill.subtask.0",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-004"
+            }
+          ],
+          "startTime": 1712512002290000,
+          "duration": 260000,
+          "processID": "bill",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 0
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.2, 0.4, 0.6, 0.8]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "dense"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512002540000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 10
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 0.74
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-004-c1",
+          "operationName": "bill.subtask.1",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-004"
+            }
+          ],
+          "startTime": 1712512002410000,
+          "duration": 390000,
+          "processID": "bill",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.23, 0.43, 0.63, 0.83]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": false
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "sparse"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512002790000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 17
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 0.83
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "traceID": "d4c3b2a190887766554433221100ffee",
+          "spanID": "jg-branch-004-c2",
+          "operationName": "bill.subtask.2",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d4c3b2a190887766554433221100ffee",
+              "spanID": "jg-branch-004"
+            }
+          ],
+          "startTime": 1712512002530000,
+          "duration": 520000,
+          "processID": "bill",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "subtask.index",
+              "type": "int64",
+              "value": 2
+            },
+            {
+              "key": "subtask.weights",
+              "type": "string",
+              "value": "[0.26, 0.46, 0.66, 0.86]"
+            },
+            {
+              "key": "cache.hit",
+              "type": "bool",
+              "value": true
+            },
+            {
+              "key": "payload.variant",
+              "type": "string",
+              "value": "hybrid"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": [
+            {
+              "timestamp": 1712512003040000,
+              "fields": [
+                {
+                  "key": "event",
+                  "type": "string",
+                  "value": "subtask.completed"
+                },
+                {
+                  "key": "rows",
+                  "type": "int64",
+                  "value": 24
+                },
+                {
+                  "key": "quality",
+                  "type": "double",
+                  "value": 0.92
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -19,8 +19,9 @@ use models::layout::{
     EventDetail, LlmDetail, MessageDetail, SpanDetailResponse, ToolCallDetail,
 };
 use models::llm::LlmSpanAttributes;
-use models::span::SpanEvent;
+use models::span::{AttributeValue, Span, SpanEvent};
 use models::trace::{ParseWarning, Trace};
+use parsers::jaeger::parse_jaeger_with_warnings;
 use parsers::otlp_json::parse_otlp_with_warnings;
 use parsers::detect_format;
 use trace_builder::build_trace;
@@ -94,9 +95,14 @@ pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
 
     let format = detect_format(&value).map_err(JsValue::from)?;
 
-    let parse_result = match &format {
+    let (mut spans, parse_warnings) = match &format {
         models::trace::InputFormat::OtlpJson => {
-            parse_otlp_with_warnings(&value).map_err(JsValue::from)?
+            let result = parse_otlp_with_warnings(&value).map_err(JsValue::from)?;
+            (result.spans, result.warnings)
+        }
+        models::trace::InputFormat::JaegerJson => {
+            let result = parse_jaeger_with_warnings(&value).map_err(JsValue::from)?;
+            (result.spans, result.warnings)
         }
         _ => {
             return Err(WideError::UnrecognizedFormat.into());
@@ -105,13 +111,11 @@ pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
 
     let conventions = CONVENTIONS.with(|c| c.borrow().clone());
 
-    let mut spans = parse_result.spans;
-
     for span in &mut spans {
         span.llm = conventions::resolver::resolve_llm_attributes(span, &conventions);
     }
 
-    let trace = build_trace(spans, format, parse_result.warnings).map_err(JsValue::from)?;
+    let trace = build_trace(spans, format, parse_warnings).map_err(JsValue::from)?;
 
     let root_op = trace.root_span_ids.first().and_then(|id| {
         trace.get_span(id).map(|s| s.operation_name.clone())
@@ -254,6 +258,46 @@ pub fn get_span_detail(span_id: &str) -> Result<String, JsValue> {
 }
 
 #[wasm_bindgen]
+pub fn search_spans(query: &str) -> Result<String, JsValue> {
+    let normalized_query = query.trim().to_ascii_lowercase();
+
+    if normalized_query.is_empty() {
+        return Ok("[]".to_string());
+    }
+
+    TRACE.with(|t| {
+        let borrow = t.borrow();
+        match borrow.as_ref() {
+            None => Err(WideError::NoTraceLoaded.into()),
+            Some(trace) => {
+                let mut matches: Vec<(String, u64)> = trace
+                    .spans
+                    .iter()
+                    .filter(|span| span_matches_query(span, &normalized_query))
+                    .map(|span| (span.span_id.clone(), span.start_time_ns))
+                    .collect();
+
+                matches.sort_by_key(|(_, start_time_ns)| *start_time_ns);
+
+                let span_ids: Vec<String> = matches
+                    .into_iter()
+                    .map(|(span_id, _)| span_id)
+                    .collect();
+
+                serde_json::to_string(&span_ids).map_err(|e| {
+                    WideError::InvalidJson {
+                        message: e.to_string(),
+                        line: None,
+                        column: None,
+                    }
+                    .into()
+                })
+            }
+        }
+    })
+}
+
+#[wasm_bindgen]
 pub fn compute_waterfall() -> Result<String, JsValue> {
     TRACE.with(|t| {
         let borrow = t.borrow();
@@ -325,5 +369,28 @@ fn build_llm_detail(llm: &LlmSpanAttributes) -> LlmDetail {
                 result: tc.result.clone(),
             })
             .collect(),
+    }
+}
+
+fn span_matches_query(span: &Span, query: &str) -> bool {
+    if span.operation_name.to_ascii_lowercase().contains(query)
+        || span.service_name.to_ascii_lowercase().contains(query)
+        || span.span_id.to_ascii_lowercase().contains(query)
+    {
+        return true;
+    }
+
+    span.attributes.iter().any(|(key, value)| {
+        key.to_ascii_lowercase().contains(query) || attribute_value_matches_query(value, query)
+    })
+}
+
+fn attribute_value_matches_query(value: &AttributeValue, query: &str) -> bool {
+    match value {
+        AttributeValue::String(text) => text.to_ascii_lowercase().contains(query),
+        AttributeValue::StringArray(values) => values
+            .iter()
+            .any(|text| text.to_ascii_lowercase().contains(query)),
+        _ => false,
     }
 }

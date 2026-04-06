@@ -9,6 +9,12 @@
   let loading = false;
   let expandedAttrs = false;
   let expandedEvents = false;
+  let sidebar: HTMLDivElement;
+  let sidebarWidth = 420;
+  let isResizing = false;
+
+  const MIN_SIDEBAR_WIDTH = 320;
+  const SIDEBAR_EDGE_GAP = 24;
 
   const unsubSel = selectedSpanId.subscribe(async (id) => {
     if (!id || $traceState.status !== 'loaded') {
@@ -24,8 +30,6 @@
     loading = false;
   });
 
-  onDestroy(unsubSel);
-
   function pct(ns: number, totalNs: number): string {
     if (!totalNs) return '0%';
     return ((ns / totalNs) * 100).toFixed(1) + '%';
@@ -39,10 +43,64 @@
     };
     return map[kind] ?? kind;
   }
+
+  function clampSidebarWidth(nextWidth: number): number {
+    const parentWidth = sidebar?.parentElement?.clientWidth ?? window.innerWidth;
+    const maxWidth = Math.max(MIN_SIDEBAR_WIDTH, parentWidth - SIDEBAR_EDGE_GAP);
+    return Math.min(Math.max(nextWidth, MIN_SIDEBAR_WIDTH), maxWidth);
+  }
+
+  function beginResize(event: PointerEvent): void {
+    event.preventDefault();
+    isResizing = true;
+    sidebar?.setPointerCapture(event.pointerId);
+    document.body.style.cursor = 'ew-resize';
+    document.body.style.userSelect = 'none';
+  }
+
+  function onPointerMove(event: PointerEvent): void {
+    if (!isResizing || !sidebar?.parentElement) return;
+    const parentRect = sidebar.parentElement.getBoundingClientRect();
+    sidebarWidth = clampSidebarWidth(parentRect.right - event.clientX);
+  }
+
+  function endResize(event?: PointerEvent): void {
+    if (event && sidebar?.hasPointerCapture(event.pointerId)) {
+      sidebar.releasePointerCapture(event.pointerId);
+    }
+    if (!isResizing) return;
+    isResizing = false;
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }
+
+  function onWindowPointerDown(event: PointerEvent): void {
+    if (!$selectedSpanId || isResizing || !sidebar) return;
+    const target = event.target;
+    if (target instanceof Node && sidebar.contains(target)) return;
+    selectedSpanId.set(null);
+  }
+
+  onDestroy(() => {
+    endResize();
+    unsubSel();
+  });
 </script>
 
-{#if detail || loading}
-  <aside class="sidebar">
+<svelte:window on:pointermove={onPointerMove} on:pointerup={endResize} on:pointercancel={endResize} on:pointerdown={onWindowPointerDown} />
+
+{#if $selectedSpanId}
+<aside class="sidebar" class:sidebar--resizing={isResizing} bind:this={sidebar} style={`width: ${sidebarWidth}px;`}>
+  <div
+    class="sidebar-resize-handle"
+    role="separator"
+    aria-label="Resize details sidebar"
+    aria-orientation="vertical"
+    on:pointerdown={beginResize}
+  ></div>
+    <div class="sidebar-toolbar">
+      <div class="sidebar-toolbar-title">Span details</div>
+    </div>
     {#if loading}
       <div class="loading">Loading…</div>
     {:else if detail}
@@ -195,16 +253,24 @@
           </div>
         </div>
       {/if}
+    {:else}
+      <div class="empty-state">
+        <div class="empty-state-title">Span details unavailable</div>
+        <div class="empty-state-subtitle">WideScope could not load the selected span details.</div>
+      </div>
     {/if}
-  </aside>
+</aside>
 {/if}
 
 <style>
   .sidebar {
-    width: 380px;
-    min-width: 300px;
-    max-width: 580px;
-    flex-shrink: 0;
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 420px;
+    min-width: 320px;
+    max-width: calc(100% - 24px);
     overflow-y: auto;
     background: var(--color-sidebar, #1e293b);
     color: var(--color-sidebar-text, #e2e8f0);
@@ -212,6 +278,53 @@
     font-size: 0.85rem;
     display: flex;
     flex-direction: column;
+    box-shadow: -18px 0 36px rgba(15, 23, 42, 0.28);
+    z-index: 2;
+  }
+
+  .sidebar--resizing {
+    transition: none;
+  }
+
+  .sidebar-resize-handle {
+    position: absolute;
+    top: 0;
+    left: -6px;
+    bottom: 0;
+    width: 12px;
+    cursor: ew-resize;
+    z-index: 3;
+  }
+
+  .sidebar-resize-handle::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 3px;
+    height: 48px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-text-muted, #94a3b8) 45%, transparent);
+    box-shadow: -4px 0 0 color-mix(in srgb, var(--color-text-muted, #94a3b8) 25%, transparent), 4px 0 0 color-mix(in srgb, var(--color-text-muted, #94a3b8) 25%, transparent);
+  }
+
+  .sidebar-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.65rem 0.85rem;
+    border-bottom: 1px solid var(--color-border, #334155);
+    background: var(--color-panel-highlight, rgba(255, 255, 255, 0.04));
+  }
+
+  .sidebar-toolbar-title {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--color-text, #e2e8f0);
   }
 
   .loading {
@@ -237,7 +350,7 @@
   }
 
   .header {
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--color-panel-highlight, rgba(255, 255, 255, 0.04));
   }
 
   .op-name {
@@ -245,7 +358,7 @@
     font-weight: 600;
     word-break: break-word;
     margin-bottom: 0.35rem;
-    color: #f1f5f9;
+    color: var(--color-text, #e2e8f0);
   }
 
   .meta-row {
@@ -256,15 +369,16 @@
   }
 
   .svc-badge {
-    background: rgba(59, 130, 246, 0.2);
-    color: #93c5fd;
+    background: var(--color-badge-bg, rgba(59, 130, 246, 0.2));
+    color: var(--color-badge-text, #93c5fd);
     border-radius: 3px;
     padding: 0.1rem 0.4rem;
     font-size: 0.78rem;
   }
 
   .kind-badge {
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--color-panel-subtle, rgba(255, 255, 255, 0.05));
+    color: var(--color-text, #e2e8f0);
     border-radius: 3px;
     padding: 0.1rem 0.35rem;
     font-size: 0.72rem;
@@ -272,12 +386,12 @@
   }
 
   .status { font-size: 0.8rem; }
-  .status.ok { color: #4ade80; }
-  .status.err { color: #f87171; }
+  .status.ok { color: var(--color-success, #4ade80); }
+  .status.err { color: var(--color-danger, #f87171); }
 
   .error-msg {
     margin-top: 0.35rem;
-    color: #f87171;
+    color: var(--color-danger, #f87171);
     font-size: 0.8rem;
     font-family: monospace;
     word-break: break-word;
@@ -309,10 +423,10 @@
 
   .attr-table td:first-child { width: 45%; }
   .attr-key { font-size: 0.78rem !important; }
-  .attr-val { color: #cbd5e1; }
+  .attr-val { color: var(--color-code-muted, #cbd5e1); }
 
   /* LLM */
-  .llm-section { background: rgba(139, 92, 246, 0.07); }
+  .llm-section { background: var(--color-llm-panel-bg, rgba(139, 92, 246, 0.07)); }
 
   .llm-meta {
     display: flex;
@@ -322,8 +436,8 @@
   }
 
   .provider-badge {
-    background: rgba(139, 92, 246, 0.25);
-    color: #c4b5fd;
+    background: var(--color-llm-badge-bg, rgba(139, 92, 246, 0.25));
+    color: var(--color-llm-badge-text, #c4b5fd);
     border-radius: 3px;
     padding: 0.1rem 0.4rem;
     font-size: 0.75rem;
@@ -332,7 +446,7 @@
   .model-name {
     font-family: monospace;
     font-size: 0.8rem;
-    color: #e2e8f0;
+    color: var(--color-code-text, #e2e8f0);
   }
 
   .op-type {
@@ -348,7 +462,7 @@
 
   .token-item {
     flex: 1;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--color-panel-subtle, rgba(255, 255, 255, 0.05));
     border-radius: 4px;
     padding: 0.3rem 0.4rem;
     text-align: center;
@@ -399,13 +513,13 @@
 
   .role {
     flex-shrink: 0;
-    color: #93c5fd;
+    color: var(--color-link, #93c5fd);
     font-weight: 600;
     min-width: 4rem;
   }
 
   .content {
-    color: #cbd5e1;
+    color: var(--color-code-muted, #cbd5e1);
     font-family: monospace;
     font-size: 0.75rem;
     white-space: pre-wrap;
@@ -414,14 +528,14 @@
   }
 
   .tool-call {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--color-panel-subtle, rgba(255, 255, 255, 0.05));
     border-radius: 4px;
     padding: 0.3rem 0.4rem;
     margin-bottom: 0.3rem;
   }
 
-  .tool-name { font-weight: 600; font-size: 0.8rem; margin-bottom: 0.15rem; }
-  .tool-args { font-family: monospace; font-size: 0.75rem; color: #94a3b8; white-space: pre-wrap; }
+  .tool-name { font-weight: 600; font-size: 0.8rem; margin-bottom: 0.15rem; color: var(--color-text, #e2e8f0); }
+  .tool-args { font-family: monospace; font-size: 0.75rem; color: var(--color-code-muted, #94a3b8); white-space: pre-wrap; }
 
   .event-item {
     margin-bottom: 0.5rem;
@@ -429,7 +543,7 @@
     padding-left: 0.5rem;
   }
 
-  .event-name { font-weight: 500; font-size: 0.82rem; }
+  .event-name { font-weight: 500; font-size: 0.82rem; color: var(--color-text, #e2e8f0); }
   .event-ts { font-size: 0.72rem; color: var(--color-text-muted, #94a3b8); margin-bottom: 0.2rem; }
   .event-attrs { margin-top: 0.2rem; }
 
@@ -439,10 +553,33 @@
     gap: 0.2rem;
   }
 
+  .empty-state {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--color-text-muted, #94a3b8);
+  }
+
+  .empty-state-title {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-text, #e2e8f0);
+  }
+
+  .empty-state-subtitle {
+    max-width: 24rem;
+    line-height: 1.5;
+  }
+
   .child-link {
     background: none;
     border: 1px solid var(--color-border, #334155);
-    color: #93c5fd;
+    color: var(--color-link, #93c5fd);
     font-family: monospace;
     font-size: 0.78rem;
     padding: 0.2rem 0.4rem;
@@ -452,6 +589,6 @@
   }
 
   .child-link:hover {
-    background: rgba(59, 130, 246, 0.1);
+    background: var(--color-badge-bg, rgba(59, 130, 246, 0.1));
   }
 </style>

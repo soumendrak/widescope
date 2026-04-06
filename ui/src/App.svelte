@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { onDestroy, onMount, tick } from 'svelte';
   import { loadWasm, getInitWarnings } from './lib/wasm';
   import { openFilePicker, handleFile, handleRawInput } from './lib/input';
   import { SAMPLE_TRACE } from './lib/sample';
@@ -8,25 +8,61 @@
 
   import Toolbar from './components/Toolbar.svelte';
   import FlameGraph from './components/FlameGraph.svelte';
-  import WaterfallView from './components/WaterfallView.svelte';
+  import Timeline from './components/Timeline.svelte';
   import SpanDetail from './components/SpanDetail.svelte';
   import DropZone from './components/DropZone.svelte';
   import ErrorBanner from './components/ErrorBanner.svelte';
-  import { activeView } from './stores/selection';
+  import { activeView, focusedSpanId, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from './stores/selection';
 
   let wasmReady = false;
   let wasmError: string | null = null;
   let editorValue = '';
   let editorMessage: string | null = null;
+  let editorCollapsed = false;
+  let editorInputEl: HTMLTextAreaElement;
+  let editorResizeObserver: ResizeObserver | null = null;
+  let editorCurrentHeight = 280;
+  let editorExpandedHeight = 280;
+  let isEditorResizing = false;
+  let editorResizeStartY = 0;
+  let editorResizeStartHeight = 0;
   let liveParseTimer: ReturnType<typeof setTimeout> | null = null;
   let flameGraphView: { focusView: () => void } | null = null;
-  let waterfallView: { focusView: () => void } | null = null;
+  let timelineView: { focusView: () => void } | null = null;
 
   const LIVE_PARSE_DELAY_MS = 150;
+  const DEFAULT_EDITOR_HEIGHT_PX = 280;
+  const COLLAPSED_EDITOR_HEIGHT_PX = 88;
+  const AUTO_EXPAND_EDITOR_DELTA_PX = 24;
 
   onMount(async () => {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     theme.apply(prefersDark ? 'dark' : 'light');
+
+    if (editorInputEl) {
+      editorResizeObserver = new ResizeObserver((entries) => {
+        const nextHeight = Math.max(
+          COLLAPSED_EDITOR_HEIGHT_PX,
+          Math.round(entries[0]?.contentRect.height ?? editorInputEl.getBoundingClientRect().height)
+        );
+
+        editorCurrentHeight = nextHeight;
+
+        if (editorCollapsed) {
+          if (nextHeight > COLLAPSED_EDITOR_HEIGHT_PX + AUTO_EXPAND_EDITOR_DELTA_PX) {
+            editorCollapsed = false;
+            editorExpandedHeight = Math.max(DEFAULT_EDITOR_HEIGHT_PX, nextHeight);
+          }
+          return;
+        }
+
+        editorExpandedHeight = Math.max(DEFAULT_EDITOR_HEIGHT_PX, nextHeight);
+      });
+
+      editorResizeObserver.observe(editorInputEl);
+      editorCurrentHeight = Math.max(COLLAPSED_EDITOR_HEIGHT_PX, Math.round(editorInputEl.getBoundingClientRect().height));
+      editorExpandedHeight = Math.max(DEFAULT_EDITOR_HEIGHT_PX, editorCurrentHeight);
+    }
 
     try {
       await loadWasm();
@@ -34,6 +70,11 @@
     } catch (e) {
       wasmError = String(e);
     }
+  });
+
+  onDestroy(() => {
+    clearLiveParseTimer();
+    editorResizeObserver?.disconnect();
   });
 
   function clearLiveParseTimer(): void {
@@ -45,6 +86,11 @@
   function applyEditorValue(): boolean {
     editorMessage = null;
     if (!editorValue.trim()) {
+      selectedSpanId.set(null);
+      hoveredSpanId.set(null);
+      focusedSpanId.set(null);
+      searchQuery.set('');
+      searchResults.set([]);
       traceState.reset();
       return false;
     }
@@ -70,8 +116,54 @@
     }
   }
 
+  function expandEditor(): void {
+    editorCollapsed = false;
+    editorCurrentHeight = Math.max(editorExpandedHeight, DEFAULT_EDITOR_HEIGHT_PX);
+  }
+
+  function collapseEditor(): void {
+    editorExpandedHeight = Math.max(DEFAULT_EDITOR_HEIGHT_PX, editorCurrentHeight);
+    editorCollapsed = true;
+    editorCurrentHeight = COLLAPSED_EDITOR_HEIGHT_PX;
+  }
+
+  function beginEditorResize(event: PointerEvent): void {
+    event.preventDefault();
+    isEditorResizing = true;
+    editorResizeStartY = event.clientY;
+    editorResizeStartHeight = editorCurrentHeight;
+    document.body.style.cursor = 'ns-resize';
+    document.body.style.userSelect = 'none';
+  }
+
+  function onWindowPointerMove(event: PointerEvent): void {
+    if (!isEditorResizing) return;
+
+    const nextHeight = Math.max(
+      COLLAPSED_EDITOR_HEIGHT_PX,
+      editorResizeStartHeight + event.clientY - editorResizeStartY
+    );
+
+    editorCurrentHeight = nextHeight;
+
+    if (nextHeight > COLLAPSED_EDITOR_HEIGHT_PX + AUTO_EXPAND_EDITOR_DELTA_PX) {
+      editorCollapsed = false;
+      editorExpandedHeight = Math.max(DEFAULT_EDITOR_HEIGHT_PX, nextHeight);
+    } else if (!editorCollapsed) {
+      editorExpandedHeight = Math.max(DEFAULT_EDITOR_HEIGHT_PX, nextHeight);
+    }
+  }
+
+  function endEditorResize(): void {
+    if (!isEditorResizing) return;
+    isEditorResizing = false;
+    document.body.style.cursor = '';
+    document.body.style.userSelect = '';
+  }
+
   function loadEditorText(text: string): void {
     editorValue = text;
+    expandEditor();
     clearLiveParseTimer();
     applyEditorValue();
   }
@@ -88,6 +180,12 @@
     clearLiveParseTimer();
     editorMessage = null;
     editorValue = '';
+    expandEditor();
+    selectedSpanId.set(null);
+    hoveredSpanId.set(null);
+    focusedSpanId.set(null);
+    searchQuery.set('');
+    searchResults.set([]);
     traceState.reset();
   }
 
@@ -122,9 +220,10 @@
     clearLiveParseTimer();
     const parsed = applyEditorValue();
     if (!parsed) return;
-    activeView.set('waterfall');
+    collapseEditor();
+    activeView.set('timeline');
     await tick();
-    waterfallView?.focusView();
+    timelineView?.focusView();
   }
 
   $: state = $traceState;
@@ -133,7 +232,9 @@
   $: allWarnings = [...initWarnings, ...warnings];
 </script>
 
-<div class="app" data-theme="dark">
+<svelte:window on:pointermove={onWindowPointerMove} on:pointerup={endEditorResize} on:pointercancel={endEditorResize} />
+
+<div class="app" data-theme={$theme}>
   {#if wasmError}
     <div class="fatal-error">
       <h2>Failed to initialize WideScope</h2>
@@ -157,7 +258,7 @@
         isSample={state.isSampleTrace}
       />
       <div class="main">
-        <section class="editor-panel">
+        <section class="editor-panel" class:editor-panel--collapsed={editorCollapsed}>
           <div class="editor-header">
             <div class="editor-copy">
               <div class="editor-title">Trace JSON input</div>
@@ -182,15 +283,38 @@
             </div>
           </div>
 
-          <textarea
-            class="editor-input"
-            bind:value={editorValue}
-            on:input={onEditorInput}
-            on:keydown={onEditorKeyDown}
-            placeholder="Paste a trace JSON payload here…"
-            spellcheck="false"
-            aria-label="Trace JSON input"
-          ></textarea>
+          <div class="editor-input-shell">
+            <textarea
+              class="editor-input"
+              class:editor-input--collapsed={editorCollapsed}
+              bind:this={editorInputEl}
+              bind:value={editorValue}
+              on:input={onEditorInput}
+              on:keydown={onEditorKeyDown}
+              placeholder="Paste a trace JSON payload here…"
+              spellcheck="false"
+              aria-label="Trace JSON input"
+              style={`height: ${editorCurrentHeight}px;`}
+            ></textarea>
+            {#if editorCollapsed && editorValue.trim()}
+              <button
+                type="button"
+                class="editor-expand-btn"
+                aria-label="Expand trace JSON input"
+                on:click={expandEditor}
+              >
+                Expand editor
+              </button>
+            {/if}
+            <div
+              class="editor-resize-handle"
+              class:editor-resize-handle--active={isEditorResizing}
+              role="separator"
+              aria-label="Resize trace JSON input"
+              aria-orientation="horizontal"
+              on:pointerdown={beginEditorResize}
+            ></div>
+          </div>
 
           <div class="editor-footer">
             <span class="editor-hint">Supports OTLP JSON · Jaeger JSON · OpenInference JSON · Use “Load sample JSON” to try the built-in example</span>
@@ -203,8 +327,8 @@
         {#if editorValue.trim()}
           <div class="workspace">
             {#if state.status === 'loaded' && state.flameLayout}
-              {#if $activeView === 'waterfall' && state.waterfallLayout}
-                <WaterfallView bind:this={waterfallView} layout={state.waterfallLayout} />
+              {#if $activeView === 'timeline' && state.timelineLayout}
+                <Timeline bind:this={timelineView} layout={state.timelineLayout} />
               {:else}
                 <FlameGraph bind:this={flameGraphView} layout={state.flameLayout} />
               {/if}
@@ -213,7 +337,7 @@
               <div class="empty-state">
                 <div class="empty-icon">⚠️</div>
                 <div class="empty-title">Could not parse trace</div>
-                <div class="empty-sub">Update the JSON above and the flame graph and waterfall view will refresh when the payload becomes valid.</div>
+                <div class="empty-sub">Update the JSON above and the flame graph and timeline view will refresh when the payload becomes valid.</div>
               </div>
             {:else if state.status === 'loading'}
               <div class="empty-state">
@@ -257,6 +381,18 @@
     --color-canvas-bg: #0f172a;
     --color-sidebar: #1e293b;
     --color-sidebar-text: #e2e8f0;
+    --color-panel-highlight: rgba(255, 255, 255, 0.04);
+    --color-panel-subtle: rgba(255, 255, 255, 0.05);
+    --color-badge-bg: rgba(59, 130, 246, 0.2);
+    --color-badge-text: #93c5fd;
+    --color-llm-panel-bg: rgba(139, 92, 246, 0.07);
+    --color-llm-badge-bg: rgba(139, 92, 246, 0.25);
+    --color-llm-badge-text: #c4b5fd;
+    --color-link: #93c5fd;
+    --color-danger: #f87171;
+    --color-success: #4ade80;
+    --color-code-text: #e2e8f0;
+    --color-code-muted: #cbd5e1;
     --color-error-bg: #450a0a;
     --color-error-text: #fca5a5;
     --color-error-border: #991b1b;
@@ -280,6 +416,18 @@
     --color-canvas-bg: #f1f5f9;
     --color-sidebar: #ffffff;
     --color-sidebar-text: #1e293b;
+    --color-panel-highlight: rgba(15, 23, 42, 0.03);
+    --color-panel-subtle: rgba(15, 23, 42, 0.05);
+    --color-badge-bg: rgba(59, 130, 246, 0.12);
+    --color-badge-text: #1d4ed8;
+    --color-llm-panel-bg: rgba(139, 92, 246, 0.08);
+    --color-llm-badge-bg: rgba(139, 92, 246, 0.14);
+    --color-llm-badge-text: #6d28d9;
+    --color-link: #1d4ed8;
+    --color-danger: #dc2626;
+    --color-success: #15803d;
+    --color-code-text: #0f172a;
+    --color-code-muted: #334155;
     --color-error-bg: #fee2e2;
     --color-error-text: #991b1b;
     --color-error-border: #fca5a5;
@@ -328,6 +476,12 @@
     border-radius: 12px;
     background: var(--color-surface, #1e293b);
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+    transition: padding 0.16s ease, gap 0.16s ease;
+  }
+
+  .editor-panel--collapsed {
+    gap: 0.5rem;
+    padding: 0.875rem 1rem;
   }
 
   .editor-header {
@@ -354,6 +508,10 @@
     font-size: 0.875rem;
     color: var(--color-text-muted, #94a3b8);
     max-width: 720px;
+  }
+
+  .editor-panel--collapsed .editor-subtitle {
+    display: none;
   }
 
   .editor-actions {
@@ -395,10 +553,15 @@
     border-color: var(--color-accent, #3b82f6);
   }
 
+  .editor-input-shell {
+    position: relative;
+    padding-bottom: 12px;
+  }
+
   .editor-input {
     width: 100%;
-    min-height: 280px;
-    resize: vertical;
+    min-height: 88px;
+    resize: none;
     border: 1px solid var(--color-border, #334155);
     border-radius: 10px;
     padding: 1rem;
@@ -406,11 +569,74 @@
     color: var(--color-text, #e2e8f0);
     font: 0.875rem/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
     outline: none;
+    transition: min-height 0.16s ease, max-height 0.16s ease, padding 0.16s ease;
   }
 
   .editor-input:focus {
     border-color: var(--color-accent, #3b82f6);
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.16);
+  }
+
+  .editor-input--collapsed {
+    padding-right: 8.5rem;
+  }
+
+  .editor-expand-btn {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    padding: 0.45rem 0.75rem;
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--color-surface, #1e293b) 88%, transparent);
+    color: var(--color-text, #e2e8f0);
+    font-size: 0.8125rem;
+    font-weight: 600;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-4px);
+    transition: opacity 0.14s ease, transform 0.14s ease, border-color 0.12s ease, background 0.12s ease;
+  }
+
+  .editor-input-shell:hover .editor-expand-btn,
+  .editor-input-shell:focus-within .editor-expand-btn {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .editor-expand-btn:hover {
+    border-color: var(--color-accent, #3b82f6);
+    background: color-mix(in srgb, var(--color-panel-highlight, rgba(255, 255, 255, 0.04)) 92%, transparent);
+  }
+
+  .editor-resize-handle {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 12px;
+    cursor: ns-resize;
+  }
+
+  .editor-resize-handle::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 4px;
+    transform: translateX(-50%);
+    width: 72px;
+    height: 4px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-text-muted, #94a3b8) 45%, transparent);
+    transition: background 0.12s ease, width 0.12s ease;
+  }
+
+  .editor-input-shell:hover .editor-resize-handle::before,
+  .editor-resize-handle--active::before {
+    width: 108px;
+    background: color-mix(in srgb, var(--color-accent, #3b82f6) 70%, transparent);
   }
 
   .editor-footer {
@@ -419,6 +645,10 @@
     justify-content: space-between;
     gap: 0.75rem;
     flex-wrap: wrap;
+  }
+
+  .editor-panel--collapsed .editor-footer {
+    display: none;
   }
 
   .editor-hint {
@@ -436,6 +666,7 @@
     display: flex;
     min-height: 0;
     overflow: hidden;
+    position: relative;
     border: 1px solid var(--color-border, #334155);
     border-radius: 12px;
     background: var(--color-surface, #1e293b);
