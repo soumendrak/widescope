@@ -9,6 +9,7 @@ pub struct JaegerParseResult {
     pub warnings: Vec<ParseWarning>,
 }
 
+#[allow(dead_code)]
 pub fn parse_jaeger(root: &Value) -> Result<Vec<Span>, WideError> {
     let result = parse_jaeger_with_warnings(root)?;
     Ok(result.spans)
@@ -214,7 +215,7 @@ fn parse_micro_u64(value: &Value) -> Option<u64> {
 
 fn parse_logs(logs: &[Value]) -> Vec<SpanEvent> {
     logs.iter()
-        .filter_map(|log| {
+        .map(|log| {
             let timestamp_ns = log
                 .get("timestamp")
                 .and_then(parse_micro_u64)
@@ -232,11 +233,11 @@ fn parse_logs(logs: &[Value]) -> Vec<SpanEvent> {
                 .or_else(|| attributes.get("message").and_then(AttributeValue::as_str))
                 .unwrap_or("log")
                 .to_string();
-            Some(SpanEvent {
+            SpanEvent {
                 name,
                 timestamp_ns,
                 attributes,
-            })
+            }
         })
         .collect()
 }

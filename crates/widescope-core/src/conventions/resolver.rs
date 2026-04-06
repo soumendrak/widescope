@@ -79,13 +79,13 @@ fn apply_mappings(span: &Span, convention: &Convention) -> LlmSpanAttributes {
                         llm.model_provider = raw_value.map(|v| v.as_display_string());
                     }
                     "input_tokens" => {
-                        llm.input_tokens = raw_value.and_then(|v| coerce_to_u64(v));
+                        llm.input_tokens = raw_value.and_then(coerce_to_u64);
                     }
                     "output_tokens" => {
-                        llm.output_tokens = raw_value.and_then(|v| coerce_to_u64(v));
+                        llm.output_tokens = raw_value.and_then(coerce_to_u64);
                     }
                     "total_tokens" => {
-                        llm.total_tokens = raw_value.and_then(|v| coerce_to_u64(v));
+                        llm.total_tokens = raw_value.and_then(coerce_to_u64);
                     }
                     "temperature" => {
                         llm.temperature = raw_value.and_then(|v| v.as_float());
@@ -94,13 +94,13 @@ fn apply_mappings(span: &Span, convention: &Convention) -> LlmSpanAttributes {
                         llm.top_p = raw_value.and_then(|v| v.as_float());
                     }
                     "max_tokens" => {
-                        llm.max_tokens = raw_value.and_then(|v| coerce_to_u64(v));
+                        llm.max_tokens = raw_value.and_then(coerce_to_u64);
                     }
                     "embedding_dimensions" => {
-                        llm.embedding_dimensions = raw_value.and_then(|v| coerce_to_u64(v));
+                        llm.embedding_dimensions = raw_value.and_then(coerce_to_u64);
                     }
                     "embedding_count" => {
-                        llm.embedding_count = raw_value.and_then(|v| coerce_to_u64(v));
+                        llm.embedding_count = raw_value.and_then(coerce_to_u64);
                     }
                     _ => {}
                 }
@@ -148,15 +148,15 @@ fn extract_messages_from_events(
     span.events
         .iter()
         .filter(|e| e.name == event_name)
-        .filter_map(|e| {
+        .map(|e| {
             let content = e
                 .attributes
                 .get(content_attribute)
                 .map(|v| v.as_display_string());
-            Some(LlmMessage {
+            LlmMessage {
                 role: "user".to_string(),
                 content,
-            })
+            }
         })
         .collect()
 }

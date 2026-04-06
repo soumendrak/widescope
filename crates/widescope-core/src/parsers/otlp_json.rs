@@ -9,6 +9,7 @@ pub struct OtlpParseResult {
     pub warnings: Vec<ParseWarning>,
 }
 
+#[allow(dead_code)]
 pub fn parse_otlp(root: &Value) -> Result<Vec<Span>, WideError> {
     let result = parse_otlp_with_warnings(root)?;
     Ok(result.spans)
@@ -133,12 +134,12 @@ fn parse_single_span(raw: &Value, service_name: &str) -> Result<Span, String> {
 
     let start_time_ns: u64 = raw
         .get("startTimeUnixNano")
-        .and_then(|v| parse_nano_ts(v))
+        .and_then(parse_nano_ts)
         .ok_or_else(|| format!("span {}: missing startTimeUnixNano", span_id))?;
 
     let end_time_ns: u64 = raw
         .get("endTimeUnixNano")
-        .and_then(|v| parse_nano_ts(v))
+        .and_then(parse_nano_ts)
         .ok_or_else(|| format!("span {}: missing endTimeUnixNano", span_id))?;
 
     let (start_time_ns, end_time_ns) = if start_time_ns <= end_time_ns {
@@ -188,10 +189,8 @@ fn parse_nano_ts(v: &Value) -> Option<u64> {
         s.parse::<u64>().ok()
     } else if let Some(n) = v.as_u64() {
         Some(n)
-    } else if let Some(f) = v.as_f64() {
-        Some(f as u64)
     } else {
-        None
+        v.as_f64().map(|f| f as u64)
     }
 }
 
@@ -274,7 +273,7 @@ fn parse_array_value(values: &[Value]) -> AttributeValue {
     }
 
     let parsed: Vec<Option<AttributeValue>> =
-        values.iter().map(|v| parse_any_value(v)).collect();
+        values.iter().map(parse_any_value).collect();
 
     let all_int = parsed
         .iter()
@@ -333,7 +332,7 @@ fn parse_events(events: &[Value]) -> Vec<SpanEvent> {
             let name = e.get("name").and_then(|n| n.as_str())?.to_string();
             let timestamp_ns = e
                 .get("timeUnixNano")
-                .and_then(|t| parse_nano_ts(t))
+                .and_then(parse_nano_ts)
                 .unwrap_or(0);
             let attributes = parse_attributes(
                 e.get("attributes").and_then(|a| a.as_array()).unwrap_or(&vec![]),

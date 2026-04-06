@@ -30,6 +30,7 @@ pub fn detect_format(value: &Value) -> Result<InputFormat, WideError> {
     Err(WideError::UnrecognizedFormat)
 }
 
+#[allow(dead_code)]
 pub fn parse(raw_input: &str) -> Result<(Vec<Span>, InputFormat), WideError> {
     let value: Value = serde_json::from_str(raw_input).map_err(|e| WideError::InvalidJson {
         message: e.to_string(),

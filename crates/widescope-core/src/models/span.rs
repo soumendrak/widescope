@@ -130,6 +130,7 @@ impl AttributeValue {
         }
     }
 
+    #[allow(dead_code)]
     pub fn as_int(&self) -> Option<i64> {
         match self {
             AttributeValue::Int(i) => Some(*i),

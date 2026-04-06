@@ -28,8 +28,8 @@ use trace_builder::build_trace;
 use utils::{format_duration, format_timestamp_display};
 
 thread_local! {
-    static TRACE: RefCell<Option<Trace>> = RefCell::new(None);
-    static CONVENTIONS: RefCell<Vec<Convention>> = RefCell::new(Vec::new());
+    static TRACE: RefCell<Option<Trace>> = const { RefCell::new(None) };
+    static CONVENTIONS: RefCell<Vec<Convention>> = const { RefCell::new(Vec::new()) };
 }
 
 #[cfg(feature = "console_error_panic_hook")]
@@ -218,7 +218,7 @@ pub fn get_span_detail(span_id: &str) -> Result<String, JsValue> {
                 let events: Vec<EventDetail> = span
                     .events
                     .iter()
-                    .map(|e| build_event_detail(e))
+                    .map(build_event_detail)
                     .collect();
 
                 let llm = span.llm.as_ref().map(build_llm_detail);

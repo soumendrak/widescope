@@ -180,7 +180,7 @@ pub fn build_trace(
     // 7. Compute total_duration_ns
     let min_start = spans.iter().map(|s| s.start_time_ns).min().unwrap_or(0);
     let max_end = spans.iter().map(|s| s.end_time_ns).max().unwrap_or(0);
-    let total_duration_ns = if max_end > min_start { max_end - min_start } else { 0 };
+    let total_duration_ns = max_end.saturating_sub(min_start);
 
     // 8. Compute self_time per span
     let mut spans = spans;
