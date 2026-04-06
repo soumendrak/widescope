@@ -123,14 +123,16 @@
       <div class="section">
         <div class="section-title">Timing</div>
         <table class="kv-table">
-          <tr><td>Start</td><td>{detail.start_time_display}</td></tr>
-          <tr><td>Duration</td><td>{detail.duration_display}</td></tr>
-          <tr><td>Self time</td><td>{detail.self_time_display}</td></tr>
-          {#if $traceState.summary}
-            <tr><td>% of trace</td>
-              <td>{pct(detail.duration_ns, $traceState.summary.total_duration_ns)}</td>
-            </tr>
-          {/if}
+          <tbody>
+            <tr><td>Start</td><td>{detail.start_time_display}</td></tr>
+            <tr><td>Duration</td><td>{detail.duration_display}</td></tr>
+            <tr><td>Self time</td><td>{detail.self_time_display}</td></tr>
+            {#if $traceState.summary}
+              <tr><td>% of trace</td>
+                <td>{pct(detail.duration_ns, $traceState.summary.total_duration_ns)}</td>
+              </tr>
+            {/if}
+          </tbody>
         </table>
       </div>
 
@@ -203,12 +205,14 @@
           </div>
           {#if expandedAttrs}
             <table class="kv-table attr-table">
-              {#each detail.attributes as [k, v]}
-                <tr>
-                  <td class="attr-key">{k}</td>
-                  <td class="attr-val">{v}</td>
-                </tr>
-              {/each}
+              <tbody>
+                {#each detail.attributes as [k, v]}
+                  <tr>
+                    <td class="attr-key">{k}</td>
+                    <td class="attr-val">{v}</td>
+                  </tr>
+                {/each}
+              </tbody>
             </table>
           {/if}
         </div>
@@ -229,9 +233,11 @@
                 <div class="event-ts">{ev.timestamp_display}</div>
                 {#if ev.attributes.length > 0}
                   <table class="kv-table event-attrs">
-                    {#each ev.attributes as [k, v]}
-                      <tr><td>{k}</td><td>{v}</td></tr>
-                    {/each}
+                    <tbody>
+                      {#each ev.attributes as [k, v]}
+                        <tr><td>{k}</td><td>{v}</td></tr>
+                      {/each}
+                    </tbody>
                   </table>
                 {/if}
               </div>
