@@ -1,0 +1,124 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "api-gateway"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "http-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "11111111111111111111111111111111",
+              "spanId": "1111111111111111",
+              "name": "GET /health",
+              "kind": 2,
+              "startTimeUnixNano": "1712500000000000000",
+              "endTimeUnixNano": "1712500000042000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "GET"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/health"
+                  }
+                },
+                {
+                  "key": "http.status_code",
+                  "value": {
+                    "intValue": "200"
+                  }
+                },
+                {
+                  "key": "net.host.name",
+                  "value": {
+                    "stringValue": "api.local"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "11111111111111111111111111111111",
+              "spanId": "1111111111111112",
+              "name": "auth.check",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000005000000",
+              "endTimeUnixNano": "1712500000011000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "auth.strategy",
+                  "value": {
+                    "stringValue": "anonymous"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "1111111111111111"
+            },
+            {
+              "traceId": "11111111111111111111111111111111",
+              "spanId": "1111111111111113",
+              "name": "db.ping",
+              "kind": 3,
+              "startTimeUnixNano": "1712500000013000000",
+              "endTimeUnixNano": "1712500000035000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "db.system",
+                  "value": {
+                    "stringValue": "postgresql"
+                  }
+                },
+                {
+                  "key": "db.operation",
+                  "value": {
+                    "stringValue": "SELECT 1"
+                  }
+                },
+                {
+                  "key": "db.response_time_ms",
+                  "value": {
+                    "doubleValue": 2.2
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "1111111111111111"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

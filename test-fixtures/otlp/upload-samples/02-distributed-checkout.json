@@ -1,0 +1,234 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "checkout-api"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "checkout-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "22222222222222222222222222222222",
+              "spanId": "2222222222222201",
+              "name": "POST /checkout",
+              "kind": 2,
+              "startTimeUnixNano": "1712500100000000000",
+              "endTimeUnixNano": "1712500100280000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/checkout"
+                  }
+                },
+                {
+                  "key": "tenant.id",
+                  "value": {
+                    "stringValue": "acme"
+                  }
+                }
+              ],
+              "events": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "payments-service"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "payments-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "22222222222222222222222222222222",
+              "spanId": "2222222222222202",
+              "name": "payments.authorize",
+              "kind": 3,
+              "startTimeUnixNano": "1712500100040000000",
+              "endTimeUnixNano": "1712500100180000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "rpc.system",
+                  "value": {
+                    "stringValue": "http"
+                  }
+                },
+                {
+                  "key": "payment.amount",
+                  "value": {
+                    "intValue": "1499"
+                  }
+                },
+                {
+                  "key": "payment.currency",
+                  "value": {
+                    "stringValue": "USD"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "2222222222222201"
+            },
+            {
+              "traceId": "22222222222222222222222222222222",
+              "spanId": "2222222222222204",
+              "name": "postgres.insert_charge",
+              "kind": 3,
+              "startTimeUnixNano": "1712500100060000000",
+              "endTimeUnixNano": "1712500100150000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "db.system",
+                  "value": {
+                    "stringValue": "postgresql"
+                  }
+                },
+                {
+                  "key": "db.statement",
+                  "value": {
+                    "stringValue": "insert into charges ..."
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "2222222222222202"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "inventory-service"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "inventory-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "22222222222222222222222222222222",
+              "spanId": "2222222222222203",
+              "name": "inventory.reserve",
+              "kind": 3,
+              "startTimeUnixNano": "1712500100190000000",
+              "endTimeUnixNano": "1712500100260000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "inventory.sku_count",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "warehouse.region",
+                  "value": {
+                    "stringValue": "ap-south-1"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "2222222222222201"
+            },
+            {
+              "traceId": "22222222222222222222222222222222",
+              "spanId": "2222222222222205",
+              "name": "redis.reserve_tokens",
+              "kind": 3,
+              "startTimeUnixNano": "1712500100200000000",
+              "endTimeUnixNano": "1712500100225000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "db.system",
+                  "value": {
+                    "stringValue": "redis"
+                  }
+                },
+                {
+                  "key": "db.operation",
+                  "value": {
+                    "stringValue": "EVALSHA"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "2222222222222203"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,209 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "batch-worker"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "batch-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "44444444444444444444444444444444",
+              "spanId": "4444444444444401",
+              "name": "job.process_batch",
+              "kind": 1,
+              "startTimeUnixNano": "1712500300000000000",
+              "endTimeUnixNano": "1712500300800000000",
+              "status": {
+                "code": 2,
+                "message": "2 item(s) failed validation"
+              },
+              "attributes": [
+                {
+                  "key": "job.batch_size",
+                  "value": {
+                    "intValue": "12"
+                  }
+                },
+                {
+                  "key": "feature.flags",
+                  "value": {
+                    "arrayValue": {
+                      "values": [
+                        {
+                          "stringValue": "beta-routing"
+                        },
+                        {
+                          "stringValue": "shadow-write"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "key": "retry.delays_ms",
+                  "value": {
+                    "arrayValue": {
+                      "values": [
+                        {
+                          "intValue": "10"
+                        },
+                        {
+                          "intValue": "50"
+                        },
+                        {
+                          "intValue": "100"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "key": "cache.hit",
+                  "value": {
+                    "boolValue": false
+                  }
+                },
+                {
+                  "key": "request.cost_usd",
+                  "value": {
+                    "doubleValue": 0.0042
+                  }
+                },
+                {
+                  "key": "payload.preview",
+                  "value": {
+                    "bytesValue": "YmluYXJ5LXByZXZpZXc="
+                  }
+                },
+                {
+                  "key": "job.labels",
+                  "value": {
+                    "kvlistValue": {
+                      "values": [
+                        {
+                          "key": "team",
+                          "value": {
+                            "stringValue": "platform"
+                          }
+                        },
+                        {
+                          "key": "priority",
+                          "value": {
+                            "stringValue": "high"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "44444444444444444444444444444444",
+              "spanId": "4444444444444402",
+              "name": "records.transform",
+              "kind": 1,
+              "startTimeUnixNano": "1712500300100000000",
+              "endTimeUnixNano": "1712500300550000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [],
+              "events": [
+                {
+                  "name": "transform.summary",
+                  "timeUnixNano": "1712500300540000000",
+                  "attributes": [
+                    {
+                      "key": "rows.changed",
+                      "value": {
+                        "intValue": "9"
+                      }
+                    },
+                    {
+                      "key": "rows.skipped",
+                      "value": {
+                        "intValue": "3"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "4444444444444401"
+            },
+            {
+              "traceId": "44444444444444444444444444444444",
+              "spanId": "4444444444444403",
+              "name": "export.write",
+              "kind": 3,
+              "startTimeUnixNano": "1712500300750000000",
+              "endTimeUnixNano": "1712500300600000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "storage.system",
+                  "value": {
+                    "stringValue": "s3"
+                  }
+                },
+                {
+                  "key": "storage.bucket",
+                  "value": {
+                    "stringValue": "demo-exports"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4444444444444401"
+            },
+            {
+              "spanId": "44444444444444ff",
+              "name": "invalid.no_trace",
+              "kind": 1,
+              "startTimeUnixNano": "1712500300200000000",
+              "endTimeUnixNano": "1712500300210000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [],
+              "events": []
+            },
+            {
+              "traceId": "44444444444444444444444444444444",
+              "name": "invalid.no_span_id",
+              "kind": 1,
+              "startTimeUnixNano": "1712500300220000000",
+              "endTimeUnixNano": "1712500300230000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [],
+              "events": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

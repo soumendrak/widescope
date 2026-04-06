@@ -1,0 +1,222 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "agent-orchestrator"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "agent-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "33333333333333333333333333333333",
+              "spanId": "3333333333333301",
+              "name": "agent.run",
+              "kind": 1,
+              "startTimeUnixNano": "1712500200000000000",
+              "endTimeUnixNano": "1712500200920000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "app.session_id",
+                  "value": {
+                    "stringValue": "sess_42"
+                  }
+                },
+                {
+                  "key": "user.id",
+                  "value": {
+                    "stringValue": "demo-user"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "33333333333333333333333333333333",
+              "spanId": "3333333333333302",
+              "name": "retrieval.search",
+              "kind": 3,
+              "startTimeUnixNano": "1712500200050000000",
+              "endTimeUnixNano": "1712500200240000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "db.system",
+                  "value": {
+                    "stringValue": "opensearch"
+                  }
+                },
+                {
+                  "key": "rag.top_k",
+                  "value": {
+                    "intValue": "4"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "3333333333333301"
+            },
+            {
+              "traceId": "33333333333333333333333333333333",
+              "spanId": "3333333333333303",
+              "name": "chat.completion",
+              "kind": 3,
+              "startTimeUnixNano": "1712500200260000000",
+              "endTimeUnixNano": "1712500200850000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "gen_ai.system",
+                  "value": {
+                    "stringValue": "openai"
+                  }
+                },
+                {
+                  "key": "gen_ai.operation.name",
+                  "value": {
+                    "stringValue": "chat"
+                  }
+                },
+                {
+                  "key": "gen_ai.request.model",
+                  "value": {
+                    "stringValue": "gpt-4o-mini"
+                  }
+                },
+                {
+                  "key": "gen_ai.request.temperature",
+                  "value": {
+                    "doubleValue": 0.2
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.input_tokens",
+                  "value": {
+                    "intValue": "812"
+                  }
+                },
+                {
+                  "key": "gen_ai.usage.output_tokens",
+                  "value": {
+                    "intValue": "236"
+                  }
+                },
+                {
+                  "key": "tool.name",
+                  "value": {
+                    "stringValue": "search_web"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "gen_ai.content.prompt",
+                  "timeUnixNano": "1712500200280000000",
+                  "attributes": [
+                    {
+                      "key": "gen_ai.prompt",
+                      "value": {
+                        "stringValue": "[{\"role\":\"system\",\"content\":\"Answer with concise bullet points.\"},{\"role\":\"user\",\"content\":\"Compare Rust and Go for low-latency services.\"}]"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "gen_ai.content.completion",
+                  "timeUnixNano": "1712500200830000000",
+                  "attributes": [
+                    {
+                      "key": "gen_ai.completion",
+                      "value": {
+                        "stringValue": "[{\"role\":\"assistant\",\"content\":\"Rust offers tighter control and memory safety; Go offers simpler concurrency and faster iteration.\"}]"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "3333333333333301"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "tooling-service"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "tool-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "33333333333333333333333333333333",
+              "spanId": "3333333333333304",
+              "name": "tool.search_web",
+              "kind": 3,
+              "startTimeUnixNano": "1712500200400000000",
+              "endTimeUnixNano": "1712500200560000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "tool.call.arguments",
+                  "value": {
+                    "stringValue": "{\"query\":\"Rust vs Go latency\"}"
+                  }
+                },
+                {
+                  "key": "tool.result.count",
+                  "value": {
+                    "intValue": "5"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "3333333333333303"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
