@@ -1,6 +1,8 @@
 <script lang="ts">
   import { handleFile } from '../lib/input';
 
+  export let onFileDrop: ((file: File) => void) | null = null;
+
   let isDragging = false;
   let dragCounter = 0;
 
@@ -28,7 +30,12 @@
     isDragging = false;
     dragCounter = 0;
     const file = e.dataTransfer?.files?.[0];
-    if (file) handleFile(file);
+    if (!file) return;
+    if (onFileDrop) {
+      onFileDrop(file);
+      return;
+    }
+    handleFile(file);
   }
 </script>
 

@@ -4,18 +4,18 @@ import { parseTrace, getFlameGraphLayout, getWaterfallLayout, safeParseWasmError
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 
-export function openFilePicker(): void {
+export function openFilePicker(onText?: (text: string) => void): void {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = '.json';
-  input.onchange = (e) => {
+  input.onchange = async (e) => {
     const file = (e.target as HTMLInputElement).files?.[0];
-    if (file) handleFile(file);
+    if (file) await handleFile(file, onText);
   };
   input.click();
 }
 
-export async function handleFile(file: File): Promise<void> {
+export async function readFileText(file: File): Promise<string | null> {
   if (file.size > MAX_FILE_SIZE) {
     traceState.setError({
       error_type: 'WideError',
@@ -23,14 +23,25 @@ export async function handleFile(file: File): Promise<void> {
       message: `File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum is 20 MB.`,
       context: null,
     });
+    return null;
+  }
+  return await file.text();
+}
+
+export async function handleFile(file: File, onText?: (text: string) => void): Promise<void> {
+  const text = await readFileText(file);
+  if (text === null) return;
+  if (onText) {
+    onText(text);
     return;
   }
-  const text = await file.text();
   handleRawInput(text, false);
 }
 
-export function handleRawInput(text: string, isSample: boolean): void {
-  traceState.setLoading();
+export function handleRawInput(text: string, isSample: boolean, showLoading = true): boolean {
+  if (showLoading) {
+    traceState.setLoading();
+  }
   selectedSpanId.set(null);
 
   try {
@@ -38,9 +49,11 @@ export function handleRawInput(text: string, isSample: boolean): void {
     const flameLayout = getFlameGraphLayout();
     const waterfallLayout = getWaterfallLayout();
     traceState.setLoaded(summary, flameLayout, null, waterfallLayout, isSample);
+    return true;
   } catch (err) {
     const wasmError = safeParseWasmError(err);
     traceState.setError(wasmError);
+    return false;
   }
 }
 

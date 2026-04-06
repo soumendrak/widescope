@@ -25,9 +25,16 @@
   // ── Tooltip ───────────────────────────────────────────────────────
   let tooltip: { x: number; y: number; row: WaterfallRow } | null = null;
 
-  // ── Zoom/pan for bars ─────────────────────────────────────────────
   let zoom = 1;
   let panX = 0;
+
+  let rootEl: HTMLDivElement;
+
+  export function focusView(): void {
+    if (!rootEl) return;
+    rootEl.scrollIntoView({ block: 'nearest' });
+    rootEl.focus();
+  }
 
   // ── Reactive: build color map and visible rows ────────────────────
   $: {
@@ -193,7 +200,7 @@
   });
 </script>
 
-<div class="wf-root">
+<div class="wf-root" bind:this={rootEl} tabindex="-1" role="region" aria-label="Waterfall graph">
   <!-- ── Header ─────────────────────────────────────────────────── -->
   <div class="wf-header">
     <div class="wf-header-label">Span</div>
@@ -267,6 +274,7 @@
         <!-- Bar cell (stretches to full row height) -->
         <div
           class="wf-bar-cell"
+          role="presentation"
           on:wheel={onBarWheel}
           on:mouseleave={onBarMouseLeave}
         >
@@ -275,6 +283,7 @@
             {@const bw = barWidth(row, barContainerW)}
             <div
               class="wf-bar"
+              role="presentation"
               style="left:{bl}px; width:{bw}px; background:{color};"
               class:wf-bar--error={row.is_error}
               on:mousemove={(e) => onBarMouseMove(e, row)}
@@ -320,6 +329,12 @@
     overflow: hidden;
     background: var(--color-canvas-bg, #0f172a);
     font-size: 12.5px;
+    outline: none;
+  }
+
+  .wf-root:focus-visible {
+    outline: 2px solid var(--color-accent, #3b82f6);
+    outline-offset: -2px;
   }
 
   /* ── Header ──────────────────────────────────────────────────── */

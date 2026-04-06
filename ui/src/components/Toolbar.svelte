@@ -3,6 +3,8 @@
   import { openFilePicker } from '../lib/input';
   import { activeView } from '../stores/selection';
 
+  export let onOpenFile: () => void = () => openFilePicker();
+
   const FORMAT_LABELS: Record<string, string> = {
     OtlpJson: 'OTLP JSON',
     JaegerJson: 'Jaeger JSON',
@@ -21,7 +23,7 @@
       <span class="name">WideScope</span>
     </div>
 
-    <button type="button" class="btn-open" on:click={openFilePicker}>
+    <button type="button" class="btn-open" on:click={onOpenFile}>
       Open file
     </button>
   </div>

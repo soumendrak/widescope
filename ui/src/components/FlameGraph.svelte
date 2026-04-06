@@ -46,6 +46,12 @@
   let siblingsAfter = new Map<string, string[]>();
   let rootIds: string[] = [];
 
+  export function focusView(): void {
+    if (!container) return;
+    container.scrollIntoView({ block: 'nearest' });
+    container.focus();
+  }
+
   // ── Reactive layout ingestion ─────────────────────────────────────
   $: if (layout) initLayout(layout);
 
