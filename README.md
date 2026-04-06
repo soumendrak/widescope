@@ -2,10 +2,6 @@
   <img src="docs/assets/widescope-logo.svg" alt="WideScope logo" width="120" />
 </p>
 
-<p align="center">
-  <img src="docs/assets/widescope-banner.svg" alt="WideScope banner" width="100%" />
-</p>
-
 <h1 align="center">WideScope</h1>
 
 <p align="center">
