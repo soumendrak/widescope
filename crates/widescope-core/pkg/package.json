@@ -1,0 +1,15 @@
+{
+  "name": "widescope-core",
+  "type": "module",
+  "version": "0.1.0",
+  "files": [
+    "widescope_core_bg.wasm",
+    "widescope_core.js",
+    "widescope_core.d.ts"
+  ],
+  "main": "widescope_core.js",
+  "types": "widescope_core.d.ts",
+  "sideEffects": [
+    "./snippets/*"
+  ]
+}
