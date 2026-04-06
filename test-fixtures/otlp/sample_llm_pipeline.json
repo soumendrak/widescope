@@ -1,0 +1,191 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          { "key": "service.name", "value": { "stringValue": "gateway" } },
+          { "key": "service.version", "value": { "stringValue": "1.0.0" } }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": { "name": "gateway-tracer", "version": "1.0.0" },
+          "spans": [
+            {
+              "traceId": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+              "spanId": "0000000000000001",
+              "name": "POST /api/chat",
+              "kind": 2,
+              "startTimeUnixNano": "1700000000000000000",
+              "endTimeUnixNano": "1700000004230000000",
+              "status": { "code": 1 },
+              "attributes": [
+                { "key": "http.method", "value": { "stringValue": "POST" } },
+                { "key": "http.url", "value": { "stringValue": "/api/chat" } },
+                { "key": "http.status_code", "value": { "intValue": "200" } }
+              ],
+              "events": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          { "key": "service.name", "value": { "stringValue": "rag-retriever" } },
+          { "key": "service.version", "value": { "stringValue": "2.1.0" } }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": { "name": "rag-tracer", "version": "1.0.0" },
+          "spans": [
+            {
+              "traceId": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+              "spanId": "0000000000000002",
+              "parentSpanId": "0000000000000001",
+              "name": "rag.pipeline",
+              "kind": 1,
+              "startTimeUnixNano": "1700000000100000000",
+              "endTimeUnixNano": "1700000001800000000",
+              "status": { "code": 1 },
+              "attributes": [
+                { "key": "rag.query", "value": { "stringValue": "What is the capital of France?" } },
+                { "key": "rag.top_k", "value": { "intValue": "5" } }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+              "spanId": "0000000000000003",
+              "parentSpanId": "0000000000000002",
+              "name": "vector.search",
+              "kind": 3,
+              "startTimeUnixNano": "1700000000200000000",
+              "endTimeUnixNano": "1700000000950000000",
+              "status": { "code": 1 },
+              "attributes": [
+                { "key": "db.system", "value": { "stringValue": "chroma" } },
+                { "key": "db.operation", "value": { "stringValue": "query" } },
+                { "key": "db.statement", "value": { "stringValue": "embedding similarity search" } }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+              "spanId": "0000000000000004",
+              "parentSpanId": "0000000000000002",
+              "name": "context.rerank",
+              "kind": 1,
+              "startTimeUnixNano": "1700000001000000000",
+              "endTimeUnixNano": "1700000001750000000",
+              "status": { "code": 1 },
+              "attributes": [
+                { "key": "rerank.model", "value": { "stringValue": "cross-encoder/ms-marco-MiniLM-L-6-v2" } },
+                { "key": "rerank.top_n", "value": { "intValue": "3" } }
+              ],
+              "events": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          { "key": "service.name", "value": { "stringValue": "llm-service" } },
+          { "key": "service.version", "value": { "stringValue": "3.0.0" } }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": { "name": "openai-tracer", "version": "1.0.0" },
+          "spans": [
+            {
+              "traceId": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+              "spanId": "0000000000000005",
+              "parentSpanId": "0000000000000001",
+              "name": "chat",
+              "kind": 3,
+              "startTimeUnixNano": "1700000001900000000",
+              "endTimeUnixNano": "1700000004100000000",
+              "status": { "code": 1 },
+              "attributes": [
+                { "key": "gen_ai.system", "value": { "stringValue": "openai" } },
+                { "key": "gen_ai.operation.name", "value": { "stringValue": "chat" } },
+                { "key": "gen_ai.request.model", "value": { "stringValue": "gpt-4o" } },
+                { "key": "gen_ai.request.temperature", "value": { "doubleValue": 0.7 } },
+                { "key": "gen_ai.request.max_tokens", "value": { "intValue": "1024" } },
+                { "key": "gen_ai.usage.input_tokens", "value": { "intValue": "512" } },
+                { "key": "gen_ai.usage.output_tokens", "value": { "intValue": "256" } },
+                { "key": "gen_ai.usage.total_tokens", "value": { "intValue": "768" } }
+              ],
+              "events": [
+                {
+                  "name": "gen_ai.content.prompt",
+                  "timeUnixNano": "1700000001950000000",
+                  "attributes": [
+                    {
+                      "key": "gen_ai.prompt",
+                      "value": {
+                        "stringValue": "[{\"role\":\"system\",\"content\":\"You are a helpful assistant.\"},{\"role\":\"user\",\"content\":\"What is the capital of France? Context: Paris is the capital...\"}]"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "gen_ai.content.completion",
+                  "timeUnixNano": "1700000004050000000",
+                  "attributes": [
+                    {
+                      "key": "gen_ai.completion",
+                      "value": {
+                        "stringValue": "[{\"role\":\"assistant\",\"content\":\"The capital of France is Paris.\"}]"
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "traceId": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+              "spanId": "0000000000000006",
+              "parentSpanId": "0000000000000001",
+              "name": "embeddings",
+              "kind": 3,
+              "startTimeUnixNano": "1700000000050000000",
+              "endTimeUnixNano": "1700000000099000000",
+              "status": { "code": 1 },
+              "attributes": [
+                { "key": "gen_ai.system", "value": { "stringValue": "openai" } },
+                { "key": "gen_ai.operation.name", "value": { "stringValue": "embeddings" } },
+                { "key": "gen_ai.request.model", "value": { "stringValue": "text-embedding-3-small" } },
+                { "key": "gen_ai.usage.input_tokens", "value": { "intValue": "12" } },
+                { "key": "gen_ai.usage.output_tokens", "value": { "intValue": "0" } }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+              "spanId": "0000000000000007",
+              "parentSpanId": "0000000000000005",
+              "name": "tool_call.search_web",
+              "kind": 3,
+              "startTimeUnixNano": "1700000002500000000",
+              "endTimeUnixNano": "1700000003200000000",
+              "status": { "code": 1 },
+              "attributes": [
+                { "key": "gen_ai.system", "value": { "stringValue": "openai" } },
+                { "key": "gen_ai.operation.name", "value": { "stringValue": "chat" } },
+                { "key": "tool.name", "value": { "stringValue": "search_web" } },
+                { "key": "tool.call.arguments", "value": { "stringValue": "{\"query\": \"capital of France\"}" } }
+              ],
+              "events": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

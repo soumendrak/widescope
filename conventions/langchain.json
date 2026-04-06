@@ -1,0 +1,29 @@
+{
+  "name": "LangChain Semantic Conventions",
+  "version": "0.1.0",
+  "detect": {
+    "attribute_prefix": "langchain.",
+    "any_key_present": ["langchain.request.type", "langchain.request.model"]
+  },
+  "mappings": {
+    "operation_type": {
+      "attribute": "langchain.request.type",
+      "values": {
+        "llm": "ChatCompletion",
+        "chat_model": "ChatCompletion",
+        "embedding": "Embedding",
+        "retriever": "Retrieval",
+        "chain": "ChainStep",
+        "agent": "AgentStep",
+        "tool": "ToolCall"
+      },
+      "default": "Unknown"
+    },
+    "model_name": { "attribute": "langchain.request.model" },
+    "input_tokens": { "attribute": "langchain.usage.prompt_tokens", "type": "int" },
+    "output_tokens": { "attribute": "langchain.usage.completion_tokens", "type": "int" },
+    "total_tokens": { "attribute": "langchain.usage.total_tokens", "type": "int" },
+    "temperature": { "attribute": "langchain.request.temperature", "type": "float" },
+    "max_tokens": { "attribute": "langchain.request.max_tokens", "type": "int" }
+  }
+}

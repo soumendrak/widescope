@@ -1,0 +1,32 @@
+{
+  "name": "OpenInference Semantic Conventions",
+  "version": "0.1.0",
+  "detect": {
+    "attribute_prefix": "llm.",
+    "any_key_present": ["llm.model_name", "llm.token_count.prompt", "openinference.span.kind"]
+  },
+  "mappings": {
+    "operation_type": {
+      "attribute": "openinference.span.kind",
+      "values": {
+        "LLM": "ChatCompletion",
+        "EMBEDDING": "Embedding",
+        "RETRIEVER": "Retrieval",
+        "RERANKER": "Rerank",
+        "TOOL": "ToolCall",
+        "AGENT": "AgentStep",
+        "CHAIN": "ChainStep"
+      },
+      "default": "Unknown"
+    },
+    "model_name": { "attribute": "llm.model_name" },
+    "model_provider": { "attribute": "llm.provider" },
+    "input_tokens": { "attribute": "llm.token_count.prompt", "type": "int" },
+    "output_tokens": { "attribute": "llm.token_count.completion", "type": "int" },
+    "total_tokens": { "attribute": "llm.token_count.total", "type": "int" },
+    "temperature": { "attribute": "llm.invocation_parameters.temperature", "type": "float" },
+    "top_p": { "attribute": "llm.invocation_parameters.top_p", "type": "float" },
+    "max_tokens": { "attribute": "llm.invocation_parameters.max_tokens", "type": "int" },
+    "embedding_dimensions": { "attribute": "embedding.embeddings.0.embedding.vector", "type": "int" }
+  }
+}

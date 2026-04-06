@@ -1,0 +1,15 @@
+# Rust
+target/
+Cargo.lock
+
+# wasm-pack output
+crates/widescope-core/pkg/
+
+# Node / UI
+ui/node_modules/
+ui/dist/
+ui/.svelte-kit/
+
+# macOS
+.DS_Store
+**/.DS_Store
