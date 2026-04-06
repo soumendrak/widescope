@@ -122,16 +122,10 @@ jobs:
         path: ui/dist/
 
   deploy:
-    name: Deploy to GitHub Pages
+    name: Deploy to Cloudflare Pages
     runs-on: ubuntu-latest
     needs: ui-build
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    permissions:
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
     - name: Download dist
       uses: actions/download-artifact@v4
@@ -139,14 +133,9 @@ jobs:
         name: dist
         path: dist/
 
-    - name: Setup Pages
-      uses: actions/configure-pages@v4
-
-    - name: Upload Pages artifact
-      uses: actions/upload-pages-artifact@v3
+    - name: Deploy to Cloudflare Pages
+      uses: cloudflare/wrangler-action@v3
       with:
-        path: dist/
-
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v4
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        command: pages deploy dist --project-name=widescope
