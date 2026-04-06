@@ -136,9 +136,17 @@ jobs:
         name: dist
         path: dist/
 
+    - name: Create Cloudflare Pages project (if not exists)
+      uses: cloudflare/wrangler-action@v3
+      with:
+        apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        command: pages project create widescope --production-branch=main
+      continue-on-error: true
+
     - name: Deploy to Cloudflare Pages
       uses: cloudflare/wrangler-action@v3
       with:
         apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
         accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        command: pages deploy dist --project-name=widescope
+        command: pages deploy dist --project-name=widescope --branch=main
