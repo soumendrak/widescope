@@ -25,6 +25,10 @@
   <code>Local-first</code>
 </p>
 
+<p align="center">
+  <img src="docs/assets/screenshot.webp" alt="WideScope screenshot" width="800" />
+</p>
+
 A browser-based, zero-backend trace viewer for OpenTelemetry- and Jaeger-style traces, with an LLM-aware inspection UI powered by Rust/WASM and Svelte. Load a JSON trace locally, inspect it instantly, and keep the data entirely in your browser.
 
 ## Features
