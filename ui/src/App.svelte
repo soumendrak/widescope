@@ -32,6 +32,7 @@
 
   const LIVE_PARSE_DELAY_MS = 150;
   const DEFAULT_EDITOR_HEIGHT_PX = 280;
+  const EMPTY_EDITOR_HEIGHT_PX = 160;
   const COLLAPSED_EDITOR_HEIGHT_PX = 88;
   const AUTO_EXPAND_EDITOR_DELTA_PX = 24;
 
@@ -258,11 +259,52 @@
         isSample={state.isSampleTrace}
       />
       <div class="main">
-        <section class="editor-panel" class:editor-panel--collapsed={editorCollapsed}>
+        {#if !editorValue.trim()}
+          <section class="welcome-panel" aria-labelledby="welcome-title">
+            <div class="welcome-copy">
+              <div class="eyebrow">Trace explorer</div>
+              <h1 id="welcome-title">Explore distributed traces locally</h1>
+              <p>
+                Drop OTLP, Jaeger, or OpenInference JSON and inspect spans, timelines, errors, and LLM calls in your browser.
+              </p>
+              <div class="privacy-note">Files stay local in your browser.</div>
+            </div>
+
+            <div class="welcome-actions" aria-label="Load trace actions">
+              <button type="button" class="welcome-btn welcome-btn--primary" on:click={loadSampleJson}>
+                Load sample trace
+              </button>
+              <button type="button" class="welcome-btn" on:click={openEditorFilePicker}>
+                Open file
+              </button>
+              <button type="button" class="welcome-btn" on:click={pasteFromClipboard}>
+                Paste JSON
+              </button>
+            </div>
+
+            <div class="format-row" aria-label="Supported formats">
+              <span>Supports</span>
+              <span class="format-chip">OTLP JSON</span>
+              <span class="format-chip">Jaeger JSON</span>
+              <span class="format-chip">OpenInference</span>
+              <span class="drop-hint">Drag and drop a file anywhere</span>
+            </div>
+          </section>
+        {/if}
+
+        <section
+          class="editor-panel"
+          class:editor-panel--collapsed={editorCollapsed}
+          class:editor-panel--empty={!editorValue.trim()}
+        >
           <div class="editor-header">
             <div class="editor-copy">
-              <div class="editor-title">Trace JSON input</div>
-              <div class="editor-subtitle">Paste formatted or unformatted JSON, then submit it or let the graphs update live while you type.</div>
+              <div class="editor-title">{editorValue.trim() ? 'Trace JSON input' : 'Paste JSON manually'}</div>
+              <div class="editor-subtitle">
+                {editorValue.trim()
+                  ? 'Paste formatted or unformatted JSON, then submit it or let the graphs update live while you type.'
+                  : 'Prefer the raw payload? Paste trace JSON here and submit it when ready.'}
+              </div>
             </div>
             <div class="editor-actions">
               <button type="button" class="editor-btn editor-btn--ghost" on:click={clearEditorJson} disabled={!editorValue.trim()}>
@@ -294,7 +336,7 @@
               placeholder="Paste a trace JSON payload here…"
               spellcheck="false"
               aria-label="Trace JSON input"
-              style={`height: ${editorCurrentHeight}px;`}
+              style={`height: ${editorValue.trim() ? editorCurrentHeight : EMPTY_EDITOR_HEIGHT_PX}px;`}
             ></textarea>
             {#if editorCollapsed && editorValue.trim()}
               <button
@@ -467,6 +509,122 @@
     padding: 0.75rem;
   }
 
+  .welcome-panel {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1.25rem;
+    align-items: center;
+    padding: 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--color-accent, #3b82f6) 28%, var(--color-border, #334155));
+    border-radius: 18px;
+    background:
+      radial-gradient(circle at top left, color-mix(in srgb, var(--color-accent, #3b82f6) 18%, transparent), transparent 34rem),
+      linear-gradient(135deg, var(--color-surface, #1e293b), color-mix(in srgb, var(--color-surface, #1e293b) 86%, var(--color-accent, #3b82f6)));
+    box-shadow: 0 18px 50px rgba(15, 23, 42, 0.16);
+  }
+
+  .welcome-copy {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+    max-width: 760px;
+  }
+
+  .eyebrow {
+    color: var(--color-badge-text, #93c5fd);
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .welcome-copy h1 {
+    color: var(--color-text, #e2e8f0);
+    font-size: clamp(1.65rem, 3vw, 2.55rem);
+    line-height: 1.05;
+    letter-spacing: -0.045em;
+  }
+
+  .welcome-copy p {
+    color: var(--color-text-muted, #94a3b8);
+    font-size: 1rem;
+    line-height: 1.55;
+  }
+
+  .privacy-note {
+    width: fit-content;
+    padding: 0.35rem 0.6rem;
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 999px;
+    background: var(--color-panel-subtle, rgba(255, 255, 255, 0.05));
+    color: var(--color-text, #e2e8f0);
+    font-size: 0.82rem;
+    font-weight: 700;
+  }
+
+  .welcome-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    min-width: 180px;
+  }
+
+  .welcome-btn {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 11px;
+    background: var(--color-panel-subtle, rgba(255, 255, 255, 0.05));
+    color: var(--color-text, #e2e8f0);
+    font-size: 0.92rem;
+    font-weight: 800;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease, box-shadow 0.14s ease;
+  }
+
+  .welcome-btn:hover {
+    transform: translateY(-1px);
+    border-color: var(--color-accent, #3b82f6);
+    background: var(--color-panel-highlight, rgba(255, 255, 255, 0.04));
+  }
+
+  .welcome-btn--primary {
+    border-color: transparent;
+    background: linear-gradient(135deg, var(--color-accent, #3b82f6), color-mix(in srgb, var(--color-accent, #3b82f6) 68%, #8b5cf6));
+    color: #fff;
+    box-shadow: 0 12px 28px color-mix(in srgb, var(--color-accent, #3b82f6) 30%, transparent);
+  }
+
+  .welcome-btn--primary:hover {
+    background: linear-gradient(135deg, var(--color-accent-hover, #2563eb), color-mix(in srgb, var(--color-accent-hover, #2563eb) 62%, #8b5cf6));
+  }
+
+  .format-row {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    color: var(--color-text-muted, #94a3b8);
+    font-size: 0.82rem;
+  }
+
+  .format-chip,
+  .drop-hint {
+    padding: 0.28rem 0.55rem;
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 999px;
+    background: var(--color-panel-subtle, rgba(255, 255, 255, 0.05));
+    color: var(--color-text, #e2e8f0);
+    font-weight: 700;
+  }
+
+  .drop-hint {
+    margin-left: auto;
+    color: var(--color-text-muted, #94a3b8);
+    font-weight: 600;
+  }
+
   .editor-panel {
     display: flex;
     flex-direction: column;
@@ -482,6 +640,12 @@
   .editor-panel--collapsed {
     gap: 0.5rem;
     padding: 0.875rem 1rem;
+  }
+
+  .editor-panel--empty {
+    border-style: dashed;
+    box-shadow: none;
+    opacity: 0.94;
   }
 
   .editor-header {
@@ -742,4 +906,66 @@
   }
 
   .fatal-error p { color: #94a3b8; font-size: 0.875rem; }
+
+  @media (max-width: 820px) {
+    .app,
+    .layout {
+      min-height: 100vh;
+      height: auto;
+      overflow: auto;
+    }
+
+    .main {
+      overflow: visible;
+      padding: 0.65rem;
+    }
+
+    .welcome-panel {
+      grid-template-columns: 1fr;
+      padding: 1.15rem;
+      border-radius: 14px;
+    }
+
+    .welcome-actions {
+      min-width: 0;
+    }
+
+    .format-row {
+      align-items: flex-start;
+    }
+
+    .drop-hint {
+      margin-left: 0;
+      width: 100%;
+    }
+
+    .editor-header,
+    .editor-footer {
+      align-items: stretch;
+    }
+
+    .editor-actions,
+    .editor-btn {
+      width: 100%;
+    }
+
+    .editor-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .editor-btn:last-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .welcome-copy h1 {
+      font-size: 1.75rem;
+    }
+
+    .editor-actions {
+      grid-template-columns: 1fr;
+    }
+  }
 </style>
