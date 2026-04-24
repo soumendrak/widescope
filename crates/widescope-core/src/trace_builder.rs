@@ -66,7 +66,7 @@ pub fn build_trace(
             .iter()
             .map(|(id, idxs)| (id.clone(), idxs.len()))
             .collect();
-        all_ids.sort_by(|a, b| b.1.cmp(&a.1));
+        all_ids.sort_by_key(|b| std::cmp::Reverse(b.1));
 
         for (id, count) in &all_ids {
             if *count > best_count {
