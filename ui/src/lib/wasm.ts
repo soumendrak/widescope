@@ -8,6 +8,7 @@ import type {
   TimelineLayout,
   TraceSummary,
   WasmError,
+  WaterfallLayout,
 } from './types';
 
 const {
@@ -15,6 +16,7 @@ const {
   parse_trace,
   compute_flamegraph,
   compute_timeline,
+  compute_waterfall,
   get_span_detail,
 } = widescopeCore;
 
@@ -41,6 +43,10 @@ export function getFlameGraphLayout(): FlameGraphLayout {
 
 export function getTimelineLayout(): TimelineLayout {
   return JSON.parse(compute_timeline()) as TimelineLayout;
+}
+
+export function getWaterfallLayout(): WaterfallLayout {
+  return JSON.parse(compute_waterfall()) as WaterfallLayout;
 }
 
 export function getSpanDetail(spanId: string): SpanDetail {

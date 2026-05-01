@@ -1,11 +1,12 @@
 import { writable } from 'svelte/store';
-import type { FlameGraphLayout, TimelineLayout, TraceSummary, WasmError } from '../lib/types';
+import type { FlameGraphLayout, TimelineLayout, TraceSummary, WasmError, WaterfallLayout } from '../lib/types';
 
 export interface TraceState {
   status: 'empty' | 'loading' | 'loaded' | 'error';
   summary: TraceSummary | null;
   flameLayout: FlameGraphLayout | null;
   timelineLayout: TimelineLayout | null;
+  waterfallLayout: WaterfallLayout | null;
   error: WasmError | null;
   isSampleTrace: boolean;
 }
@@ -15,6 +16,7 @@ const initial: TraceState = {
   summary: null,
   flameLayout: null,
   timelineLayout: null,
+  waterfallLayout: null,
   error: null,
   isSampleTrace: false,
 };
@@ -31,9 +33,10 @@ function createTraceStore() {
       summary: TraceSummary,
       flameLayout: FlameGraphLayout,
       timelineLayout: TimelineLayout | null,
+      waterfallLayout: WaterfallLayout | null,
       isSampleTrace: boolean
     ) {
-      set({ status: 'loaded', summary, flameLayout, timelineLayout, error: null, isSampleTrace });
+      set({ status: 'loaded', summary, flameLayout, timelineLayout, waterfallLayout, error: null, isSampleTrace });
     },
     setError(error: WasmError) {
       set({ ...initial, status: 'error', error });

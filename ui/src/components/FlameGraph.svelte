@@ -537,7 +537,7 @@
     on:mouseleave={onMouseLeave}
     on:wheel|passive={onWheel}
     on:dblclick={onDblClick}
-  />
+  ></canvas>
   <div class="controls">
     <button class="ctrl-btn" title="Reset zoom (0)" on:click={resetZoom}>Reset</button>
     <button class="ctrl-btn" title="Fit selection (F)" on:click={() => {

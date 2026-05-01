@@ -26,6 +26,13 @@
     <span class="icon">✕</span>
     <div class="content">
       <strong>{formatCode(error.code)}:</strong> {error.message}
+      {#if error.code === 'INVALID_JSON' && error.context}
+        <span class="error-location">
+          {#if error.context.line !== undefined && error.context.line !== null}
+            at line {error.context.line}{error.context.column !== undefined && error.context.column !== null ? `, column ${error.context.column}` : ''}
+          {/if}
+        </span>
+      {/if}
     </div>
   </div>
 {/if}
@@ -145,5 +152,12 @@
     padding: 0 0.3rem;
     font-size: 0.78rem;
     flex-shrink: 0;
+  }
+
+  .error-location {
+    font-family: monospace;
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin-left: 0.5rem;
   }
 </style>

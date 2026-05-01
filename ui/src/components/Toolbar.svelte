@@ -165,6 +165,14 @@
           aria-selected={$activeView === 'timeline'}
           on:click={() => activeView.set('timeline')}
         >≋ Timeline</button>
+        <button
+          type="button"
+          class="view-tab"
+          class:view-tab--active={$activeView === 'waterfall'}
+          role="tab"
+          aria-selected={$activeView === 'waterfall'}
+          on:click={() => activeView.set('waterfall')}
+        >☰ Waterfall</button>
       </div>
       <button
         type="button"

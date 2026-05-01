@@ -9,9 +9,11 @@
   import Toolbar from './components/Toolbar.svelte';
   import FlameGraph from './components/FlameGraph.svelte';
   import Timeline from './components/Timeline.svelte';
+  import WaterfallView from './components/WaterfallView.svelte';
   import SpanDetail from './components/SpanDetail.svelte';
   import DropZone from './components/DropZone.svelte';
   import ErrorBanner from './components/ErrorBanner.svelte';
+  import KeyboardHelp from './components/KeyboardHelp.svelte';
   import { activeView, focusedSpanId, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from './stores/selection';
 
   let wasmReady = false;
@@ -29,6 +31,12 @@
   let liveParseTimer: ReturnType<typeof setTimeout> | null = null;
   let flameGraphView: { focusView: () => void } | null = null;
   let timelineView: { focusView: () => void } | null = null;
+  let waterfallView: { focusView: () => void } | null = null;
+  let showKeyboardHelp = false;
+
+  const STORAGE_KEY_THEME = 'widescope:theme';
+  const STORAGE_KEY_VIEW = 'widescope:view';
+  const STORAGE_KEY_EDITOR = 'widescope:editor';
 
   const LIVE_PARSE_DELAY_MS = 150;
   const DEFAULT_EDITOR_HEIGHT_PX = 280;
@@ -37,8 +45,14 @@
   const AUTO_EXPAND_EDITOR_DELTA_PX = 24;
 
   onMount(async () => {
+    const storedTheme = localStorage.getItem(STORAGE_KEY_THEME);
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    theme.apply(prefersDark ? 'dark' : 'light');
+    theme.apply(storedTheme === 'dark' ? 'dark' : storedTheme === 'light' ? 'light' : (prefersDark ? 'dark' : 'light'));
+
+    const storedView = localStorage.getItem(STORAGE_KEY_VIEW);
+    if (storedView === 'flame' || storedView === 'timeline' || storedView === 'waterfall') {
+      activeView.set(storedView);
+    }
 
     if (editorInputEl) {
       editorResizeObserver = new ResizeObserver((entries) => {
@@ -70,12 +84,24 @@
       wasmReady = true;
     } catch (e) {
       wasmError = String(e);
+      return;
+    }
+
+    const params = new URLSearchParams(window.location.search);
+    const traceUrl = params.get('trace');
+    if (traceUrl) {
+      try {
+        await loadTraceFromUrl(traceUrl);
+      } catch {
+        editorMessage = 'Failed to load trace from URL.';
+      }
     }
   });
 
   onDestroy(() => {
     clearLiveParseTimer();
     editorResizeObserver?.disconnect();
+    if (globalKeydownHandler) document.removeEventListener('keydown', globalKeydownHandler);
   });
 
   function clearLiveParseTimer(): void {
@@ -222,15 +248,87 @@
     const parsed = applyEditorValue();
     if (!parsed) return;
     collapseEditor();
-    activeView.set('timeline');
+    activeView.set($activeView || 'timeline');
     await tick();
-    timelineView?.focusView();
+    if ($activeView === 'waterfall') waterfallView?.focusView();
+    else if ($activeView === 'timeline') timelineView?.focusView();
+    else flameGraphView?.focusView();
   }
+
+  async function loadTraceFromUrl(url: string): Promise<void> {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const text = await response.text();
+    loadEditorText(text);
+  }
+
+  let globalKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
+
+  onMount(() => {
+    globalKeydownHandler = (e: KeyboardEvent) => {
+      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
+
+      if (e.key === '?' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        showKeyboardHelp = !showKeyboardHelp;
+        return;
+      }
+      if (showKeyboardHelp) {
+        if (e.key === 'Escape') { showKeyboardHelp = false; e.preventDefault(); }
+        return;
+      }
+
+      const mod = e.metaKey || e.ctrlKey;
+
+      if (mod && e.key === 'o') { e.preventDefault(); openEditorFilePicker(); return; }
+      if (mod && e.key === 'k') {
+        e.preventDefault();
+        const searchInput = document.querySelector<HTMLInputElement>('.search-input');
+        searchInput?.focus();
+        return;
+      }
+      if (mod && e.key === 'Enter') { e.preventDefault(); void submitEditor(); return; }
+      if (mod && e.key === 'v') { e.preventDefault(); void pasteFromClipboard(); return; }
+
+      if (!mod && e.key >= '1' && e.key <= '3') {
+        e.preventDefault();
+        const views: Array<'flame' | 'timeline' | 'waterfall'> = ['flame', 'timeline', 'waterfall'];
+        activeView.set(views[parseInt(e.key) - 1]);
+        localStorage.setItem(STORAGE_KEY_VIEW, views[parseInt(e.key) - 1]);
+        return;
+      }
+    };
+    document.addEventListener('keydown', globalKeydownHandler);
+  });
 
   $: state = $traceState;
   $: warnings = state.summary?.warnings ?? [];
   $: initWarnings = wasmReady ? getInitWarnings() : [];
   $: allWarnings = [...initWarnings, ...warnings];
+  $: localStorage.setItem(STORAGE_KEY_THEME, $theme);
+  $: localStorage.setItem(STORAGE_KEY_VIEW, $activeView);
+  $: {
+    try {
+      if (editorValue.trim()) {
+        localStorage.setItem(STORAGE_KEY_EDITOR, editorValue);
+      }
+    } catch { /* ignore */ }
+  }
+
+  $: if (state.status === 'error' && state.error?.context && editorInputEl) {
+    const line = state.error.context.line;
+    if (typeof line === 'number' && line > 0) {
+      const lines = editorValue.substring(0, editorValue.split('\n').slice(0, line - 1).join('\n').length + (line > 1 ? 1 : 0)).split('\n');
+      let charOffset = 0;
+      for (let i = 0; i < line - 1 && i < lines.length; i++) {
+        charOffset += lines[i].length + 1;
+      }
+      editorInputEl.focus();
+      editorInputEl.setSelectionRange(charOffset, charOffset);
+      const lineHeight = 20;
+      editorInputEl.scrollTop = Math.max(0, (line - 1) * lineHeight - 60);
+    }
+  }
 </script>
 
 <svelte:window on:pointermove={onWindowPointerMove} on:pointerup={endEditorResize} on:pointercancel={endEditorResize} />
@@ -371,6 +469,8 @@
             {#if state.status === 'loaded' && state.flameLayout}
               {#if $activeView === 'timeline' && state.timelineLayout}
                 <Timeline bind:this={timelineView} layout={state.timelineLayout} />
+              {:else if $activeView === 'waterfall' && state.waterfallLayout}
+                <WaterfallView bind:this={waterfallView} layout={state.waterfallLayout} />
               {:else}
                 <FlameGraph bind:this={flameGraphView} layout={state.flameLayout} />
               {/if}
@@ -380,6 +480,13 @@
                 <div class="empty-icon">⚠️</div>
                 <div class="empty-title">Could not parse trace</div>
                 <div class="empty-sub">Update the JSON above and the flame graph and timeline view will refresh when the payload becomes valid.</div>
+                {#if state.error?.code === 'INVALID_JSON' && state.error?.context}
+                  <div class="error-context">
+                    {#if state.error.context.line !== undefined && state.error.context.line !== null}
+                      Line {state.error.context.line}{state.error.context.column !== undefined && state.error.context.column !== null ? `, column ${state.error.context.column}` : ''}
+                    {/if}
+                  </div>
+                {/if}
               </div>
             {:else if state.status === 'loading'}
               <div class="empty-state">
@@ -393,6 +500,9 @@
       </div>
     </div>
     <DropZone onFileDrop={onDroppedFile} />
+    {#if showKeyboardHelp}
+      <KeyboardHelp on:close={() => (showKeyboardHelp = false)} />
+    {/if}
   {/if}
 </div>
 
@@ -860,6 +970,17 @@
   .empty-sub {
     font-size: 0.875rem;
     font-family: monospace;
+  }
+
+  .error-context {
+    margin-top: 0.5rem;
+    padding: 0.35rem 0.65rem;
+    border: 1px solid var(--color-error-border, #fca5a5);
+    border-radius: 6px;
+    background: var(--color-error-bg, #fee2e2);
+    color: var(--color-error-text, #991b1b);
+    font-family: monospace;
+    font-size: 0.8125rem;
   }
 
   .splash {
