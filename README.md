@@ -178,9 +178,9 @@ widescope/
 
 | Feature | Status |
 |---|---|
-| Multi-trace loading | 🔜 Planned |
+| Multi-trace loading | ✅ Supported |
 | Span annotations | ✅ Supported |
-| Trace slicing | 🔜 Planned |
+| Trace slicing | ✅ Supported |
 | Attribute search with operators (`duration>100ms`, `status=error`) | ✅ Supported |
 | Latency heatmap | ✅ Supported |
 

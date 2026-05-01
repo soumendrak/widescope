@@ -1,5 +1,6 @@
 <script lang="ts">
   import { traceState } from '../stores/trace';
+  import { traceList } from '../stores/traceList';
   import { openFilePicker } from '../lib/input';
   import { theme } from '../lib/theme';
   import { searchSpans, filterSpans, getCostBreakdown, type SpanFilters } from '../lib/wasm';
@@ -39,6 +40,12 @@
   $: costDisplay = costBreakdown?.total_cost_usd
     ? `$${costBreakdown.total_cost_usd < 0.01 ? costBreakdown.total_cost_usd.toFixed(6) : costBreakdown.total_cost_usd.toFixed(4)}`
     : '';
+  $: traceCount = $traceList.length;
+  $: activeTraceIdx = $traceList.findIndex(e => $traceState.summary && (e.json.includes($traceState.summary.trace_id)));
+
+  function switchTrace(index: number): void {
+    traceList.switchTo(index);
+  }
 
   $: applyFilters($filterStatus, $filterService, $filterKind, $filterLlmOnly);
 
@@ -107,6 +114,15 @@
         <span class="name">WideScope</span>
       </div>
       <button type="button" class="btn-open" on:click={onOpenFile}>Open file</button>
+
+      {#if traceCount > 1}
+        <select class="trace-select" value={activeTraceIdx} on:change={(e) => switchTrace(parseInt(e.currentTarget.value))} aria-label="Switch trace">
+          {#each $traceList as entry, i}
+            <option value={i}>{entry.name}</option>
+          {/each}
+        </select>
+        <span class="trace-count">{traceCount} traces</span>
+      {/if}
     </div>
 
     <div class="top-center">
@@ -300,6 +316,26 @@
   }
 
   .btn-open:hover { background: var(--color-accent-hover, #2563eb); }
+
+  .trace-select {
+    padding: 0.2rem 0.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 5px;
+    background: rgba(15, 23, 42, 0.4);
+    color: var(--color-toolbar-text, #f1f5f9);
+    font-size: 0.78rem;
+    outline: none;
+    cursor: pointer;
+    max-width: 180px;
+  }
+
+  .trace-select:focus { border-color: var(--color-accent, #3b82f6); }
+
+  .trace-count {
+    color: var(--color-toolbar-muted, #94a3b8);
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
 
   .status-loading {
     color: var(--color-toolbar-muted, #94a3b8);

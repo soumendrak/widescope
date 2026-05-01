@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import type { FlameGraphLayout, FlameNode } from '../lib/types';
-  import { selectedSpanId, hoveredSpanId, focusedSpanId, searchResults } from '../stores/selection';
+  import { selectedSpanId, hoveredSpanId, focusedSpanId, searchResults, sliceStartNs, sliceEndNs } from '../stores/selection';
   import { getCriticalPath } from '../lib/wasm';
   import type { CriticalPath } from '../lib/types';
 
@@ -26,6 +26,8 @@
   let showCriticalPath = false;
   let criticalPath: CriticalPath | null = null;
   let criticalPathSet = new Set<string>();
+  let sliceEnabled = false;
+  let draggingSlice = ''; // 'start' | 'end' | ''
 
   // Zoom / pan state
   let zoom = 1;
@@ -205,10 +207,43 @@
     const searchMatchSet = new Set(activeSearchResults);
     const palette = getCanvasPalette();
 
+    const sStart = $sliceStartNs;
+    const sEnd = $sliceEndNs;
+    const hasSlice = sStart !== null && sEnd !== null && sStart < sEnd;
+    let sliceXStart = 0;
+    let sliceXEnd = canvasW;
+
+    if (hasSlice && layout.trace_duration_ns > 0) {
+      sliceXStart = toPixelX(sStart! / layout.trace_duration_ns);
+      sliceXEnd = toPixelX(sEnd! / layout.trace_duration_ns);
+
+      // Dim region outside slice
+      ctx.save();
+      ctx.fillStyle = 'rgba(0,0,0,0.35)';
+      ctx.fillRect(0, 0, sliceXStart, canvasH);
+      ctx.fillRect(sliceXEnd, 0, canvasW - sliceXEnd, canvasH);
+      ctx.restore();
+
+      // Slice zone highlight
+      ctx.save();
+      ctx.fillStyle = 'rgba(59,130,246,0.05)';
+      ctx.fillRect(sliceXStart, 0, sliceXEnd - sliceXStart, canvasH);
+      ctx.strokeStyle = 'rgba(59,130,246,0.5)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([4, 4]);
+      ctx.strokeRect(sliceXStart, 0, sliceXEnd - sliceXStart, canvasH);
+      ctx.setLineDash([]);
+      ctx.restore();
+    }
+
     for (const node of layout.nodes) {
-      drawNode(node, sel, hov, foc, hasSearch, searchMatchSet, palette);
+      drawNode(node, sel, hov, foc, hasSearch, searchMatchSet, palette, hasSlice, sStart, sEnd, sliceXStart, sliceXEnd);
     }
     drawTimeAxis(palette);
+
+    if (hasSlice) {
+      drawSliceLabels(sliceXStart, sliceXEnd, sStart!, sEnd!);
+    }
   }
 
   function toPixelX(normX: number): number {
@@ -226,11 +261,43 @@
     foc: string | null,
     hasSearch: boolean,
     searchMatchSet: Set<string>,
-    palette: CanvasPalette
+    palette: CanvasPalette,
+    hasSlice: boolean = false,
+    sStart: number | null = null,
+    sEnd: number | null = null,
+    sliceXStart: number = 0,
+    sliceXEnd: number = 0
   ) {
     const px = toPixelX(node.x);
     const pw = toPixelW(node.width);
-    if (px + pw < 0 || px > canvasW) return; // cull
+    if (px + pw < 0 || px > canvasW) return;
+
+    if (hasSlice && layout.trace_duration_ns > 0) {
+      const nodeTs = node.x * layout.trace_duration_ns;
+      const nodeTe = (node.x + node.width) * layout.trace_duration_ns;
+      if (nodeTe < sStart! || nodeTs > sEnd!) {
+        ctx!.save();
+        ctx!.globalAlpha = 0.2;
+        drawNodeBody(node, px, pw, sel, hov, foc, hasSearch, searchMatchSet, palette);
+        ctx!.restore();
+        return;
+      }
+    }
+
+    drawNodeBody(node, px, pw, sel, hov, foc, hasSearch, searchMatchSet, palette);
+  }
+
+  function drawNodeBody(
+    node: FlameNode,
+    px: number,
+    pw: number,
+    sel: string | null,
+    hov: string | null,
+    foc: string | null,
+    hasSearch: boolean,
+    searchMatchSet: Set<string>,
+    palette: CanvasPalette
+  ) { // cull
 
     const py = node.depth * ROW_HEIGHT;
     const minW = 1;
@@ -322,6 +389,35 @@
       ctx.fillRect(px, y, 1, 5);
       ctx.fillText(label, px + 2, y + 14);
     }
+  }
+
+  function drawSliceLabels(sx: number, ex: number, startNs: number, endNs: number) {
+    if (!ctx) return;
+    const y = (layout.max_depth + 1) * ROW_HEIGHT + 4;
+    ctx.font = '9px monospace';
+    ctx.fillStyle = '#93c5fd';
+    ctx.fillText(formatNs(startNs), sx + 4, y + 10);
+    ctx.fillText(formatNs(endNs), ex - 60, y + 10);
+  }
+
+  function clearSlice() {
+    sliceStartNs.set(null);
+    sliceEndNs.set(null);
+  }
+
+  function sliceToSpan() {
+    const sel = $selectedSpanId;
+    if (!sel || !nodeMap) return;
+    const node = nodeMap.get(sel);
+    if (!node || !layout || layout.trace_duration_ns <= 0) return;
+    sliceStartNs.set(Math.round(node.x * layout.trace_duration_ns));
+    sliceEndNs.set(Math.round((node.x + node.width) * layout.trace_duration_ns));
+  }
+
+  function sliceToAll(): void {
+    if (!layout) return;
+    sliceStartNs.set(0);
+    sliceEndNs.set(layout.trace_duration_ns);
   }
 
   function formatNs(ns: number): string {
@@ -599,6 +695,10 @@
     }}>Fit</button>
     <button class="ctrl-btn" class:ctrl-btn--active={heatmapMode} title="Toggle latency heatmap" on:click={toggleHeatmap}>Heatmap</button>
     <button class="ctrl-btn" class:ctrl-btn--active={showCriticalPath} title="Show critical path" on:click={toggleCriticalPath}>Critical</button>
+    <button class="ctrl-btn" title="Slice to selected span" on:click={sliceToSpan}>Slice</button>
+    {#if $sliceStartNs !== null && $sliceEndNs !== null}
+      <button class="ctrl-btn" title="Clear time slice" on:click={clearSlice}>✕</button>
+    {/if}
     <button class="ctrl-btn" title="Download PNG" on:click={exportPng}>PNG</button>
   </div>
   <!-- Screen reader live region -->

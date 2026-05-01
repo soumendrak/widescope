@@ -1,5 +1,6 @@
 import { traceState } from '../stores/trace';
 import { focusedSpanId, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from '../stores/selection';
+import { traceList } from '../stores/traceList';
 import { parseTrace, getFlameGraphLayout, getTimelineLayout, getWaterfallLayout, getServiceGraph, safeParseWasmError } from './wasm';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
@@ -78,8 +79,18 @@ async function readZipFile(file: File): Promise<string | null> {
     return entries[0];
   }
 
-  // Merge multiple traces into one
-  return entries.join('\n');
+  // Add each entry to the trace list, return the first one
+  for (let i = 0; i < entries.length; i++) {
+    try {
+      const summary = parseTrace(entries[i]);
+      const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
+      traceList.add(name, entries[i]);
+    } catch {
+      // skip invalid entries
+    }
+  }
+
+  return entries[0];
 }
 
 export async function handleFile(file: File, onText?: (text: string) => void): Promise<void> {
@@ -109,6 +120,11 @@ export function handleRawInput(text: string, isSample: boolean, showLoading = tr
     const waterfallLayout = getWaterfallLayout();
     const serviceGraph = getServiceGraph();
     traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, isSample);
+
+    // Add to trace list for multi-trace switching
+    const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
+    traceList.add(name, text);
+
     return true;
   } catch (err) {
     const wasmError = safeParseWasmError(err);

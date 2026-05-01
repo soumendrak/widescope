@@ -30,6 +30,8 @@ use utils::{format_duration, format_timestamp_display};
 
 thread_local! {
     static TRACE: RefCell<Option<Trace>> = const { RefCell::new(None) };
+    static TRACE_LIST: RefCell<Vec<(String, Trace)>> = const { RefCell::new(Vec::new()) };
+    static ACTIVE_TRACE_INDEX: RefCell<usize> = const { RefCell::new(0) };
     static COMPARISON_TRACE: RefCell<Option<Trace>> = const { RefCell::new(None) };
     static CONVENTIONS: RefCell<Vec<Convention>> = const { RefCell::new(Vec::new()) };
 }
