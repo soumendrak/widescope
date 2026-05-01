@@ -50,11 +50,13 @@
     rootEl.focus();
   }
 
-  $: colorMap = buildColorMap(layout?.rows ?? []);
-  $: groups = buildGroups(layout?.rows ?? [], layout?.blocks ?? []);
-  $: chartWidth = Math.max(0, viewportWidth - LABEL_WIDTH - RIGHT_PADDING);
-  $: svgHeight = groups.length > 0 ? groups[groups.length - 1].top + groups[groups.length - 1].height : AXIS_HEIGHT;
-  $: ticks = buildTicks(chartWidth, layout?.trace_duration_ns ?? 0);
+  $: {
+    colorMap = buildColorMap(layout?.rows ?? []);
+    groups = buildGroups(layout?.rows ?? [], layout?.blocks ?? []);
+    chartWidth = Math.max(0, viewportWidth - LABEL_WIDTH - RIGHT_PADDING);
+    svgHeight = groups.length > 0 ? groups[groups.length - 1].top + groups[groups.length - 1].height : AXIS_HEIGHT;
+    ticks = buildTicks(chartWidth, layout?.trace_duration_ns ?? 0);
+  }
   $: hasSearch = $searchResults.length > 0;
   $: searchResultSet = new Set($searchResults);
 
