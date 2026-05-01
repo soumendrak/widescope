@@ -3,6 +3,7 @@
   import { selectedSpanId } from '../stores/selection';
   import { traceState } from '../stores/trace';
   import { getSpanDetail } from '../lib/wasm';
+  import { annotations } from '../stores/annotations';
   import type { SpanDetail, LlmDetail } from '../lib/types';
 
   let detail: SpanDetail | null = null;
@@ -12,6 +13,7 @@
   let sidebar: HTMLDivElement;
   let sidebarWidth = 420;
   let isResizing = false;
+  let noteText = '';
 
   const MIN_SIDEBAR_WIDTH = 320;
   const SIDEBAR_EDGE_GAP = 24;
@@ -19,16 +21,33 @@
   const unsubSel = selectedSpanId.subscribe(async (id) => {
     if (!id || $traceState.status !== 'loaded') {
       detail = null;
+      noteText = '';
       return;
     }
     loading = true;
     try {
       detail = getSpanDetail(id);
+      let currentNote = '';
+      annotations.subscribe((a) => { currentNote = a[id] ?? ''; })();
+      noteText = currentNote;
     } catch {
       detail = null;
     }
     loading = false;
   });
+
+  function saveNote() {
+    const id = $selectedSpanId;
+    if (!id) return;
+    annotations.setNote(id, noteText);
+  }
+
+  function onNoteKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      saveNote();
+    }
+  }
 
   function pct(ns: number, totalNs: number): string {
     if (!totalNs) return '0%';
@@ -194,6 +213,20 @@
           {/if}
         </div>
       {/if}
+
+      <!-- Annotations -->
+      <div class="section annotation-section">
+        <div class="section-title">📝 Note</div>
+        <textarea
+          class="annotation-input"
+          placeholder="Add a note for this span…"
+          bind:value={noteText}
+          on:blur={saveNote}
+          on:keydown={onNoteKeyDown}
+          rows="3"
+        ></textarea>
+        <div class="annotation-hint">Enter to save, Shift+Enter for newline</div>
+      </div>
 
       <!-- Attributes -->
       {#if detail.attributes.length > 0}
@@ -542,6 +575,33 @@
 
   .tool-name { font-weight: 600; font-size: 0.8rem; margin-bottom: 0.15rem; color: var(--color-text, #e2e8f0); }
   .tool-args { font-family: monospace; font-size: 0.75rem; color: var(--color-code-muted, #94a3b8); white-space: pre-wrap; }
+
+  .annotation-section { background: var(--color-panel-highlight, rgba(255, 255, 255, 0.04)); }
+
+  .annotation-input {
+    width: 100%;
+    resize: vertical;
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 6px;
+    padding: 0.5rem 0.65rem;
+    background: var(--color-bg, #0f172a);
+    color: var(--color-text, #e2e8f0);
+    font: 0.8rem/1.5 system-ui, -apple-system, sans-serif;
+    outline: none;
+  }
+
+  .annotation-input:focus {
+    border-color: var(--color-accent, #3b82f6);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  }
+
+  .annotation-input::placeholder { color: var(--color-text-muted, #94a3b8); }
+
+  .annotation-hint {
+    font-size: 0.68rem;
+    color: var(--color-text-muted, #94a3b8);
+    margin-top: 0.2rem;
+  }
 
   .event-item {
     margin-bottom: 0.5rem;

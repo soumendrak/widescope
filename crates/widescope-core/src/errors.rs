@@ -1,7 +1,7 @@
-use thiserror::Error;
-use wasm_bindgen::JsValue;
 use serde::Serialize;
 use serde_json::json;
+use thiserror::Error;
+use wasm_bindgen::JsValue;
 
 #[derive(Debug, Error)]
 pub enum WideError {
@@ -50,7 +50,10 @@ impl From<WideError> for JsValue {
                 }),
             ),
             WideError::UnrecognizedFormat => ("UNRECOGNIZED_FORMAT", json!(null)),
-            WideError::NoValidSpans { attempted, failures } => (
+            WideError::NoValidSpans {
+                attempted,
+                failures,
+            } => (
                 "NO_VALID_SPANS",
                 json!({
                     "attempted": attempted,
@@ -58,10 +61,9 @@ impl From<WideError> for JsValue {
                 }),
             ),
             WideError::NoTraceLoaded => ("NO_TRACE_LOADED", json!(null)),
-            WideError::SpanNotFound { span_id } => (
-                "SPAN_NOT_FOUND",
-                json!({ "span_id": span_id }),
-            ),
+            WideError::SpanNotFound { span_id } => {
+                ("SPAN_NOT_FOUND", json!({ "span_id": span_id }))
+            }
             WideError::ConventionError { .. } => ("CONVENTION_ERROR", json!(null)),
         };
 

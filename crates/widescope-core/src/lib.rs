@@ -13,6 +13,7 @@ use wasm_bindgen::prelude::*;
 use conventions::registry::{load_conventions, Convention};
 use errors::WideError;
 use layout::flamegraph::compute_flamegraph_layout;
+use layout::graph::compute_service_graph as build_service_graph;
 use layout::timeline::compute_timeline_layout;
 use layout::waterfall::compute_waterfall_layout;
 use models::layout::{EventDetail, LlmDetail, MessageDetail, SpanDetailResponse, ToolCallDetail};
@@ -28,6 +29,7 @@ use utils::{format_duration, format_timestamp_display};
 
 thread_local! {
     static TRACE: RefCell<Option<Trace>> = const { RefCell::new(None) };
+    static COMPARISON_TRACE: RefCell<Option<Trace>> = const { RefCell::new(None) };
     static CONVENTIONS: RefCell<Vec<Convention>> = const { RefCell::new(Vec::new()) };
 }
 
@@ -335,6 +337,27 @@ pub fn compute_waterfall() -> Result<String, JsValue> {
     })
 }
 
+#[wasm_bindgen]
+pub fn get_service_graph() -> Result<String, JsValue> {
+    TRACE.with(|t| {
+        let borrow = t.borrow();
+        match borrow.as_ref() {
+            None => Err(WideError::NoTraceLoaded.into()),
+            Some(trace) => {
+                let graph = build_service_graph(trace);
+                serde_json::to_string(&graph).map_err(|e| {
+                    WideError::InvalidJson {
+                        message: e.to_string(),
+                        line: None,
+                        column: None,
+                    }
+                    .into()
+                })
+            }
+        }
+    })
+}
+
 fn build_event_detail(e: &SpanEvent) -> EventDetail {
     let mut attrs: Vec<(String, String)> = e
         .attributes
@@ -398,11 +421,11 @@ fn span_matches_query(span: &Span, query: &str) -> bool {
     }
 
     span.attributes.iter().any(|(key, value)| {
-        key.to_ascii_lowercase().contains(query) || attribute_value_matches_query(value, query)
+        key.to_ascii_lowercase().contains(query) || attr_val_matches_query(value, query)
     })
 }
 
-fn attribute_value_matches_query(value: &AttributeValue, query: &str) -> bool {
+fn attr_val_matches_query(value: &AttributeValue, query: &str) -> bool {
     match value {
         AttributeValue::String(text) => text.to_ascii_lowercase().contains(query),
         AttributeValue::StringArray(values) => values
@@ -493,4 +516,106 @@ pub fn filter_spans(filter_json: &str) -> Result<String, JsValue> {
             }
         }
     })
+}
+
+#[derive(Serialize)]
+struct ComparisonSummary {
+    span_count: usize,
+    service_count: usize,
+    total_duration_ns: u64,
+    total_duration_display: String,
+    has_errors: bool,
+    error_count: usize,
+    llm_span_count: usize,
+    trace_id: String,
+}
+
+#[wasm_bindgen]
+pub fn parse_comparison_trace(raw_input: &str) -> Result<String, JsValue> {
+    let value: serde_json::Value =
+        serde_json::from_str(raw_input).map_err(|e| WideError::InvalidJson {
+            message: e.to_string(),
+            line: Some(e.line()),
+            column: Some(e.column()),
+        })?;
+
+    let format = detect_format(&value).map_err(JsValue::from)?;
+
+    let (mut spans, _parse_warnings) = match &format {
+        models::trace::InputFormat::OtlpJson => {
+            let result = parse_otlp_with_warnings(&value).map_err(JsValue::from)?;
+            (result.spans, result.warnings)
+        }
+        models::trace::InputFormat::JaegerJson => {
+            let result = parse_jaeger_with_warnings(&value).map_err(JsValue::from)?;
+            (result.spans, result.warnings)
+        }
+        models::trace::InputFormat::OpenInferenceJson => {
+            let result = parse_openinference_with_warnings(&value).map_err(JsValue::from)?;
+            (result.spans, result.warnings)
+        }
+        _ => return Err(WideError::UnrecognizedFormat.into()),
+    };
+
+    let conventions = CONVENTIONS.with(|c| c.borrow().clone());
+    for span in &mut spans {
+        span.llm = conventions::resolver::resolve_llm_attributes(span, &conventions);
+    }
+
+    let trace = build_trace(spans, format, vec![]).map_err(JsValue::from)?;
+
+    let error_count = trace.spans.iter().filter(|s| s.status.is_error()).count();
+    let llm_span_count = trace.spans.iter().filter(|s| s.llm.is_some()).count();
+
+    let summary = ComparisonSummary {
+        trace_id: trace.trace_id.clone(),
+        span_count: trace.span_count,
+        service_count: trace.service_count,
+        total_duration_ns: trace.total_duration_ns,
+        total_duration_display: format_duration(trace.total_duration_ns),
+        has_errors: trace.has_errors,
+        error_count,
+        llm_span_count,
+    };
+
+    COMPARISON_TRACE.with(|t| {
+        *t.borrow_mut() = Some(trace);
+    });
+
+    serde_json::to_string(&summary).map_err(|e| {
+        WideError::InvalidJson {
+            message: e.to_string(),
+            line: None,
+            column: None,
+        }
+        .into()
+    })
+}
+
+#[wasm_bindgen]
+pub fn get_comparison_flamegraph() -> Result<String, JsValue> {
+    COMPARISON_TRACE.with(|t| {
+        let borrow = t.borrow();
+        match borrow.as_ref() {
+            None => Err(WideError::NoTraceLoaded.into()),
+            Some(trace) => {
+                let layout = compute_flamegraph_layout(trace);
+                serde_json::to_string(&layout).map_err(|e| {
+                    WideError::InvalidJson {
+                        message: e.to_string(),
+                        line: None,
+                        column: None,
+                    }
+                    .into()
+                })
+            }
+        }
+    })
+}
+
+#[wasm_bindgen]
+pub fn clear_comparison() {
+    COMPARISON_TRACE.with(|t| {
+        *t.borrow_mut() = None;
+    });
 }

@@ -1,7 +1,7 @@
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
 use crate::models::resource::Resource;
 use crate::models::span::Span;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Trace {

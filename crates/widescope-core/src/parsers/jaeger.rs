@@ -1,8 +1,8 @@
-use std::collections::HashMap;
-use serde_json::Value;
 use crate::errors::WideError;
 use crate::models::span::{AttributeValue, Span, SpanEvent, SpanKind, SpanStatus};
 use crate::models::trace::ParseWarning;
+use serde_json::Value;
+use std::collections::HashMap;
 
 pub struct JaegerParseResult {
     pub spans: Vec<Span>,
@@ -53,9 +53,7 @@ pub fn parse_jaeger_with_warnings(root: &Value) -> Result<JaegerParseResult, Wid
             skip_count,
             skip_reasons.join("; ")
         );
-        warnings.push(
-            ParseWarning::new("SPAN_MISSING_REQUIRED", message).with_count(skip_count),
-        );
+        warnings.push(ParseWarning::new("SPAN_MISSING_REQUIRED", message).with_count(skip_count));
     }
 
     if spans.is_empty() {
@@ -139,7 +137,10 @@ fn parse_single_span(
             .map(Vec::as_slice)
             .unwrap_or(&[]),
     );
-    let process_id = raw.get("processID").and_then(|value| value.as_str()).unwrap_or("");
+    let process_id = raw
+        .get("processID")
+        .and_then(|value| value.as_str())
+        .unwrap_or("");
     let service_name = process_services
         .get(process_id)
         .cloned()
@@ -183,15 +184,13 @@ fn parse_parent_span_id(raw: &Value) -> Option<String> {
         return Some(parent);
     }
 
-    references
-        .iter()
-        .find_map(|reference| {
-            reference
-                .get("spanID")
-                .and_then(|value| value.as_str())
-                .filter(|value| !value.is_empty())
-                .map(|value| value.to_string())
-        })
+    references.iter().find_map(|reference| {
+        reference
+            .get("spanID")
+            .and_then(|value| value.as_str())
+            .filter(|value| !value.is_empty())
+            .map(|value| value.to_string())
+    })
 }
 
 fn parse_micro_u64(value: &Value) -> Option<u64> {
@@ -259,7 +258,10 @@ fn parse_tags(tags: &[Value]) -> HashMap<String, AttributeValue> {
 }
 
 fn parse_tag_value(tag: &Value) -> Option<AttributeValue> {
-    let tag_type = tag.get("type").and_then(|value| value.as_str()).unwrap_or("");
+    let tag_type = tag
+        .get("type")
+        .and_then(|value| value.as_str())
+        .unwrap_or("");
     let raw_value = tag.get("value")?;
 
     match tag_type {
@@ -267,19 +269,35 @@ fn parse_tag_value(tag: &Value) -> Option<AttributeValue> {
             .as_str()
             .map(|value| AttributeValue::String(value.to_string()))
             .or_else(|| Some(AttributeValue::String(raw_value.to_string()))),
-        "bool" | "boolean" => raw_value
-            .as_bool()
-            .map(AttributeValue::Bool)
-            .or_else(|| raw_value.as_str().and_then(|value| value.parse::<bool>().ok()).map(AttributeValue::Bool)),
+        "bool" | "boolean" => raw_value.as_bool().map(AttributeValue::Bool).or_else(|| {
+            raw_value
+                .as_str()
+                .and_then(|value| value.parse::<bool>().ok())
+                .map(AttributeValue::Bool)
+        }),
         "int64" | "int32" | "int" | "long" => raw_value
             .as_i64()
             .map(AttributeValue::Int)
-            .or_else(|| raw_value.as_u64().and_then(|value| i64::try_from(value).ok()).map(AttributeValue::Int))
-            .or_else(|| raw_value.as_str().and_then(|value| value.parse::<i64>().ok()).map(AttributeValue::Int)),
-        "float64" | "float32" | "float" | "double" => raw_value
-            .as_f64()
-            .map(AttributeValue::Float)
-            .or_else(|| raw_value.as_str().and_then(|value| value.parse::<f64>().ok()).map(AttributeValue::Float)),
+            .or_else(|| {
+                raw_value
+                    .as_u64()
+                    .and_then(|value| i64::try_from(value).ok())
+                    .map(AttributeValue::Int)
+            })
+            .or_else(|| {
+                raw_value
+                    .as_str()
+                    .and_then(|value| value.parse::<i64>().ok())
+                    .map(AttributeValue::Int)
+            }),
+        "float64" | "float32" | "float" | "double" => {
+            raw_value.as_f64().map(AttributeValue::Float).or_else(|| {
+                raw_value
+                    .as_str()
+                    .and_then(|value| value.parse::<f64>().ok())
+                    .map(AttributeValue::Float)
+            })
+        }
         "binary" => raw_value
             .as_str()
             .map(|value| AttributeValue::String(format!("base64:{}", value)))
@@ -319,7 +337,11 @@ fn status_from_attributes(attributes: &HashMap<String, AttributeValue>) -> SpanS
     let error_message = attributes
         .get("error.message")
         .and_then(AttributeValue::as_str)
-        .or_else(|| attributes.get("otel.status_description").and_then(AttributeValue::as_str))
+        .or_else(|| {
+            attributes
+                .get("otel.status_description")
+                .and_then(AttributeValue::as_str)
+        })
         .unwrap_or("")
         .to_string();
 
@@ -340,7 +362,11 @@ fn status_from_attributes(attributes: &HashMap<String, AttributeValue>) -> SpanS
     match attributes
         .get("otel.status_code")
         .and_then(AttributeValue::as_str)
-        .or_else(|| attributes.get("status.code").and_then(AttributeValue::as_str))
+        .or_else(|| {
+            attributes
+                .get("status.code")
+                .and_then(AttributeValue::as_str)
+        })
         .map(|value| value.to_ascii_uppercase())
         .as_deref()
     {
@@ -415,12 +441,20 @@ mod tests {
         assert_eq!(result.spans.len(), 2);
         assert!(result.warnings.is_empty());
 
-        let root = result.spans.iter().find(|span| span.span_id == "root").unwrap();
+        let root = result
+            .spans
+            .iter()
+            .find(|span| span.span_id == "root")
+            .unwrap();
         assert_eq!(root.service_name, "gateway");
         assert!(matches!(root.span_kind, SpanKind::Server));
         assert_eq!(root.duration_ns, 25_000);
 
-        let child = result.spans.iter().find(|span| span.span_id == "child").unwrap();
+        let child = result
+            .spans
+            .iter()
+            .find(|span| span.span_id == "child")
+            .unwrap();
         assert_eq!(child.parent_span_id.as_deref(), Some("root"));
         assert_eq!(child.service_name, "worker");
         assert!(matches!(child.span_kind, SpanKind::Client));

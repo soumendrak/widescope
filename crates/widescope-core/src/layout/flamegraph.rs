@@ -12,9 +12,18 @@ pub fn compute_flamegraph_layout(trace: &Trace) -> FlameGraphLayout {
         };
     }
 
-    let trace_start = trace.spans.iter().map(|s| s.start_time_ns).min().unwrap_or(0);
+    let trace_start = trace
+        .spans
+        .iter()
+        .map(|s| s.start_time_ns)
+        .min()
+        .unwrap_or(0);
     let trace_end = trace.spans.iter().map(|s| s.end_time_ns).max().unwrap_or(0);
-    let trace_duration = if trace_end > trace_start { trace_end - trace_start } else { 1 };
+    let trace_duration = if trace_end > trace_start {
+        trace_end - trace_start
+    } else {
+        1
+    };
 
     let mut roots: Vec<&crate::models::span::Span> = trace
         .root_span_ids
@@ -27,7 +36,15 @@ pub fn compute_flamegraph_layout(trace: &Trace) -> FlameGraphLayout {
     let mut max_depth = 0u32;
 
     for root in &roots {
-        visit_span(root, 0, trace_start, trace_duration, trace, &mut nodes, &mut max_depth);
+        visit_span(
+            root,
+            0,
+            trace_start,
+            trace_duration,
+            trace,
+            &mut nodes,
+            &mut max_depth,
+        );
     }
 
     FlameGraphLayout {
@@ -83,6 +100,14 @@ fn visit_span(
     children.sort_by_key(|s| s.start_time_ns);
 
     for child in children {
-        visit_span(child, depth + 1, trace_start, trace_duration, trace, nodes, max_depth);
+        visit_span(
+            child,
+            depth + 1,
+            trace_start,
+            trace_duration,
+            trace,
+            nodes,
+            max_depth,
+        );
     }
 }

@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
 use crate::models::llm::LlmSpanAttributes;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 pub type Timestamp = u64;
 pub type Duration = u64;

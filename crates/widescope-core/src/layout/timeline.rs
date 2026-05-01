@@ -1,7 +1,7 @@
-use std::collections::HashMap;
 use crate::models::layout::{TimelineBlock, TimelineLayout, TimelineRow};
 use crate::models::trace::Trace;
 use crate::utils::format_duration;
+use std::collections::HashMap;
 
 pub fn compute_timeline_layout(trace: &Trace) -> TimelineLayout {
     if trace.spans.is_empty() {
@@ -13,18 +13,29 @@ pub fn compute_timeline_layout(trace: &Trace) -> TimelineLayout {
         };
     }
 
-    let trace_start = trace.spans.iter().map(|s| s.start_time_ns).min().unwrap_or(0);
+    let trace_start = trace
+        .spans
+        .iter()
+        .map(|s| s.start_time_ns)
+        .min()
+        .unwrap_or(0);
     let trace_end = trace.spans.iter().map(|s| s.end_time_ns).max().unwrap_or(0);
-    let trace_duration = if trace_end > trace_start { trace_end - trace_start } else { 1 };
+    let trace_duration = if trace_end > trace_start {
+        trace_end - trace_start
+    } else {
+        1
+    };
 
     let mut service_groups: HashMap<String, Vec<usize>> = HashMap::new();
     let mut service_order: Vec<String> = Vec::new();
 
     for (idx, span) in trace.spans.iter().enumerate() {
-        let entry = service_groups.entry(span.service_name.clone()).or_insert_with(|| {
-            service_order.push(span.service_name.clone());
-            Vec::new()
-        });
+        let entry = service_groups
+            .entry(span.service_name.clone())
+            .or_insert_with(|| {
+                service_order.push(span.service_name.clone());
+                Vec::new()
+            });
         entry.push(idx);
     }
 
@@ -96,7 +107,11 @@ fn make_block(
 ) -> TimelineBlock {
     let x_start = (span.start_time_ns - trace_start) as f64 / trace_duration as f64;
     let x_end = (span.end_time_ns - trace_start) as f64 / trace_duration as f64;
-    let x_end = if x_end <= x_start { x_start + 1e-9 } else { x_end };
+    let x_end = if x_end <= x_start {
+        x_start + 1e-9
+    } else {
+        x_end
+    };
 
     TimelineBlock {
         span_id: span.span_id.clone(),

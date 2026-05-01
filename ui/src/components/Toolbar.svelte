@@ -148,6 +148,8 @@
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'flame'} role="tab" aria-selected={$activeView === 'flame'} on:click={() => activeView.set('flame')}>F</button>
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'timeline'} role="tab" aria-selected={$activeView === 'timeline'} on:click={() => activeView.set('timeline')}>T</button>
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'waterfall'} role="tab" aria-selected={$activeView === 'waterfall'} on:click={() => activeView.set('waterfall')}>W</button>
+          <button type="button" class="view-tab" class:view-tab--active={$activeView === 'graph'} role="tab" aria-selected={$activeView === 'graph'} on:click={() => activeView.set('graph')} title="Service graph">G</button>
+          <button type="button" class="view-tab" class:view-tab--active={$activeView === 'diff'} role="tab" aria-selected={$activeView === 'diff'} on:click={() => activeView.set('diff')} title="Trace diff">D</button>
         </div>
       {/if}
 

@@ -1,9 +1,11 @@
 import init, * as widescopeCore from '../../../crates/widescope-core/pkg/widescope_core';
 import { BUNDLED_CONVENTIONS } from './conventions-bundle';
 import type {
+  ComparisonSummary,
   FlameGraphLayout,
   InitResult,
   ParseWarning,
+  ServiceGraph,
   SpanDetail,
   TimelineLayout,
   TraceSummary,
@@ -74,6 +76,29 @@ export function filterSpans(filters: SpanFilters): string[] {
     return [];
   }
   return JSON.parse(filterFn(JSON.stringify(filters))) as string[];
+}
+
+export function getServiceGraph(): ServiceGraph {
+  const fn = (widescopeCore as { get_service_graph?: () => string }).get_service_graph;
+  if (!fn) return { nodes: [], edges: [] };
+  return JSON.parse(fn()) as ServiceGraph;
+}
+
+export function parseComparisonTrace(raw: string): ComparisonSummary {
+  const fn = (widescopeCore as { parse_comparison_trace?: (v: string) => string }).parse_comparison_trace;
+  if (!fn) throw new Error('parse_comparison_trace not available');
+  return JSON.parse(fn(raw)) as ComparisonSummary;
+}
+
+export function getComparisonFlamegraph(): FlameGraphLayout {
+  const fn = (widescopeCore as { get_comparison_flamegraph?: () => string }).get_comparison_flamegraph;
+  if (!fn) throw new Error('get_comparison_flamegraph not available');
+  return JSON.parse(fn()) as FlameGraphLayout;
+}
+
+export function clearComparison(): void {
+  const fn = (widescopeCore as { clear_comparison?: () => void }).clear_comparison;
+  fn?.();
 }
 
 export function safeParseWasmError(err: unknown): WasmError {

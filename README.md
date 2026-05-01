@@ -163,26 +163,26 @@ widescope/
 |---|---|
 | Critical path | 🔜 Planned |
 | Cost breakdown | 🔜 Planned |
-| Stats dashboard (latency, error rate, counts) | 🔜 Planned |
+| Stats dashboard (latency, error rate, counts) | ✅ Supported |
 
 ### Phase 2 — Power User Workflow
 
 | Feature | Status |
 |---|---|
-| Trace diff (side-by-side comparison) | 🔜 Planned |
-| Span filtering (by service, status, duration, kind) | 🔜 Planned |
-| Service dependency graph | 🔜 Planned |
-| Export as PNG / SVG | 🔜 Planned |
+| Trace diff (side-by-side comparison) | ✅ Supported |
+| Span filtering (by service, status, duration, kind) | ✅ Supported |
+| Service dependency graph | ✅ Supported |
+| Export as PNG / SVG | ✅ Supported |
 
 ### Phase 3 — Advanced Capabilities
 
 | Feature | Status |
 |---|---|
 | Multi-trace loading | 🔜 Planned |
-| Span annotations | 🔜 Planned |
+| Span annotations | ✅ Supported |
 | Trace slicing | 🔜 Planned |
 | Attribute search with operators (`duration>100ms`, `status=error`) | 🔜 Planned |
-| Latency heatmap | 🔜 Planned |
+| Latency heatmap | ✅ Supported |
 
 ### Phase 4 — Ecosystem
 

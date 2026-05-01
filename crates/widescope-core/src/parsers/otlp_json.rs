@@ -1,8 +1,8 @@
-use std::collections::HashMap;
-use serde_json::Value;
 use crate::errors::WideError;
 use crate::models::span::{AttributeValue, Span, SpanEvent, SpanKind, SpanStatus};
 use crate::models::trace::ParseWarning;
+use serde_json::Value;
+use std::collections::HashMap;
 
 pub struct OtlpParseResult {
     pub spans: Vec<Span>,
@@ -62,9 +62,7 @@ pub fn parse_otlp_with_warnings(root: &Value) -> Result<OtlpParseResult, WideErr
             skip_count,
             skip_reasons.join("; ")
         );
-        warnings.push(
-            ParseWarning::new("SPAN_MISSING_REQUIRED", msg).with_count(skip_count),
-        );
+        warnings.push(ParseWarning::new("SPAN_MISSING_REQUIRED", msg).with_count(skip_count));
     }
 
     if spans.is_empty() {
@@ -126,10 +124,7 @@ fn parse_single_span(raw: &Value, service_name: &str) -> Result<Span, String> {
         .filter(|s| !s.is_empty())
         .map(|s| s.to_string());
 
-    let kind_int = raw
-        .get("kind")
-        .and_then(|v| v.as_u64())
-        .unwrap_or(0) as u8;
+    let kind_int = raw.get("kind").and_then(|v| v.as_u64()).unwrap_or(0) as u8;
     let span_kind = SpanKind::from_otlp_int(kind_int);
 
     let start_time_ns: u64 = raw
@@ -153,11 +148,15 @@ fn parse_single_span(raw: &Value, service_name: &str) -> Result<Span, String> {
     let status = parse_status(raw);
 
     let attributes = parse_attributes(
-        raw.get("attributes").and_then(|v| v.as_array()).unwrap_or(&vec![]),
+        raw.get("attributes")
+            .and_then(|v| v.as_array())
+            .unwrap_or(&vec![]),
     );
 
     let events = parse_events(
-        raw.get("events").and_then(|v| v.as_array()).unwrap_or(&vec![]),
+        raw.get("events")
+            .and_then(|v| v.as_array())
+            .unwrap_or(&vec![]),
     );
 
     let svc = if service_name.is_empty() {
@@ -272,8 +271,7 @@ fn parse_array_value(values: &[Value]) -> AttributeValue {
         return AttributeValue::StringArray(vec![]);
     }
 
-    let parsed: Vec<Option<AttributeValue>> =
-        values.iter().map(parse_any_value).collect();
+    let parsed: Vec<Option<AttributeValue>> = values.iter().map(parse_any_value).collect();
 
     let all_int = parsed
         .iter()
@@ -289,9 +287,12 @@ fn parse_array_value(values: &[Value]) -> AttributeValue {
         return AttributeValue::IntArray(ints);
     }
 
-    let all_float = parsed
-        .iter()
-        .all(|v| matches!(v, Some(AttributeValue::Float(_)) | Some(AttributeValue::Int(_))));
+    let all_float = parsed.iter().all(|v| {
+        matches!(
+            v,
+            Some(AttributeValue::Float(_)) | Some(AttributeValue::Int(_))
+        )
+    });
     if all_float {
         let floats: Vec<f64> = parsed
             .into_iter()
@@ -320,7 +321,11 @@ fn parse_array_value(values: &[Value]) -> AttributeValue {
 
     let strings: Vec<String> = values
         .iter()
-        .map(|v| parse_any_value(v).map(|av| av.as_display_string()).unwrap_or_else(|| v.to_string()))
+        .map(|v| {
+            parse_any_value(v)
+                .map(|av| av.as_display_string())
+                .unwrap_or_else(|| v.to_string())
+        })
         .collect();
     AttributeValue::StringArray(strings)
 }
@@ -330,14 +335,17 @@ fn parse_events(events: &[Value]) -> Vec<SpanEvent> {
         .iter()
         .filter_map(|e| {
             let name = e.get("name").and_then(|n| n.as_str())?.to_string();
-            let timestamp_ns = e
-                .get("timeUnixNano")
-                .and_then(parse_nano_ts)
-                .unwrap_or(0);
+            let timestamp_ns = e.get("timeUnixNano").and_then(parse_nano_ts).unwrap_or(0);
             let attributes = parse_attributes(
-                e.get("attributes").and_then(|a| a.as_array()).unwrap_or(&vec![]),
+                e.get("attributes")
+                    .and_then(|a| a.as_array())
+                    .unwrap_or(&vec![]),
             );
-            Some(SpanEvent { name, timestamp_ns, attributes })
+            Some(SpanEvent {
+                name,
+                timestamp_ns,
+                attributes,
+            })
         })
         .collect()
 }

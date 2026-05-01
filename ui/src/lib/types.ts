@@ -139,6 +139,39 @@ export interface WaterfallLayout {
   max_depth: number;
 }
 
+export interface GraphNode {
+  service: string;
+  span_count: number;
+  error_count: number;
+  llm_count: number;
+  total_duration_ns: number;
+  total_duration_display: string;
+}
+
+export interface GraphEdge {
+  source: string;
+  target: string;
+  call_count: number;
+  total_duration_ns: number;
+  total_duration_display: string;
+}
+
+export interface ServiceGraph {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+}
+
+export interface ComparisonSummary {
+  span_count: number;
+  service_count: number;
+  total_duration_ns: number;
+  total_duration_display: string;
+  has_errors: boolean;
+  error_count: number;
+  llm_span_count: number;
+  trace_id: string;
+}
+
 export interface LlmDetail {
   operation_type: string;
   model_name: string | null;

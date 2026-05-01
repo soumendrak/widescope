@@ -10,6 +10,8 @@
   import FlameGraph from './components/FlameGraph.svelte';
   import Timeline from './components/Timeline.svelte';
   import WaterfallView from './components/WaterfallView.svelte';
+  import ServiceGraph from './components/ServiceGraph.svelte';
+  import DiffView from './components/DiffView.svelte';
   import SpanDetail from './components/SpanDetail.svelte';
   import DropZone from './components/DropZone.svelte';
   import ErrorBanner from './components/ErrorBanner.svelte';
@@ -50,7 +52,7 @@
     theme.apply(storedTheme === 'dark' ? 'dark' : storedTheme === 'light' ? 'light' : (prefersDark ? 'dark' : 'light'));
 
     const storedView = localStorage.getItem(STORAGE_KEY_VIEW);
-    if (storedView === 'flame' || storedView === 'timeline' || storedView === 'waterfall') {
+    if (storedView === 'flame' || storedView === 'timeline' || storedView === 'waterfall' || storedView === 'graph' || storedView === 'diff') {
       activeView.set(storedView);
     }
 
@@ -290,9 +292,9 @@
       if (mod && e.key === 'Enter') { e.preventDefault(); void submitEditor(); return; }
       if (mod && e.key === 'v') { e.preventDefault(); void pasteFromClipboard(); return; }
 
-      if (!mod && e.key >= '1' && e.key <= '3') {
+      if (!mod && e.key >= '1' && e.key <= '5') {
         e.preventDefault();
-        const views: Array<'flame' | 'timeline' | 'waterfall'> = ['flame', 'timeline', 'waterfall'];
+        const views: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff'> = ['flame', 'timeline', 'waterfall', 'graph', 'diff'];
         activeView.set(views[parseInt(e.key) - 1]);
         localStorage.setItem(STORAGE_KEY_VIEW, views[parseInt(e.key) - 1]);
         return;
@@ -471,10 +473,16 @@
                 <Timeline bind:this={timelineView} layout={state.timelineLayout} />
               {:else if $activeView === 'waterfall' && state.waterfallLayout}
                 <WaterfallView bind:this={waterfallView} layout={state.waterfallLayout} />
+              {:else if $activeView === 'graph' && state.serviceGraph}
+                <ServiceGraph graph={state.serviceGraph} />
+              {:else if $activeView === 'diff'}
+                <DiffView />
               {:else}
                 <FlameGraph bind:this={flameGraphView} layout={state.flameLayout} />
               {/if}
-              <SpanDetail />
+              {#if $activeView !== 'diff'}
+                <SpanDetail />
+              {/if}
             {:else if state.status === 'error'}
               <div class="empty-state">
                 <div class="empty-icon">⚠️</div>

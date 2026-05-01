@@ -1,6 +1,6 @@
-use std::collections::HashMap;
-use serde::{Deserialize, Serialize};
 use crate::models::trace::ParseWarning;
+use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Convention {
@@ -55,7 +55,10 @@ pub fn load_conventions(json_array: &str) -> LoadResult {
                 "CONVENTION_ERROR",
                 format!("Failed to parse conventions array: {}", e),
             ));
-            return LoadResult { conventions, warnings };
+            return LoadResult {
+                conventions,
+                warnings,
+            };
         }
     };
 
@@ -66,7 +69,10 @@ pub fn load_conventions(json_array: &str) -> LoadResult {
                 "CONVENTION_ERROR",
                 "Conventions input is not a JSON array".to_string(),
             ));
-            return LoadResult { conventions, warnings };
+            return LoadResult {
+                conventions,
+                warnings,
+            };
         }
     };
 
@@ -92,5 +98,8 @@ pub fn load_conventions(json_array: &str) -> LoadResult {
         }
     }
 
-    LoadResult { conventions, warnings }
+    LoadResult {
+        conventions,
+        warnings,
+    }
 }

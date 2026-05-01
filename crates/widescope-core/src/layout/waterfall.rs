@@ -12,9 +12,18 @@ pub fn compute_waterfall_layout(trace: &Trace) -> WaterfallLayout {
         };
     }
 
-    let trace_start = trace.spans.iter().map(|s| s.start_time_ns).min().unwrap_or(0);
+    let trace_start = trace
+        .spans
+        .iter()
+        .map(|s| s.start_time_ns)
+        .min()
+        .unwrap_or(0);
     let trace_end = trace.spans.iter().map(|s| s.end_time_ns).max().unwrap_or(0);
-    let trace_duration = if trace_end > trace_start { trace_end - trace_start } else { 1 };
+    let trace_duration = if trace_end > trace_start {
+        trace_end - trace_start
+    } else {
+        1
+    };
 
     let mut roots: Vec<&crate::models::span::Span> = trace
         .root_span_ids
@@ -27,7 +36,15 @@ pub fn compute_waterfall_layout(trace: &Trace) -> WaterfallLayout {
     let mut max_depth = 0u32;
 
     for root in &roots {
-        visit_span(root, 0, trace_start, trace_duration, trace, &mut rows, &mut max_depth);
+        visit_span(
+            root,
+            0,
+            trace_start,
+            trace_duration,
+            trace,
+            &mut rows,
+            &mut max_depth,
+        );
     }
 
     WaterfallLayout {
@@ -53,7 +70,11 @@ fn visit_span(
     } else {
         x_start + 1e-9
     };
-    let x_end = if x_end <= x_start { x_start + 1e-9 } else { x_end };
+    let x_end = if x_end <= x_start {
+        x_start + 1e-9
+    } else {
+        x_end
+    };
 
     if depth > *max_depth {
         *max_depth = depth;
@@ -64,7 +85,12 @@ fn visit_span(
 
     let (input_tokens, output_tokens, total_tokens, estimated_cost_usd) =
         if let Some(llm) = &span.llm {
-            (llm.input_tokens, llm.output_tokens, llm.total_tokens, llm.estimated_cost_usd)
+            (
+                llm.input_tokens,
+                llm.output_tokens,
+                llm.total_tokens,
+                llm.estimated_cost_usd,
+            )
         } else {
             (None, None, None, None)
         };
@@ -98,6 +124,14 @@ fn visit_span(
     child_spans.sort_by_key(|s| s.start_time_ns);
 
     for child in child_spans {
-        visit_span(child, depth + 1, trace_start, trace_duration, trace, rows, max_depth);
+        visit_span(
+            child,
+            depth + 1,
+            trace_start,
+            trace_duration,
+            trace,
+            rows,
+            max_depth,
+        );
     }
 }

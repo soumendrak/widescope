@@ -2,7 +2,10 @@ use crate::conventions::registry::{Convention, MappingRule};
 use crate::models::llm::{LlmMessage, LlmOperationType, LlmSpanAttributes};
 use crate::models::span::{AttributeValue, Span};
 
-pub fn resolve_llm_attributes(span: &Span, conventions: &[Convention]) -> Option<LlmSpanAttributes> {
+pub fn resolve_llm_attributes(
+    span: &Span,
+    conventions: &[Convention],
+) -> Option<LlmSpanAttributes> {
     for convention in conventions {
         if matches_convention(span, convention) {
             return Some(apply_mappings(span, convention));
@@ -15,7 +18,11 @@ fn matches_convention(span: &Span, convention: &Convention) -> bool {
     let detect = &convention.detect;
 
     if let Some(prefix) = &detect.attribute_prefix {
-        if span.attributes.keys().any(|k| k.starts_with(prefix.as_str())) {
+        if span
+            .attributes
+            .keys()
+            .any(|k| k.starts_with(prefix.as_str()))
+        {
             return true;
         }
     }
@@ -106,7 +113,11 @@ fn apply_mappings(span: &Span, convention: &Convention) -> LlmSpanAttributes {
                 }
             }
             MappingRule::EventSource(evt_mapping) => {
-                let messages = extract_messages_from_events(span, &evt_mapping.event_name, &evt_mapping.content_attribute);
+                let messages = extract_messages_from_events(
+                    span,
+                    &evt_mapping.event_name,
+                    &evt_mapping.content_attribute,
+                );
                 match field_name.as_str() {
                     "input_messages" => llm.input_messages = messages,
                     "output_messages" => llm.output_messages = messages,
@@ -130,10 +141,18 @@ fn apply_mappings(span: &Span, convention: &Convention) -> LlmSpanAttributes {
 fn coerce_to_u64(v: &AttributeValue) -> Option<u64> {
     match v {
         AttributeValue::Int(i) => {
-            if *i >= 0 { Some(*i as u64) } else { None }
+            if *i >= 0 {
+                Some(*i as u64)
+            } else {
+                None
+            }
         }
         AttributeValue::Float(f) => {
-            if *f >= 0.0 { Some(*f as u64) } else { None }
+            if *f >= 0.0 {
+                Some(*f as u64)
+            } else {
+                None
+            }
         }
         AttributeValue::String(s) => s.parse::<u64>().ok(),
         _ => None,

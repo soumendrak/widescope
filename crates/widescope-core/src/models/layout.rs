@@ -1,5 +1,5 @@
-use serde::{Deserialize, Serialize};
 use serde::ser::Serializer;
+use serde::{Deserialize, Serialize};
 
 pub fn serialize_u64_as_string<S>(value: &u64, serializer: S) -> Result<S::Ok, S::Error>
 where
@@ -128,8 +128,8 @@ pub struct WaterfallRow {
     pub service_name: String,
     pub span_kind: String,
     pub depth: u32,
-    pub x_start: f64,          // normalized [0, 1]
-    pub x_end: f64,            // normalized [0, 1]
+    pub x_start: f64, // normalized [0, 1]
+    pub x_end: f64,   // normalized [0, 1]
     pub color_key: String,
     pub is_error: bool,
     pub is_llm: bool,
