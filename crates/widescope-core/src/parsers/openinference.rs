@@ -307,7 +307,7 @@ fn parse_iso_8601_ns(ts: &str) -> Option<u64> {
 
     // Calculate days since Unix epoch (simple but works for post-2000 dates)
     let days = days_since_epoch(year, month, day)?;
-    let total_seconds = days as i64 * 86400 + hour * 3600 + minute * 60 + second;
+    let total_seconds = days * 86400 + hour * 3600 + minute * 60 + second;
 
     if total_seconds < 0 {
         return None;
