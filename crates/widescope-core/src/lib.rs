@@ -6,8 +6,8 @@ mod parsers;
 mod trace_builder;
 mod utils;
 
-use std::cell::RefCell;
 use serde::Serialize;
+use std::cell::RefCell;
 use wasm_bindgen::prelude::*;
 
 use conventions::registry::{load_conventions, Convention};
@@ -15,15 +15,14 @@ use errors::WideError;
 use layout::flamegraph::compute_flamegraph_layout;
 use layout::timeline::compute_timeline_layout;
 use layout::waterfall::compute_waterfall_layout;
-use models::layout::{
-    EventDetail, LlmDetail, MessageDetail, SpanDetailResponse, ToolCallDetail,
-};
+use models::layout::{EventDetail, LlmDetail, MessageDetail, SpanDetailResponse, ToolCallDetail};
 use models::llm::LlmSpanAttributes;
 use models::span::{AttributeValue, Span, SpanEvent};
 use models::trace::{ParseWarning, Trace};
-use parsers::jaeger::parse_jaeger_with_warnings;
-use parsers::otlp_json::parse_otlp_with_warnings;
 use parsers::detect_format;
+use parsers::jaeger::parse_jaeger_with_warnings;
+use parsers::openinference::parse_openinference_with_warnings;
+use parsers::otlp_json::parse_otlp_with_warnings;
 use trace_builder::build_trace;
 use utils::{format_duration, format_timestamp_display};
 
@@ -62,12 +61,14 @@ pub fn init(conventions_json: &str) -> Result<String, JsValue> {
         warnings: result.warnings,
     };
 
-    serde_json::to_string(&init_result)
-        .map_err(|e| WideError::InvalidJson {
+    serde_json::to_string(&init_result).map_err(|e| {
+        WideError::InvalidJson {
             message: e.to_string(),
             line: None,
             column: None,
-        }.into())
+        }
+        .into()
+    })
 }
 
 #[derive(Serialize)]
@@ -104,6 +105,10 @@ pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
             let result = parse_jaeger_with_warnings(&value).map_err(JsValue::from)?;
             (result.spans, result.warnings)
         }
+        models::trace::InputFormat::OpenInferenceJson => {
+            let result = parse_openinference_with_warnings(&value).map_err(JsValue::from)?;
+            (result.spans, result.warnings)
+        }
         _ => {
             return Err(WideError::UnrecognizedFormat.into());
         }
@@ -117,12 +122,14 @@ pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
 
     let trace = build_trace(spans, format, parse_warnings).map_err(JsValue::from)?;
 
-    let root_op = trace.root_span_ids.first().and_then(|id| {
-        trace.get_span(id).map(|s| s.operation_name.clone())
-    });
-    let root_svc = trace.root_span_ids.first().and_then(|id| {
-        trace.get_span(id).map(|s| s.service_name.clone())
-    });
+    let root_op = trace
+        .root_span_ids
+        .first()
+        .and_then(|id| trace.get_span(id).map(|s| s.operation_name.clone()));
+    let root_svc = trace
+        .root_span_ids
+        .first()
+        .and_then(|id| trace.get_span(id).map(|s| s.service_name.clone()));
 
     let summary = TraceSummary {
         trace_id: trace.trace_id.clone(),
@@ -200,11 +207,11 @@ pub fn get_span_detail(span_id: &str) -> Result<String, JsValue> {
         match borrow.as_ref() {
             None => Err(WideError::NoTraceLoaded.into()),
             Some(trace) => {
-                let span = trace.get_span(span_id).ok_or_else(|| {
-                    WideError::SpanNotFound {
+                let span = trace
+                    .get_span(span_id)
+                    .ok_or_else(|| WideError::SpanNotFound {
                         span_id: span_id.to_string(),
-                    }
-                })?;
+                    })?;
 
                 let children_ids = trace.get_children(span_id).to_vec();
 
@@ -215,11 +222,7 @@ pub fn get_span_detail(span_id: &str) -> Result<String, JsValue> {
                     .collect();
                 attributes.sort_by(|a, b| a.0.cmp(&b.0));
 
-                let events: Vec<EventDetail> = span
-                    .events
-                    .iter()
-                    .map(build_event_detail)
-                    .collect();
+                let events: Vec<EventDetail> = span.events.iter().map(build_event_detail).collect();
 
                 let llm = span.llm.as_ref().map(build_llm_detail);
 
@@ -279,10 +282,8 @@ pub fn search_spans(query: &str) -> Result<String, JsValue> {
 
                 matches.sort_by_key(|(_, start_time_ns)| *start_time_ns);
 
-                let span_ids: Vec<String> = matches
-                    .into_iter()
-                    .map(|(span_id, _)| span_id)
-                    .collect();
+                let span_ids: Vec<String> =
+                    matches.into_iter().map(|(span_id, _)| span_id).collect();
 
                 serde_json::to_string(&span_ids).map_err(|e| {
                     WideError::InvalidJson {

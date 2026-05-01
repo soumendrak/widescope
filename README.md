@@ -50,6 +50,7 @@ A browser-based, zero-backend trace viewer for OpenTelemetry- and Jaeger-style t
 | wasm32 target | — | `rustup target add wasm32-unknown-unknown` |
 | wasm-pack | 0.14+ | `cargo install wasm-pack` |
 | Node.js | 18+ | <https://nodejs.org> |
+| just | 1.0+ | `brew install just` / `cargo install just` |
 | binaryen (`wasm-opt`) | optional, recommended | `brew install binaryen` / `apt install binaryen` |
 
 > **Homebrew Rust users:** the `wasm32-unknown-unknown` target is not included in the Homebrew Rust package. Install Rust via `rustup` instead (both can coexist; prefix commands with `PATH="$HOME/.cargo/bin:$PATH"`).
@@ -58,34 +59,34 @@ A browser-based, zero-backend trace viewer for OpenTelemetry- and Jaeger-style t
 
 ```bash
 # 1. Install UI deps (one-time)
-make ui-install
+just ui-install
 
 # 2. Build the WASM package and the production UI bundle
-make build
+just build
 
 # 3. Start the Vite dev server
-make dev
+just dev
 # → http://localhost:5173
 ```
 
 ## Common Targets
 
 ```bash
-make ui-install    # install ui/package.json dependencies
-make build-wasm    # compile Rust -> WASM and optimize with wasm-opt when available
-make build-ui      # vite production build -> ui/dist/
-make build         # build-wasm + build-ui
-make check         # cargo check --workspace
-make fmt           # cargo fmt --all
-make clippy        # cargo clippy --workspace -- -D warnings
-make test          # cargo test --workspace
-make clean         # remove Rust, WASM package, UI dist, and node_modules artifacts
+just ui-install    # install ui/package.json dependencies
+just build-wasm    # compile Rust -> WASM and optimize with wasm-opt when available
+just build-ui      # vite production build -> ui/dist/
+just build         # build-wasm + build-ui
+just check         # cargo check --workspace
+just fmt           # cargo fmt --all
+just clippy        # cargo clippy --workspace -- -D warnings
+just test          # cargo test --workspace
+just clean         # remove Rust, WASM package, UI dist, and node_modules artifacts
 ```
 
 ## Development Notes
 
-- **`make dev` only starts the UI dev server** — if you change Rust code, rerun `make build-wasm` to regenerate `crates/widescope-core/pkg/`.
-- **`make build` produces the deployable static assets** in `ui/dist/`.
+- **`just dev` only starts the UI dev server** — if you change Rust code, rerun `just build-wasm` to regenerate `crates/widescope-core/pkg/`.
+- **`just build` produces the deployable static assets** in `ui/dist/`.
 - **`wasm-opt` is optional** — the build still succeeds without it, but the generated `.wasm` will be larger.
 
 ## Deployment on Cloudflare Pages
@@ -117,7 +118,7 @@ https://widescope.pages.dev
 
 ```
 widescope/
-├── Makefile                         # build automation
+├── justfile                         # build automation
 ├── Cargo.toml                       # workspace root
 ├── rust-toolchain.toml              # stable toolchain + wasm target
 ├── crates/
@@ -150,9 +151,9 @@ widescope/
 |---|---|
 | OTLP JSON (`resourceSpans`) | ✅ Supported |
 | Jaeger JSON (`data[].spans`) | ✅ Supported |
-| OpenInference JSON | 🔜 Planned |
+| OpenInference JSON (`spans`) | ✅ Supported |
 
-> `OpenInference` mappings are already bundled for LLM attribute normalization, but standalone OpenInference trace JSON is not parsed directly yet.
+> OpenInference JSON traces are now parsed natively. Convention mappings for LLM attribute normalization across OTel, OpenInference, and LangChain are bundled for all formats.
 
 ## Convention Mappings
 

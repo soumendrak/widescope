@@ -1,10 +1,11 @@
-pub mod otlp_json;
 pub mod jaeger;
+pub mod openinference;
+pub mod otlp_json;
 
-use serde_json::Value;
 use crate::errors::WideError;
 use crate::models::span::Span;
 use crate::models::trace::InputFormat;
+use serde_json::Value;
 
 pub fn detect_format(value: &Value) -> Result<InputFormat, WideError> {
     if value.get("resourceSpans").is_some() {
@@ -21,7 +22,11 @@ pub fn detect_format(value: &Value) -> Result<InputFormat, WideError> {
 
     if let Some(arr) = value.get("spans").and_then(|v| v.as_array()) {
         if let Some(first) = arr.first() {
-            if first.get("context").and_then(|c| c.get("trace_id")).is_some() {
+            if first
+                .get("context")
+                .and_then(|c| c.get("trace_id"))
+                .is_some()
+            {
                 return Ok(InputFormat::OpenInferenceJson);
             }
         }
@@ -44,7 +49,8 @@ pub fn parse(raw_input: &str) -> Result<(Vec<Span>, InputFormat), WideError> {
         InputFormat::OtlpJson => otlp_json::parse_otlp(&value)?,
         InputFormat::JaegerJson => jaeger::parse_jaeger(&value)?,
         InputFormat::OpenInferenceJson => {
-            return Err(WideError::UnrecognizedFormat);
+            let result = openinference::parse_openinference_with_warnings(&value)?;
+            result.spans
         }
         InputFormat::Unknown => return Err(WideError::UnrecognizedFormat),
     };
