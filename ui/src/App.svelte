@@ -15,6 +15,7 @@
   import SpanDetail from './components/SpanDetail.svelte';
   import DropZone from './components/DropZone.svelte';
   import ErrorBanner from './components/ErrorBanner.svelte';
+  import Footer from './components/Footer.svelte';
   import KeyboardHelp from './components/KeyboardHelp.svelte';
   import { activeView, focusedSpanId, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from './stores/selection';
 
@@ -512,6 +513,9 @@
           </div>
         {/if}
       </div>
+      {#if !isEmbedded}
+        <Footer />
+      {/if}
     </div>
     <DropZone onFileDrop={onDroppedFile} />
     {#if showKeyboardHelp}
@@ -531,6 +535,7 @@
     height: 100%;
     font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
     font-size: 14px;
+    -webkit-font-smoothing: antialiased;
   }
 
   :global([data-theme='dark']) {
