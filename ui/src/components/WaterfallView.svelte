@@ -46,9 +46,9 @@
         idx++;
       }
     }
+    visibleRows = computeVisible(layout.rows, collapsed);
+    ticks = buildTicks(barContainerW, zoom, panX, layout.trace_duration_ns);
   }
-
-  $: visibleRows = computeVisible(layout.rows, collapsed);
 
   function computeVisible(rows: WaterfallRow[], col: Set<string>): WaterfallRow[] {
     const result: WaterfallRow[] = [];
@@ -130,8 +130,6 @@
     if (ns < 1_000_000_000) return `${(ns / 1_000_000).toFixed(1)}ms`;
     return `${(ns / 1_000_000_000).toFixed(2)}s`;
   }
-
-  $: ticks = buildTicks(barContainerW, zoom, panX, layout.trace_duration_ns);
 
   function buildTicks(
     containerW: number,
