@@ -2,6 +2,8 @@ import init, * as widescopeCore from '../../../crates/widescope-core/pkg/widesco
 import { BUNDLED_CONVENTIONS } from './conventions-bundle';
 import type {
   ComparisonSummary,
+  CostBreakdown,
+  CriticalPath,
   FlameGraphLayout,
   InitResult,
   ParseWarning,
@@ -99,6 +101,18 @@ export function getComparisonFlamegraph(): FlameGraphLayout {
 export function clearComparison(): void {
   const fn = (widescopeCore as { clear_comparison?: () => void }).clear_comparison;
   fn?.();
+}
+
+export function getCriticalPath(): CriticalPath | null {
+  const fn = (widescopeCore as { get_critical_path?: () => string }).get_critical_path;
+  if (!fn) return null;
+  return JSON.parse(fn()) as CriticalPath;
+}
+
+export function getCostBreakdown(): CostBreakdown | null {
+  const fn = (widescopeCore as { get_cost_breakdown?: () => string }).get_cost_breakdown;
+  if (!fn) return null;
+  return JSON.parse(fn()) as CostBreakdown;
 }
 
 export function safeParseWasmError(err: unknown): WasmError {

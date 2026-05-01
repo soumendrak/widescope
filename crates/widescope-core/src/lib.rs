@@ -12,6 +12,7 @@ use wasm_bindgen::prelude::*;
 
 use conventions::registry::{load_conventions, Convention};
 use errors::WideError;
+use layout::critical_path::compute_critical_path;
 use layout::flamegraph::compute_flamegraph_layout;
 use layout::graph::compute_service_graph as build_service_graph;
 use layout::timeline::compute_timeline_layout;
@@ -413,16 +414,138 @@ fn build_llm_detail(llm: &LlmSpanAttributes) -> LlmDetail {
 }
 
 fn span_matches_query(span: &Span, query: &str) -> bool {
-    if span.operation_name.to_ascii_lowercase().contains(query)
-        || span.service_name.to_ascii_lowercase().contains(query)
-        || span.span_id.to_ascii_lowercase().contains(query)
-    {
+    let q = query.trim().to_ascii_lowercase();
+    if q.is_empty() {
         return true;
     }
 
+    // Try parsing as operators first
+    if parse_search_operators(query).is_some() {
+        return span_matches_operators(span, query);
+    }
+
+    // Fallback to substring search
+    if span.operation_name.to_ascii_lowercase().contains(&q)
+        || span.service_name.to_ascii_lowercase().contains(&q)
+        || span.span_id.to_ascii_lowercase().contains(&q)
+    {
+        return true;
+    }
     span.attributes.iter().any(|(key, value)| {
-        key.to_ascii_lowercase().contains(query) || attr_val_matches_query(value, query)
+        key.to_ascii_lowercase().contains(&q) || attr_val_matches_query(value, &q)
     })
+}
+
+fn parse_search_operators(query: &str) -> Option<Vec<(String, String, String)>> {
+    // Parse tokens like: duration>100ms status=error service~api kind=client llm
+    let tokens: Vec<&str> = query.split_whitespace().collect();
+    let mut ops: Vec<(String, String, String)> = Vec::new();
+    let mut has_op = false;
+
+    for token in &tokens {
+        if token == &"llm" {
+            ops.push(("llm".into(), "=".into(), "true".into()));
+            has_op = true;
+        } else if let Some(eq_pos) = token.find('=') {
+            let key = token[..eq_pos].to_ascii_lowercase();
+            let val = token[eq_pos + 1..].to_ascii_lowercase();
+            ops.push((key, "=".into(), val));
+            has_op = true;
+        } else if let Some(gt_pos) = token.find('>') {
+            if token.as_bytes().get(gt_pos + 1) == Some(&b'=') {
+                let key = token[..gt_pos].to_ascii_lowercase();
+                let val = token[gt_pos + 2..].to_ascii_lowercase();
+                ops.push((key, ">=".into(), val));
+            } else {
+                let key = token[..gt_pos].to_ascii_lowercase();
+                let val = token[gt_pos + 1..].to_ascii_lowercase();
+                ops.push((key, ">".into(), val));
+            }
+            has_op = true;
+        } else if let Some(lt_pos) = token.find('<') {
+            if token.as_bytes().get(lt_pos + 1) == Some(&b'=') {
+                let key = token[..lt_pos].to_ascii_lowercase();
+                let val = token[lt_pos + 2..].to_ascii_lowercase();
+                ops.push((key, "<=".into(), val));
+            } else {
+                let key = token[..lt_pos].to_ascii_lowercase();
+                let val = token[lt_pos + 1..].to_ascii_lowercase();
+                ops.push((key, "<".into(), val));
+            }
+            has_op = true;
+        } else if token.contains('~') {
+            let parts: Vec<&str> = token.splitn(2, '~').collect();
+            if parts.len() == 2 {
+                ops.push((parts[0].to_ascii_lowercase(), "~".into(), parts[1].to_ascii_lowercase()));
+                has_op = true;
+            }
+        }
+    }
+
+    if has_op { Some(ops) } else { None }
+}
+
+fn parse_duration_query(val: &str) -> Option<u64> {
+    let val = val.trim();
+    if let Some(stripped) = val.strip_suffix("ms") {
+        stripped.parse::<f64>().ok().map(|v| (v * 1_000_000.0) as u64)
+    } else if let Some(stripped) = val.strip_suffix("µs") {
+        stripped.parse::<f64>().ok().map(|v| (v * 1_000.0) as u64)
+    } else if let Some(stripped) = val.strip_suffix("us") {
+        stripped.parse::<f64>().ok().map(|v| (v * 1_000.0) as u64)
+    } else if let Some(stripped) = val.strip_suffix('s') {
+        stripped.parse::<f64>().ok().map(|v| (v * 1_000_000_000.0) as u64)
+    } else {
+        val.parse::<u64>().ok()
+    }
+}
+
+fn span_matches_operators(span: &Span, query: &str) -> bool {
+    let ops = match parse_search_operators(query) {
+        Some(ops) => ops,
+        None => return true,
+    };
+
+    for (key, op, val) in &ops {
+        if key == "llm" {
+            if span.llm.is_none() { return false; }
+            continue;
+        }
+        match key.as_str() {
+            "duration" | "dur" => {
+                let target = match parse_duration_query(val) {
+                    Some(t) => t,
+                    None => return false,
+                };
+                match op.as_str() {
+                    ">" => if span.duration_ns <= target { return false; },
+                    ">=" => if span.duration_ns < target { return false; },
+                    "<" => if span.duration_ns >= target { return false; },
+                    "<=" => if span.duration_ns > target { return false; },
+                    "=" => if span.duration_ns != target { return false; },
+                    _ => {},
+                }
+            }
+            "status" => {
+                if span.status.as_str().to_ascii_lowercase() != *val { return false; }
+            }
+            "kind" => {
+                if span.span_kind.as_str().to_ascii_lowercase() != *val { return false; }
+            }
+            "service" | "svc" => {
+                if !span.service_name.to_ascii_lowercase().contains(val) { return false; }
+            }
+            _ => {
+                // Try matching as attribute key=value
+                let attr_match = span.attributes.iter().any(|(attr_key, attr_val)| {
+                    attr_key.to_ascii_lowercase().contains(key) &&
+                    attr_val_matches_query(attr_val, val)
+                });
+                if !attr_match { return false; }
+            }
+        }
+    }
+    true
 }
 
 fn attr_val_matches_query(value: &AttributeValue, query: &str) -> bool {
@@ -618,4 +741,117 @@ pub fn clear_comparison() {
     COMPARISON_TRACE.with(|t| {
         *t.borrow_mut() = None;
     });
+}
+
+#[wasm_bindgen]
+pub fn get_critical_path() -> Result<String, JsValue> {
+    TRACE.with(|t| {
+        let borrow = t.borrow();
+        match borrow.as_ref() {
+            None => Err(WideError::NoTraceLoaded.into()),
+            Some(trace) => {
+                let cp = compute_critical_path(trace);
+                serde_json::to_string(&cp).map_err(|e| {
+                    WideError::InvalidJson {
+                        message: e.to_string(),
+                        line: None,
+                        column: None,
+                    }
+                    .into()
+                })
+            }
+        }
+    })
+}
+
+#[derive(Serialize)]
+struct CostEntry {
+    model: String,
+    provider: String,
+    input_tokens: u64,
+    output_tokens: u64,
+    total_tokens: u64,
+    estimated_cost_usd: f64,
+    spans: Vec<String>,
+}
+
+#[wasm_bindgen]
+pub fn get_cost_breakdown() -> Result<String, JsValue> {
+    TRACE.with(|t| {
+        let borrow = t.borrow();
+        match borrow.as_ref() {
+            None => Err(WideError::NoTraceLoaded.into()),
+            Some(trace) => {
+                let mut models: std::collections::HashMap<String, CostEntry> =
+                    std::collections::HashMap::new();
+
+                for span in &trace.spans {
+                    if let Some(ref llm) = span.llm {
+                        let key = format!(
+                            "{}::{}",
+                            llm.model_provider.as_deref().unwrap_or("unknown"),
+                            llm.model_name.as_deref().unwrap_or("unknown")
+                        );
+                        let entry = models.entry(key).or_insert_with(|| CostEntry {
+                            model: llm.model_name.clone().unwrap_or_else(|| "unknown".into()),
+                            provider: llm.model_provider.clone().unwrap_or_else(|| "unknown".into()),
+                            input_tokens: 0,
+                            output_tokens: 0,
+                            total_tokens: 0,
+                            estimated_cost_usd: 0.0,
+                            spans: vec![],
+                        });
+                        entry.input_tokens += llm.input_tokens.unwrap_or(0);
+                        entry.output_tokens += llm.output_tokens.unwrap_or(0);
+                        entry.total_tokens += llm.total_tokens.unwrap_or(0);
+                        entry.estimated_cost_usd += llm.estimated_cost_usd.unwrap_or(0.0);
+                        entry.spans.push(span.span_id.clone());
+                    }
+                }
+
+                let mut entries: Vec<&CostEntry> = models.values().collect();
+                entries.sort_by(|a, b| {
+                    b.estimated_cost_usd
+                        .partial_cmp(&a.estimated_cost_usd)
+                        .unwrap_or(std::cmp::Ordering::Equal)
+                });
+
+                let total_cost: f64 = entries.iter().map(|e| e.estimated_cost_usd).sum();
+
+                let owned_entries: Vec<CostEntry> = entries.into_iter().map(|e| CostEntry {
+                    model: e.model.clone(),
+                    provider: e.provider.clone(),
+                    input_tokens: e.input_tokens,
+                    output_tokens: e.output_tokens,
+                    total_tokens: e.total_tokens,
+                    estimated_cost_usd: e.estimated_cost_usd,
+                    spans: e.spans.clone(),
+                }).collect();
+
+                #[derive(Serialize)]
+                struct CostBreakdown {
+                    entries: Vec<CostEntry>,
+                    total_cost_usd: f64,
+                    total_input_tokens: u64,
+                    total_output_tokens: u64,
+                }
+
+                let breakdown = CostBreakdown {
+                    total_cost_usd: total_cost,
+                    total_input_tokens: owned_entries.iter().map(|e| e.input_tokens).sum(),
+                    total_output_tokens: owned_entries.iter().map(|e| e.output_tokens).sum(),
+                    entries: owned_entries,
+                };
+
+                serde_json::to_string(&breakdown).map_err(|e| {
+                    WideError::InvalidJson {
+                        message: e.to_string(),
+                        line: None,
+                        column: None,
+                    }
+                    .into()
+                })
+            }
+        }
+    })
 }

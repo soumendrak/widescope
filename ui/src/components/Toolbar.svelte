@@ -2,7 +2,7 @@
   import { traceState } from '../stores/trace';
   import { openFilePicker } from '../lib/input';
   import { theme } from '../lib/theme';
-  import { searchSpans, filterSpans, type SpanFilters } from '../lib/wasm';
+  import { searchSpans, filterSpans, getCostBreakdown, type SpanFilters } from '../lib/wasm';
   import {
     activeView,
     focusedSpanId,
@@ -35,6 +35,10 @@
     : '';
   $: hasFilters = $filterStatus || $filterService || $filterKind || $filterLlmOnly;
   $: isFilterActive = $filteredSpanIds.length > 0 && hasFilters;
+  $: costBreakdown = status === 'loaded' ? getCostBreakdown() : null;
+  $: costDisplay = costBreakdown?.total_cost_usd
+    ? `$${costBreakdown.total_cost_usd < 0.01 ? costBreakdown.total_cost_usd.toFixed(6) : costBreakdown.total_cost_usd.toFixed(4)}`
+    : '';
 
   $: applyFilters($filterStatus, $filterService, $filterKind, $filterLlmOnly);
 
@@ -118,7 +122,7 @@
             type="search"
             class="search-input"
             value={$searchQuery}
-            placeholder="Search spans…"
+            placeholder="Search (e.g. duration>100ms status=error)…"
             aria-label="Search spans"
             on:input={onSearchInput}
             on:keydown={onSearchKeyDown}
@@ -172,6 +176,10 @@
         {#if summary.llm_span_count > 0}
           <span class="stat-sep">·</span>
           <span class="stat stat--llm" title="LLM spans">⚡ {summary.llm_span_count}</span>
+        {/if}
+        {#if costDisplay}
+          <span class="stat-sep">·</span>
+          <span class="stat stat--cost" title="Estimated LLM cost">💰 {costDisplay}</span>
         {/if}
         {#if summary.has_errors}
           <span class="stat-sep">·</span>
@@ -438,6 +446,7 @@
   .stat--llm { color: #c4b5fd; }
   .stat--err { color: #f87171; }
   .stat--muted { color: var(--color-toolbar-muted, #94a3b8); font-size: 0.7rem; }
+  .stat--cost { color: #86efac; }
 
   .format-badge {
     background: rgba(255, 255, 255, 0.12);

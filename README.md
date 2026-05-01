@@ -161,8 +161,8 @@ widescope/
 
 | Feature | Status |
 |---|---|
-| Critical path | 🔜 Planned |
-| Cost breakdown | 🔜 Planned |
+| Critical path | ✅ Supported |
+| Cost breakdown | ✅ Supported |
 | Stats dashboard (latency, error rate, counts) | ✅ Supported |
 
 ### Phase 2 — Power User Workflow
@@ -181,15 +181,15 @@ widescope/
 | Multi-trace loading | 🔜 Planned |
 | Span annotations | ✅ Supported |
 | Trace slicing | 🔜 Planned |
-| Attribute search with operators (`duration>100ms`, `status=error`) | 🔜 Planned |
+| Attribute search with operators (`duration>100ms`, `status=error`) | ✅ Supported |
 | Latency heatmap | ✅ Supported |
 
 ### Phase 4 — Ecosystem
 
 | Feature | Status |
 |---|---|
-| Embed mode for external tool integration | 🔜 Planned |
-| Zip upload (multiple trace files) | 🔜 Planned |
+| Embed mode for external tool integration | ✅ Supported |
+| Zip upload (multiple trace files) | ✅ Supported |
 
 ## Convention Mappings
 

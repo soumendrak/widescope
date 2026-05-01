@@ -2,6 +2,8 @@
   import { onMount, onDestroy } from 'svelte';
   import type { FlameGraphLayout, FlameNode } from '../lib/types';
   import { selectedSpanId, hoveredSpanId, focusedSpanId, searchResults } from '../stores/selection';
+  import { getCriticalPath } from '../lib/wasm';
+  import type { CriticalPath } from '../lib/types';
 
   export let layout: FlameGraphLayout;
 
@@ -21,6 +23,9 @@
   let ctx: CanvasRenderingContext2D | null = null;
   let animFrameId = 0;
   let heatmapMode = false;
+  let showCriticalPath = false;
+  let criticalPath: CriticalPath | null = null;
+  let criticalPathSet = new Set<string>();
 
   // Zoom / pan state
   let zoom = 1;
@@ -271,6 +276,12 @@
       ctx!.setLineDash([]);
     }
 
+    if (showCriticalPath && criticalPathSet.has(node.span_id)) {
+      ctx!.strokeStyle = '#fbbf24';
+      ctx!.lineWidth = 2;
+      ctx!.strokeRect(px + 1, py + 1, rw - 2, ROW_HEIGHT - 3);
+    }
+
     if (node.is_llm && pw > 14) {
       ctx!.font = '10px sans-serif';
       ctx!.fillStyle = palette.codeText;
@@ -431,6 +442,17 @@
     scheduleRender();
   }
 
+  function toggleCriticalPath(): void {
+    showCriticalPath = !showCriticalPath;
+    if (showCriticalPath) {
+      criticalPath = getCriticalPath();
+      criticalPathSet = new Set(criticalPath?.span_ids ?? []);
+    } else {
+      criticalPathSet = new Set();
+    }
+    scheduleRender();
+  }
+
   function heatmapColor(node: FlameNode): string {
     if (layout.trace_duration_ns <= 0) return '#64748b';
     const ratio = Math.min(node.duration_ns / layout.trace_duration_ns, 1);
@@ -576,6 +598,7 @@
       if (n) zoomToSpan(n); else resetZoom();
     }}>Fit</button>
     <button class="ctrl-btn" class:ctrl-btn--active={heatmapMode} title="Toggle latency heatmap" on:click={toggleHeatmap}>Heatmap</button>
+    <button class="ctrl-btn" class:ctrl-btn--active={showCriticalPath} title="Show critical path" on:click={toggleCriticalPath}>Critical</button>
     <button class="ctrl-btn" title="Download PNG" on:click={exportPng}>PNG</button>
   </div>
   <!-- Screen reader live region -->

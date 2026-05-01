@@ -40,6 +40,8 @@
   const STORAGE_KEY_VIEW = 'widescope:view';
   const STORAGE_KEY_EDITOR = 'widescope:editor';
 
+  $: isEmbedded = new URLSearchParams(window.location.search).get('embed') === '1';
+
   const LIVE_PARSE_DELAY_MS = 150;
   const DEFAULT_EDITOR_HEIGHT_PX = 280;
   const EMPTY_EDITOR_HEIGHT_PX = 160;
@@ -352,14 +354,16 @@
     </div>
   {:else}
     <div class="layout">
-      <Toolbar onOpenFile={openEditorFilePicker} />
+      {#if !isEmbedded}
+        <Toolbar onOpenFile={openEditorFilePicker} />
+      {/if}
       <ErrorBanner
         error={state.status === 'error' ? state.error : null}
         warnings={allWarnings}
         isSample={state.isSampleTrace}
       />
       <div class="main">
-        {#if !editorValue.trim()}
+        {#if !editorValue.trim() && !isEmbedded}
           <section class="welcome-panel" aria-labelledby="welcome-title">
             <div class="welcome-copy">
               <div class="eyebrow">Trace explorer</div>
@@ -392,8 +396,9 @@
           </section>
         {/if}
 
-        <section
-          class="editor-panel"
+        {#if !isEmbedded}
+          <section
+            class="editor-panel"
           class:editor-panel--collapsed={editorCollapsed}
           class:editor-panel--empty={!editorValue.trim()}
         >
@@ -465,6 +470,7 @@
             {/if}
           </div>
         </section>
+        {/if}
 
         {#if editorValue.trim()}
           <div class="workspace">

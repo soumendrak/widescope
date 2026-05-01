@@ -172,6 +172,30 @@ export interface ComparisonSummary {
   trace_id: string;
 }
 
+export interface CriticalPath {
+  span_ids: string[];
+  total_self_time_ns: number;
+  total_self_time_display: string;
+  bottleneck_span_id: string | null;
+}
+
+export interface CostEntry {
+  model: string;
+  provider: string;
+  input_tokens: number;
+  output_tokens: number;
+  total_tokens: number;
+  estimated_cost_usd: number;
+  spans: string[];
+}
+
+export interface CostBreakdown {
+  entries: CostEntry[];
+  total_cost_usd: number;
+  total_input_tokens: number;
+  total_output_tokens: number;
+}
+
 export interface LlmDetail {
   operation_type: string;
   model_name: string | null;
