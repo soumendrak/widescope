@@ -155,6 +155,42 @@ widescope/
 
 > OpenInference JSON traces are now parsed natively. Convention mappings for LLM attribute normalization across OTel, OpenInference, and LangChain are bundled for all formats.
 
+## Roadmap
+
+### Phase 1 — Trace Analytics
+
+| Feature | Status |
+|---|---|
+| Critical path | 🔜 Planned |
+| Cost breakdown | 🔜 Planned |
+| Stats dashboard (latency, error rate, counts) | 🔜 Planned |
+
+### Phase 2 — Power User Workflow
+
+| Feature | Status |
+|---|---|
+| Trace diff (side-by-side comparison) | 🔜 Planned |
+| Span filtering (by service, status, duration, kind) | 🔜 Planned |
+| Service dependency graph | 🔜 Planned |
+| Export as PNG / SVG | 🔜 Planned |
+
+### Phase 3 — Advanced Capabilities
+
+| Feature | Status |
+|---|---|
+| Multi-trace loading | 🔜 Planned |
+| Span annotations | 🔜 Planned |
+| Trace slicing | 🔜 Planned |
+| Attribute search with operators (`duration>100ms`, `status=error`) | 🔜 Planned |
+| Latency heatmap | 🔜 Planned |
+
+### Phase 4 — Ecosystem
+
+| Feature | Status |
+|---|---|
+| Embed mode for external tool integration | 🔜 Planned |
+| Zip upload (multiple trace files) | 🔜 Planned |
+
 ## Convention Mappings
 
 Attribute-to-LLM mappings live in `conventions/` and are bundled into the UI at build time. Three mapping files are included:
