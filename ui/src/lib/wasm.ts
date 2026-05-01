@@ -61,6 +61,21 @@ export function searchSpans(query: string): string[] {
   return JSON.parse(search(query)) as string[];
 }
 
+export interface SpanFilters {
+  status?: string;
+  service?: string;
+  kind?: string;
+  llm_only?: boolean;
+}
+
+export function filterSpans(filters: SpanFilters): string[] {
+  const filterFn = (widescopeCore as { filter_spans?: (value: string) => string }).filter_spans;
+  if (!filterFn) {
+    return [];
+  }
+  return JSON.parse(filterFn(JSON.stringify(filters))) as string[];
+}
+
 export function safeParseWasmError(err: unknown): WasmError {
   let raw: string | undefined;
   if (typeof err === 'string') raw = err;

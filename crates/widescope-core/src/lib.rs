@@ -6,7 +6,7 @@ mod parsers;
 mod trace_builder;
 mod utils;
 
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use wasm_bindgen::prelude::*;
 
@@ -78,8 +78,12 @@ struct TraceSummary {
     service_count: usize,
     detected_format: String,
     has_errors: bool,
+    error_count: usize,
+    llm_span_count: usize,
     total_duration_ns: u64,
     total_duration_display: String,
+    latency_p50_display: String,
+    latency_p95_display: String,
     root_operation: Option<String>,
     root_service: Option<String>,
     warnings: Vec<ParseWarning>,
@@ -122,6 +126,14 @@ pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
 
     let trace = build_trace(spans, format, parse_warnings).map_err(JsValue::from)?;
 
+    let error_count = trace.spans.iter().filter(|s| s.status.is_error()).count();
+    let llm_span_count = trace.spans.iter().filter(|s| s.llm.is_some()).count();
+
+    let mut durations: Vec<u64> = trace.spans.iter().map(|s| s.duration_ns).collect();
+    durations.sort_unstable();
+    let p50 = percentile(&durations, 0.50);
+    let p95 = percentile(&durations, 0.95);
+
     let root_op = trace
         .root_span_ids
         .first()
@@ -137,8 +149,12 @@ pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
         service_count: trace.service_count,
         detected_format: trace.detected_format.as_str().to_string(),
         has_errors: trace.has_errors,
+        error_count,
+        llm_span_count,
         total_duration_ns: trace.total_duration_ns,
         total_duration_display: format_duration(trace.total_duration_ns),
+        latency_p50_display: format_duration(p50),
+        latency_p95_display: format_duration(p95),
         root_operation: root_op,
         root_service: root_svc,
         warnings: trace.warnings.clone(),
@@ -394,4 +410,87 @@ fn attribute_value_matches_query(value: &AttributeValue, query: &str) -> bool {
             .any(|text| text.to_ascii_lowercase().contains(query)),
         _ => false,
     }
+}
+
+fn percentile(sorted: &[u64], p: f64) -> u64 {
+    if sorted.is_empty() {
+        return 0;
+    }
+    let idx = ((sorted.len() - 1) as f64 * p).round() as usize;
+    sorted[idx.clamp(0, sorted.len() - 1)]
+}
+
+#[derive(Deserialize)]
+struct FilterRequest {
+    status: Option<String>,
+    service: Option<String>,
+    kind: Option<String>,
+    llm_only: Option<bool>,
+}
+
+#[wasm_bindgen]
+pub fn filter_spans(filter_json: &str) -> Result<String, JsValue> {
+    let filter: FilterRequest = serde_json::from_str(filter_json).map_err(|e| {
+        WideError::InvalidJson {
+            message: e.to_string(),
+            line: Some(e.line()),
+            column: Some(e.column()),
+        }
+    })?;
+
+    let status_filter = filter.status.and_then(|s| {
+        if s.is_empty() { None } else { Some(s.to_ascii_lowercase()) }
+    });
+    let service_filter = filter.service.and_then(|s| {
+        if s.is_empty() { None } else { Some(s.to_ascii_lowercase()) }
+    });
+    let kind_filter = filter.kind.and_then(|k| {
+        if k.is_empty() { None } else { Some(k.to_ascii_lowercase()) }
+    });
+    let llm_only = filter.llm_only.unwrap_or(false);
+
+    TRACE.with(|t| {
+        let borrow = t.borrow();
+        match borrow.as_ref() {
+            None => Err(WideError::NoTraceLoaded.into()),
+            Some(trace) => {
+                let mut matches: Vec<String> = trace
+                    .spans
+                    .iter()
+                    .filter(|span| {
+                        if let Some(ref st) = status_filter {
+                            if span.status.as_str().to_ascii_lowercase() != *st {
+                                return false;
+                            }
+                        }
+                        if let Some(ref sv) = service_filter {
+                            if !span.service_name.to_ascii_lowercase().contains(sv) {
+                                return false;
+                            }
+                        }
+                        if let Some(ref k) = kind_filter {
+                            if span.span_kind.as_str().to_ascii_lowercase() != *k {
+                                return false;
+                            }
+                        }
+                        if llm_only && span.llm.is_none() {
+                            return false;
+                        }
+                        true
+                    })
+                    .map(|span| span.span_id.clone())
+                    .collect();
+
+                matches.sort();
+                serde_json::to_string(&matches).map_err(|e| {
+                    WideError::InvalidJson {
+                        message: e.to_string(),
+                        line: None,
+                        column: None,
+                    }
+                    .into()
+                })
+            }
+        }
+    })
 }

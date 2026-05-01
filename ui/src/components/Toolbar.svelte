@@ -2,8 +2,19 @@
   import { traceState } from '../stores/trace';
   import { openFilePicker } from '../lib/input';
   import { theme } from '../lib/theme';
-  import { searchSpans } from '../lib/wasm';
-  import { activeView, focusedSpanId, searchQuery, searchResults, selectedSpanId } from '../stores/selection';
+  import { searchSpans, filterSpans, type SpanFilters } from '../lib/wasm';
+  import {
+    activeView,
+    focusedSpanId,
+    searchQuery,
+    searchResults,
+    filteredSpanIds,
+    filterStatus,
+    filterService,
+    filterKind,
+    filterLlmOnly,
+    selectedSpanId,
+  } from '../stores/selection';
 
   export let onOpenFile: () => void = () => openFilePicker();
 
@@ -22,6 +33,35 @@
         ? `${$searchResults.length} match${$searchResults.length === 1 ? '' : 'es'}`
         : `No spans match '${$searchQuery.trim()}'`)
     : '';
+  $: hasFilters = $filterStatus || $filterService || $filterKind || $filterLlmOnly;
+  $: isFilterActive = $filteredSpanIds.length > 0 && hasFilters;
+
+  $: applyFilters($filterStatus, $filterService, $filterKind, $filterLlmOnly);
+
+  function applyFilters(status: string, service: string, kind: string, llmOnly: boolean): void {
+    if (status !== 'loaded') return;
+    const filters: SpanFilters = {};
+    if (status) filters.status = status;
+    if (service) filters.service = service;
+    if (kind) filters.kind = kind;
+    if (llmOnly) filters.llm_only = true;
+    if (Object.keys(filters).length === 0) {
+      filteredSpanIds.set([]);
+      return;
+    }
+    filteredSpanIds.set(filterSpans(filters));
+  }
+
+  function clearFilters(): void {
+    filterStatus.set('');
+    filterService.set('');
+    filterKind.set('');
+    filterLlmOnly.set(false);
+  }
+
+  function formatCode(code: string): string {
+    return code.charAt(0).toUpperCase() + code.slice(1).toLowerCase();
+  }
 
   function applySearch(nextQuery: string): void {
     searchQuery.set(nextQuery);
@@ -111,8 +151,40 @@
         {summary.span_count.toLocaleString()} span{summary.span_count !== 1 ? 's' : ''}
         · {summary.service_count} service{summary.service_count !== 1 ? 's' : ''}
         · {summary.total_duration_display}
-        {#if summary.has_errors}<span class="error-dot" title="Trace contains errors">⚠ errors</span>{/if}
+        {#if summary.llm_span_count > 0}
+          · <span class="llm-dot" title="LLM spans">⚡{summary.llm_span_count}</span>
+        {/if}
+        {#if summary.has_errors}
+          · <span class="error-dot" title="{summary.error_count} error span{summary.error_count !== 1 ? 's' : ''}">⚠{summary.error_count}</span>
+        {/if}
+        · <span class="latency-stat" title="P50 / P95 latency">P50 {summary.latency_p50_display} / P95 {summary.latency_p95_display}</span>
       </span>
+
+      {#if hasFilters}
+        <div class="filter-bar">
+          {#if $filterStatus}
+            <button class="filter-chip" on:click={() => filterStatus.set('')}>
+              status:{formatCode($filterStatus)} ✕
+            </button>
+          {/if}
+          {#if $filterService}
+            <button class="filter-chip" on:click={() => filterService.set('')}>
+              svc:{$filterService} ✕
+            </button>
+          {/if}
+          {#if $filterKind}
+            <button class="filter-chip" on:click={() => filterKind.set('')}>
+              kind:{$filterKind} ✕
+            </button>
+          {/if}
+          {#if $filterLlmOnly}
+            <button class="filter-chip" on:click={() => filterLlmOnly.set(false)}>
+              LLM only ✕
+            </button>
+          {/if}
+          <button class="filter-clear" on:click={clearFilters}>Clear all</button>
+        </div>
+      {/if}
     {/if}
   </div>
 
@@ -148,6 +220,30 @@
           </span>
         {/if}
       </div>
+
+      <select class="filter-select" bind:value={$filterStatus} aria-label="Filter by status">
+        <option value="">All status</option>
+        <option value="ok">OK</option>
+        <option value="error">Error</option>
+        <option value="unset">Unset</option>
+      </select>
+      <select class="filter-select" bind:value={$filterKind} aria-label="Filter by span kind">
+        <option value="">All kinds</option>
+        <option value="internal">Internal</option>
+        <option value="server">Server</option>
+        <option value="client">Client</option>
+        <option value="producer">Producer</option>
+        <option value="consumer">Consumer</option>
+      </select>
+      <button
+        type="button"
+        class="filter-btn"
+        class:filter-btn--active={$filterLlmOnly}
+        aria-label="Show LLM spans only"
+        title="LLM spans only"
+        on:click={() => filterLlmOnly.update(v => !v)}
+      >⚡</button>
+
       <div class="view-tabs" role="tablist" aria-label="View mode">
         <button
           type="button"
@@ -283,7 +379,17 @@
 
   .error-dot {
     color: #f87171;
-    margin-left: 0.25rem;
+    font-weight: 600;
+  }
+
+  .llm-dot {
+    color: #c4b5fd;
+    font-weight: 600;
+  }
+
+  .latency-stat {
+    color: var(--color-toolbar-muted, #94a3b8);
+    font-size: 0.8rem;
   }
 
   .status-loading {
@@ -400,5 +506,74 @@
 
   .view-tab--active:hover {
     background: var(--color-accent-hover, #2563eb);
+  }
+
+  .filter-select {
+    padding: 0.2rem 0.4rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 5px;
+    background: rgba(15, 23, 42, 0.55);
+    color: var(--color-toolbar-text, #f1f5f9);
+    font-size: 0.75rem;
+    outline: none;
+    cursor: pointer;
+    max-width: 90px;
+  }
+
+  .filter-select:focus {
+    border-color: var(--color-accent, #3b82f6);
+  }
+
+  .filter-btn {
+    padding: 0.2rem 0.45rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 5px;
+    background: rgba(15, 23, 42, 0.55);
+    color: var(--color-toolbar-muted, #94a3b8);
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .filter-btn--active {
+    border-color: var(--color-accent, #3b82f6);
+    color: #fff;
+    background: rgba(59, 130, 246, 0.3);
+  }
+
+  .filter-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+
+  .filter-chip {
+    padding: 0.1rem 0.4rem;
+    border: 1px solid var(--color-accent, #3b82f6);
+    border-radius: 4px;
+    background: rgba(59, 130, 246, 0.15);
+    color: var(--color-toolbar-text, #f1f5f9);
+    font-size: 0.7rem;
+    font-family: monospace;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .filter-chip:hover {
+    background: rgba(59, 130, 246, 0.3);
+  }
+
+  .filter-clear {
+    background: none;
+    border: none;
+    color: var(--color-toolbar-muted, #94a3b8);
+    font-size: 0.7rem;
+    cursor: pointer;
+    text-decoration: underline;
+    padding: 0;
+  }
+
+  .filter-clear:hover {
+    color: var(--color-toolbar-text, #f1f5f9);
   }
 </style>

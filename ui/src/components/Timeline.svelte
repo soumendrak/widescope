@@ -35,6 +35,7 @@
   let rootEl: HTMLDivElement;
   let viewportEl: HTMLDivElement;
   let viewportWidth = 0;
+  let svgEl: SVGElement;
   let colorMap = new Map<string, string>();
   let groups: TimelineGroup[] = [];
   let chartWidth = 0;
@@ -185,6 +186,19 @@
     event.preventDefault();
     selectBlock(block);
   }
+
+  function exportSvg(): void {
+    if (!svgEl) return;
+    const clone = svgEl.cloneNode(true) as SVGElement;
+    const svgData = new XMLSerializer().serializeToString(clone);
+    const blob = new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n', svgData], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'timeline.svg';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 </script>
 
 <div
@@ -195,9 +209,13 @@
   aria-label="Timeline swimlane"
   on:mouseleave={() => setHovered(null)}
 >
+  <div class="controls">
+    <button class="ctrl-btn" title="Download SVG" on:click={exportSvg}>SVG</button>
+  </div>
   <div class="timeline-scroll" bind:this={viewportEl}>
     <svg
       class="timeline-svg"
+      bind:this={svgEl}
       width={Math.max(viewportWidth, LABEL_WIDTH + RIGHT_PADDING)}
       height={svgHeight}
       role="img"
@@ -423,5 +441,29 @@
 
   .span-icon {
     font-size: 10px;
+  }
+
+  .controls {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    z-index: 5;
+    display: flex;
+    gap: 4px;
+  }
+
+  .ctrl-btn {
+    padding: 0.2rem 0.5rem;
+    background: var(--color-panel-subtle, rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--color-border, #334155);
+    color: var(--color-text, #e2e8f0);
+    border-radius: 4px;
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .ctrl-btn:hover {
+    border-color: var(--color-accent, #3b82f6);
+    background: var(--color-panel-highlight, rgba(255, 255, 255, 0.04));
   }
 </style>

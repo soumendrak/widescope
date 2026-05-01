@@ -20,6 +20,7 @@
   let container: HTMLDivElement;
   let ctx: CanvasRenderingContext2D | null = null;
   let animFrameId = 0;
+  let heatmapMode = false;
 
   // Zoom / pan state
   let zoom = 1;
@@ -231,7 +232,9 @@
     const rw = Math.max(pw, minW);
     const isSearchMatch = !hasSearch || searchMatchSet.has(node.span_id);
 
-    const baseColor = colorMap.get(node.color_key) ?? '#64748b';
+    const baseColor = heatmapMode
+      ? heatmapColor(node)
+      : (colorMap.get(node.color_key) ?? '#64748b');
     ctx!.save();
     if (hasSearch && !isSearchMatch) {
       ctx!.globalAlpha = 0.22;
@@ -410,6 +413,33 @@
     scheduleRender();
   }
 
+  function exportPng(): void {
+    if (!canvas) return;
+    canvas.toBlob((blob) => {
+      if (!blob) return;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'flamegraph.png';
+      a.click();
+      URL.revokeObjectURL(url);
+    }, 'image/png');
+  }
+
+  function toggleHeatmap(): void {
+    heatmapMode = !heatmapMode;
+    scheduleRender();
+  }
+
+  function heatmapColor(node: FlameNode): string {
+    if (layout.trace_duration_ns <= 0) return '#64748b';
+    const ratio = Math.min(node.duration_ns / layout.trace_duration_ns, 1);
+    const r = Math.round(200 + ratio * 55);
+    const g = Math.round(200 - ratio * 160);
+    const b = Math.round(60 - ratio * 40);
+    return `rgb(${r},${g},${b})`;
+  }
+
   // ── Keyboard navigation ───────────────────────────────────────────
   function onKeyDown(e: KeyboardEvent) {
     const foc = $focusedSpanId;
@@ -545,6 +575,8 @@
       const n = sel ? nodeMap.get(sel) : null;
       if (n) zoomToSpan(n); else resetZoom();
     }}>Fit</button>
+    <button class="ctrl-btn" class:ctrl-btn--active={heatmapMode} title="Toggle latency heatmap" on:click={toggleHeatmap}>Heatmap</button>
+    <button class="ctrl-btn" title="Download PNG" on:click={exportPng}>PNG</button>
   </div>
   <!-- Screen reader live region -->
   <div class="sr-only" aria-live="polite" aria-atomic="true">{ariaLive}</div>
@@ -592,6 +624,12 @@
   .ctrl-btn:hover {
     border-color: var(--color-accent, #3b82f6);
     background: var(--color-panel-highlight, rgba(255, 255, 255, 0.04));
+  }
+
+  .ctrl-btn--active {
+    border-color: var(--color-accent, #3b82f6);
+    background: rgba(59, 130, 246, 0.15);
+    color: #fff;
   }
 
   .sr-only {

@@ -23,8 +23,12 @@ export interface TraceSummary {
   service_count: number;
   detected_format: 'OtlpJson' | 'JaegerJson' | 'OpenInferenceJson';
   has_errors: boolean;
+  error_count: number;
+  llm_span_count: number;
   total_duration_ns: number;
   total_duration_display: string;
+  latency_p50_display: string;
+  latency_p95_display: string;
   root_operation: string | null;
   root_service: string | null;
   warnings: ParseWarning[];

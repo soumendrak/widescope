@@ -1,8 +1,8 @@
-use std::collections::{HashMap, HashSet};
 use crate::errors::WideError;
 use crate::models::resource::Resource;
 use crate::models::span::Span;
 use crate::models::trace::{InputFormat, ParseWarning, Trace};
+use std::collections::{HashMap, HashSet};
 
 pub fn build_trace(
     raw_spans: Vec<Span>,
@@ -54,7 +54,10 @@ pub fn build_trace(
     // 2. Group by trace_id; pick most populated
     let mut trace_groups: HashMap<String, Vec<usize>> = HashMap::new();
     for (i, span) in spans.iter().enumerate() {
-        trace_groups.entry(span.trace_id.clone()).or_default().push(i);
+        trace_groups
+            .entry(span.trace_id.clone())
+            .or_default()
+            .push(i);
     }
 
     let (primary_trace_id, primary_indices) = if trace_groups.len() == 1 {
@@ -97,7 +100,10 @@ pub fn build_trace(
         (best_id, indices)
     };
 
-    let spans: Vec<Span> = primary_indices.into_iter().map(|i| spans[i].clone()).collect();
+    let spans: Vec<Span> = primary_indices
+        .into_iter()
+        .map(|i| spans[i].clone())
+        .collect();
 
     // 3. Validate/normalize timestamps
     let spans: Vec<Span> = spans
@@ -107,7 +113,10 @@ pub fn build_trace(
                 warnings.push(
                     ParseWarning::new(
                         "TIMESTAMP_INVERTED",
-                        format!("Span '{}' has end < start (swapped for display)", span.span_id),
+                        format!(
+                            "Span '{}' has end < start (swapped for display)",
+                            span.span_id
+                        ),
                     )
                     .with_context(serde_json::json!({
                         "span_id": span.span_id,
@@ -226,10 +235,7 @@ pub fn build_trace(
         warnings.push(
             ParseWarning::new(
                 "LARGE_TRACE",
-                format!(
-                    "Large trace ({} spans). Rendering may be slow.",
-                    span_count
-                ),
+                format!("Large trace ({} spans). Rendering may be slow.", span_count),
             )
             .with_context(serde_json::json!({ "span_count": span_count })),
         );
@@ -370,10 +376,7 @@ fn dfs(
         warnings.push(
             ParseWarning::new(
                 "CYCLE_SEVERED",
-                format!(
-                    "Cycle detected: back-edge to span '{}' severed",
-                    span_id
-                ),
+                format!("Cycle detected: back-edge to span '{}' severed", span_id),
             )
             .with_context(serde_json::json!({
                 "child_span_id": span_id,
@@ -389,10 +392,7 @@ fn dfs(
     path_set.insert(span_id.to_string());
     visited_global.insert(span_id.to_string());
 
-    let children = children_map
-        .get(span_id)
-        .cloned()
-        .unwrap_or_default();
+    let children = children_map.get(span_id).cloned().unwrap_or_default();
 
     for child_id in children {
         dfs(
