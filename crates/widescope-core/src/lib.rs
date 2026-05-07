@@ -520,11 +520,11 @@ fn span_matches_operators(span: &Span, query: &str) -> bool {
                     None => return false,
                 };
                 match op.as_str() {
-                    ">" => if span.duration_ns <= target { return false; },
-                    ">=" => if span.duration_ns < target { return false; },
-                    "<" => if span.duration_ns >= target { return false; },
-                    "<=" => if span.duration_ns > target { return false; },
-                    "=" => if span.duration_ns != target { return false; },
+                    ">" if span.duration_ns <= target => { return false; },
+                    ">=" if span.duration_ns < target => { return false; },
+                    "<" if span.duration_ns >= target => { return false; },
+                    "<=" if span.duration_ns > target => { return false; },
+                    "=" if span.duration_ns != target => { return false; },
                     _ => {},
                 }
             }
