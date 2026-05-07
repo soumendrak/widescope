@@ -31,6 +31,23 @@
 
 A browser-based, zero-backend trace viewer for OpenTelemetry- and Jaeger-style traces, with an LLM-aware inspection UI powered by Rust/WASM and Svelte. Load a JSON trace locally, inspect it instantly, and keep the data entirely in your browser.
 
+**No backend. No upload. No telemetry. Just your traces — in your browser.**
+
+[Try the live demo →](https://widescope.soumendrak.com)
+
+---
+
+## Quick Demo
+
+1. Open [widescope.soumendrak.com](https://widescope.soumendrak.com)
+2. Click **Load sample JSON** in the editor toolbar
+3. Explore the flame graph, timeline, and span details
+4. Or drag in your own OTLP / Jaeger / OpenInference trace JSON
+
+Sample trace files are available in [`test-fixtures/`](test-fixtures/) if you want to test locally.
+
+---
+
 ## Features
 
 - **Zero backend** — static UI + WASM, deployable to Cloudflare Pages, any CDN, or any static host.
@@ -202,6 +219,17 @@ Attribute-to-LLM mappings live in `conventions/` and are bundled into the UI at 
 | `langchain.json` | LangChain attributes (`langchain.*`) |
 
 Convention resolution is first-match-wins. See `conventions/README.md` to extend the mapping set.
+
+## Contributing
+
+Contributions are welcome! This project follows a standard PR workflow:
+
+1. **Open an issue** to discuss the change before working on it (optional but appreciated).
+2. **Fork** the repo and create a branch: `fix/description` or `feat/description`.
+3. **Run the checks** before opening a PR: `just check && just clippy && just test`.
+4. **Open a PR** against `main` with a clear description of what changed and why.
+
+Questions or ideas? [Open an issue](https://github.com/soumendrak/widescope/issues).
 
 ## License
 
