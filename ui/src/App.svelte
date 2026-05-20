@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from 'svelte';
+  import { fly } from 'svelte/transition';
   import { loadWasm, getInitWarnings } from './lib/wasm';
   import { openFilePicker, handleFile, handleRawInput } from './lib/input';
   import { SAMPLE_TRACE } from './lib/sample';
   import { traceState } from './stores/trace';
   import { theme } from './lib/theme';
+  import { flyUpConfig, viewSlideIn, viewSlideOut } from './lib/animation';
 
   import Toolbar from './components/Toolbar.svelte';
   import FlameGraph from './components/FlameGraph.svelte';
@@ -17,7 +19,7 @@
   import ErrorBanner from './components/ErrorBanner.svelte';
   import Footer from './components/Footer.svelte';
   import KeyboardHelp from './components/KeyboardHelp.svelte';
-  import { activeView, focusedSpanId, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from './stores/selection';
+  import { activeView, focusedSpanId, fullscreen, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from './stores/selection';
 
   let wasmReady = false;
   let wasmError: string | null = null;
@@ -36,12 +38,22 @@
   let timelineView: { focusView: () => void } | null = null;
   let waterfallView: { focusView: () => void } | null = null;
   let showKeyboardHelp = false;
+  let lastViewIdx = 0;
+  let slideDirection: 1 | -1 = 1;
 
   const STORAGE_KEY_THEME = 'widescope:theme';
   const STORAGE_KEY_VIEW = 'widescope:view';
   const STORAGE_KEY_EDITOR = 'widescope:editor';
 
   $: isEmbedded = new URLSearchParams(window.location.search).get('embed') === '1';
+
+  const VIEW_ORDER: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff'> = ['flame', 'timeline', 'waterfall', 'graph', 'diff'];
+
+  $: {
+    const currentIdx = VIEW_ORDER.indexOf($activeView);
+    slideDirection = currentIdx >= lastViewIdx ? 1 : -1;
+    lastViewIdx = currentIdx;
+  }
 
   const LIVE_PARSE_DELAY_MS = 150;
   const DEFAULT_EDITOR_HEIGHT_PX = 280;
@@ -302,6 +314,18 @@
         localStorage.setItem(STORAGE_KEY_VIEW, views[parseInt(e.key) - 1]);
         return;
       }
+
+      if (e.key === 'F' && e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        e.preventDefault();
+        fullscreen.update(v => !v);
+        return;
+      }
+
+      if ($fullscreen && e.key === 'Escape') {
+        e.preventDefault();
+        fullscreen.set(false);
+        return;
+      }
     };
     document.addEventListener('keydown', globalKeydownHandler);
   });
@@ -338,7 +362,7 @@
 
 <svelte:window on:pointermove={onWindowPointerMove} on:pointerup={endEditorResize} on:pointercancel={endEditorResize} />
 
-<div class="app" data-theme={$theme}>
+<div class="app" class:app--fullscreen={$fullscreen} data-theme={$theme}>
   {#if wasmError}
     <div class="fatal-error">
       <h2>Failed to initialize WideScope</h2>
@@ -355,7 +379,7 @@
     </div>
   {:else}
     <div class="layout">
-      {#if !isEmbedded}
+      {#if !isEmbedded && !$fullscreen}
         <Toolbar onOpenFile={openEditorFilePicker} />
       {/if}
       <ErrorBanner
@@ -365,7 +389,7 @@
       />
       <div class="main">
         {#if !editorValue.trim() && !isEmbedded}
-          <section class="welcome-panel" aria-labelledby="welcome-title">
+          <section class="welcome-panel" aria-labelledby="welcome-title" transition:fly={flyUpConfig()}>
             <div class="welcome-copy">
               <div class="eyebrow">Trace explorer</div>
               <h1 id="welcome-title">Explore distributed traces locally</h1>
@@ -397,7 +421,7 @@
           </section>
         {/if}
 
-        {#if !isEmbedded}
+        {#if !isEmbedded && !$fullscreen}
           <section
             class="editor-panel"
           class:editor-panel--collapsed={editorCollapsed}
@@ -477,15 +501,25 @@
           <div class="workspace">
             {#if state.status === 'loaded' && state.flameLayout}
               {#if $activeView === 'timeline' && state.timelineLayout}
-                <Timeline bind:this={timelineView} layout={state.timelineLayout} />
+                <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
+                  <Timeline bind:this={timelineView} layout={state.timelineLayout} />
+                </div>
               {:else if $activeView === 'waterfall' && state.waterfallLayout}
-                <WaterfallView bind:this={waterfallView} layout={state.waterfallLayout} />
+                <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
+                  <WaterfallView bind:this={waterfallView} layout={state.waterfallLayout} />
+                </div>
               {:else if $activeView === 'graph' && state.serviceGraph}
-                <ServiceGraph graph={state.serviceGraph} />
+                <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
+                  <ServiceGraph graph={state.serviceGraph} />
+                </div>
               {:else if $activeView === 'diff'}
-                <DiffView />
+                <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
+                  <DiffView />
+                </div>
               {:else}
-                <FlameGraph bind:this={flameGraphView} layout={state.flameLayout} />
+                <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
+                  <FlameGraph bind:this={flameGraphView} layout={state.flameLayout} />
+                </div>
               {/if}
               {#if $activeView !== 'diff'}
                 <SpanDetail />
@@ -513,10 +547,15 @@
           </div>
         {/if}
       </div>
-      {#if !isEmbedded}
+      {#if !isEmbedded && !$fullscreen}
         <Footer />
       {/if}
     </div>
+    {#if $fullscreen}
+      <button class="fullscreen-exit" aria-label="Exit fullscreen" on:click={() => fullscreen.set(false)}>
+        ⊠
+      </button>
+    {/if}
     <DropZone onFileDrop={onDroppedFile} />
     {#if showKeyboardHelp}
       <KeyboardHelp on:close={() => (showKeyboardHelp = false)} />
@@ -571,6 +610,9 @@
     --color-warning-text: #fcd34d;
     --color-warning-border: #92400e;
     --focus-color: #3b82f6;
+    --ease-spring: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   :global([data-theme='light']) {
@@ -606,6 +648,9 @@
     --color-warning-text: #92400e;
     --color-warning-border: #fcd34d;
     --focus-color: #2563eb;
+    --ease-spring: cubic-bezier(0.25, 0.1, 0.25, 1);
+    --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -708,7 +753,7 @@
     font-weight: 800;
     cursor: pointer;
     text-align: center;
-    transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease, box-shadow 0.14s ease;
+    transition: transform 0.18s var(--ease-bounce), border-color 0.18s var(--ease-spring), background 0.18s var(--ease-spring), box-shadow 0.18s var(--ease-spring);
   }
 
   .welcome-btn:hover {
@@ -763,7 +808,7 @@
     border-radius: 12px;
     background: var(--color-surface, #1e293b);
     box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
-    transition: padding 0.16s ease, gap 0.16s ease;
+    transition: padding 0.28s var(--ease-spring), gap 0.28s var(--ease-spring);
   }
 
   .editor-panel--collapsed {
@@ -823,7 +868,7 @@
     font-size: 0.875rem;
     font-weight: 600;
     cursor: pointer;
-    transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease, opacity 0.12s ease;
+    transition: background 0.15s var(--ease-spring), border-color 0.15s var(--ease-spring), color 0.15s var(--ease-spring), opacity 0.15s var(--ease-spring);
   }
 
   .editor-btn:hover:not(:disabled) {
@@ -862,7 +907,7 @@
     color: var(--color-text, #e2e8f0);
     font: 0.875rem/1.6 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
     outline: none;
-    transition: min-height 0.16s ease, max-height 0.16s ease, padding 0.16s ease;
+    transition: min-height 0.28s var(--ease-spring), max-height 0.28s var(--ease-spring), padding 0.28s var(--ease-spring);
   }
 
   .editor-input:focus {
@@ -889,7 +934,7 @@
     opacity: 0;
     pointer-events: none;
     transform: translateY(-4px);
-    transition: opacity 0.14s ease, transform 0.14s ease, border-color 0.12s ease, background 0.12s ease;
+    transition: opacity 0.18s var(--ease-spring), transform 0.18s var(--ease-bounce), border-color 0.15s var(--ease-spring), background 0.15s var(--ease-spring);
   }
 
   .editor-input-shell:hover .editor-expand-btn,
@@ -923,7 +968,7 @@
     height: 4px;
     border-radius: 999px;
     background: color-mix(in srgb, var(--color-text-muted, #94a3b8) 45%, transparent);
-    transition: background 0.12s ease, width 0.12s ease;
+    transition: background 0.15s var(--ease-spring), width 0.15s var(--ease-spring);
   }
 
   .editor-input-shell:hover .editor-resize-handle::before,
@@ -963,6 +1008,12 @@
     border: 1px solid var(--color-border, #334155);
     border-radius: 12px;
     background: var(--color-surface, #1e293b);
+  }
+
+  .view-wrapper {
+    flex: 1;
+    min-height: 0;
+    display: flex;
   }
 
   .empty-state {
@@ -1046,6 +1097,43 @@
   }
 
   .fatal-error p { color: #94a3b8; font-size: 0.875rem; }
+
+  .app--fullscreen .main {
+    padding: 0;
+  }
+
+  .app--fullscreen .workspace {
+    border-radius: 0;
+    border: none;
+  }
+
+  .fullscreen-exit {
+    display: none;
+    position: fixed;
+    top: 12px;
+    right: 12px;
+    z-index: 100;
+    width: 36px;
+    height: 36px;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface);
+    color: var(--color-text);
+    font-size: 1.1rem;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
+  }
+
+  .fullscreen-exit:hover {
+    opacity: 1;
+  }
+
+  .app--fullscreen .fullscreen-exit {
+    display: flex;
+  }
 
   @media (max-width: 820px) {
     .app,

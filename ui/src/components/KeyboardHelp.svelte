@@ -1,5 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
+  import { fade, scale } from 'svelte/transition';
+  import { fadeConfig, scaleConfig } from '../lib/animation';
 
   const dispatch = createEventDispatcher<{ close: void }>();
 
@@ -29,8 +31,8 @@
   });
 </script>
 
-<div class="overlay" role="dialog" aria-label="Keyboard shortcuts" tabindex="-1" on:click|self={() => dispatch('close')} on:keydown={() => {}}>
-  <div class="panel">
+<div class="overlay" role="dialog" aria-label="Keyboard shortcuts" tabindex="-1" on:click|self={() => dispatch('close')} on:keydown={() => {}} transition:fade={fadeConfig()}>
+  <div class="panel" transition:scale={scaleConfig()}>
     <div class="header">
       <h2>Keyboard shortcuts</h2>
       <button class="close-btn" aria-label="Close" on:click={() => dispatch('close')}>✕</button>

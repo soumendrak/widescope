@@ -1,10 +1,12 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
+  import { fly } from 'svelte/transition';
   import { selectedSpanId } from '../stores/selection';
   import { traceState } from '../stores/trace';
   import { getSpanDetail } from '../lib/wasm';
   import { annotations } from '../stores/annotations';
   import type { SpanDetail, LlmDetail } from '../lib/types';
+  import { flyRightConfig } from '../lib/animation';
 
   let detail: SpanDetail | null = null;
   let loading = false;
@@ -109,7 +111,7 @@
 <svelte:window on:pointermove={onPointerMove} on:pointerup={endResize} on:pointercancel={endResize} on:pointerdown={onWindowPointerDown} />
 
 {#if $selectedSpanId}
-<aside class="sidebar" class:sidebar--resizing={isResizing} bind:this={sidebar} style={`width: ${sidebarWidth}px;`}>
+<aside class="sidebar" class:sidebar--resizing={isResizing} bind:this={sidebar} style={`width: ${sidebarWidth}px;`} transition:fly={flyRightConfig()}>
   <div
     class="sidebar-resize-handle"
     role="separator"

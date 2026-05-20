@@ -15,6 +15,7 @@
     filterKind,
     filterLlmOnly,
     selectedSpanId,
+    fullscreen,
   } from '../stores/selection';
 
   export let onOpenFile: () => void = () => openFilePicker();
@@ -174,6 +175,13 @@
       {/if}
 
       <button type="button" class="theme-btn" aria-label="Toggle theme" on:click={() => theme.toggle()}>{themeLabel}</button>
+      <button
+        type="button"
+        class="fullscreen-btn"
+        aria-label={$fullscreen ? 'Exit fullscreen' : 'Fullscreen'}
+        title={$fullscreen ? 'Exit fullscreen (Esc)' : 'Fullscreen (Shift+F)'}
+        on:click={() => fullscreen.update(v => !v)}
+      >{$fullscreen ? '↙' : '↗'}</button>
     </div>
   </div>
 
@@ -313,9 +321,10 @@
     font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
+    transition: background 0.15s var(--ease-spring), transform 0.15s var(--ease-bounce);
   }
 
-  .btn-open:hover { background: var(--color-accent-hover, #2563eb); }
+  .btn-open:hover { background: var(--color-accent-hover, #2563eb); transform: scale(1.04); }
 
   .trace-select {
     padding: 0.2rem 0.4rem;
@@ -413,12 +422,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.12s, color 0.12s;
+    transition: background 0.12s var(--ease-spring), color 0.12s var(--ease-spring), transform 0.15s var(--ease-bounce);
   }
 
   .view-tab:hover {
     color: var(--color-toolbar-text, #f1f5f9);
     background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.08);
   }
 
   .view-tab--active { background: var(--color-accent, #3b82f6); color: #fff; }
@@ -433,9 +443,24 @@
     font-size: 0.85rem;
     cursor: pointer;
     line-height: 1;
+    transition: background 0.15s var(--ease-spring), transform 0.15s var(--ease-bounce);
   }
 
-  .theme-btn:hover { background: rgba(255, 255, 255, 0.1); }
+  .theme-btn:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.08); }
+
+  .fullscreen-btn {
+    padding: 0.2rem 0.45rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--color-toolbar-muted, #94a3b8);
+    font-size: 0.85rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.15s var(--ease-spring), background 0.15s var(--ease-spring);
+  }
+
+  .fullscreen-btn:hover { color: var(--color-toolbar-text, #f1f5f9); background: rgba(255, 255, 255, 0.1); }
 
   /* ── Stats bar ────────────────────────────────────────────────── */
 
@@ -530,6 +555,7 @@
     font-size: 0.7rem;
     cursor: pointer;
     white-space: nowrap;
+    transition: all 0.15s var(--ease-spring);
   }
 
   .filter-btn--active {

@@ -1,5 +1,7 @@
 <script lang="ts">
+  import { fade } from 'svelte/transition';
   import { handleFile } from '../lib/input';
+  import { fadeConfig } from '../lib/animation';
 
   export let onFileDrop: ((file: File) => void) | null = null;
 
@@ -47,7 +49,7 @@
 />
 
 {#if isDragging}
-  <div class="overlay" aria-hidden="true">
+  <div class="overlay" aria-hidden="true" transition:fade={fadeConfig()}>
     <div class="inner">
       <div class="icon">📂</div>
       <div class="label">Drop trace file to load</div>

@@ -13,3 +13,4 @@ export const filterKind = writable<string>('');
 export const filterLlmOnly = writable<boolean>(false);
 export const sliceStartNs = writable<number | null>(null);
 export const sliceEndNs = writable<number | null>(null);
+export const fullscreen = writable<boolean>(false);
