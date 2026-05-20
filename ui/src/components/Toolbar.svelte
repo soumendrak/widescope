@@ -773,9 +773,30 @@
   /* ── Responsive ───────────────────────────────────────────────── */
 
   @media (max-width: 820px) {
-    .top-bar { flex-wrap: wrap; height: auto; padding: 0.4rem 0.5rem; gap: 0.4rem; }
-    .stats-bar { flex-direction: column; height: auto; padding: 0.35rem 0.5rem; align-items: flex-start; gap: 0.3rem; }
+    .top-bar { flex-wrap: wrap; height: auto; padding: 0.4rem 0.5rem; gap: 0.4rem 0.5rem; }
+
+    /* Let the right-hand cluster wrap onto its own rows instead of
+       overflowing the viewport: search takes a full row, the tabs and
+       action buttons flow onto the next. */
+    .top-right {
+      flex-wrap: wrap;
+      flex-basis: 100%;
+      justify-content: flex-end;
+      row-gap: 0.45rem;
+    }
+    .search-shell { flex: 1 1 100%; }
+    .search-input { flex: 1; width: auto; min-width: 0; }
+
+    .stats-bar {
+      flex-direction: column;
+      height: auto;
+      padding: 0.35rem 0.5rem;
+      align-items: flex-start;
+      gap: 0.3rem;
+      overflow: visible;
+    }
+    /* Wrap the stat chips instead of clipping them off-screen. */
+    .stats-left { flex-wrap: wrap; overflow: visible; }
     .stats-right { flex-wrap: wrap; }
-    .search-input { width: 120px; }
   }
 </style>
