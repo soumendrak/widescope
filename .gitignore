@@ -18,3 +18,4 @@ ui/.svelte-kit/
 # Local trace generation
 /big_trace.json
 /generate_trace.py
+.commandcode/

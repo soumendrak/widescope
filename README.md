@@ -58,6 +58,15 @@ Sample trace files are available in [`test-fixtures/`](test-fixtures/) if you wa
 - **Fast navigation** — span search, keyboard traversal, zoom, pan, fit/reset controls, and search-result highlighting.
 - **Flexible loading** — drag and drop, file picker, clipboard paste, or the built-in JSON editor with live parsing.
 - **Detailed sidebar** — timing, status, attributes, events, child spans, and LLM metadata for the selected span.
+- **Shareable links** — encode a whole trace into a self-contained link, or point at a hosted trace JSON — no upload, no backend.
+
+## Sharing traces
+
+WideScope can produce a link that reopens the exact trace, view, and selected span you are looking at.
+
+- **Self-contained link** — click **🔗 Share** in the toolbar. The trace is gzip-compressed and packed into the URL `#fragment`, which browsers never send to a server, so the data stays private. Best for small and medium traces; large traces are flagged with a one-click **Download trace** fallback.
+- **Hosted trace** — open `https://widescope.soumendrak.com/?trace=<url>` to fetch a trace JSON from any HTTPS URL (CI artifact, gist, object storage).
+- **Deep links** — both forms accept `view=<flame|timeline|waterfall|graph|diff>` and `span=<id>` to restore the view mode and pre-select a span.
 
 ## Requirements
 
@@ -207,6 +216,7 @@ widescope/
 |---|---|
 | Embed mode for external tool integration | ✅ Supported |
 | Zip upload (multiple trace files) | ✅ Supported |
+| Self-contained share links + deep linking | ✅ Supported |
 
 ## Convention Mappings
 
