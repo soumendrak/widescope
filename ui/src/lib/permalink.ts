@@ -60,8 +60,19 @@ async function pumpThrough(
   const writer = transform.writable.getWriter();
   // The writable side is typed against ArrayBuffer-backed views; a plain
   // Uint8Array (ArrayBufferLike) is safe to pass at runtime.
-  void writer.write(data as Uint8Array<ArrayBuffer>);
-  void writer.close();
+  //
+  // Feed the input without awaiting here so the readable side can drain
+  // concurrently. The `.catch()` is required: when the transform errors
+  // (e.g. corrupt gzip), the writer's write/close promises reject too, and
+  // without a handler that surfaces as an unhandled promise rejection. The
+  // real error is still reported below, where reading `transform.readable`
+  // rejects with it.
+  void writer
+    .write(data as Uint8Array<ArrayBuffer>)
+    .then(() => writer.close())
+    .catch(() => {
+      /* surfaced via transform.readable below */
+    });
   return new Uint8Array(await new Response(transform.readable).arrayBuffer());
 }
 

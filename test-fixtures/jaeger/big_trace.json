@@ -1,0 +1,380 @@
+{
+  "data": [
+    {
+      "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+      "processes": {
+        "p1": { "serviceName": "api-gateway" },
+        "p2": { "serviceName": "user-service" },
+        "p3": { "serviceName": "order-service" },
+        "p4": { "serviceName": "payment-service" },
+        "p5": { "serviceName": "llm-orchestrator" },
+        "p6": { "serviceName": "notification-service" }
+      },
+      "spans": [
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "0000000000000001",
+          "operationName": "POST /api/checkout",
+          "references": [],
+          "startTime": 1700000000000000,
+          "duration": 8500000,
+          "processID": "p1",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "server" },
+            { "key": "http.method", "type": "string", "value": "POST" },
+            { "key": "http.url", "type": "string", "value": "/api/checkout" },
+            { "key": "http.status_code", "type": "int64", "value": 200 },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "0000000000000002",
+          "operationName": "auth.verify_token",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000001" }
+          ],
+          "startTime": 1700000000050000,
+          "duration": 450000,
+          "processID": "p2",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "server" },
+            { "key": "auth.user_id", "type": "string", "value": "usr_9x7k2" },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "0000000000000003",
+          "operationName": "order.create",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000001" }
+          ],
+          "startTime": 1700000000600000,
+          "duration": 4200000,
+          "processID": "p3",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "server" },
+            { "key": "order.id", "type": "string", "value": "ord_c8m1p" },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "0000000000000004",
+          "operationName": "inventory.reserve",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000003" }
+          ],
+          "startTime": 1700000000800000,
+          "duration": 1800000,
+          "processID": "p3",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "inventory.items_count", "type": "int64", "value": 3 },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "0000000000000005",
+          "operationName": "inventory.check_stock",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000003" }
+          ],
+          "startTime": 1700000000850000,
+          "duration": 350000,
+          "processID": "p3",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "db.system", "type": "string", "value": "postgresql" },
+            { "key": "db.operation", "type": "string", "value": "SELECT" },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "0000000000000006",
+          "operationName": "payment.process",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000003" }
+          ],
+          "startTime": 1700000003000000,
+          "duration": 1600000,
+          "processID": "p4",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "payment.amount", "type": "float64", "value": 142.97 },
+            { "key": "payment.currency", "type": "string", "value": "USD" },
+            { "key": "payment.provider", "type": "string", "value": "stripe" },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "0000000000000007",
+          "operationName": "payment.authorize",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000006" }
+          ],
+          "startTime": 1700000003100000,
+          "duration": 800000,
+          "processID": "p4",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "stripe.payment_intent_id", "type": "string", "value": "pi_3NqL8xA7b8K9fW2" },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "0000000000000008",
+          "operationName": "payment.capture",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000006" }
+          ],
+          "startTime": 1700000004000000,
+          "duration": 500000,
+          "processID": "p4",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "0000000000000009",
+          "operationName": "llm.fraud_check",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000001" }
+          ],
+          "startTime": 1700000000700000,
+          "duration": 3200000,
+          "processID": "p5",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "internal" },
+            { "key": "llm.model", "type": "string", "value": "gpt-4o" },
+            { "key": "llm.input_tokens", "type": "int64", "value": 1847 },
+            { "key": "llm.output_tokens", "type": "int64", "value": 312 },
+            { "key": "llm.cost_usd", "type": "float64", "value": 0.02345 }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "000000000000000a",
+          "operationName": "llm.prepare_context",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000009" }
+          ],
+          "startTime": 1700000000750000,
+          "duration": 650000,
+          "processID": "p5",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "internal" },
+            { "key": "context.sources", "type": "int64", "value": 4 },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "000000000000000b",
+          "operationName": "llm.invoke",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000009" }
+          ],
+          "startTime": 1700000001500000,
+          "duration": 2300000,
+          "processID": "p5",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "llm.model", "type": "string", "value": "gpt-4o" },
+            { "key": "llm.input_tokens", "type": "int64", "value": 1847 },
+            { "key": "llm.output_tokens", "type": "int64", "value": 312 },
+            { "key": "llm.cost_usd", "type": "float64", "value": 0.02345 },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "000000000000000c",
+          "operationName": "llm.safety_filter",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000009" }
+          ],
+          "startTime": 1700000001700000,
+          "duration": 900000,
+          "processID": "p5",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "internal" },
+            { "key": "llm.model", "type": "string", "value": "gpt-3.5-turbo" },
+            { "key": "llm.input_tokens", "type": "int64", "value": 612 },
+            { "key": "llm.output_tokens", "type": "int64", "value": 45 },
+            { "key": "llm.cost_usd", "type": "float64", "value": 0.00086 },
+            { "key": "safety.score", "type": "float64", "value": 0.02 },
+            { "key": "safety.flagged", "type": "bool", "value": false },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "000000000000000d",
+          "operationName": "llm.summarize_result",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000009" }
+          ],
+          "startTime": 1700000001700000,
+          "duration": 1100000,
+          "processID": "p5",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "internal" },
+            { "key": "llm.model", "type": "string", "value": "claude-sonnet-4-20250514" },
+            { "key": "llm.input_tokens", "type": "int64", "value": 1103 },
+            { "key": "llm.output_tokens", "type": "int64", "value": 178 },
+            { "key": "llm.cost_usd", "type": "float64", "value": 0.01562 },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "000000000000000e",
+          "operationName": "notification.send_email",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000001" }
+          ],
+          "startTime": 1700000005000000,
+          "duration": 950000,
+          "processID": "p6",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "producer" },
+            { "key": "messaging.system", "type": "string", "value": "aws_sqs" },
+            { "key": "messaging.destination", "type": "string", "value": "email-queue" },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "000000000000000f",
+          "operationName": "notification.process_email",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "000000000000000e" }
+          ],
+          "startTime": 1700000005100000,
+          "duration": 600000,
+          "processID": "p6",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "consumer" },
+            { "key": "messaging.system", "type": "string", "value": "aws_sqs" },
+            { "key": "email.template", "type": "string", "value": "order_confirmation" },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "0000000000000010",
+          "operationName": "notification.render_template",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "000000000000000f" }
+          ],
+          "startTime": 1700000005200000,
+          "duration": 350000,
+          "processID": "p6",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "internal" },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "0000000000000011",
+          "operationName": "cache.get_user_profile",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000001" }
+          ],
+          "startTime": 1700000000020000,
+          "duration": 150000,
+          "processID": "p2",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "db.system", "type": "string", "value": "redis" },
+            { "key": "db.operation", "type": "string", "value": "GET" },
+            { "key": "cache.hit", "type": "bool", "value": true },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "0000000000000012",
+          "operationName": "db.save_order",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000003" }
+          ],
+          "startTime": 1700000004200000,
+          "duration": 450000,
+          "processID": "p3",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "db.system", "type": "string", "value": "postgresql" },
+            { "key": "db.operation", "type": "string", "value": "INSERT" },
+            { "key": "otel.status_code", "type": "string", "value": "OK" }
+          ],
+          "logs": []
+        },
+
+        {
+          "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6",
+          "spanID": "0000000000000013",
+          "operationName": "llm.fraud_check — TIMEOUT",
+          "references": [
+            { "refType": "CHILD_OF", "traceID": "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6", "spanID": "0000000000000009" }
+          ],
+          "startTime": 1700000000900000,
+          "duration": 3000000,
+          "processID": "p5",
+          "tags": [
+            { "key": "span.kind", "type": "string", "value": "client" },
+            { "key": "llm.model", "type": "string", "value": "gpt-4-turbo" },
+            { "key": "llm.input_tokens", "type": "int64", "value": 25 },
+            { "key": "llm.output_tokens", "type": "int64", "value": 0 },
+            { "key": "error", "type": "bool", "value": true },
+            { "key": "otel.status_code", "type": "string", "value": "ERROR" }
+          ],
+          "logs": []
+        }
+      ]
+    }
+  ]
+}
