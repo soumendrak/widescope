@@ -3,6 +3,7 @@
   import { traceList } from '../stores/traceList';
   import { openFilePicker } from '../lib/input';
   import { theme } from '../lib/theme';
+  import { buildShareUrl, isShareSupported } from '../lib/permalink';
   import { searchSpans, filterSpans, getCostBreakdown, type SpanFilters } from '../lib/wasm';
   import {
     activeView,
@@ -105,6 +106,78 @@
   function onSearchInput(event: Event): void {
     applySearch((event.currentTarget as HTMLInputElement).value);
   }
+
+  // --- Share / permalink ---
+
+  type SharePopover = { text: string; kind: 'success' | 'warn' | 'error'; download: boolean };
+
+  let sharePopover: SharePopover | null = null;
+  let sharePopoverTimer: ReturnType<typeof setTimeout> | null = null;
+
+  $: activeTraceJson = activeTraceIdx >= 0 ? ($traceList[activeTraceIdx]?.json ?? null) : null;
+
+  function dismissSharePopover(): void {
+    if (sharePopoverTimer) { clearTimeout(sharePopoverTimer); sharePopoverTimer = null; }
+    sharePopover = null;
+  }
+
+  function showSharePopover(popover: SharePopover, autoDismissMs = 0): void {
+    if (sharePopoverTimer) clearTimeout(sharePopoverTimer);
+    sharePopover = popover;
+    sharePopoverTimer = autoDismissMs > 0
+      ? setTimeout(() => { sharePopover = null; sharePopoverTimer = null; }, autoDismissMs)
+      : null;
+  }
+
+  async function shareTrace(): Promise<void> {
+    if (sharePopover) { dismissSharePopover(); return; }
+    const json = activeTraceJson;
+    if (!json) {
+      showSharePopover({ text: 'No trace loaded to share.', kind: 'error', download: false }, 3500);
+      return;
+    }
+    if (!isShareSupported()) {
+      showSharePopover({
+        text: 'This browser cannot build share links. Download the trace and share the file instead.',
+        kind: 'warn',
+        download: true,
+      });
+      return;
+    }
+    try {
+      const result = await buildShareUrl({ json, view: $activeView, spanId: $selectedSpanId });
+      if (result.tooLarge) {
+        const kb = Math.round(result.dataChars / 1024);
+        showSharePopover({
+          text: `Trace is too large for a self-contained link (~${kb} KB). Download the trace and share the file, or host it and open it with ?trace=<url>.`,
+          kind: 'warn',
+          download: true,
+        });
+        return;
+      }
+      await navigator.clipboard.writeText(result.url);
+      showSharePopover({ text: 'Share link copied to clipboard.', kind: 'success', download: false }, 2800);
+    } catch {
+      showSharePopover({
+        text: 'Could not create or copy a share link. Download the trace instead.',
+        kind: 'error',
+        download: true,
+      }, 5000);
+    }
+  }
+
+  function downloadTrace(): void {
+    const json = activeTraceJson;
+    if (!json) return;
+    const blob = new Blob([json], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `widescope-trace-${summary?.trace_id ?? 'export'}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+    dismissSharePopover();
+  }
 </script>
 
 <header class="toolbar" class:toolbar--loaded={status === 'loaded'}>
@@ -171,6 +244,30 @@
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'waterfall'} role="tab" aria-selected={$activeView === 'waterfall'} on:click={() => activeView.set('waterfall')}>W</button>
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'graph'} role="tab" aria-selected={$activeView === 'graph'} on:click={() => activeView.set('graph')} title="Service graph">G</button>
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'diff'} role="tab" aria-selected={$activeView === 'diff'} on:click={() => activeView.set('diff')} title="Trace diff">D</button>
+        </div>
+      {/if}
+
+      {#if status === 'loaded'}
+        <div class="share-wrap">
+          <button
+            type="button"
+            class="share-btn"
+            class:share-btn--active={sharePopover !== null}
+            aria-label="Share this trace"
+            title="Copy a self-contained share link"
+            on:click={shareTrace}
+          >🔗 Share</button>
+          {#if sharePopover}
+            <div class="share-popover share-popover--{sharePopover.kind}" role="status">
+              <span class="share-popover-text">{sharePopover.text}</span>
+              <div class="share-popover-actions">
+                {#if sharePopover.download}
+                  <button type="button" class="share-popover-btn" on:click={downloadTrace}>Download trace</button>
+                {/if}
+                <button type="button" class="share-popover-close" aria-label="Dismiss" on:click={dismissSharePopover}>✕</button>
+              </div>
+            </div>
+          {/if}
         </div>
       {/if}
 
@@ -461,6 +558,83 @@
   }
 
   .fullscreen-btn:hover { color: var(--color-toolbar-text, #f1f5f9); background: rgba(255, 255, 255, 0.1); }
+
+  .share-wrap {
+    position: relative;
+    display: flex;
+  }
+
+  .share-btn {
+    padding: 0.2rem 0.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--color-toolbar-text, #f1f5f9);
+    font-size: 0.8rem;
+    cursor: pointer;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background 0.15s var(--ease-spring), transform 0.15s var(--ease-bounce);
+  }
+
+  .share-btn:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.05); }
+  .share-btn--active { background: rgba(255, 255, 255, 0.16); }
+
+  .share-popover {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 30;
+    width: 260px;
+    padding: 0.6rem 0.7rem;
+    border-radius: 6px;
+    border: 1px solid var(--color-border, #334155);
+    background: var(--color-toolbar, #1e293b);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    font-size: 0.78rem;
+    line-height: 1.4;
+  }
+
+  .share-popover--success { border-left: 3px solid #22c55e; }
+  .share-popover--warn { border-left: 3px solid #f59e0b; }
+  .share-popover--error { border-left: 3px solid #ef4444; }
+
+  .share-popover-text {
+    display: block;
+    color: var(--color-toolbar-text, #f1f5f9);
+  }
+
+  .share-popover-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.4rem;
+    margin-top: 0.5rem;
+  }
+
+  .share-popover-btn {
+    padding: 0.22rem 0.55rem;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--color-toolbar-text, #f1f5f9);
+    font-size: 0.75rem;
+    cursor: pointer;
+  }
+
+  .share-popover-btn:hover { background: rgba(255, 255, 255, 0.1); }
+
+  .share-popover-close {
+    padding: 0.1rem 0.35rem;
+    border: none;
+    border-radius: 4px;
+    background: transparent;
+    color: var(--color-toolbar-muted, #94a3b8);
+    font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .share-popover-close:hover { color: var(--color-toolbar-text, #f1f5f9); background: rgba(255, 255, 255, 0.1); }
 
   /* ── Stats bar ────────────────────────────────────────────────── */
 
