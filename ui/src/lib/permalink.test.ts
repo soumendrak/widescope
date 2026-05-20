@@ -1,6 +1,7 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, beforeAll } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import initWasm from '../../../crates/widescope-core/pkg/widescope_core';
 import {
   encodeTrace,
   decodeTrace,
@@ -19,6 +20,30 @@ function readFixture(relative: string): string {
   return readFileSync(fileURLToPath(new URL(relative, import.meta.url)), 'utf-8');
 }
 
+/** base64url-encode raw bytes, matching the encoder in permalink.ts. */
+function bytesToBase64Url(bytes: Uint8Array): string {
+  let binary = '';
+  for (const b of bytes) binary += String.fromCharCode(b);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+/** Reproduce the legacy share encoding: raw gzip, base64url, no format tag. */
+async function legacyGzipBlob(json: string): Promise<string> {
+  const stream = new CompressionStream('gzip');
+  const writer = stream.writable.getWriter();
+  void writer.write(new TextEncoder().encode(json)).then(() => writer.close());
+  const bytes = new Uint8Array(await new Response(stream.readable).arrayBuffer());
+  return bytesToBase64Url(bytes);
+}
+
+// Compression runs in WASM; instantiate the module before any test touches it.
+beforeAll(async () => {
+  const wasmPath = fileURLToPath(
+    new URL('../../../crates/widescope-core/pkg/widescope_core_bg.wasm', import.meta.url),
+  );
+  await initWasm({ module_or_path: readFileSync(wasmPath) });
+});
+
 describe('encodeTrace / decodeTrace', () => {
   it.each(FIXTURES)('round-trips %s without loss', async (path) => {
     const original = readFixture(path);
@@ -31,8 +56,20 @@ describe('encodeTrace / decodeTrace', () => {
     expect(encoded).toMatch(/^[A-Za-z0-9_-]+$/);
   });
 
+  it('compresses small traces well below the raw size', async () => {
+    const original = readFixture(FIXTURES[0]);
+    const encoded = await encodeTrace(original);
+    expect(encoded.length).toBeLessThan(original.length / 2);
+  });
+
+  it('still decodes legacy gzip share links', async () => {
+    const original = readFixture(FIXTURES[1]);
+    const restored = await decodeTrace(await legacyGzipBlob(original));
+    expect(restored).toBe(original);
+  });
+
   it('rejects a corrupt blob', async () => {
-    await expect(decodeTrace('not-valid-gzip-data')).rejects.toThrow();
+    await expect(decodeTrace('not-valid-share-data')).rejects.toThrow();
   });
 });
 

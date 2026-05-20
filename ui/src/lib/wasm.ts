@@ -115,6 +115,29 @@ export function getCostBreakdown(): CostBreakdown | null {
   return JSON.parse(fn()) as CostBreakdown;
 }
 
+/** Whether the WASM share-link compressor is available (i.e. WASM is loaded). */
+export function isShareCompressionReady(): boolean {
+  return (
+    typeof (widescopeCore as { compress_share?: unknown }).compress_share === 'function'
+  );
+}
+
+/** Compress trace JSON into a tagged, self-contained share blob. */
+export function compressShare(json: string): Uint8Array {
+  const fn = (widescopeCore as { compress_share?: (v: string) => Uint8Array })
+    .compress_share;
+  if (!fn) throw new Error('compress_share not available');
+  return fn(json);
+}
+
+/** Decode a share blob produced by {@link compressShare} back into trace JSON. */
+export function decompressShare(blob: Uint8Array): string {
+  const fn = (widescopeCore as { decompress_share?: (v: Uint8Array) => string })
+    .decompress_share;
+  if (!fn) throw new Error('decompress_share not available');
+  return fn(blob);
+}
+
 export function safeParseWasmError(err: unknown): WasmError {
   let raw: string | undefined;
   if (typeof err === 'string') raw = err;

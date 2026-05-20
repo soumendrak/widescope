@@ -1,15 +1,23 @@
 /**
  * Self-contained share links.
  *
- * A trace is gzip-compressed and base64url-encoded into the URL hash fragment
+ * A trace is compressed and base64url-encoded into the URL hash fragment
  * (`#trace=...`). Fragments are never sent to a server, so a shared link keeps
  * WideScope's local-first, zero-upload promise. View mode and the selected span
  * travel alongside the data so a link restores the exact thing the sender saw.
+ *
+ * Compression runs in WASM: the trace JSON is DEFLATE-compressed, seeded with
+ * a dictionary embedded in the WASM binary (see
+ * `crates/widescope-core/src/share.rs`), which gives small traces far shorter
+ * links than a standalone gzip pass could. Legacy links created with the
+ * earlier gzip scheme are still decoded — they are recognised by the gzip
+ * magic byte, which the tagged format never starts with.
  *
  * `?trace=<url>` (a remote URL in the query string) is handled separately by the
  * caller; this module only parses it out.
  */
 import type { ViewName } from './types';
+import { compressShare, decompressShare, isShareCompressionReady } from './wasm';
 
 const VIEW_NAMES: ReadonlyArray<ViewName> = [
   'flame',
@@ -45,12 +53,12 @@ export interface ShareUrlResult {
   tooLarge: boolean;
 }
 
-/** Whether the browser supports the streams APIs needed for share links. */
+/** Gzip magic byte — identifies a legacy (pre-dictionary) share blob. */
+const GZIP_MAGIC = 0x1f;
+
+/** Whether share links can be built (i.e. the WASM compressor is loaded). */
 export function isShareSupported(): boolean {
-  return (
-    typeof CompressionStream !== 'undefined' &&
-    typeof DecompressionStream !== 'undefined'
-  );
+  return isShareCompressionReady();
 }
 
 async function pumpThrough(
@@ -74,10 +82,6 @@ async function pumpThrough(
       /* surfaced via transform.readable below */
     });
   return new Uint8Array(await new Response(transform.readable).arrayBuffer());
-}
-
-function gzip(data: Uint8Array): Promise<Uint8Array> {
-  return pumpThrough(data, new CompressionStream('gzip'));
 }
 
 function gunzip(data: Uint8Array): Promise<Uint8Array> {
@@ -109,18 +113,24 @@ function base64UrlToBytes(value: string): Uint8Array {
 
 /** Compress a trace JSON string into a URL-safe blob for `#trace=`. */
 export async function encodeTrace(json: string): Promise<string> {
-  const bytes = new TextEncoder().encode(json);
-  return bytesToBase64Url(await gzip(bytes));
+  return bytesToBase64Url(compressShare(json));
 }
 
 /**
  * Reverse {@link encodeTrace}.
  *
- * @throws {Error} If the blob is not valid base64url or not valid gzip data.
+ * Current blobs carry a leading format tag and are decoded in WASM; legacy
+ * gzip blobs are recognised by the gzip magic byte and decoded with the
+ * browser's `DecompressionStream`.
+ *
+ * @throws {Error} If the blob is not valid base64url or cannot be decompressed.
  */
 export async function decodeTrace(encoded: string): Promise<string> {
-  const bytes = await gunzip(base64UrlToBytes(encoded));
-  return new TextDecoder().decode(bytes);
+  const bytes = base64UrlToBytes(encoded);
+  if (bytes[0] === GZIP_MAGIC) {
+    return new TextDecoder().decode(await gunzip(bytes));
+  }
+  return decompressShare(bytes);
 }
 
 function coerceView(value: string | null): ViewName | null {

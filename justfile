@@ -30,6 +30,21 @@ _wasm-opt-pass:
         echo "[wasm-opt] Not found — skipping post-optimisation (brew install binaryen)" ; \
     fi
 
+# Rebuild the share-link compression dictionary from representative fixtures.
+# The dictionary is embedded in the WASM binary and seeds DEFLATE compression
+# of share links. Keep it at or below DEFLATE's 32 KiB window — bytes beyond
+# that are never referenced. If its contents change, bump the format tag in
+# crates/widescope-core/src/share.rs so links made with the old dictionary
+# still decode, then re-run `just build-wasm`.
+train-share-dict:
+    cat \
+        test-fixtures/jaeger/sample_llm_pipeline.json \
+        test-fixtures/openinference/sample_llm_pipeline.json \
+        test-fixtures/otlp/upload-samples/01-simple-request.json \
+        test-fixtures/otlp/sample_llm_pipeline.json \
+        > crates/widescope-core/share-dict.bin
+    @echo "[share-dict] $(wc -c < crates/widescope-core/share-dict.bin | tr -d ' ') bytes (keep <= 32768) — run 'just build-wasm' to embed it"
+
 check:
     RUSTFLAGS="" {{_cargo}} check --workspace
 

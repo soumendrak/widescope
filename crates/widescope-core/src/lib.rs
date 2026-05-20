@@ -3,6 +3,7 @@ mod errors;
 mod layout;
 mod models;
 mod parsers;
+mod share;
 mod trace_builder;
 mod utils;
 
@@ -736,6 +737,21 @@ pub fn get_comparison_flamegraph() -> Result<String, JsValue> {
             }
         }
     })
+}
+
+/// Compress trace JSON into a self-contained share blob (see [`share`]).
+///
+/// Returns `[format tag] + deflate(json)` bytes; the UI base64url-encodes them
+/// into the URL `#fragment`.
+#[wasm_bindgen]
+pub fn compress_share(json: &str) -> Vec<u8> {
+    share::compress_share(json)
+}
+
+/// Decode a share blob produced by [`compress_share`] back into trace JSON.
+#[wasm_bindgen]
+pub fn decompress_share(blob: &[u8]) -> Result<String, JsValue> {
+    share::decompress_share(blob).map_err(JsValue::from)
 }
 
 #[wasm_bindgen]

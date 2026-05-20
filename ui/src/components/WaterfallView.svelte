@@ -30,6 +30,10 @@
 
   let rootEl: HTMLDivElement;
 
+  // ── Derived view state (assigned in the reactive block below) ─────
+  let visibleRows: WaterfallRow[] = [];
+  let ticks: { px: number; label: string }[] = [];
+
   export function focusView(): void {
     if (!rootEl) return;
     rootEl.scrollIntoView({ block: 'nearest' });

@@ -29,6 +29,9 @@ pub enum WideError {
 
     #[error("Convention error: {message}")]
     ConventionError { message: String },
+
+    #[error("Invalid share link: {message}")]
+    InvalidShareLink { message: String },
 }
 
 #[derive(Serialize)]
@@ -65,6 +68,7 @@ impl From<WideError> for JsValue {
                 ("SPAN_NOT_FOUND", json!({ "span_id": span_id }))
             }
             WideError::ConventionError { .. } => ("CONVENTION_ERROR", json!(null)),
+            WideError::InvalidShareLink { .. } => ("INVALID_SHARE_LINK", json!(null)),
         };
 
         let js_err = JsError {
