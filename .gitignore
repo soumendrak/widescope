@@ -14,3 +14,7 @@ ui/.svelte-kit/
 .DS_Store
 **/.DS_Store
 .wrangler/
+
+# Local trace generation
+/big_trace.json
+/generate_trace.py
