@@ -17,6 +17,8 @@ export interface InitResult {
   warnings: ParseWarning[];
 }
 
+export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff';
+
 export interface TraceSummary {
   trace_id: string;
   span_count: number;
