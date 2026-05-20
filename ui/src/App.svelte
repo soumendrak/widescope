@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from 'svelte';
   import { fly } from 'svelte/transition';
-  import { loadWasm, getInitWarnings } from './lib/wasm';
+  import { loadWasm, getInitWarnings, getSpanDetail } from './lib/wasm';
   import { openFilePicker, handleFile, handleRawInput } from './lib/input';
+  import { parsePermalink, decodeTrace } from './lib/permalink';
   import { SAMPLE_TRACE } from './lib/sample';
   import { traceState } from './stores/trace';
   import { theme } from './lib/theme';
@@ -104,16 +105,39 @@
       return;
     }
 
-    const params = new URLSearchParams(window.location.search);
-    const traceUrl = params.get('trace');
-    if (traceUrl) {
+    const permalink = parsePermalink();
+    let permalinkLoaded = false;
+    if (permalink.traceData) {
       try {
-        await loadTraceFromUrl(traceUrl);
+        loadEditorText(await decodeTrace(permalink.traceData));
+        permalinkLoaded = true;
+      } catch {
+        editorMessage = 'Failed to load the shared trace from the link.';
+      }
+    } else if (permalink.traceUrl) {
+      try {
+        await loadTraceFromUrl(permalink.traceUrl);
+        permalinkLoaded = true;
       } catch {
         editorMessage = 'Failed to load trace from URL.';
       }
     }
+
+    if (permalinkLoaded) {
+      if (permalink.view) activeView.set(permalink.view);
+      if (permalink.spanId) applyPermalinkSpan(permalink.spanId);
+    }
   });
+
+  /** Pre-select a span from a share link, ignoring it if absent in the trace. */
+  function applyPermalinkSpan(spanId: string): void {
+    try {
+      getSpanDetail(spanId);
+      selectedSpanId.set(spanId);
+    } catch {
+      // Span id not present in this trace — leave nothing selected.
+    }
+  }
 
   onDestroy(() => {
     clearLiveParseTimer();
