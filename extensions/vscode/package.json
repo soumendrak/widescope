@@ -1,0 +1,82 @@
+{
+  "name": "vscode-widescope",
+  "displayName": "WideScope — LLM Trace Viewer",
+  "description": "Inspect LLM and AI agent traces directly in VS Code — flame graph, timeline, waterfall, and more without leaving your editor.",
+  "version": "0.1.0",
+  "publisher": "soumendrak",
+  "license": "MIT",
+  "icon": "icons/icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/soumendrak/widescope",
+    "directory": "extensions/vscode"
+  },
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other",
+    "Visualization"
+  ],
+  "keywords": [
+    "trace",
+    "opentelemetry",
+    "jaeger",
+    "llm",
+    "ai",
+    "observability",
+    "widescope"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "widescope.viewTrace",
+        "title": "View Trace in WideScope",
+        "category": "WideScope"
+      },
+      {
+        "command": "widescope.viewFromEditor",
+        "title": "View Current Trace in WideScope",
+        "category": "WideScope"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "widescope.viewFromEditor",
+          "when": "editorLangId == json",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "widescope.viewTrace",
+          "when": "resourceExtname == .json",
+          "group": "navigation"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "widescope.viewTrace",
+          "when": "true"
+        },
+        {
+          "command": "widescope.viewFromEditor",
+          "when": "editorLangId == json"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.0"
+  }
+}
