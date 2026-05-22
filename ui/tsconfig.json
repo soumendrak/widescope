@@ -13,7 +13,8 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "types": ["vite/client"]
   },
   "include": ["src/**/*.d.ts", "src/**/*.ts", "src/**/*.svelte"]
 }
