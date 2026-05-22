@@ -1,0 +1,38 @@
+# WideScope — LLM Trace Viewer
+
+> A browser-native, zero-backend trace viewer for LLM and AI agent pipelines. 
+> Load OTLP, Jaeger, or OpenInference JSON traces and inspect them instantly — 
+> all data stays in your browser. Powered by Rust/WASM and Svelte.
+
+## Pages
+
+- [WideScope](https://widescope.soumendrak.com) — The trace viewer. Drag-and-drop trace JSON, inspect spans, timelines, flame graphs, LLM calls, and costs.
+
+## Features
+
+- LLM-aware inspection with model, token, prompt/completion, and tool-call detail views
+- Five trace views: flame graph, timeline, waterfall, service dependency graph, trace diff
+- Privacy-first: no upload, no backend, no telemetry — traces never leave your browser
+- Shareable links with DEFLATE-compressed self-contained trace embedding
+- Multi-trace loading via zip upload, file picker, clipboard paste, or JSON editor
+- Attribute search with operators (`duration>100ms`, `status=error`)
+- Span filtering, annotations, trace slicing, and latency heatmap
+- Embed mode for external tool integration
+
+## Supported formats
+
+- OTLP JSON (`resourceSpans`)
+- Jaeger JSON (`data[].spans`)  
+- OpenInference JSON (`spans`)
+
+## Source code
+
+- [soumendrak/widescope](https://github.com/soumendrak/widescope) — Full source code (MIT license)
+- [soumendrak/widescope/releases](https://github.com/soumendrak/widescope/releases) — Releases and changelog
+- [soumendrak/widescope/issues](https://github.com/soumendrak/widescope/issues) — Bug reports and feature requests
+
+## Related
+
+- [Author: Soumendra Kumar Sahoo](https://soumendrak.com) — Personal website and blog
+- [OpenTelemetry](https://opentelemetry.io) — The observability standard WideScope bridges to LLM traces
+- [OpenInference](https://github.com/Arize-ai/openinference) — Open standard for LLM trace attributes
