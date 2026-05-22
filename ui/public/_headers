@@ -16,3 +16,12 @@
 # App shell — cache for offline use
 /index.html
   Cache-Control: public, max-age=0, must-revalidate
+
+# Agent-friendly files — served as plain text for LLM consumption
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+/llms-full.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600

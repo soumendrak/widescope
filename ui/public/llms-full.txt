@@ -1,0 +1,64 @@
+# WideScope — LLM Trace Viewer
+===============================
+
+WideScope is a browser-native, zero-backend trace viewer for LLM and AI agent pipelines.
+It loads OTLP, Jaeger, or OpenInference JSON traces and provides instant inspection — 
+all data stays in the browser. Powered by Rust/WASM and Svelte 5.
+
+## What it does
+
+WideScope takes distributed trace JSON files (from OpenTelemetry collectors, Jaeger backends,
+or OpenInference exporters) and renders them as interactive visualizations in the browser.
+No data is uploaded. No backend server exists. The entire analysis pipeline —
+parsing, normalization, LLM attribute resolution, layout computation, search — runs in
+Rust compiled to WebAssembly at client-side.
+
+## Key capabilities
+
+- Zero backend: static UI + WASM, deployed to Cloudflare Pages
+- Five trace views: flame graph, timeline, waterfall, service graph, trace diff
+- LLM-aware inspection: resolves OTel GenAI, OpenInference, and LangChain attributes
+  into model name, token counts, prompt/completion content, tool calls, and cost estimates
+- Multi-format parsing: OTLP JSON (resourceSpans), Jaeger JSON (data[].spans), OpenInference JSON (spans)
+- Search with operators: duration>100ms, status=error, service~api, llm
+- Span filtering: by status, service, kind, LLM-spans-only
+- Critical path analysis, P50/P95 latency, cost breakdown
+- Multi-trace loading: zip uploads, file picker, drag-and-drop, clipboard paste, JSON editor
+- Trace diff: side-by-side comparison of two traces
+- Span annotations, trace slicing, latency heatmap
+- Self-contained share links: DEFLATE-compressed + seed dictionary for small traces
+- Embed mode for external tool integration (?embed=1)
+- Dark/light theme, keyboard shortcuts, accessible navigation
+
+## Supported input formats
+
+| Format | Key field | Status |
+|---|---|---|
+| OTLP JSON | resourceSpans | Fully supported |
+| Jaeger JSON | data[].spans | Fully supported |
+| OpenInference JSON | spans | Fully supported |
+
+## LLM convention mappings
+
+Three convention files are bundled at build time to normalize LLM attributes across formats:
+- opentelemetry.json: OTel GenAI semconv (gen_ai.*)
+- openinference.json: OpenInference attributes (llm.*, openinference.span.kind)
+- langchain.json: LangChain attributes (langchain.*)
+
+Resolution is first-match-wins across all three files.
+
+## Architecture
+
+The app has two parts:
+1. crates/widescope-core/: Rust library compiled to WASM via wasm-pack. Handles parsing,
+   convention resolution, layout computation, search, and analytics.
+2. ui/: Svelte 5 + Vite app with canvas-based flame graph, SVG timeline, waterfall view,
+   service graph (Cytoscape.js), and span detail sidebar.
+
+## Source code and links
+
+- Repository: https://github.com/soumendrak/widescope
+- Live app: https://widescope.soumendrak.com
+- Issues: https://github.com/soumendrak/widescope/issues
+- Releases: https://github.com/soumendrak/widescope/releases
+- Author: https://soumendrak.com
