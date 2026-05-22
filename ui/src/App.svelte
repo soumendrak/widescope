@@ -48,7 +48,7 @@
 
   $: isEmbedded = new URLSearchParams(window.location.search).get('embed') === '1';
 
-  const VIEW_ORDER: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff'> = ['flame', 'timeline', 'waterfall', 'graph', 'diff'];
+  const VIEW_ORDER: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff'> = ['waterfall', 'flame', 'timeline', 'graph', 'diff'];
 
   $: {
     const currentIdx = VIEW_ORDER.indexOf($activeView);
@@ -289,7 +289,7 @@
     const parsed = applyEditorValue();
     if (!parsed) return;
     collapseEditor();
-    activeView.set($activeView || 'timeline');
+    activeView.set($activeView || VIEW_ORDER[0]);
     await tick();
     if ($activeView === 'waterfall') waterfallView?.focusView();
     else if ($activeView === 'timeline') timelineView?.focusView();
