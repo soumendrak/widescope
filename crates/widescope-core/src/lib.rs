@@ -20,8 +20,8 @@ use layout::graph::compute_service_graph as build_service_graph;
 use layout::timeline::compute_timeline_layout;
 use layout::waterfall::compute_waterfall_layout;
 use models::layout::{
-    EventDetail, LlmDetail, MessageDetail, RetrievedDocumentDetail, SpanDetailResponse,
-    ToolCallDetail,
+    EventDetail, LlmDetail, MessageDetail, RetrievedDocumentDetail, SafetySignalDetail,
+    SpanDetailResponse, ToolCallDetail,
 };
 use models::llm::LlmSpanAttributes;
 use models::span::{AttributeValue, Span, SpanEvent};
@@ -488,6 +488,18 @@ fn build_llm_detail(llm: &LlmSpanAttributes) -> LlmDetail {
                 id: d.id.clone(),
                 score: d.score,
                 content_snippet: d.content_snippet.clone(),
+            })
+            .collect(),
+        safety_signals: llm
+            .safety_signals
+            .iter()
+            .map(|s| SafetySignalDetail {
+                name: s.name.clone(),
+                category: format!("{:?}", s.category),
+                triggered: s.triggered,
+                score: s.score,
+                severity: s.severity.clone(),
+                detail: s.detail.clone(),
             })
             .collect(),
     }

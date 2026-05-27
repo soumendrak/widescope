@@ -128,7 +128,13 @@
                 { "key": "gen_ai.request.max_tokens", "value": { "intValue": "1024" } },
                 { "key": "gen_ai.usage.input_tokens", "value": { "intValue": "512" } },
                 { "key": "gen_ai.usage.output_tokens", "value": { "intValue": "256" } },
-                { "key": "gen_ai.usage.total_tokens", "value": { "intValue": "768" } }
+                { "key": "gen_ai.usage.total_tokens", "value": { "intValue": "768" } },
+                { "key": "guardrail.jailbreak.triggered", "value": { "boolValue": false } },
+                { "key": "guardrail.jailbreak.score", "value": { "doubleValue": 0.12 } },
+                { "key": "guardrail.refusal.triggered", "value": { "boolValue": true } },
+                { "key": "guardrail.refusal.severity", "value": { "stringValue": "low" } },
+                { "key": "guardrail.refusal.detail", "value": { "stringValue": "Model declined a portion of the request due to safety policy." } },
+                { "key": "pii.email", "value": { "stringValue": "user@example.com" } }
               ],
               "events": [
                 {

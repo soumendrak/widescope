@@ -8,6 +8,7 @@
   import type { SpanDetail, LlmDetail } from '../lib/types';
   import { flyRightConfig } from '../lib/animation';
   import RetrievedDocumentsPanel from './RetrievedDocumentsPanel.svelte';
+  import SafetySignalsPanel from './SafetySignalsPanel.svelte';
 
   let detail: SpanDetail | null = null;
   let loading = false;
@@ -218,6 +219,12 @@
             <div class="msg-group">
               <div class="msg-label">Retrieved documents ({llm.retrieved_documents.length})</div>
               <RetrievedDocumentsPanel documents={llm.retrieved_documents} />
+            </div>
+          {/if}
+          {#if llm.safety_signals.length > 0}
+            <div class="msg-group">
+              <div class="msg-label">Safety signals ({llm.safety_signals.length})</div>
+              <SafetySignalsPanel signals={llm.safety_signals} />
             </div>
           {/if}
         </div>
