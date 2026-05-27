@@ -8,11 +8,13 @@
   import type { SpanDetail, LlmDetail } from '../lib/types';
   import { flyRightConfig } from '../lib/animation';
   import RetrievedDocumentsPanel from './RetrievedDocumentsPanel.svelte';
+  import LlmChatReplay from './LlmChatReplay.svelte';
 
   let detail: SpanDetail | null = null;
   let loading = false;
   let expandedAttrs = false;
   let expandedEvents = false;
+  let llmView: 'chat' | 'raw' = 'chat';
   let sidebar: HTMLElement;
   let sidebarWidth = 420;
   let isResizing = false;
@@ -162,7 +164,23 @@
       {#if detail.llm}
         {@const llm = detail.llm}
         <div class="section llm-section">
-          <div class="section-title">🤖 LLM</div>
+          <div class="llm-header">
+            <div class="section-title llm-title">🤖 LLM</div>
+            <div class="llm-view-toggle" role="tablist" aria-label="LLM panel view">
+              <button
+                role="tab"
+                aria-selected={llmView === 'chat'}
+                class:active={llmView === 'chat'}
+                on:click={() => (llmView = 'chat')}
+              >Chat</button>
+              <button
+                role="tab"
+                aria-selected={llmView === 'raw'}
+                class:active={llmView === 'raw'}
+                on:click={() => (llmView = 'raw')}
+              >Raw</button>
+            </div>
+          </div>
           <div class="llm-meta">
             {#if llm.model_provider}<span class="provider-badge">{llm.model_provider}</span>{/if}
             {#if llm.model_name}<span class="model-name">{llm.model_name}</span>{/if}
@@ -187,32 +205,36 @@
           {#if llm.temperature !== null}
             <div class="kv-inline"><span>Temp</span><span>{llm.temperature}</span></div>
           {/if}
-          {#if llm.input_messages.length > 0}
-            <div class="msg-group">
-              <div class="msg-label">Prompt</div>
-              {#each llm.input_messages as m}
-                <div class="message"><span class="role">{m.role}</span><span class="content">{m.content ?? ''}</span></div>
-              {/each}
-            </div>
-          {/if}
-          {#if llm.output_messages.length > 0}
-            <div class="msg-group">
-              <div class="msg-label">Completion</div>
-              {#each llm.output_messages as m}
-                <div class="message"><span class="role">{m.role}</span><span class="content">{m.content ?? ''}</span></div>
-              {/each}
-            </div>
-          {/if}
-          {#if llm.tool_calls.length > 0}
-            <div class="msg-group">
-              <div class="msg-label">Tool calls ({llm.tool_calls.length})</div>
-              {#each llm.tool_calls as tc}
-                <div class="tool-call">
-                  <div class="tool-name">{tc.name}</div>
-                  {#if tc.arguments}<div class="tool-args">{tc.arguments}</div>{/if}
-                </div>
-              {/each}
-            </div>
+          {#if llmView === 'chat'}
+            <LlmChatReplay {llm} />
+          {:else}
+            {#if llm.input_messages.length > 0}
+              <div class="msg-group">
+                <div class="msg-label">Prompt</div>
+                {#each llm.input_messages as m}
+                  <div class="message"><span class="role">{m.role}</span><span class="content">{m.content ?? ''}</span></div>
+                {/each}
+              </div>
+            {/if}
+            {#if llm.output_messages.length > 0}
+              <div class="msg-group">
+                <div class="msg-label">Completion</div>
+                {#each llm.output_messages as m}
+                  <div class="message"><span class="role">{m.role}</span><span class="content">{m.content ?? ''}</span></div>
+                {/each}
+              </div>
+            {/if}
+            {#if llm.tool_calls.length > 0}
+              <div class="msg-group">
+                <div class="msg-label">Tool calls ({llm.tool_calls.length})</div>
+                {#each llm.tool_calls as tc}
+                  <div class="tool-call">
+                    <div class="tool-name">{tc.name}</div>
+                    {#if tc.arguments}<div class="tool-args">{tc.arguments}</div>{/if}
+                  </div>
+                {/each}
+              </div>
+            {/if}
           {/if}
           {#if llm.retrieved_documents.length > 0}
             <div class="msg-group">
@@ -475,6 +497,47 @@
 
   /* LLM */
   .llm-section { background: var(--color-llm-panel-bg, rgba(139, 92, 246, 0.07)); }
+
+  .llm-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    margin-bottom: 0.45rem;
+  }
+
+  .llm-title {
+    margin-bottom: 0;
+    cursor: default;
+  }
+
+  .llm-view-toggle {
+    display: inline-flex;
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+
+  .llm-view-toggle button {
+    background: transparent;
+    border: 0;
+    color: var(--color-text-muted, #94a3b8);
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 0.18rem 0.55rem;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .llm-view-toggle button:hover {
+    color: var(--color-text, #e2e8f0);
+  }
+
+  .llm-view-toggle button.active {
+    background: var(--color-llm-badge-bg, rgba(139, 92, 246, 0.25));
+    color: var(--color-llm-badge-text, #c4b5fd);
+  }
 
   .llm-meta {
     display: flex;
