@@ -128,7 +128,13 @@
                 { "key": "gen_ai.request.max_tokens", "value": { "intValue": "1024" } },
                 { "key": "gen_ai.usage.input_tokens", "value": { "intValue": "512" } },
                 { "key": "gen_ai.usage.output_tokens", "value": { "intValue": "256" } },
-                { "key": "gen_ai.usage.total_tokens", "value": { "intValue": "768" } }
+                { "key": "gen_ai.usage.total_tokens", "value": { "intValue": "768" } },
+                { "key": "eval.faithfulness.score", "value": { "doubleValue": 0.92 } },
+                { "key": "eval.faithfulness.threshold", "value": { "doubleValue": 0.7 } },
+                { "key": "eval.faithfulness.explanation", "value": { "stringValue": "Response is grounded in the provided context and accurately reflects the retrieved documents." } },
+                { "key": "eval.relevancy.score", "value": { "doubleValue": 0.45 } },
+                { "key": "eval.relevancy.threshold", "value": { "doubleValue": 0.7 } },
+                { "key": "eval.toxicity", "value": { "doubleValue": 0.02 } }
               ],
               "events": [
                 {

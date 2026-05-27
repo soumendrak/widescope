@@ -1,26 +1,36 @@
 use crate::conventions::registry::{Convention, MappingRule};
 use crate::conventions::retrieval::discover_retrieved_documents;
-use crate::models::llm::{LlmMessage, LlmOperationType, LlmSpanAttributes};
+use crate::models::llm::{EvalScore, LlmMessage, LlmOperationType, LlmSpanAttributes};
 use crate::models::span::{AttributeValue, Span};
+use std::collections::HashMap;
 
 pub fn resolve_llm_attributes(
     span: &Span,
     conventions: &[Convention],
 ) -> Option<LlmSpanAttributes> {
     let retrieved = discover_retrieved_documents(&span.attributes);
+    let eval_scores = discover_eval_scores(&span.attributes);
     for convention in conventions {
         if matches_convention(span, convention) {
             let mut llm = apply_mappings(span, convention);
             llm.retrieved_documents = retrieved;
+            llm.eval_scores = eval_scores;
             return Some(llm);
         }
     }
-    // Retrieved documents can show up on spans that aren't otherwise LLM
-    // spans (e.g. a dedicated vector-store retriever) — surface them anyway
-    // via a minimal LlmSpanAttributes wrapper.
-    if !retrieved.is_empty() {
+    // Either retrieval data or eval scores can show up on spans that aren't
+    // otherwise LLM spans (e.g. a dedicated vector-store retriever or an
+    // evaluator service annotating a sibling). Surface them via a minimal
+    // LlmSpanAttributes wrapper. Operation type follows whichever signal
+    // we have: retrieval wins if present, otherwise we flag it as evaluation.
+    if !retrieved.is_empty() || !eval_scores.is_empty() {
+        let operation_type = if !retrieved.is_empty() {
+            LlmOperationType::Retrieval
+        } else {
+            LlmOperationType::Unknown("evaluation".to_string())
+        };
         return Some(LlmSpanAttributes {
-            operation_type: LlmOperationType::Retrieval,
+            operation_type,
             model_name: None,
             model_provider: None,
             input_tokens: None,
@@ -36,6 +46,7 @@ pub fn resolve_llm_attributes(
             embedding_dimensions: None,
             embedding_count: None,
             retrieved_documents: retrieved,
+            eval_scores,
         });
     }
     None
@@ -81,6 +92,7 @@ fn apply_mappings(span: &Span, convention: &Convention) -> LlmSpanAttributes {
         embedding_dimensions: None,
         embedding_count: None,
         retrieved_documents: Vec::new(),
+        eval_scores: Vec::new(),
     };
 
     for (field_name, rule) in &convention.mappings {
@@ -205,4 +217,226 @@ fn extract_messages_from_events(
             }
         })
         .collect()
+}
+
+/// Scan span attributes for evaluation metrics under common prefixes
+/// (`eval.*`, `evaluation.*`) and group them into [`EvalScore`] entries.
+///
+/// Supported shapes per metric `<name>`:
+/// - `<prefix>.<name>` = numeric score (bare value form)
+/// - `<prefix>.<name>.score`        — numeric score
+/// - `<prefix>.<name>.value`        — numeric score (alias for `.score`)
+/// - `<prefix>.<name>.threshold`    — numeric threshold
+/// - `<prefix>.<name>.passed`       — boolean pass/fail (overrides the
+///   threshold-derived value when present)
+/// - `<prefix>.<name>.label`        — string label (e.g. "PASS"/"FAIL")
+/// - `<prefix>.<name>.explanation`  — string explanation
+///
+/// Scores are sorted by name for stable rendering.
+pub fn discover_eval_scores(attrs: &HashMap<String, AttributeValue>) -> Vec<EvalScore> {
+    #[derive(Default)]
+    struct Builder {
+        value: Option<f64>,
+        label: Option<String>,
+        threshold: Option<f64>,
+        passed: Option<bool>,
+        explanation: Option<String>,
+    }
+
+    let mut by_name: HashMap<String, Builder> = HashMap::new();
+    for (key, value) in attrs {
+        let Some((name, field)) = parse_eval_key(key) else {
+            continue;
+        };
+        let b = by_name.entry(name).or_default();
+        match field.as_deref() {
+            None | Some("score") | Some("value") => {
+                if let Some(f) = coerce_to_float(value) {
+                    b.value = Some(f);
+                }
+            }
+            Some("threshold") => {
+                if let Some(f) = coerce_to_float(value) {
+                    b.threshold = Some(f);
+                }
+            }
+            Some("passed") => {
+                if let Some(p) = coerce_to_bool(value) {
+                    b.passed = Some(p);
+                }
+            }
+            Some("label") => {
+                b.label = Some(value.as_display_string());
+            }
+            Some("explanation") => {
+                b.explanation = Some(value.as_display_string());
+            }
+            _ => {}
+        }
+    }
+
+    let mut scores: Vec<EvalScore> = by_name
+        .into_iter()
+        .filter_map(|(name, b)| {
+            // Skip empty entries — at least one signal is required.
+            if b.value.is_none() && b.label.is_none() {
+                return None;
+            }
+            let passed = b.passed.or(match (b.value, b.threshold) {
+                (Some(v), Some(t)) => Some(v >= t),
+                _ => None,
+            });
+            Some(EvalScore {
+                name,
+                value: b.value,
+                label: b.label,
+                threshold: b.threshold,
+                passed,
+                explanation: b.explanation,
+            })
+        })
+        .collect();
+    scores.sort_by(|a, b| a.name.cmp(&b.name));
+    scores
+}
+
+fn parse_eval_key(key: &str) -> Option<(String, Option<String>)> {
+    let stripped = key
+        .strip_prefix("eval.")
+        .or_else(|| key.strip_prefix("evaluation."))?;
+    if stripped.is_empty() {
+        return None;
+    }
+    if let Some(dot) = stripped.find('.') {
+        let name = stripped[..dot].to_string();
+        if name.is_empty() {
+            return None;
+        }
+        let field = stripped[dot + 1..].to_string();
+        Some((name, Some(field)))
+    } else {
+        Some((stripped.to_string(), None))
+    }
+}
+
+fn coerce_to_float(v: &AttributeValue) -> Option<f64> {
+    match v {
+        AttributeValue::Float(f) => Some(*f),
+        AttributeValue::Int(i) => Some(*i as f64),
+        AttributeValue::String(s) => s.trim().parse::<f64>().ok(),
+        _ => None,
+    }
+}
+
+fn coerce_to_bool(v: &AttributeValue) -> Option<bool> {
+    match v {
+        AttributeValue::Bool(b) => Some(*b),
+        AttributeValue::String(s) => match s.to_ascii_lowercase().as_str() {
+            "true" | "yes" | "pass" | "passed" | "1" => Some(true),
+            "false" | "no" | "fail" | "failed" | "0" => Some(false),
+            _ => None,
+        },
+        AttributeValue::Int(i) => Some(*i != 0),
+        _ => None,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn attrs(pairs: &[(&str, AttributeValue)]) -> HashMap<String, AttributeValue> {
+        pairs
+            .iter()
+            .cloned()
+            .map(|(k, v)| (k.to_string(), v))
+            .collect()
+    }
+
+    #[test]
+    fn discovers_bare_numeric_score() {
+        let a = attrs(&[("eval.toxicity", AttributeValue::Float(0.05))]);
+        let scores = discover_eval_scores(&a);
+        assert_eq!(scores.len(), 1);
+        assert_eq!(scores[0].name, "toxicity");
+        assert_eq!(scores[0].value, Some(0.05));
+    }
+
+    #[test]
+    fn discovers_score_threshold_passed() {
+        let a = attrs(&[
+            ("eval.faithfulness.score", AttributeValue::Float(0.85)),
+            ("eval.faithfulness.threshold", AttributeValue::Float(0.70)),
+        ]);
+        let scores = discover_eval_scores(&a);
+        assert_eq!(scores.len(), 1);
+        assert_eq!(scores[0].name, "faithfulness");
+        assert_eq!(scores[0].value, Some(0.85));
+        assert_eq!(scores[0].threshold, Some(0.70));
+        assert_eq!(scores[0].passed, Some(true));
+    }
+
+    #[test]
+    fn explicit_passed_overrides_threshold_derived() {
+        let a = attrs(&[
+            ("eval.relevancy.score", AttributeValue::Float(0.5)),
+            ("eval.relevancy.threshold", AttributeValue::Float(0.7)),
+            ("eval.relevancy.passed", AttributeValue::Bool(true)),
+        ]);
+        let scores = discover_eval_scores(&a);
+        assert_eq!(scores[0].passed, Some(true));
+    }
+
+    #[test]
+    fn accepts_evaluation_prefix() {
+        let a = attrs(&[("evaluation.correctness.score", AttributeValue::Float(0.92))]);
+        let scores = discover_eval_scores(&a);
+        assert_eq!(scores.len(), 1);
+        assert_eq!(scores[0].name, "correctness");
+    }
+
+    #[test]
+    fn label_only_metric_is_kept() {
+        let a = attrs(&[(
+            "eval.hallucination.label",
+            AttributeValue::String("PASS".to_string()),
+        )]);
+        let scores = discover_eval_scores(&a);
+        assert_eq!(scores.len(), 1);
+        assert_eq!(scores[0].label.as_deref(), Some("PASS"));
+        assert_eq!(scores[0].value, None);
+    }
+
+    #[test]
+    fn empty_metric_is_dropped() {
+        let a = attrs(&[(
+            "eval.something.explanation",
+            AttributeValue::String("…".to_string()),
+        )]);
+        let scores = discover_eval_scores(&a);
+        // Only an explanation, no value/label → discarded.
+        assert!(scores.is_empty());
+    }
+
+    #[test]
+    fn sorted_by_name() {
+        let a = attrs(&[
+            ("eval.zeta.score", AttributeValue::Float(0.1)),
+            ("eval.alpha.score", AttributeValue::Float(0.2)),
+            ("eval.mu.score", AttributeValue::Float(0.3)),
+        ]);
+        let scores = discover_eval_scores(&a);
+        let names: Vec<&str> = scores.iter().map(|s| s.name.as_str()).collect();
+        assert_eq!(names, vec!["alpha", "mu", "zeta"]);
+    }
+
+    #[test]
+    fn ignores_non_eval_keys() {
+        let a = attrs(&[
+            ("evaluator.name", AttributeValue::String("x".to_string())),
+            ("score.something", AttributeValue::Float(0.5)),
+        ]);
+        let scores = discover_eval_scores(&a);
+        assert!(scores.is_empty());
+    }
 }
