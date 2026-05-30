@@ -106,6 +106,14 @@ pub struct LlmDetail {
     pub input_messages: Vec<MessageDetail>,
     pub output_messages: Vec<MessageDetail>,
     pub tool_calls: Vec<ToolCallDetail>,
+    pub retrieved_documents: Vec<RetrievedDocumentDetail>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RetrievedDocumentDetail {
+    pub id: Option<String>,
+    pub score: Option<f64>,
+    pub content_snippet: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

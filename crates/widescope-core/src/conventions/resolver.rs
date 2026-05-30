@@ -1,4 +1,5 @@
 use crate::conventions::registry::{Convention, MappingRule};
+use crate::conventions::retrieval::discover_retrieved_documents;
 use crate::models::llm::{LlmMessage, LlmOperationType, LlmSpanAttributes};
 use crate::models::span::{AttributeValue, Span};
 
@@ -6,10 +7,36 @@ pub fn resolve_llm_attributes(
     span: &Span,
     conventions: &[Convention],
 ) -> Option<LlmSpanAttributes> {
+    let retrieved = discover_retrieved_documents(&span.attributes);
     for convention in conventions {
         if matches_convention(span, convention) {
-            return Some(apply_mappings(span, convention));
+            let mut llm = apply_mappings(span, convention);
+            llm.retrieved_documents = retrieved;
+            return Some(llm);
         }
+    }
+    // Retrieved documents can show up on spans that aren't otherwise LLM
+    // spans (e.g. a dedicated vector-store retriever) — surface them anyway
+    // via a minimal LlmSpanAttributes wrapper.
+    if !retrieved.is_empty() {
+        return Some(LlmSpanAttributes {
+            operation_type: LlmOperationType::Retrieval,
+            model_name: None,
+            model_provider: None,
+            input_tokens: None,
+            output_tokens: None,
+            total_tokens: None,
+            estimated_cost_usd: None,
+            input_messages: Vec::new(),
+            output_messages: Vec::new(),
+            tool_calls: Vec::new(),
+            temperature: None,
+            top_p: None,
+            max_tokens: None,
+            embedding_dimensions: None,
+            embedding_count: None,
+            retrieved_documents: retrieved,
+        });
     }
     None
 }

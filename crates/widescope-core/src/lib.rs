@@ -18,7 +18,10 @@ use layout::flamegraph::compute_flamegraph_layout;
 use layout::graph::compute_service_graph as build_service_graph;
 use layout::timeline::compute_timeline_layout;
 use layout::waterfall::compute_waterfall_layout;
-use models::layout::{EventDetail, LlmDetail, MessageDetail, SpanDetailResponse, ToolCallDetail};
+use models::layout::{
+    EventDetail, LlmDetail, MessageDetail, RetrievedDocumentDetail, SpanDetailResponse,
+    ToolCallDetail,
+};
 use models::llm::LlmSpanAttributes;
 use models::span::{AttributeValue, Span, SpanEvent};
 use models::trace::{ParseWarning, Trace};
@@ -413,6 +416,15 @@ fn build_llm_detail(llm: &LlmSpanAttributes) -> LlmDetail {
                 result: tc.result.clone(),
             })
             .collect(),
+        retrieved_documents: llm
+            .retrieved_documents
+            .iter()
+            .map(|d| RetrievedDocumentDetail {
+                id: d.id.clone(),
+                score: d.score,
+                content_snippet: d.content_snippet.clone(),
+            })
+            .collect(),
     }
 }
 
@@ -479,25 +491,39 @@ fn parse_search_operators(query: &str) -> Option<Vec<(String, String, String)>> 
         } else if token.contains('~') {
             let parts: Vec<&str> = token.splitn(2, '~').collect();
             if parts.len() == 2 {
-                ops.push((parts[0].to_ascii_lowercase(), "~".into(), parts[1].to_ascii_lowercase()));
+                ops.push((
+                    parts[0].to_ascii_lowercase(),
+                    "~".into(),
+                    parts[1].to_ascii_lowercase(),
+                ));
                 has_op = true;
             }
         }
     }
 
-    if has_op { Some(ops) } else { None }
+    if has_op {
+        Some(ops)
+    } else {
+        None
+    }
 }
 
 fn parse_duration_query(val: &str) -> Option<u64> {
     let val = val.trim();
     if let Some(stripped) = val.strip_suffix("ms") {
-        stripped.parse::<f64>().ok().map(|v| (v * 1_000_000.0) as u64)
+        stripped
+            .parse::<f64>()
+            .ok()
+            .map(|v| (v * 1_000_000.0) as u64)
     } else if let Some(stripped) = val.strip_suffix("µs") {
         stripped.parse::<f64>().ok().map(|v| (v * 1_000.0) as u64)
     } else if let Some(stripped) = val.strip_suffix("us") {
         stripped.parse::<f64>().ok().map(|v| (v * 1_000.0) as u64)
     } else if let Some(stripped) = val.strip_suffix('s') {
-        stripped.parse::<f64>().ok().map(|v| (v * 1_000_000_000.0) as u64)
+        stripped
+            .parse::<f64>()
+            .ok()
+            .map(|v| (v * 1_000_000_000.0) as u64)
     } else {
         val.parse::<u64>().ok()
     }
@@ -511,7 +537,9 @@ fn span_matches_operators(span: &Span, query: &str) -> bool {
 
     for (key, op, val) in &ops {
         if key == "llm" {
-            if span.llm.is_none() { return false; }
+            if span.llm.is_none() {
+                return false;
+            }
             continue;
         }
         match key.as_str() {
@@ -521,30 +549,48 @@ fn span_matches_operators(span: &Span, query: &str) -> bool {
                     None => return false,
                 };
                 match op.as_str() {
-                    ">" if span.duration_ns <= target => { return false; },
-                    ">=" if span.duration_ns < target => { return false; },
-                    "<" if span.duration_ns >= target => { return false; },
-                    "<=" if span.duration_ns > target => { return false; },
-                    "=" if span.duration_ns != target => { return false; },
-                    _ => {},
+                    ">" if span.duration_ns <= target => {
+                        return false;
+                    }
+                    ">=" if span.duration_ns < target => {
+                        return false;
+                    }
+                    "<" if span.duration_ns >= target => {
+                        return false;
+                    }
+                    "<=" if span.duration_ns > target => {
+                        return false;
+                    }
+                    "=" if span.duration_ns != target => {
+                        return false;
+                    }
+                    _ => {}
                 }
             }
             "status" => {
-                if span.status.as_str().to_ascii_lowercase() != *val { return false; }
+                if span.status.as_str().to_ascii_lowercase() != *val {
+                    return false;
+                }
             }
             "kind" => {
-                if span.span_kind.as_str().to_ascii_lowercase() != *val { return false; }
+                if span.span_kind.as_str().to_ascii_lowercase() != *val {
+                    return false;
+                }
             }
             "service" | "svc" => {
-                if !span.service_name.to_ascii_lowercase().contains(val) { return false; }
+                if !span.service_name.to_ascii_lowercase().contains(val) {
+                    return false;
+                }
             }
             _ => {
                 // Try matching as attribute key=value
                 let attr_match = span.attributes.iter().any(|(attr_key, attr_val)| {
-                    attr_key.to_ascii_lowercase().contains(key) &&
-                    attr_val_matches_query(attr_val, val)
+                    attr_key.to_ascii_lowercase().contains(key)
+                        && attr_val_matches_query(attr_val, val)
                 });
-                if !attr_match { return false; }
+                if !attr_match {
+                    return false;
+                }
             }
         }
     }
@@ -579,22 +625,33 @@ struct FilterRequest {
 
 #[wasm_bindgen]
 pub fn filter_spans(filter_json: &str) -> Result<String, JsValue> {
-    let filter: FilterRequest = serde_json::from_str(filter_json).map_err(|e| {
-        WideError::InvalidJson {
+    let filter: FilterRequest =
+        serde_json::from_str(filter_json).map_err(|e| WideError::InvalidJson {
             message: e.to_string(),
             line: Some(e.line()),
             column: Some(e.column()),
-        }
-    })?;
+        })?;
 
     let status_filter = filter.status.and_then(|s| {
-        if s.is_empty() { None } else { Some(s.to_ascii_lowercase()) }
+        if s.is_empty() {
+            None
+        } else {
+            Some(s.to_ascii_lowercase())
+        }
     });
     let service_filter = filter.service.and_then(|s| {
-        if s.is_empty() { None } else { Some(s.to_ascii_lowercase()) }
+        if s.is_empty() {
+            None
+        } else {
+            Some(s.to_ascii_lowercase())
+        }
     });
     let kind_filter = filter.kind.and_then(|k| {
-        if k.is_empty() { None } else { Some(k.to_ascii_lowercase()) }
+        if k.is_empty() {
+            None
+        } else {
+            Some(k.to_ascii_lowercase())
+        }
     });
     let llm_only = filter.llm_only.unwrap_or(false);
 
@@ -812,7 +869,10 @@ pub fn get_cost_breakdown() -> Result<String, JsValue> {
                         );
                         let entry = models.entry(key).or_insert_with(|| CostEntry {
                             model: llm.model_name.clone().unwrap_or_else(|| "unknown".into()),
-                            provider: llm.model_provider.clone().unwrap_or_else(|| "unknown".into()),
+                            provider: llm
+                                .model_provider
+                                .clone()
+                                .unwrap_or_else(|| "unknown".into()),
                             input_tokens: 0,
                             output_tokens: 0,
                             total_tokens: 0,
@@ -836,15 +896,18 @@ pub fn get_cost_breakdown() -> Result<String, JsValue> {
 
                 let total_cost: f64 = entries.iter().map(|e| e.estimated_cost_usd).sum();
 
-                let owned_entries: Vec<CostEntry> = entries.into_iter().map(|e| CostEntry {
-                    model: e.model.clone(),
-                    provider: e.provider.clone(),
-                    input_tokens: e.input_tokens,
-                    output_tokens: e.output_tokens,
-                    total_tokens: e.total_tokens,
-                    estimated_cost_usd: e.estimated_cost_usd,
-                    spans: e.spans.clone(),
-                }).collect();
+                let owned_entries: Vec<CostEntry> = entries
+                    .into_iter()
+                    .map(|e| CostEntry {
+                        model: e.model.clone(),
+                        provider: e.provider.clone(),
+                        input_tokens: e.input_tokens,
+                        output_tokens: e.output_tokens,
+                        total_tokens: e.total_tokens,
+                        estimated_cost_usd: e.estimated_cost_usd,
+                        spans: e.spans.clone(),
+                    })
+                    .collect();
 
                 #[derive(Serialize)]
                 struct CostBreakdown {

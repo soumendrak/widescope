@@ -7,6 +7,7 @@
   import { annotations } from '../stores/annotations';
   import type { SpanDetail, LlmDetail } from '../lib/types';
   import { flyRightConfig } from '../lib/animation';
+  import RetrievedDocumentsPanel from './RetrievedDocumentsPanel.svelte';
 
   let detail: SpanDetail | null = null;
   let loading = false;
@@ -211,6 +212,12 @@
                   {#if tc.arguments}<div class="tool-args">{tc.arguments}</div>{/if}
                 </div>
               {/each}
+            </div>
+          {/if}
+          {#if llm.retrieved_documents.length > 0}
+            <div class="msg-group">
+              <div class="msg-label">Retrieved documents ({llm.retrieved_documents.length})</div>
+              <RetrievedDocumentsPanel documents={llm.retrieved_documents} />
             </div>
           {/if}
         </div>
