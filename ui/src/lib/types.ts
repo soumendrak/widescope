@@ -210,4 +210,11 @@ export interface LlmDetail {
   input_messages: { role: string; content: string | null }[];
   output_messages: { role: string; content: string | null }[];
   tool_calls: { name: string; arguments: string | null; result: string | null }[];
+  retrieved_documents: RetrievedDocument[];
+}
+
+export interface RetrievedDocument {
+  id: string | null;
+  score: number | null;
+  content_snippet: string | null;
 }

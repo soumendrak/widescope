@@ -83,7 +83,16 @@
               "status": { "code": 1 },
               "attributes": [
                 { "key": "rerank.model", "value": { "stringValue": "cross-encoder/ms-marco-MiniLM-L-6-v2" } },
-                { "key": "rerank.top_n", "value": { "intValue": "3" } }
+                { "key": "rerank.top_n", "value": { "intValue": "3" } },
+                { "key": "retrieval.documents.0.document.id", "value": { "stringValue": "wiki:paris" } },
+                { "key": "retrieval.documents.0.document.score", "value": { "doubleValue": 0.92 } },
+                { "key": "retrieval.documents.0.document.content", "value": { "stringValue": "Paris is the capital and most populous city of France." } },
+                { "key": "retrieval.documents.1.document.id", "value": { "stringValue": "wiki:france_geo" } },
+                { "key": "retrieval.documents.1.document.score", "value": { "doubleValue": 0.74 } },
+                { "key": "retrieval.documents.1.document.content", "value": { "stringValue": "France is bordered by Belgium, Luxembourg, Germany, Switzerland, Italy, Monaco, Andorra, and Spain." } },
+                { "key": "retrieval.documents.2.document.id", "value": { "stringValue": "wiki:capitals" } },
+                { "key": "retrieval.documents.2.document.score", "value": { "doubleValue": 0.41 } },
+                { "key": "retrieval.documents.2.document.content", "value": { "stringValue": "Many European capitals are located on major rivers; Paris sits on the Seine." } }
               ],
               "events": []
             }
