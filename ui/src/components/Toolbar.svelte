@@ -18,6 +18,8 @@
     selectedSpanId,
     fullscreen,
   } from '../stores/selection';
+  import { budgets, checkViolations } from '../stores/budgets';
+  import BudgetsDialog from './BudgetsDialog.svelte';
 
   export let onOpenFile: () => void = () => openFilePicker();
 
@@ -42,6 +44,8 @@
   $: costDisplay = costBreakdown?.total_cost_usd
     ? `$${costBreakdown.total_cost_usd < 0.01 ? costBreakdown.total_cost_usd.toFixed(6) : costBreakdown.total_cost_usd.toFixed(4)}`
     : '';
+  $: violations = checkViolations($budgets, summary, costBreakdown?.total_cost_usd ?? null);
+  let budgetsOpen = false;
   $: traceCount = $traceList.length;
   $: activeTraceIdx = $traceList.findIndex(e => $traceState.summary && (e.json.includes($traceState.summary.trace_id)));
 
@@ -271,6 +275,21 @@
         </div>
       {/if}
 
+      <button
+        type="button"
+        class="budgets-btn"
+        class:budgets-btn--violated={violations.length > 0}
+        aria-label="Performance budgets"
+        title={violations.length > 0 ? `${violations.length} budget violation${violations.length === 1 ? '' : 's'}` : 'Performance budgets'}
+        on:click={() => (budgetsOpen = true)}
+      >
+        🎯
+        {#if $budgets.length > 0}
+          <span class="budgets-count" class:budgets-count--violated={violations.length > 0}>
+            {violations.length > 0 ? violations.length : $budgets.length}
+          </span>
+        {/if}
+      </button>
       <button type="button" class="theme-btn" aria-label="Toggle theme" on:click={() => theme.toggle()}>{themeLabel}</button>
       <button
         type="button"
@@ -308,6 +327,15 @@
         {/if}
         <span class="stat-sep">·</span>
         <span class="stat stat--muted" title="P50 / P95 latency">P50 {summary.latency_p50_display} P95 {summary.latency_p95_display}</span>
+        {#if violations.length > 0}
+          <span class="stat-sep">·</span>
+          <button
+            type="button"
+            class="stat stat--violation"
+            title={violations.map((v) => `${v.budget.field} ${v.budget.operator} ${v.budget.value}`).join(', ')}
+            on:click={() => (budgetsOpen = true)}
+          >⚠ {violations.length} budget{violations.length === 1 ? '' : 's'} violated</button>
+        {/if}
       </div>
 
       <div class="stats-right">
@@ -354,6 +382,12 @@
     </div>
   {/if}
 </header>
+
+<BudgetsDialog
+  open={budgetsOpen}
+  {violations}
+  on:close={() => (budgetsOpen = false)}
+/>
 
 <style>
   .toolbar {
@@ -544,6 +578,54 @@
   }
 
   .theme-btn:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.08); }
+
+  .budgets-btn {
+    position: relative;
+    padding: 0.2rem 0.45rem;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    border-radius: 5px;
+    background: transparent;
+    color: var(--color-toolbar-text, #f1f5f9);
+    font-size: 0.85rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: background 0.15s var(--ease-spring), transform 0.15s var(--ease-bounce);
+  }
+
+  .budgets-btn:hover { background: rgba(255, 255, 255, 0.1); transform: scale(1.08); }
+
+  .budgets-btn--violated { border-color: rgba(248, 113, 113, 0.55); }
+
+  .budgets-count {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 14px;
+    height: 14px;
+    padding: 0 3px;
+    border-radius: 7px;
+    background: var(--color-accent, #3b82f6);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 14px;
+    text-align: center;
+  }
+
+  .budgets-count--violated { background: #f87171; }
+
+  .stat--violation {
+    color: #f87171;
+    background: transparent;
+    border: 1px solid rgba(248, 113, 113, 0.4);
+    border-radius: 4px;
+    padding: 0.05rem 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .stat--violation:hover { background: rgba(248, 113, 113, 0.1); }
 
   .fullscreen-btn {
     padding: 0.2rem 0.45rem;
