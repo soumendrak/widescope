@@ -1,5 +1,6 @@
 use crate::conventions::registry::{Convention, MappingRule};
 use crate::conventions::retrieval::discover_retrieved_documents;
+use crate::conventions::safety::discover_safety_signals;
 use crate::models::llm::{LlmMessage, LlmOperationType, LlmSpanAttributes};
 use crate::models::span::{AttributeValue, Span};
 
@@ -8,19 +9,28 @@ pub fn resolve_llm_attributes(
     conventions: &[Convention],
 ) -> Option<LlmSpanAttributes> {
     let retrieved = discover_retrieved_documents(&span.attributes);
+    let safety_signals = discover_safety_signals(&span.attributes);
     for convention in conventions {
         if matches_convention(span, convention) {
             let mut llm = apply_mappings(span, convention);
             llm.retrieved_documents = retrieved;
+            llm.safety_signals = safety_signals;
             return Some(llm);
         }
     }
-    // Retrieved documents can show up on spans that aren't otherwise LLM
-    // spans (e.g. a dedicated vector-store retriever) — surface them anyway
-    // via a minimal LlmSpanAttributes wrapper.
-    if !retrieved.is_empty() {
+    // Either retrieval data or safety signals can show up on spans that
+    // aren't otherwise LLM spans (e.g. a dedicated vector-store retriever
+    // or a dedicated guardrail service). Surface them via a minimal
+    // LlmSpanAttributes wrapper; retrieval takes operation-type precedence
+    // when both are present.
+    if !retrieved.is_empty() || !safety_signals.is_empty() {
+        let operation_type = if !retrieved.is_empty() {
+            LlmOperationType::Retrieval
+        } else {
+            LlmOperationType::Unknown("guardrail".to_string())
+        };
         return Some(LlmSpanAttributes {
-            operation_type: LlmOperationType::Retrieval,
+            operation_type,
             model_name: None,
             model_provider: None,
             input_tokens: None,
@@ -36,6 +46,7 @@ pub fn resolve_llm_attributes(
             embedding_dimensions: None,
             embedding_count: None,
             retrieved_documents: retrieved,
+            safety_signals,
         });
     }
     None
@@ -81,6 +92,7 @@ fn apply_mappings(span: &Span, convention: &Convention) -> LlmSpanAttributes {
         embedding_dimensions: None,
         embedding_count: None,
         retrieved_documents: Vec::new(),
+        safety_signals: Vec::new(),
     };
 
     for (field_name, rule) in &convention.mappings {

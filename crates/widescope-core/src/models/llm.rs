@@ -1,3 +1,4 @@
+use crate::conventions::safety::SafetySignal;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -18,6 +19,8 @@ pub struct LlmSpanAttributes {
     pub embedding_dimensions: Option<u64>,
     pub embedding_count: Option<u64>,
     pub retrieved_documents: Vec<RetrievedDocument>,
+    #[serde(default)]
+    pub safety_signals: Vec<SafetySignal>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

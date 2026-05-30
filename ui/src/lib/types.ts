@@ -211,10 +211,29 @@ export interface LlmDetail {
   output_messages: { role: string; content: string | null }[];
   tool_calls: { name: string; arguments: string | null; result: string | null }[];
   retrieved_documents: RetrievedDocument[];
+  safety_signals: SafetySignal[];
 }
 
 export interface RetrievedDocument {
   id: string | null;
   score: number | null;
   content_snippet: string | null;
+}
+
+export type SafetyCategory =
+  | 'Pii'
+  | 'Jailbreak'
+  | 'Refusal'
+  | 'ContentPolicy'
+  | 'Toxicity'
+  | 'Hallucination'
+  | 'Other';
+
+export interface SafetySignal {
+  name: string;
+  category: SafetyCategory;
+  triggered: boolean;
+  score: number | null;
+  severity: string | null;
+  detail: string | null;
 }
