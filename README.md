@@ -232,11 +232,13 @@ Convention resolution is first-match-wins. See `conventions/README.md` to extend
 
 ## Contributing
 
-Contributions are welcome! This project follows a standard PR workflow:
+Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for the architecture overview, step-by-step guides for adding parsers, views, and conventions, and the PR checklist.
+
+Quick version:
 
 1. **Open an issue** to discuss the change before working on it (optional but appreciated).
 2. **Fork** the repo and create a branch: `fix/description` or `feat/description`.
-3. **Run the checks** before opening a PR: `just check && just clippy && just test`.
+3. **Run the checks** before opening a PR: `just fmt && just check && just clippy && just test`.
 4. **Open a PR** against `main` with a clear description of what changed and why.
 
 Questions or ideas? [Open an issue](https://github.com/soumendrak/widescope/issues).
