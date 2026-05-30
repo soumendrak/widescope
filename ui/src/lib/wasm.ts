@@ -1,5 +1,5 @@
 import init, * as widescopeCore from '../../../crates/widescope-core/pkg/widescope_core';
-import { BUNDLED_CONVENTIONS } from './conventions-bundle';
+import { BUNDLED_CONVENTIONS, BUNDLED_PRICING } from './conventions-bundle';
 import type {
   ComparisonSummary,
   CostBreakdown,
@@ -31,6 +31,19 @@ export async function loadWasm(): Promise<void> {
   const merged = '[' + BUNDLED_CONVENTIONS.join(',') + ']';
   const result: InitResult = JSON.parse(wasmInit(merged));
   initWarnings = result.warnings;
+
+  const initPricing = (widescopeCore as { init_pricing?: (json: string) => string }).init_pricing;
+  if (initPricing) {
+    try {
+      const pricingResult = JSON.parse(initPricing(BUNDLED_PRICING)) as { warnings?: ParseWarning[] };
+      if (pricingResult.warnings && pricingResult.warnings.length > 0) {
+        initWarnings = initWarnings.concat(pricingResult.warnings);
+      }
+    } catch (e) {
+      // Pricing is optional — a load failure should not break trace parsing.
+      console.warn('Failed to initialise pricing table:', e);
+    }
+  }
 }
 
 export function getInitWarnings(): ParseWarning[] {

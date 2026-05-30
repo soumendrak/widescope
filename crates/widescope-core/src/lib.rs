@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use wasm_bindgen::prelude::*;
 
+use conventions::pricing::PricingTable;
 use conventions::registry::{load_conventions, Convention};
 use errors::WideError;
 use layout::critical_path::compute_critical_path;
@@ -38,6 +39,7 @@ thread_local! {
     static ACTIVE_TRACE_INDEX: RefCell<usize> = const { RefCell::new(0) };
     static COMPARISON_TRACE: RefCell<Option<Trace>> = const { RefCell::new(None) };
     static CONVENTIONS: RefCell<Vec<Convention>> = const { RefCell::new(Vec::new()) };
+    static PRICING: RefCell<PricingTable> = RefCell::new(PricingTable::new());
 }
 
 #[cfg(feature = "console_error_panic_hook")]
@@ -71,6 +73,42 @@ pub fn init(conventions_json: &str) -> Result<String, JsValue> {
     };
 
     serde_json::to_string(&init_result).map_err(|e| {
+        WideError::InvalidJson {
+            message: e.to_string(),
+            line: None,
+            column: None,
+        }
+        .into()
+    })
+}
+
+#[derive(Serialize)]
+struct InitPricingResult {
+    models_loaded: usize,
+    warnings: Vec<ParseWarning>,
+}
+
+#[wasm_bindgen]
+pub fn init_pricing(pricing_json: &str) -> Result<String, JsValue> {
+    let mut table = PricingTable::new();
+    let mut warnings = Vec::new();
+    let loaded = match table.load(pricing_json) {
+        Ok(n) => n,
+        Err(w) => {
+            warnings.push(w);
+            0
+        }
+    };
+
+    PRICING.with(|p| {
+        *p.borrow_mut() = table;
+    });
+
+    let result = InitPricingResult {
+        models_loaded: loaded,
+        warnings,
+    };
+    serde_json::to_string(&result).map_err(|e| {
         WideError::InvalidJson {
             message: e.to_string(),
             line: None,
@@ -132,6 +170,33 @@ pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
     for span in &mut spans {
         span.llm = conventions::resolver::resolve_llm_attributes(span, &conventions);
     }
+
+    PRICING.with(|p| {
+        let table = p.borrow();
+        if table.is_empty() {
+            return;
+        }
+        for span in &mut spans {
+            if let Some(llm) = span.llm.as_mut() {
+                if llm.estimated_cost_usd.is_some() {
+                    continue;
+                }
+                let Some(model) = llm.model_name.as_deref() else {
+                    continue;
+                };
+                let input = llm.input_tokens.unwrap_or(0);
+                let output = llm.output_tokens.unwrap_or(0);
+                if input == 0 && output == 0 {
+                    continue;
+                }
+                if let Some(cost) =
+                    table.compute_cost(model, llm.model_provider.as_deref(), input, output)
+                {
+                    llm.estimated_cost_usd = Some(cost);
+                }
+            }
+        }
+    });
 
     let trace = build_trace(spans, format, parse_warnings).map_err(JsValue::from)?;
 
