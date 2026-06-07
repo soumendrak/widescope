@@ -3,6 +3,8 @@ import type { FlameGraphLayout, ServiceGraph, TimelineLayout, TraceSummary, Wasm
 
 export interface TraceState {
   status: 'empty' | 'loading' | 'loaded' | 'error';
+  loadingPhase: string | null;
+  loadingProgress: number | null;
   summary: TraceSummary | null;
   flameLayout: FlameGraphLayout | null;
   timelineLayout: TimelineLayout | null;
@@ -14,6 +16,8 @@ export interface TraceState {
 
 const initial: TraceState = {
   status: 'empty',
+  loadingPhase: null,
+  loadingProgress: null,
   summary: null,
   flameLayout: null,
   timelineLayout: null,
@@ -28,8 +32,8 @@ function createTraceStore() {
 
   return {
     subscribe,
-    setLoading() {
-      set({ ...initial, status: 'loading' });
+    setLoading(phase = 'Parsing trace JSON', progress: number | null = null) {
+      set({ ...initial, status: 'loading', loadingPhase: phase, loadingProgress: progress });
     },
     setLoaded(
       summary: TraceSummary,
@@ -39,7 +43,18 @@ function createTraceStore() {
       serviceGraph: ServiceGraph,
       isSampleTrace: boolean
     ) {
-      set({ status: 'loaded', summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, error: null, isSampleTrace });
+      set({
+        status: 'loaded',
+        loadingPhase: null,
+        loadingProgress: null,
+        summary,
+        flameLayout,
+        timelineLayout,
+        waterfallLayout,
+        serviceGraph,
+        error: null,
+        isSampleTrace,
+      });
     },
     setError(error: WasmError) {
       set({ ...initial, status: 'error', error });

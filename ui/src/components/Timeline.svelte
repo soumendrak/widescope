@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import type { TimelineBlock, TimelineLayout, TimelineRow } from '../lib/types';
   import { focusedSpanId, hoveredSpanId, searchResults, selectedSpanId } from '../stores/selection';
 
@@ -12,6 +12,7 @@
   const LABEL_WIDTH = 160;
   const RIGHT_PADDING = 16;
   const MIN_BLOCK_WIDTH = 2;
+  const VIRTUAL_OVERSCAN_ROWS = 8;
 
   const SERVICE_COLORS = [
     '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6',
@@ -38,11 +39,16 @@
   let svgEl: SVGElement;
   let colorMap = new Map<string, string>();
   let groups: TimelineGroup[] = [];
+  let visibleGroups: TimelineGroup[] = [];
+  let renderedGroups: TimelineGroup[] = [];
   let chartWidth = 0;
   let svgHeight = AXIS_HEIGHT;
   let ticks: { x: number; label: string }[] = [];
   let hasSearch = false;
   let searchResultSet = new Set<string>();
+  let scrollTop = 0;
+  let viewportHeight = 0;
+  let isExporting = false;
 
   export function focusView(): void {
     if (!rootEl) return;
@@ -56,6 +62,8 @@
     chartWidth = Math.max(0, viewportWidth - LABEL_WIDTH - RIGHT_PADDING);
     svgHeight = groups.length > 0 ? groups[groups.length - 1].top + groups[groups.length - 1].height : AXIS_HEIGHT;
     ticks = buildTicks(chartWidth, layout?.trace_duration_ns ?? 0);
+    visibleGroups = getVisibleGroups(groups, scrollTop, viewportHeight);
+    renderedGroups = isExporting ? groups : visibleGroups;
   }
   $: hasSearch = $searchResults.length > 0;
   $: searchResultSet = new Set($searchResults);
@@ -65,13 +73,22 @@
 
     const observer = new ResizeObserver((entries) => {
       viewportWidth = entries[0]?.contentRect.width ?? 0;
+      viewportHeight = entries[0]?.contentRect.height ?? 0;
     });
 
     observer.observe(viewportEl);
-    viewportWidth = viewportEl.getBoundingClientRect().width;
+    const rect = viewportEl.getBoundingClientRect();
+    viewportWidth = rect.width;
+    viewportHeight = rect.height;
 
     return () => observer.disconnect();
   });
+
+  function onScroll(): void {
+    if (!viewportEl) return;
+    scrollTop = viewportEl.scrollTop;
+    viewportHeight = viewportEl.clientHeight;
+  }
 
   function buildColorMap(rows: TimelineRow[]): Map<string, string> {
     const next = new Map<string, string>();
@@ -151,6 +168,21 @@
     return builtTicks;
   }
 
+  function getVisibleGroups(allGroups: TimelineGroup[], top: number, height: number): TimelineGroup[] {
+    if (height <= 0) return allGroups;
+
+    const overscan = VIRTUAL_OVERSCAN_ROWS * LANE_HEIGHT;
+    const minY = Math.max(0, top - overscan);
+    const maxY = top + height + overscan;
+
+    return allGroups
+      .filter((group) => group.top + group.height >= minY && group.top <= maxY)
+      .map((group) => ({
+        ...group,
+        rows: group.rows.filter((rowMeta) => rowMeta.y + LANE_HEIGHT >= minY && rowMeta.y <= maxY),
+      }));
+  }
+
   function formatNs(ns: number): string {
     if (ns < 1_000) return `${ns}ns`;
     if (ns < 1_000_000) return `${(ns / 1_000).toFixed(1)}μs`;
@@ -189,9 +221,12 @@
     selectBlock(block);
   }
 
-  function exportSvg(): void {
+  async function exportSvg(): Promise<void> {
     if (!svgEl) return;
+    isExporting = true;
+    await tick();
     const clone = svgEl.cloneNode(true) as SVGElement;
+    isExporting = false;
     const svgData = new XMLSerializer().serializeToString(clone);
     const blob = new Blob(['<?xml version="1.0" encoding="UTF-8"?>\n', svgData], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
@@ -206,15 +241,15 @@
 <div
   class="timeline-root"
   bind:this={rootEl}
-  tabindex="0"
+  tabindex="-1"
   role="region"
   aria-label="Timeline swimlane"
   on:mouseleave={() => setHovered(null)}
 >
   <div class="controls">
-    <button class="ctrl-btn" title="Download SVG" on:click={exportSvg}>SVG</button>
+    <button class="ctrl-btn" title="Download SVG" on:click={() => { void exportSvg(); }}>SVG</button>
   </div>
-  <div class="timeline-scroll" bind:this={viewportEl}>
+  <div class="timeline-scroll" bind:this={viewportEl} on:scroll={onScroll}>
     <svg
       class="timeline-svg"
       bind:this={svgEl}
@@ -234,7 +269,7 @@
         <line x1="0" y1={AXIS_HEIGHT - 1} x2={Math.max(viewportWidth, LABEL_WIDTH + RIGHT_PADDING)} y2={AXIS_HEIGHT - 1} class="axis-border" />
       </g>
 
-      {#each groups as group}
+      {#each renderedGroups as group}
         <g class="service-group">
           <rect x="0" y={group.top} width={Math.max(viewportWidth, LABEL_WIDTH + RIGHT_PADDING)} height={group.height} class="group-bg" />
           <rect x="0" y={group.top} width={LABEL_WIDTH} height={GROUP_HEADER_HEIGHT} class="group-header-bg" />
