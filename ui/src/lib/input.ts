@@ -4,6 +4,7 @@ import { traceList } from '../stores/traceList';
 import { parseTrace, getFlameGraphLayout, getTimelineLayout, getWaterfallLayout, getServiceGraph, safeParseWasmError } from './wasm';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
+const LARGE_TRACE_BYTES = 5 * 1024 * 1024;
 
 export function openFilePicker(onText?: (text: string) => void): void {
   const input = document.createElement('input');
@@ -122,6 +123,65 @@ export function handleRawInput(text: string, isSample: boolean, showLoading = tr
     traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, isSample);
 
     // Add to trace list for multi-trace switching
+    const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
+    traceList.add(name, text);
+
+    return true;
+  } catch (err) {
+    const wasmError = safeParseWasmError(err);
+    traceState.setError(wasmError);
+    return false;
+  }
+}
+
+function nextFrame(): Promise<void> {
+  return new Promise((resolve) => requestAnimationFrame(() => resolve()));
+}
+
+export async function handleRawInputAsync(text: string, isSample: boolean, showLoading = true): Promise<boolean> {
+  if (showLoading) {
+    const sizeMb = text.length / 1024 / 1024;
+    const phase = text.length >= LARGE_TRACE_BYTES
+      ? `Preparing ${sizeMb.toFixed(1)} MB trace`
+      : 'Preparing trace';
+    traceState.setLoading(phase, 5);
+    await nextFrame();
+  }
+
+  selectedSpanId.set(null);
+  hoveredSpanId.set(null);
+  focusedSpanId.set(null);
+  searchQuery.set('');
+  searchResults.set([]);
+
+  try {
+    if (showLoading) {
+      traceState.setLoading('Parsing trace JSON in WASM', 20);
+      await nextFrame();
+    }
+    const summary = parseTrace(text);
+
+    if (showLoading) {
+      traceState.setLoading('Computing flame graph layout', 45);
+      await nextFrame();
+    }
+    const flameLayout = getFlameGraphLayout();
+
+    if (showLoading) {
+      traceState.setLoading('Computing timeline layout', 65);
+      await nextFrame();
+    }
+    const timelineLayout = getTimelineLayout();
+
+    if (showLoading) {
+      traceState.setLoading('Computing waterfall and service graph', 82);
+      await nextFrame();
+    }
+    const waterfallLayout = getWaterfallLayout();
+    const serviceGraph = getServiceGraph();
+
+    traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, isSample);
+
     const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
     traceList.add(name, text);
 

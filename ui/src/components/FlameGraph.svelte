@@ -10,6 +10,10 @@
   const ROW_HEIGHT = 24;
   const MIN_LABEL_PX = 40;
   const BUCKET_COUNT = 64;
+  const MAX_RENDER_DEPTH = 50;
+  const TINY_SPAN_TOTAL_RATIO = 0.01;
+  const TINY_SPAN_PIXEL_WIDTH = 2;
+  const TINY_AGGREGATE_BUCKET_PX = 4;
 
   // 12 accessible service colors
   const SERVICE_COLORS = [
@@ -43,6 +47,7 @@
   // Canvas dimensions
   let canvasW = 0;
   let canvasH = 0;
+  let visualMaxDepth = 0;
 
   // Live-region for screen reader announcements
   let ariaLive = '';
@@ -90,6 +95,7 @@
 
   // ── Reactive layout ingestion ─────────────────────────────────────
   $: if (layout) initLayout(layout);
+  $: visualMaxDepth = Math.min(layout?.max_depth ?? 0, MAX_RENDER_DEPTH);
 
   function initLayout(l: FlameGraphLayout) {
     nodeMap = new Map(l.nodes.map((n) => [n.span_id, n]));
@@ -180,7 +186,7 @@
     const rect = container.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
     canvasW = rect.width;
-    canvasH = (layout.max_depth + 1) * ROW_HEIGHT + ROW_HEIGHT; // +1 for time axis
+    canvasH = (visualMaxDepth + 1) * ROW_HEIGHT + ROW_HEIGHT; // +1 for time axis
     canvas.width = canvasW * dpr;
     canvas.height = canvasH * dpr;
     canvas.style.width = `${canvasW}px`;
@@ -236,7 +242,12 @@
       ctx.restore();
     }
 
+    drawTinySpanAggregates(hasSearch, searchMatchSet, sel, hov, foc, hasSlice, sStart, sEnd);
+
     for (const node of layout.nodes) {
+      const px = toPixelX(node.x);
+      const pw = toPixelW(node.width);
+      if (!shouldDrawFullNode(node, px, pw, sel, hov, foc, hasSearch, searchMatchSet)) continue;
       drawNode(node, sel, hov, foc, hasSearch, searchMatchSet, palette, hasSlice, sStart, sEnd, sliceXStart, sliceXEnd);
     }
     drawTimeAxis(palette);
@@ -271,6 +282,7 @@
     const px = toPixelX(node.x);
     const pw = toPixelW(node.width);
     if (px + pw < 0 || px > canvasW) return;
+    if (node.depth > visualMaxDepth) return;
 
     if (hasSlice && layout.trace_duration_ns > 0) {
       const nodeTs = node.x * layout.trace_duration_ns;
@@ -367,8 +379,70 @@
     ctx!.restore();
   }
 
+  function shouldDrawFullNode(
+    node: FlameNode,
+    px: number,
+    pw: number,
+    sel: string | null,
+    hov: string | null,
+    foc: string | null,
+    hasSearch: boolean,
+    searchMatchSet: Set<string>
+  ): boolean {
+    if (node.depth > visualMaxDepth) return false;
+    if (px + pw < 0 || px > canvasW) return false;
+    if (node.span_id === sel || node.span_id === hov || node.span_id === foc) return true;
+    if (hasSearch && searchMatchSet.has(node.span_id)) return true;
+    if (showCriticalPath && criticalPathSet.has(node.span_id)) return true;
+    if (node.is_error || node.is_llm) return true;
+
+    return !(node.width < TINY_SPAN_TOTAL_RATIO && pw < TINY_SPAN_PIXEL_WIDTH);
+  }
+
+  function drawTinySpanAggregates(
+    hasSearch: boolean,
+    searchMatchSet: Set<string>,
+    sel: string | null,
+    hov: string | null,
+    foc: string | null,
+    hasSlice: boolean,
+    sStart: number | null,
+    sEnd: number | null
+  ): void {
+    if (!ctx || !layout || canvasW === 0) return;
+
+    const bucketsByDepth = new Map<number, Set<number>>();
+
+    for (const node of layout.nodes) {
+      const px = toPixelX(node.x);
+      const pw = toPixelW(node.width);
+      if (shouldDrawFullNode(node, px, pw, sel, hov, foc, hasSearch, searchMatchSet)) continue;
+      if (node.depth > visualMaxDepth || px + pw < 0 || px > canvasW) continue;
+
+      if (hasSlice && layout.trace_duration_ns > 0) {
+        const nodeTs = node.x * layout.trace_duration_ns;
+        const nodeTe = (node.x + node.width) * layout.trace_duration_ns;
+        if (nodeTe < sStart! || nodeTs > sEnd!) continue;
+      }
+
+      const depthBuckets = bucketsByDepth.get(node.depth) ?? new Set<number>();
+      depthBuckets.add(Math.floor(Math.max(0, px) / TINY_AGGREGATE_BUCKET_PX));
+      bucketsByDepth.set(node.depth, depthBuckets);
+    }
+
+    ctx.save();
+    ctx.fillStyle = 'rgba(148, 163, 184, 0.38)';
+    for (const [depth, bucketSet] of bucketsByDepth) {
+      const y = depth * ROW_HEIGHT + 7;
+      for (const bucket of bucketSet) {
+        ctx.fillRect(bucket * TINY_AGGREGATE_BUCKET_PX, y, TINY_AGGREGATE_BUCKET_PX, ROW_HEIGHT - 14);
+      }
+    }
+    ctx.restore();
+  }
+
   function drawTimeAxis(palette: CanvasPalette) {
-    const y = (layout.max_depth + 1) * ROW_HEIGHT;
+    const y = (visualMaxDepth + 1) * ROW_HEIGHT;
     if (!ctx) return;
     ctx.fillStyle = palette.axisBorder;
     ctx.fillRect(0, y, canvasW, 1);
@@ -393,7 +467,7 @@
 
   function drawSliceLabels(sx: number, ex: number, startNs: number, endNs: number) {
     if (!ctx) return;
-    const y = (layout.max_depth + 1) * ROW_HEIGHT + 4;
+    const y = (visualMaxDepth + 1) * ROW_HEIGHT + 4;
     ctx.font = '9px monospace';
     ctx.fillStyle = '#93c5fd';
     ctx.fillText(formatNs(startNs), sx + 4, y + 10);
@@ -430,6 +504,7 @@
   // ── Hit-testing ───────────────────────────────────────────────────
   function hitTest(mouseX: number, mouseY: number): FlameNode | null {
     const depth = Math.floor(mouseY / ROW_HEIGHT);
+    if (depth > visualMaxDepth) return null;
     const normX = mouseX / (canvasW * zoom) + panX;
     const bucketIdx = Math.floor(normX * BUCKET_COUNT);
     const bucket = buckets[Math.max(0, Math.min(bucketIdx, BUCKET_COUNT - 1))] ?? [];

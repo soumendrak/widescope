@@ -1019,6 +1019,8 @@ App.svelte
 // stores/trace.ts
 interface TraceState {
   status: 'empty' | 'loading' | 'loaded' | 'error';
+  loadingPhase: string | null;        // label shown while status === 'loading' (e.g. "Computing flame graph layout")
+  loadingProgress: number | null;     // 0–100, drives the loading progress bar
   summary: TraceSummary | null;
   flameLayout: FlameGraphLayout | null;
   timelineLayout: TimelineLayout | null;
@@ -1078,23 +1080,29 @@ export const SAMPLE_TRACE: string = sampleRaw;
 **Coordinate system:**
 - WASM returns normalized `x ∈ [0,1]`, `width ∈ [0,1]`.
 - JS maps: `px_x = x * canvasWidth`, `px_w = width * canvasWidth`.
-- Each depth level = `ROW_HEIGHT = 24px`. Canvas height = `(max_depth + 1) * 24`.
+- Each depth level = `ROW_HEIGHT = 24px`. Canvas height = `(visualMaxDepth + 1) * 24`, where `visualMaxDepth = min(max_depth, MAX_RENDER_DEPTH)` and `MAX_RENDER_DEPTH = 50`. Spans deeper than the cap are not drawn or hit-tested, bounding cost on very deep traces.
 
 **Render loop (per frame):**
 
 ```
 1. Clear canvas
-2. For each FlameNode:
+2. Draw tiny-span level-of-detail markers (see below)
+3. For each FlameNode:
    a. Compute pixel rect from normalized coords + zoom/pan
-   b. Cull if outside viewport
-   c. Fill with service color
-   d. If is_error: red overlay
-   e. If is_llm: ⚡ icon at left edge
-   f. If width > 40px: draw truncated label
-   g. Highlight border if hovered
-   h. Selection border (thicker) if selected
-3. Draw time axis
+   b. Cull if outside viewport or depth > visualMaxDepth
+   c. Skip full draw if the span is "tiny" and not otherwise important
+      (width < 1% of trace AND < 2px wide; always drawn when selected,
+       hovered, focused, a search/critical-path match, error, or LLM)
+   d. Fill with service color
+   e. If is_error: red overlay
+   f. If is_llm: ⚡ icon at left edge
+   g. If width > 40px: draw truncated label
+   h. Highlight border if hovered
+   i. Selection border (thicker) if selected
+4. Draw time axis
 ```
+
+**Level-of-detail aggregation:** Skipped tiny spans are not dropped silently — before the main loop, they are bucketed per depth into 4px-wide columns and rendered as faint aggregate ticks, so dense regions still show that work happened without drawing thousands of sub-pixel rects.
 
 **Interactions:**
 
@@ -1139,6 +1147,8 @@ for each service_group ordered by first span start_time:
 This ensures overlapping spans within a service render on separate sub-rows instead of occluding each other. The `row_index` in `TimelineBlock` maps to the actual visual row (including sub-rows).
 
 **Dimensions:** Lane height `28px`, service group header `20px`, gap between groups `8px`.
+
+**Row virtualization:** The SVG measures the full content height from the laid-out groups, but only renders the service groups (and lanes within them) that intersect the scroll viewport, plus an 8-row overscan band above and below. Scrolling recomputes the visible window. SVG export temporarily renders the full set of groups so the downloaded file is complete, then reverts to the virtualized view.
 
 ```svg
 <svg>
@@ -1263,6 +1273,8 @@ function safeParseWasmError(err: unknown): WasmError {
   };
 }
 ```
+
+**Progressive loading (`handleRawInputAsync`):** The handler shown above is the synchronous core. The editor and file/drop paths call `handleRawInputAsync`, which runs the same parse → flame → timeline → waterfall → service-graph sequence but `await`s a `requestAnimationFrame` between steps and updates `traceState.setLoading(phase, progress)` before each one. This lets the browser paint the loading progress bar and keeps the tab responsive on multi-MB traces (inputs ≥ 5 MB are labelled with their size). When `showLoading` is `false` (e.g. live-parse-as-you-type), it skips the per-step yields and progress updates. The synchronous `handleRawInput` is retained for callers that must complete within a single microtask.
 
 > **Note on `.jsonl` support:** JSONL (newline-delimited JSON) is **deferred to v2**. The MVP file picker accepts `.json` only. JSONL requires line-by-line parsing semantics that are not yet specified.
 
@@ -1551,6 +1563,8 @@ Tests that specifically cover the new trace invariants (Section 4.6) and degrada
 | Convention resolution (5,000 spans) | < 20ms |
 | **Total: file drop → rendered** | **< 200ms** |
 
+For end-to-end timings against real fixtures (including the multi-MB large-trace files), run `just bench-fixtures`. It executes the `bench_fixtures` example in `widescope-core`, walks every `.json` under `test-fixtures/`, and prints a CSV of `size_mb,parse_ms,flame_ms,timeline_ms,waterfall_ms,spans` per fixture.
+
 ---
 
 ## 13. Performance Budgets and Degradation
@@ -1635,6 +1649,7 @@ The 64-bucket spatial index (Section 8.1) may still be slow if many spans are co
 Beyond the design target of 5,000 spans, all budgets may be exceeded.
 
 - **Guard:** After `parse_trace`, if `span_count > 10,000`, show a warning: "Large trace (N spans). Rendering may be slow." Let the user proceed.
+- **Implemented degradation:** Rendering now bounds its own cost instead of relying on sampling. The flame graph caps draw/hit-test depth at `MAX_RENDER_DEPTH = 50` and collapses sub-pixel "tiny" spans into level-of-detail markers (Section 8.1); the timeline only renders the service groups in the scroll viewport (Section 8.2); and large inputs load through `handleRawInputAsync`, which yields a frame between parse and each layout step so the progress bar updates and the tab stays responsive (Section 9.4).
 - **Future (v2):** Implement span sampling — display top-N spans by duration or error status, with an option to expand.
 
 ---

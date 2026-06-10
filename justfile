@@ -57,6 +57,9 @@ fmt:
 test:
     RUSTFLAGS="" {{_cargo}} test --workspace
 
+bench-fixtures:
+    RUSTFLAGS="" {{_cargo}} run -p widescope-core --example bench_fixtures -- test-fixtures
+
 # ═══════════════════════════════════════════════════════════════════════
 # UI
 # ═══════════════════════════════════════════════════════════════════════

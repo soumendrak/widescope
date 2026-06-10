@@ -2,7 +2,7 @@
   import { onDestroy, onMount, tick } from 'svelte';
   import { fly } from 'svelte/transition';
   import { loadWasm, getInitWarnings, getSpanDetail } from './lib/wasm';
-  import { openFilePicker, handleFile, handleRawInput } from './lib/input';
+  import { openFilePicker, handleFile, handleRawInputAsync } from './lib/input';
   import { parsePermalink, decodeTrace } from './lib/permalink';
   import { SAMPLE_TRACE } from './lib/sample';
   import { traceState } from './stores/trace';
@@ -109,7 +109,7 @@
     let permalinkLoaded = false;
     if (permalink.traceData) {
       try {
-        loadEditorText(await decodeTrace(permalink.traceData));
+        await loadEditorText(await decodeTrace(permalink.traceData));
         permalinkLoaded = true;
       } catch {
         editorMessage = 'Failed to load the shared trace from the link.';
@@ -151,7 +151,7 @@
     liveParseTimer = null;
   }
 
-  function applyEditorValue(): boolean {
+  async function applyEditorValue(showLoading = false): Promise<boolean> {
     editorMessage = null;
     if (!editorValue.trim()) {
       selectedSpanId.set(null);
@@ -162,14 +162,14 @@
       traceState.reset();
       return false;
     }
-    return handleRawInput(editorValue, false, false);
+    return await handleRawInputAsync(editorValue, false, showLoading);
   }
 
   function scheduleLiveParse(): void {
     clearLiveParseTimer();
     liveParseTimer = setTimeout(() => {
       liveParseTimer = null;
-      applyEditorValue();
+      void applyEditorValue(false);
     }, LIVE_PARSE_DELAY_MS);
   }
 
@@ -229,19 +229,19 @@
     document.body.style.userSelect = '';
   }
 
-  function loadEditorText(text: string): void {
+  async function loadEditorText(text: string): Promise<boolean> {
     editorValue = text;
     expandEditor();
     clearLiveParseTimer();
-    applyEditorValue();
+    return await applyEditorValue(true);
   }
 
   function openEditorFilePicker(): void {
-    openFilePicker(loadEditorText);
+    openFilePicker((text) => { void loadEditorText(text); });
   }
 
   function loadSampleJson(): void {
-    loadEditorText(SAMPLE_TRACE);
+    void loadEditorText(SAMPLE_TRACE);
   }
 
   function clearEditorJson(): void {
@@ -258,7 +258,7 @@
   }
 
   function onDroppedFile(file: File): void {
-    void handleFile(file, loadEditorText);
+    void handleFile(file, (text) => { void loadEditorText(text); });
   }
 
   async function pasteFromClipboard(): Promise<void> {
@@ -266,7 +266,7 @@
     try {
       const text = await navigator.clipboard.readText();
       if (!text.trim()) return;
-      loadEditorText(text);
+      await loadEditorText(text);
     } catch {
       editorMessage = 'Clipboard access was blocked. Paste directly into the editor instead.';
     }
@@ -278,7 +278,7 @@
     try {
       editorValue = JSON.stringify(JSON.parse(editorValue), null, 2);
       clearLiveParseTimer();
-      applyEditorValue();
+      void applyEditorValue(false);
     } catch {
       editorMessage = 'Input is not valid JSON, so it could not be formatted.';
     }
@@ -286,7 +286,7 @@
 
   async function submitEditor(): Promise<void> {
     clearLiveParseTimer();
-    const parsed = applyEditorValue();
+    const parsed = await applyEditorValue(true);
     if (!parsed) return;
     collapseEditor();
     activeView.set($activeView || VIEW_ORDER[0]);
@@ -300,7 +300,7 @@
     const response = await fetch(url);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const text = await response.text();
-    loadEditorText(text);
+    await loadEditorText(text);
   }
 
   let globalKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
@@ -564,8 +564,11 @@
             {:else if state.status === 'loading'}
               <div class="empty-state">
                 <div class="empty-icon">⏳</div>
-                <div class="empty-title">Parsing trace JSON</div>
-                <div class="empty-sub">The visualization will appear below when parsing completes.</div>
+                <div class="empty-title">{state.loadingPhase ?? 'Parsing trace JSON'}</div>
+                <div class="loading-progress" aria-label="Trace loading progress">
+                  <div class="loading-progress-fill" style={`width: ${state.loadingProgress ?? 20}%;`}></div>
+                </div>
+                <div class="empty-sub">Large traces may take a few seconds while layouts are prepared.</div>
               </div>
             {/if}
           </div>
@@ -1064,6 +1067,23 @@
   .empty-sub {
     font-size: 0.875rem;
     font-family: monospace;
+  }
+
+  .loading-progress {
+    width: min(320px, 70vw);
+    height: 8px;
+    overflow: hidden;
+    border: 1px solid var(--color-border, #334155);
+    border-radius: 999px;
+    background: var(--color-panel-subtle, rgba(255, 255, 255, 0.05));
+  }
+
+  .loading-progress-fill {
+    height: 100%;
+    min-width: 8px;
+    border-radius: inherit;
+    background: var(--color-accent, #3b82f6);
+    transition: width 0.18s var(--ease-smooth, ease);
   }
 
   .error-context {
