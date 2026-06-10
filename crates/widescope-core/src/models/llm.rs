@@ -18,6 +18,18 @@ pub struct LlmSpanAttributes {
     pub embedding_dimensions: Option<u64>,
     pub embedding_count: Option<u64>,
     pub retrieved_documents: Vec<RetrievedDocument>,
+    #[serde(default)]
+    pub eval_scores: Vec<EvalScore>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EvalScore {
+    pub name: String,
+    pub value: Option<f64>,
+    pub label: Option<String>,
+    pub threshold: Option<f64>,
+    pub passed: Option<bool>,
+    pub explanation: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
