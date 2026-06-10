@@ -58,6 +58,7 @@ Sample trace files are available in [`test-fixtures/`](test-fixtures/) if you wa
 - **Fast navigation** — span search, keyboard traversal, zoom, pan, fit/reset controls, and search-result highlighting.
 - **Flexible loading** — drag and drop, file picker, clipboard paste, or the built-in JSON editor with live parsing.
 - **Detailed sidebar** — timing, status, attributes, events, child spans, and LLM metadata for the selected span.
+- **Scales to large traces** — timeline rows render virtualized, the flame graph caps depth and collapses tiny spans into level-of-detail markers, and multi-MB files load progressively behind a phase-by-phase progress bar.
 - **Shareable links** — encode a whole trace into a self-contained link, or point at a hosted trace JSON — no upload, no backend.
 
 ## Sharing traces
@@ -106,6 +107,7 @@ just check         # cargo check --workspace
 just fmt           # cargo fmt --all
 just clippy        # cargo clippy --workspace -- -D warnings
 just test          # cargo test --workspace
+just bench-fixtures # parse + layout timings for every JSON under test-fixtures/
 just clean         # remove Rust, WASM package, UI dist, and node_modules artifacts
 ```
 
