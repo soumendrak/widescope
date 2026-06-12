@@ -4,6 +4,7 @@
   import { selectedSpanId, hoveredSpanId, focusedSpanId, searchResults, sliceStartNs, sliceEndNs } from '../stores/selection';
   import { getCriticalPath } from '../lib/wasm';
   import type { CriticalPath } from '../lib/types';
+  import { SERVICE_COLORS } from '../lib/palette';
 
   export let layout: FlameGraphLayout;
 
@@ -14,13 +15,6 @@
   const TINY_SPAN_TOTAL_RATIO = 0.01;
   const TINY_SPAN_PIXEL_WIDTH = 2;
   const TINY_AGGREGATE_BUCKET_PX = 4;
-
-  // 12 accessible service colors
-  const SERVICE_COLORS = [
-    '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6',
-    '#ec4899', '#06b6d4', '#84cc16', '#f97316',
-    '#6366f1', '#14b8a6', '#eab308', '#ef4444',
-  ];
 
   let canvas: HTMLCanvasElement;
   let container: HTMLDivElement;
@@ -368,7 +362,7 @@
     }
 
     if (pw > MIN_LABEL_PX) {
-      ctx!.font = '11px system-ui, sans-serif';
+      ctx!.font = '10px "Spline Sans Mono", ui-monospace, monospace';
       ctx!.fillStyle = palette.codeText;
       ctx!.save();
       ctx!.rect(px + 2, py, rw - 4, ROW_HEIGHT - 1);
@@ -451,7 +445,7 @@
     if (!totalNs) return;
 
     const tickCount = Math.max(4, Math.floor(canvasW / 120));
-    ctx.font = '10px monospace';
+    ctx.font = '10px "Spline Sans Mono", ui-monospace, monospace';
     ctx.fillStyle = palette.textMuted;
 
     for (let i = 0; i <= tickCount; i++) {
@@ -468,7 +462,7 @@
   function drawSliceLabels(sx: number, ex: number, startNs: number, endNs: number) {
     if (!ctx) return;
     const y = (visualMaxDepth + 1) * ROW_HEIGHT + 4;
-    ctx.font = '9px monospace';
+    ctx.font = '9px "Spline Sans Mono", ui-monospace, monospace';
     ctx.fillStyle = '#93c5fd';
     ctx.fillText(formatNs(startNs), sx + 4, y + 10);
     ctx.fillText(formatNs(endNs), ex - 60, y + 10);
@@ -810,24 +804,28 @@
   }
 
   .ctrl-btn {
-    padding: 0.2rem 0.5rem;
-    background: var(--color-panel-subtle, rgba(255, 255, 255, 0.05));
-    border: 1px solid var(--color-border, #334155);
-    color: var(--color-text, #e2e8f0);
-    border-radius: 4px;
-    font-size: 0.75rem;
+    padding: 0.24rem 0.6rem;
+    background: color-mix(in srgb, var(--color-surface, #0d1626) 85%, transparent);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--color-border, rgba(125, 211, 252, 0.13));
+    color: var(--color-text-muted, #9aa8bd);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
     cursor: pointer;
+    transition: border-color 0.15s var(--ease-spring), color 0.15s var(--ease-spring), background 0.15s var(--ease-spring);
   }
 
   .ctrl-btn:hover {
-    border-color: var(--color-accent, #3b82f6);
-    background: var(--color-panel-highlight, rgba(255, 255, 255, 0.04));
+    border-color: color-mix(in srgb, var(--color-sky, #7dd3fc) 40%, transparent);
+    color: var(--color-text, #e9eff8);
   }
 
   .ctrl-btn--active {
-    border-color: var(--color-accent, #3b82f6);
-    background: rgba(59, 130, 246, 0.15);
-    color: #fff;
+    border-color: color-mix(in srgb, var(--color-sky, #7dd3fc) 50%, transparent);
+    background: var(--color-badge-bg, rgba(59, 130, 246, 0.16));
+    color: var(--color-sky, #7dd3fc);
   }
 
   .sr-only {

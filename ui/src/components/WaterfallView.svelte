@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import type { WaterfallLayout, WaterfallRow } from '../lib/types';
   import { selectedSpanId, hoveredSpanId } from '../stores/selection';
+  import { SERVICE_COLORS } from '../lib/palette';
 
   export let layout: WaterfallLayout;
 
@@ -9,12 +10,6 @@
   const LABEL_WIDTH = 320;
   const INDENT_PX = 16;
   const MIN_BAR_PX = 2;
-
-  const SERVICE_COLORS = [
-    '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6',
-    '#ec4899', '#06b6d4', '#84cc16', '#f97316',
-    '#6366f1', '#14b8a6', '#eab308', '#ef4444',
-  ];
 
   // ── Color map ────────────────────────────────────────────────────
   let colorMap = new Map<string, string>();
@@ -354,12 +349,13 @@
     padding: 0 8px;
     display: flex;
     align-items: center;
-    font-weight: 600;
-    font-size: 11px;
-    color: var(--color-text-muted, #94a3b8);
-    border-right: 1px solid var(--color-border, #334155);
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: 10px;
+    color: var(--color-sky, #7dd3fc);
+    border-right: 1px solid var(--color-border, rgba(125, 211, 252, 0.13));
     text-transform: uppercase;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.14em;
   }
 
   .wf-header-bars {
@@ -392,18 +388,22 @@
   }
 
   .wf-ctrl-btn {
-    padding: 1px 8px;
-    background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: rgba(255, 255, 255, 0.7);
-    border-radius: 3px;
-    font-size: 10px;
+    padding: 1px 10px;
+    background: var(--color-panel-subtle, rgba(125, 211, 252, 0.06));
+    border: 1px solid var(--color-border, rgba(125, 211, 252, 0.13));
+    color: var(--color-text-muted, #9aa8bd);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    letter-spacing: 0.08em;
     cursor: pointer;
-    line-height: 1.6;
+    line-height: 1.7;
+    transition: border-color 0.15s var(--ease-spring), color 0.15s var(--ease-spring);
   }
 
   .wf-ctrl-btn:hover {
-    background: rgba(255, 255, 255, 0.16);
+    border-color: color-mix(in srgb, var(--color-sky, #7dd3fc) 40%, transparent);
+    color: var(--color-text, #e9eff8);
   }
 
   /* ── Body ─────────────────────────────────────────────────────── */
@@ -554,26 +554,28 @@
     top: 50%;
     transform: translateY(-50%);
     height: 18px;
-    border-radius: 2px;
+    border-radius: 5px;
     min-width: 2px;
     display: flex;
     align-items: center;
     overflow: hidden;
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset;
     transition: filter 0.1s;
   }
 
   .wf-bar:hover {
-    filter: brightness(1.2);
+    filter: brightness(1.18) saturate(1.08);
   }
 
   .wf-bar--error {
-    box-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.8);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, inset 0 0 0 1.5px rgba(239, 68, 68, 0.85);
   }
 
   .wf-bar-label {
-    padding: 0 4px;
-    font-size: 10px;
-    color: rgba(255, 255, 255, 0.9);
+    padding: 0 5px;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    color: rgba(255, 255, 255, 0.92);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -584,44 +586,48 @@
   .wf-tooltip {
     position: fixed;
     z-index: 1000;
-    background: #1e293b;
-    border: 1px solid #334155;
-    border-radius: 6px;
-    padding: 8px 10px;
+    background: color-mix(in srgb, var(--color-surface, #0d1626) 96%, transparent);
+    backdrop-filter: blur(8px);
+    border: 1px solid color-mix(in srgb, var(--color-sky, #7dd3fc) 28%, transparent);
+    border-radius: 10px;
+    padding: 9px 12px;
     font-size: 12px;
-    color: #e2e8f0;
+    color: var(--color-text, #e9eff8);
     pointer-events: none;
     min-width: 200px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    box-shadow: var(--shadow-panel, 0 14px 40px -10px rgba(2, 6, 18, 0.9));
   }
 
   .wf-tt-title {
+    font-family: var(--font-mono);
     font-weight: 600;
     margin-bottom: 6px;
-    color: #f1f5f9;
+    color: var(--color-ice, #bae6fd);
     word-break: break-all;
+    font-size: 11.5px;
   }
 
   .wf-tt-row {
     display: flex;
     justify-content: space-between;
     gap: 12px;
-    padding: 1px 0;
-    font-size: 11.5px;
+    padding: 1.5px 0;
+    font-size: 11px;
+    font-family: var(--font-mono);
   }
 
   .wf-tt-row span:first-child {
-    color: #94a3b8;
+    color: var(--color-text-faint, #5b6b84);
   }
 
   .wf-tt-row span:last-child {
-    font-family: monospace;
-    color: #e2e8f0;
+    color: var(--color-gold, #fcd34d);
   }
 
   .wf-tt-error {
     margin-top: 4px;
-    color: #f87171;
-    font-size: 11px;
+    color: var(--color-danger, #f87171);
+    font-size: 10.5px;
+    font-family: var(--font-mono);
   }
 </style>

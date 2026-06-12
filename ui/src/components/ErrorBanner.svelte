@@ -67,22 +67,25 @@
   .banner {
     display: flex;
     align-items: flex-start;
-    gap: 0.5rem;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.85rem;
-    line-height: 1.4;
+    gap: 0.6rem;
+    padding: 0.5rem 0.9rem;
+    font-size: 0.8rem;
+    line-height: 1.45;
+    font-family: var(--font-mono);
   }
 
   .banner.error {
-    background: var(--color-error-bg, #fee2e2);
-    color: var(--color-error-text, #991b1b);
-    border-bottom: 1px solid var(--color-error-border, #fca5a5);
+    background: var(--color-error-bg, rgba(69, 10, 10, 0.65));
+    color: var(--color-error-text, #fca5a5);
+    border-bottom: 1px solid var(--color-error-border, rgba(153, 27, 27, 0.8));
+    box-shadow: 2px 0 0 var(--color-danger, #f87171) inset;
   }
 
   .banner.warning {
-    background: var(--color-warning-bg, #fef3c7);
-    color: var(--color-warning-text, #92400e);
-    border-bottom: 1px solid var(--color-warning-border, #fcd34d);
+    background: var(--color-warning-bg, rgba(69, 26, 3, 0.6));
+    color: var(--color-warning-text, #fcd34d);
+    border-bottom: 1px solid var(--color-warning-border, rgba(146, 64, 14, 0.8));
+    box-shadow: 2px 0 0 var(--color-amber, #f59e0b) inset;
   }
 
   .content {

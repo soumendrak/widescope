@@ -2,6 +2,7 @@
   import { onMount, tick } from 'svelte';
   import type { TimelineBlock, TimelineLayout, TimelineRow } from '../lib/types';
   import { focusedSpanId, hoveredSpanId, searchResults, selectedSpanId } from '../stores/selection';
+  import { SERVICE_COLORS } from '../lib/palette';
 
   export let layout: TimelineLayout;
 
@@ -13,12 +14,6 @@
   const RIGHT_PADDING = 16;
   const MIN_BLOCK_WIDTH = 2;
   const VIRTUAL_OVERSCAN_ROWS = 8;
-
-  const SERVICE_COLORS = [
-    '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6',
-    '#ec4899', '#06b6d4', '#84cc16', '#f97316',
-    '#6366f1', '#14b8a6', '#eab308', '#ef4444',
-  ];
 
   type PositionedRow = {
     row: TimelineRow;
@@ -396,16 +391,19 @@
 
   .axis-label,
   .group-label {
-    fill: var(--color-text, #e2e8f0);
-    font-size: 12px;
-    font-weight: 700;
+    fill: var(--color-sky, #7dd3fc);
+    font-size: 10.5px;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
   }
 
   .axis-tick-label,
   .lane-label {
-    fill: var(--color-text-muted, #94a3b8);
-    font-size: 11px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+    fill: var(--color-text-faint, #5b6b84);
+    font-size: 10px;
+    font-family: var(--font-mono);
   }
 
   .lane-label {
@@ -490,17 +488,21 @@
   }
 
   .ctrl-btn {
-    padding: 0.2rem 0.5rem;
-    background: var(--color-panel-subtle, rgba(255, 255, 255, 0.05));
-    border: 1px solid var(--color-border, #334155);
-    color: var(--color-text, #e2e8f0);
-    border-radius: 4px;
-    font-size: 0.75rem;
+    padding: 0.24rem 0.6rem;
+    background: color-mix(in srgb, var(--color-surface, #0d1626) 85%, transparent);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--color-border, rgba(125, 211, 252, 0.13));
+    color: var(--color-text-muted, #9aa8bd);
+    border-radius: 999px;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    letter-spacing: 0.08em;
     cursor: pointer;
+    transition: border-color 0.15s var(--ease-spring), color 0.15s var(--ease-spring);
   }
 
   .ctrl-btn:hover {
-    border-color: var(--color-accent, #3b82f6);
-    background: var(--color-panel-highlight, rgba(255, 255, 255, 0.04));
+    border-color: color-mix(in srgb, var(--color-sky, #7dd3fc) 40%, transparent);
+    color: var(--color-text, #e9eff8);
   }
 </style>

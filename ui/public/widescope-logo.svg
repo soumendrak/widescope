@@ -1,0 +1,59 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <title>WideScope</title>
+  <defs>
+    <linearGradient id="tile" x1="64" y1="64" x2="448" y2="448" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0F172A" />
+      <stop offset="1" stop-color="#1D4ED8" />
+    </linearGradient>
+    <linearGradient id="bar" x1="0" y1="148" x2="0" y2="372" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7DD3FC" />
+      <stop offset="1" stop-color="#3B82F6" />
+    </linearGradient>
+    <linearGradient id="hot" x1="0" y1="320" x2="0" y2="372" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FCD34D" />
+      <stop offset="1" stop-color="#F59E0B" />
+    </linearGradient>
+    <linearGradient id="ring" x1="128" y1="128" x2="392" y2="396" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E0F2FE" />
+      <stop offset="1" stop-color="#38BDF8" />
+    </linearGradient>
+    <clipPath id="lens">
+      <circle cx="256" cy="260" r="132" />
+    </clipPath>
+  </defs>
+
+  <!-- App tile -->
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#tile)" />
+
+  <!-- Scope reticle ticks -->
+  <g stroke="#7DD3FC" stroke-width="10" stroke-linecap="round" opacity="0.55">
+    <path d="M256 92V120" />
+    <path d="M256 400V428" />
+    <path d="M92 260H120" />
+    <path d="M400 260H428" />
+  </g>
+
+  <!-- Lens glass -->
+  <circle cx="256" cy="260" r="132" fill="#0B1220" fill-opacity="0.55" />
+
+  <!-- Flame graph, viewed through the lens -->
+  <g clip-path="url(#lens)">
+    <rect x="130" y="151" width="252" height="44" rx="11" fill="url(#bar)" />
+
+    <rect x="130" y="209" width="150" height="44" rx="11" fill="url(#bar)" />
+    <rect x="292" y="209" width="90" height="44" rx="11" fill="url(#bar)" />
+
+    <rect x="130" y="267" width="96" height="44" rx="11" fill="url(#bar)" />
+    <rect x="238" y="267" width="64" height="44" rx="11" fill="url(#bar)" />
+    <rect x="314" y="267" width="68" height="44" rx="11" fill="url(#bar)" />
+
+    <rect x="130" y="325" width="70" height="44" rx="11" fill="url(#bar)" />
+    <rect x="212" y="325" width="78" height="44" rx="11" fill="url(#hot)" />
+    <rect x="302" y="325" width="80" height="44" rx="11" fill="url(#bar)" />
+  </g>
+
+  <!-- Lens ring + glass glint -->
+  <circle cx="256" cy="260" r="139" stroke="url(#ring)" stroke-width="16" />
+  <path d="M147 209A120 120 0 0 1 225 144" stroke="#FFFFFF" stroke-width="9"
+        stroke-linecap="round" opacity="0.45" />
+</svg>
