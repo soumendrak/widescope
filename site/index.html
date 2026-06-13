@@ -68,9 +68,12 @@ a{color:inherit;text-decoration:none}
 ::-webkit-scrollbar-track{background:var(--bg0)}
 
 /* ---------- atmosphere layers ---------- */
-.atmo{position:fixed;inset:0;pointer-events:none;z-index:0}
+/* translateZ(0) promotes each fixed/blurred layer onto its own compositor
+   layer so it is rasterised once and merely re-composited (not repainted)
+   while the page scrolls — this is what keeps scrolling smooth. */
+.atmo{position:fixed;inset:0;pointer-events:none;z-index:0;transform:translateZ(0)}
 .atmo .grid{
-  position:absolute;inset:0;
+  position:absolute;inset:0;transform:translateZ(0);
   background-image:
     linear-gradient(rgba(125,211,252,.045) 1px,transparent 1px),
     linear-gradient(90deg,rgba(125,211,252,.045) 1px,transparent 1px);
@@ -78,18 +81,19 @@ a{color:inherit;text-decoration:none}
   mask-image:radial-gradient(ellipse 90% 62% at 50% 0%,#000 0%,transparent 78%);
 }
 .atmo .glow-a{
-  position:absolute;top:-280px;left:50%;transform:translateX(-50%);
+  position:absolute;top:-280px;left:50%;transform:translateX(-50%) translateZ(0);
   width:1100px;height:680px;border-radius:50%;
   background:radial-gradient(closest-side,rgba(29,78,216,.34),transparent 72%);
   filter:blur(30px);
 }
 .atmo .glow-b{
   position:absolute;top:8%;right:-220px;width:560px;height:560px;border-radius:50%;
+  transform:translateZ(0);
   background:radial-gradient(closest-side,rgba(245,158,11,.10),transparent 70%);
   filter:blur(40px);
 }
 .noise{
-  position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;
+  position:fixed;inset:0;z-index:60;pointer-events:none;opacity:.05;transform:translateZ(0);
   background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.92' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 
@@ -269,7 +273,7 @@ h2 .dim{color:var(--faint)}
 .tab.on{color:var(--ice);background:rgba(59,130,246,.1);border-color:var(--line-soft)}
 .tab .hk{opacity:.5;margin-left:7px}
 
-.viz{position:relative;height:330px;overflow:hidden;border-radius:0 0 18px 18px}
+.viz{position:relative;height:330px;overflow:hidden;border-radius:0 0 18px 18px;container-type:inline-size}
 .viz .lyr{position:absolute;inset:0;padding:22px;transition:opacity .45s var(--ease),transform .45s var(--ease)}
 .viz .lyr.off{opacity:0;transform:translateY(10px);pointer-events:none}
 .row{position:relative;height:46px}
@@ -297,13 +301,15 @@ h2 .dim{color:var(--faint)}
   position:absolute;top:0;bottom:0;width:1px;left:0;z-index:5;pointer-events:none;
   background:linear-gradient(180deg,transparent,rgba(186,230,253,.85),transparent);
   box-shadow:0 0 12px rgba(125,211,252,.8);
-  animation:sweep 7s linear infinite;
+  animation:sweep 7s linear infinite;will-change:transform;
 }
 .playhead::after{
   content:"";position:absolute;top:0;left:-14px;width:28px;height:100%;
   background:linear-gradient(90deg,transparent,rgba(125,211,252,.07),transparent);
 }
-@keyframes sweep{from{left:-2%}to{left:102%}}
+/* sweep across the viz with a composited transform (cqw = 1% of .viz width)
+   instead of animating `left`, which would force layout on every frame */
+@keyframes sweep{from{transform:translateX(-2cqw)}to{transform:translateX(102cqw)}}
 .scope-foot{
   display:flex;gap:22px;padding:12px 20px;border-top:1px solid var(--line-soft);
   font-family:var(--font-mono);font-size:11px;color:var(--faint);letter-spacing:.06em;flex-wrap:wrap;
@@ -988,6 +994,13 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
     if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); }
   }), {threshold:.18, rootMargin:"0px 0px -40px 0px"});
   document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+  // Safety net: never leave .reveal content stuck at opacity:0. A full-page
+  // screenshot (or any capture that doesn't scroll) never moves the viewport,
+  // so the observer above never fires for below-the-fold sections and they
+  // render blank. Once the page has settled, if nothing has scrolled, just
+  // reveal everything. Active scrollers (scrollY>0) keep the scroll animation.
+  const revealAll = () => document.querySelectorAll(".reveal:not(.in)").forEach(el => el.classList.add("in"));
+  addEventListener("load", () => setTimeout(() => { if(scrollY === 0) revealAll(); }, 1200));
 
   /* ----- animated counters ----- */
   const fmt = n => Math.round(n).toLocaleString();
