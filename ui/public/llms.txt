@@ -6,7 +6,8 @@
 
 ## Pages
 
-- [WideScope](https://widescope.soumendrak.com) — The trace viewer. Drag-and-drop trace JSON, inspect spans, timelines, flame graphs, LLM calls, and costs.
+- [WideScope](https://widescope.soumendrak.com) — Landing page with product overview.
+- [WideScope editor](https://widescope.soumendrak.com/editor/) — The trace viewer. Drag-and-drop trace JSON, inspect spans, timelines, flame graphs, LLM calls, and costs.
 
 ## Features
 

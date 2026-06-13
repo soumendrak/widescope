@@ -1,3 +1,4 @@
+import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vitest/config';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 import wasm from 'vite-plugin-wasm';
@@ -15,12 +16,14 @@ export default defineConfig({
         short_name: 'WideScope',
         description:
           'Browser-native trace viewer for LLM and AI agent pipelines. Zero-backend, privacy-first, powered by Rust/WASM.',
-        theme_color: '#0f172a',
-        background_color: '#0f172a',
+        theme_color: '#05080f',
+        background_color: '#05080f',
         display: 'standalone',
         display_override: ['window-controls-overlay', 'standalone'],
         orientation: 'any',
-        start_url: '/',
+        // The installable app is the trace viewer, which lives under /editor/;
+        // scope stays at the root so the SW also serves the landing page offline.
+        start_url: '/editor/',
         scope: '/',
         id: 'com.soumendrak.widescope',
         icons: [
@@ -35,7 +38,7 @@ export default defineConfig({
         ],
       },
       workbox: {
-        globPatterns: ['**/*.{js,css,wasm,html,json,png,svg,ico}'],
+        globPatterns: ['**/*.{js,css,wasm,html,json,png,svg,ico,woff2}'],
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\/conventions\/.*\.json/,
@@ -51,6 +54,13 @@ export default defineConfig({
   ],
   build: {
     target: 'esnext',
+    rollupOptions: {
+      // Two-page site: marketing landing at /, the trace viewer at /editor/.
+      input: {
+        landing: fileURLToPath(new URL('./index.html', import.meta.url)),
+        editor: fileURLToPath(new URL('./editor/index.html', import.meta.url)),
+      },
+    },
   },
   server: {
     fs: {

@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import type { ServiceGraph } from '../lib/types';
   import { selectedSpanId } from '../stores/selection';
+  import { SERVICE_COLORS } from '../lib/palette';
 
   export let graph: ServiceGraph;
 
@@ -35,7 +36,7 @@
     y2: number;
   }
 
-  const COLORS = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ec4899','#06b6d4','#84cc16','#f97316','#6366f1','#14b8a6','#eab308','#ef4444'];
+  const COLORS = SERVICE_COLORS;
 
   $: nodes = layoutNodes(graph?.nodes ?? []);
   $: edges = layoutEdges(graph?.edges ?? [], nodes);
@@ -179,8 +180,10 @@
 
   .node-label {
     fill: #fff;
-    font-size: 10px;
-    font-weight: 600;
+    font-size: 9.5px;
+    font-weight: 500;
+    font-family: var(--font-mono);
+    letter-spacing: 0.02em;
     pointer-events: none;
   }
 

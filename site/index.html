@@ -3,16 +3,6 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<script>
-// Legacy share links pointed at the site root (/?trace=…, /#trace=…, ?embed=1).
-// The viewer now lives at /editor/ — forward any trace-bearing URL there intact.
-(function () {
-  var s = location.search, h = location.hash;
-  if (/[?&](trace|view|span|embed|sample)=/.test(s) || /[#&](trace|view|span)=/.test(h)) {
-    location.replace('/editor/' + s + h);
-  }
-})();
-</script>
 <title>WideScope — See inside every agent run</title>
 <meta name="description" content="WideScope is a zero-backend, browser-native trace viewer for LLM and AI agent pipelines. Flame graphs, timelines, token costs, and side-by-side diffs — parsed in Rust/WASM, entirely in your tab." />
 <meta property="og:title" content="WideScope — See inside every agent run" />
@@ -21,12 +11,13 @@
 <meta property="og:url" content="https://widescope.soumendrak.com" />
 <meta property="og:image" content="https://raw.githubusercontent.com/soumendrak/widescope/main/docs/assets/screenshot.webp" />
 <meta name="twitter:card" content="summary_large_image" />
-<meta name="theme-color" content="#05080f" />
-<link rel="icon" type="image/svg+xml" href="/widescope-logo.svg" />
-<link rel="stylesheet" href="/fonts/fonts.css" />
+<link rel="icon" type="image/svg+xml" href="widescope-logo.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..800&family=Spline+Sans+Mono:ital,wght@0,300..700;1,400&display=swap" rel="stylesheet" />
 <style>
 /* ============================================================
-   WideScope landing — "the page is a trace"
+   WideScope marketing site — "the page is a trace"
    Palette lifted straight from the product + logo.
    ============================================================ */
 :root{
@@ -618,7 +609,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
 <header id="hdr">
   <div class="nav">
     <a class="brand" href="#top" aria-label="WideScope home">
-      <img src="/widescope-logo.svg" alt="" width="30" height="30" />
+      <img src="widescope-logo.svg" alt="" width="30" height="30" />
       WideScope<span class="tld">.soumendrak.com</span>
     </a>
     <nav class="links" aria-label="Sections">
@@ -627,7 +618,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
       <a href="#local">Local-first</a>
       <a href="https://github.com/soumendrak/widescope" target="_blank" rel="noopener">GitHub</a>
     </nav>
-    <a class="btn btn-primary" href="/editor/">
+    <a class="btn btn-primary" href="https://widescope.soumendrak.com" target="_blank" rel="noopener">
       Open app <span class="arr">↗</span>
     </a>
   </div>
@@ -646,7 +637,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
         and never leaving your browser tab.
       </p>
       <div class="hero-cta stage stage-4">
-        <a class="btn btn-primary btn-lg magnet" href="/editor/">
+        <a class="btn btn-primary btn-lg magnet" href="https://widescope.soumendrak.com" target="_blank" rel="noopener">
           Open WideScope <span class="arr">↗</span>
         </a>
         <a class="btn btn-ghost btn-lg" href="https://github.com/soumendrak/widescope" target="_blank" rel="noopener">
@@ -924,7 +915,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
 
       <div class="sharelink reveal" data-rd="3">
         <span class="lock">⬢</span>
-        <code><b>widescope.soumendrak.com</b>/editor/<span class="frag">#trace=eJzVk11P2zAUhv_K0bmasKqkpYVy…</span></code>
+        <code><b>widescope.soumendrak.com</b>/<span class="frag">#trace=eJzVk11P2zAUhv_K0bmasKqkpYVy…</span></code>
         <span class="tag">fragment — never sent to any server</span>
       </div>
       <p class="diff-note reveal" style="margin-top:18px">share a whole trace as a link — DEFLATE-compressed into the URL fragment, which browsers keep client-side. deep-link straight to <b style="color:var(--muted)">view=diff&amp;span=…</b></p>
@@ -944,10 +935,10 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
         before your terminal finishes scrolling.
       </p>
       <div class="hero-cta reveal" data-rd="3">
-        <a class="btn btn-primary btn-lg magnet" href="/editor/">
+        <a class="btn btn-primary btn-lg magnet" href="https://widescope.soumendrak.com" target="_blank" rel="noopener">
           Open WideScope — it's free <span class="arr">↗</span>
         </a>
-        <a class="btn btn-ghost btn-lg" href="/editor/?sample=1">
+        <a class="btn btn-ghost btn-lg" href="https://widescope.soumendrak.com" target="_blank" rel="noopener">
           Try the sample trace
         </a>
       </div>
@@ -957,9 +948,9 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
 
 <footer>
   <div class="foot">
-    <a class="brand" href="#top"><img src="/widescope-logo.svg" alt="" width="24" height="24" />WideScope</a>
+    <a class="brand" href="#top"><img src="widescope-logo.svg" alt="" width="24" height="24" />WideScope</a>
     <nav aria-label="Footer">
-      <a href="/editor/">Open the editor ↗</a>
+      <a href="https://widescope.soumendrak.com" target="_blank" rel="noopener">Live app ↗</a>
       <a href="https://github.com/soumendrak/widescope" target="_blank" rel="noopener">GitHub</a>
       <a href="https://github.com/soumendrak/widescope/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
       <a href="https://github.com/soumendrak/widescope/issues" target="_blank" rel="noopener">Issues</a>

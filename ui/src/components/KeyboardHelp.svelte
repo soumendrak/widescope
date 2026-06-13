@@ -64,15 +64,15 @@
   }
 
   .panel {
-    background: var(--color-surface, #1e293b);
-    border: 1px solid var(--color-border, #334155);
-    border-radius: 14px;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--color-surface, #0d1626) 96%, var(--color-accent)), var(--color-surface, #0d1626));
+    border: 1px solid var(--color-border, rgba(125, 211, 252, 0.13));
+    border-radius: 16px;
     padding: 1.5rem;
-    max-width: 420px;
+    max-width: 430px;
     width: calc(100% - 2rem);
     max-height: 80vh;
     overflow-y: auto;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    box-shadow: var(--shadow-panel), 0 -1px 0 rgba(186, 230, 253, 0.12) inset;
   }
 
   .header {
@@ -83,9 +83,11 @@
   }
 
   .header h2 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--color-text, #e2e8f0);
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 750;
+    letter-spacing: -0.02em;
+    color: var(--color-text, #e9eff8);
   }
 
   .close-btn {
@@ -119,13 +121,14 @@
   kbd.key {
     display: inline-block;
     min-width: 100px;
-    padding: 0.15rem 0.45rem;
-    background: var(--color-panel-subtle, rgba(255, 255, 255, 0.05));
-    border: 1px solid var(--color-border, #334155);
-    border-radius: 5px;
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.75rem;
-    color: var(--color-text, #e2e8f0);
+    padding: 0.18rem 0.5rem;
+    background: var(--color-panel-subtle, rgba(125, 211, 252, 0.06));
+    border: 1px solid var(--color-border, rgba(125, 211, 252, 0.13));
+    border-bottom-width: 2px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-sky, #7dd3fc);
     text-align: center;
     white-space: nowrap;
   }
