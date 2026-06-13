@@ -1,20 +1,11 @@
-# WideScope marketing site
+# ⚠️ Superseded — this folder can be deleted
 
-A self-contained, zero-build landing page for [WideScope](https://widescope.soumendrak.com) — matching the product's local-first ethos: one HTML file, one SVG, no framework, no bundler.
+The landing page moved into the Vite build at [`ui/index.html`](../ui/index.html) so it
+deploys with the app: the landing is served at `/` and the trace viewer at `/editor/`.
 
-## Preview
+`site/index.html` here is the original standalone draft and is no longer referenced by
+anything. Delete this folder when convenient:
 
 ```bash
-python3 -m http.server 8000 --directory site
-# → http://localhost:8000
+rm -rf site
 ```
-
-## Deploy
-
-Point any static host (Cloudflare Pages, Netlify, GitHub Pages) at the `site/` directory, or add it as a second Cloudflare Pages project. Everything is relative-path; no build step required.
-
-## Notes
-
-- Fonts: Bricolage Grotesque + Spline Sans Mono via Google Fonts (the only external requests).
-- All animations are CSS-first, with small vanilla-JS helpers (scroll reveals, counters, tab switching, the A/B diff cycler). `prefers-reduced-motion` is respected throughout.
-- The trace data shown in the hero and diff sections is illustrative, hand-tuned to tell a realistic RAG-agent story.

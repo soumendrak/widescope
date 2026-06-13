@@ -58,7 +58,8 @@ The app has two parts:
 ## Source code and links
 
 - Repository: https://github.com/soumendrak/widescope
-- Live app: https://widescope.soumendrak.com
+- Landing page: https://widescope.soumendrak.com
+- Live app (editor): https://widescope.soumendrak.com/editor/
 - Issues: https://github.com/soumendrak/widescope/issues
 - Releases: https://github.com/soumendrak/widescope/releases
 - Author: https://soumendrak.com

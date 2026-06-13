@@ -187,10 +187,10 @@
 <header class="toolbar" class:toolbar--loaded={status === 'loaded'}>
   <div class="top-bar">
     <div class="top-left">
-      <div class="brand">
+      <a class="brand" href="/" title="WideScope home">
         <img class="logo" src="/widescope-logo.svg" alt="" width="26" height="26" />
         <span class="name">WideScope</span>
-      </div>
+      </a>
       <button type="button" class="btn-open" on:click={onOpenFile}>Open file <kbd>⌘O</kbd></button>
 
       {#if traceCount > 1}
@@ -426,7 +426,12 @@
     font-weight: 700;
     font-size: 1.02rem;
     letter-spacing: -0.01em;
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.15s ease;
   }
+
+  .brand:hover { opacity: 0.85; }
 
   .logo {
     width: 26px;

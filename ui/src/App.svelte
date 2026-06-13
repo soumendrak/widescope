@@ -126,6 +126,9 @@
     if (permalinkLoaded) {
       if (permalink.view) activeView.set(permalink.view);
       if (permalink.spanId) applyPermalinkSpan(permalink.spanId);
+    } else if (new URLSearchParams(window.location.search).get('sample') === '1') {
+      // Landing-page "Try the sample trace" CTA deep link.
+      loadSampleJson();
     }
   });
 
