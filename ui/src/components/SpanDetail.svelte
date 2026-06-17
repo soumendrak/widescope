@@ -8,6 +8,7 @@
   import type { SpanDetail, LlmDetail } from '../lib/types';
   import { flyRightConfig } from '../lib/animation';
   import RetrievedDocumentsPanel from './RetrievedDocumentsPanel.svelte';
+  import EvalPanel from './EvalPanel.svelte';
   import LlmChatReplay from './LlmChatReplay.svelte';
 
   let detail: SpanDetail | null = null;
@@ -245,6 +246,12 @@
             <div class="msg-group">
               <div class="msg-label">Retrieved documents ({llm.retrieved_documents.length})</div>
               <RetrievedDocumentsPanel documents={llm.retrieved_documents} />
+            </div>
+          {/if}
+          {#if llm.eval_scores.length > 0}
+            <div class="msg-group">
+              <div class="msg-label">Evaluation scores ({llm.eval_scores.length})</div>
+              <EvalPanel scores={llm.eval_scores} />
             </div>
           {/if}
         </div>

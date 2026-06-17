@@ -278,10 +278,18 @@ export interface LlmDetail {
   output_messages: { role: string; content: string | null }[];
   tool_calls: { name: string; arguments: string | null; result: string | null }[];
   retrieved_documents: RetrievedDocument[];
+  eval_scores: EvalScore[];
 }
 
 export interface RetrievedDocument {
   id: string | null;
   score: number | null;
   content_snippet: string | null;
+}
+
+export interface EvalScore {
+  name: string;
+  value: number;
+  threshold: number | null;
+  passed: boolean | null;
 }

@@ -18,6 +18,17 @@ pub struct LlmSpanAttributes {
     pub embedding_dimensions: Option<u64>,
     pub embedding_count: Option<u64>,
     pub retrieved_documents: Vec<RetrievedDocument>,
+    pub eval_scores: Vec<EvalScore>,
+}
+
+/// A single evaluation metric attached to a span (correctness, faithfulness,
+/// hallucination, etc.), normalized from vendor-specific attribute shapes.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EvalScore {
+    pub name: String,
+    pub value: f64,
+    pub threshold: Option<f64>,
+    pub passed: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

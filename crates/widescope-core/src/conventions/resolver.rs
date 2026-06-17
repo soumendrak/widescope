@@ -1,3 +1,4 @@
+use crate::conventions::eval::discover_eval_scores;
 use crate::conventions::registry::{Convention, MappingRule};
 use crate::conventions::retrieval::discover_retrieved_documents;
 use crate::models::llm::{LlmMessage, LlmOperationType, LlmSpanAttributes};
@@ -8,17 +9,19 @@ pub fn resolve_llm_attributes(
     conventions: &[Convention],
 ) -> Option<LlmSpanAttributes> {
     let retrieved = discover_retrieved_documents(&span.attributes);
+    let eval_scores = discover_eval_scores(&span.attributes);
     for convention in conventions {
         if matches_convention(span, convention) {
             let mut llm = apply_mappings(span, convention);
             llm.retrieved_documents = retrieved;
+            llm.eval_scores = eval_scores;
             return Some(llm);
         }
     }
-    // Retrieved documents can show up on spans that aren't otherwise LLM
-    // spans (e.g. a dedicated vector-store retriever) — surface them anyway
-    // via a minimal LlmSpanAttributes wrapper.
-    if !retrieved.is_empty() {
+    // Retrieved documents or eval scores can show up on spans that aren't
+    // otherwise LLM spans (e.g. a dedicated retriever, or an eval-only span) —
+    // surface them anyway via a minimal LlmSpanAttributes wrapper.
+    if !retrieved.is_empty() || !eval_scores.is_empty() {
         return Some(LlmSpanAttributes {
             operation_type: LlmOperationType::Retrieval,
             model_name: None,
@@ -36,6 +39,7 @@ pub fn resolve_llm_attributes(
             embedding_dimensions: None,
             embedding_count: None,
             retrieved_documents: retrieved,
+            eval_scores,
         });
     }
     None
@@ -81,6 +85,7 @@ fn apply_mappings(span: &Span, convention: &Convention) -> LlmSpanAttributes {
         embedding_dimensions: None,
         embedding_count: None,
         retrieved_documents: Vec::new(),
+        eval_scores: Vec::new(),
     };
 
     for (field_name, rule) in &convention.mappings {
