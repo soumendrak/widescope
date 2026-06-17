@@ -122,6 +122,7 @@ fn make_block(
         row_index,
         is_error: span.status.is_error(),
         is_llm: span.llm.is_some(),
+        safety_category: span.top_safety_category(),
         duration_ns: span.duration_ns,
         duration_display: format_duration(span.duration_ns),
     }

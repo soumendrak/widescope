@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { WaterfallLayout, WaterfallRow } from '../lib/types';
-  import { selectedSpanId, hoveredSpanId } from '../stores/selection';
+  import { selectedSpanId, hoveredSpanId, filteredSpanIds } from '../stores/selection';
   import { SERVICE_COLORS } from '../lib/palette';
 
   export let layout: WaterfallLayout;
@@ -28,6 +28,10 @@
   // ── Derived view state (assigned in the reactive block below) ─────
   let visibleRows: WaterfallRow[] = [];
   let ticks: { px: number; label: string }[] = [];
+
+  // Active toolbar-filter mask — non-matching rows are dimmed.
+  $: hasFilter = $filteredSpanIds.length > 0;
+  $: filterSet = new Set($filteredSpanIds);
 
   export function focusView(): void {
     if (!rootEl) return;
@@ -225,6 +229,7 @@
         class:wf-row--selected={sel}
         class:wf-row--hovered={hov && !sel}
         class:wf-row--error={row.is_error}
+        class:wf-row--dim={hasFilter && !filterSet.has(row.span_id)}
         role="row"
         aria-selected={sel}
         on:click={() => onRowClick(row)}
@@ -257,6 +262,10 @@
               {row.operation_name}
             </span>
 
+            {#if row.safety_category}
+              <span class="wf-safety" title="Safety signal: {row.safety_category.replace('_', ' ')}">🛡 {row.safety_category.replace('_', ' ')}</span>
+            {/if}
+
             <span class="wf-dur">{row.duration_display}</span>
           </div>
 
@@ -283,6 +292,7 @@
               role="presentation"
               style="left:{bl}px; width:{bw}px; background:{color};"
               class:wf-bar--error={row.is_error}
+              class:wf-bar--safety={row.safety_category}
               on:mousemove={(e) => onBarMouseMove(e, row)}
             >
               {#if bw > 48}
@@ -427,6 +437,10 @@
     background: rgba(255, 255, 255, 0.04);
   }
 
+  .wf-row--dim {
+    opacity: 0.3;
+  }
+
   .wf-row--selected {
     background: rgba(59, 130, 246, 0.15);
   }
@@ -569,6 +583,24 @@
 
   .wf-bar--error {
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, inset 0 0 0 1.5px rgba(239, 68, 68, 0.85);
+  }
+
+  .wf-bar--safety {
+    box-shadow: inset 0 0 0 1.5px rgba(248, 113, 113, 0.9);
+  }
+
+  .wf-safety {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.05rem 0.35rem;
+    border-radius: 999px;
+    color: var(--color-danger, #f87171);
+    border: 1px solid color-mix(in srgb, var(--color-danger, #f87171) 45%, transparent);
+    background: color-mix(in srgb, var(--color-danger, #f87171) 10%, transparent);
+    white-space: nowrap;
   }
 
   .wf-bar-label {

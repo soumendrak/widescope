@@ -163,6 +163,7 @@ fn parse_single_span(
         attributes,
         events,
         llm: None,
+        safety: Vec::new(),
     })
 }
 

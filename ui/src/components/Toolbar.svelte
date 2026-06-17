@@ -15,6 +15,7 @@
     filterService,
     filterKind,
     filterLlmOnly,
+    filterSafetyOnly,
     selectedSpanId,
     fullscreen,
   } from '../stores/selection';
@@ -38,7 +39,7 @@
         ? `${$searchResults.length} match${$searchResults.length === 1 ? '' : 'es'}`
         : `No spans match '${$searchQuery.trim()}'`)
     : '';
-  $: hasFilters = $filterStatus || $filterService || $filterKind || $filterLlmOnly;
+  $: hasFilters = $filterStatus || $filterService || $filterKind || $filterLlmOnly || $filterSafetyOnly;
   $: isFilterActive = $filteredSpanIds.length > 0 && hasFilters;
   $: costBreakdown = status === 'loaded' ? getCostBreakdown() : null;
   $: costDisplay = costBreakdown?.total_cost_usd
@@ -53,15 +54,16 @@
     traceList.switchTo(index);
   }
 
-  $: applyFilters($filterStatus, $filterService, $filterKind, $filterLlmOnly);
+  $: applyFilters($filterStatus, $filterService, $filterKind, $filterLlmOnly, $filterSafetyOnly);
 
-  function applyFilters(s: string, svc: string, kind: string, llmOnly: boolean): void {
+  function applyFilters(s: string, svc: string, kind: string, llmOnly: boolean, safetyOnly: boolean): void {
     if (status !== 'loaded') return;
     const filters: SpanFilters = {};
     if (s) filters.status = s;
     if (svc) filters.service = svc;
     if (kind) filters.kind = kind;
     if (llmOnly) filters.llm_only = true;
+    if (safetyOnly) filters.safety_only = true;
     if (Object.keys(filters).length === 0) {
       filteredSpanIds.set([]);
       return;
@@ -74,6 +76,7 @@
     filterService.set('');
     filterKind.set('');
     filterLlmOnly.set(false);
+    filterSafetyOnly.set(false);
   }
 
   function applySearch(nextQuery: string): void {
@@ -365,6 +368,14 @@
             title="LLM only"
             on:click={() => filterLlmOnly.update(v => !v)}
           >⚡ LLM</button>
+          <button
+            type="button"
+            class="filter-btn"
+            class:filter-btn--active={$filterSafetyOnly}
+            aria-label="Show spans with safety signals only"
+            title="Safety signals only"
+            on:click={() => filterSafetyOnly.update(v => !v)}
+          >🛡 Safety</button>
         </div>
 
         {#if hasFilters}
@@ -377,6 +388,9 @@
             {/if}
             {#if $filterLlmOnly}
               <button class="filter-chip" on:click={() => filterLlmOnly.set(false)}>LLM ✕</button>
+            {/if}
+            {#if $filterSafetyOnly}
+              <button class="filter-chip" on:click={() => filterSafetyOnly.set(false)}>Safety ✕</button>
             {/if}
             <button class="filter-clear" on:click={clearFilters}>Clear</button>
           </div>

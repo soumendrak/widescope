@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import type { TimelineBlock, TimelineLayout, TimelineRow } from '../lib/types';
-  import { focusedSpanId, hoveredSpanId, searchResults, selectedSpanId } from '../stores/selection';
+  import { focusedSpanId, hoveredSpanId, searchResults, selectedSpanId, filteredSpanIds } from '../stores/selection';
   import { SERVICE_COLORS } from '../lib/palette';
 
   export let layout: TimelineLayout;
@@ -62,6 +62,8 @@
   }
   $: hasSearch = $searchResults.length > 0;
   $: searchResultSet = new Set($searchResults);
+  $: hasFilter = $filteredSpanIds.length > 0;
+  $: filterSet = new Set($filteredSpanIds);
 
   onMount(() => {
     if (!viewportEl) return;
@@ -282,12 +284,13 @@
               {@const isHovered = $hoveredSpanId === block.span_id}
               {@const isFocused = $focusedSpanId === block.span_id}
               {@const isSearchMatch = searchResultSet.has(block.span_id)}
+              {@const isDimmed = (hasSearch && !isSearchMatch) || (hasFilter && !filterSet.has(block.span_id))}
               {@const fill = colorMap.get(block.service_name) ?? '#64748b'}
               {@const x = blockX(block)}
               {@const width = blockWidth(block)}
               <g
                 class="span-block-group"
-                class:span-block-group--dim={hasSearch && !isSearchMatch}
+                class:span-block-group--dim={isDimmed}
                 role="button"
                 tabindex="0"
                 aria-label={blockLabel(block)}
@@ -309,6 +312,7 @@
                   class:span-block--hovered={isHovered}
                   class:span-block--focused={isFocused && !isSelected}
                   class:span-block--error={block.is_error}
+                  class:span-block--safety={block.safety_category}
                   style={`fill: ${fill};`}
                 />
                 {#if block.is_llm}
@@ -460,6 +464,12 @@
   .span-block--error {
     stroke: var(--color-danger, rgba(239, 68, 68, 0.95));
     stroke-width: 2;
+  }
+
+  .span-block--safety {
+    stroke: var(--color-danger, #f87171);
+    stroke-width: 2;
+    stroke-dasharray: 3 2;
   }
 
   .span-label,
