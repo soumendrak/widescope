@@ -188,6 +188,7 @@ mod tests {
             embedding_dimensions: None,
             embedding_count: None,
             retrieved_documents: vec![],
+            eval_scores: vec![],
         }
     }
 

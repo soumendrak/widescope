@@ -133,6 +133,7 @@ mod tests {
             embedding_dimensions: None,
             embedding_count: None,
             retrieved_documents: Vec::new(),
+            eval_scores: Vec::new(),
         }
     }
 
