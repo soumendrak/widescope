@@ -650,6 +650,7 @@
     --color-ice: #bae6fd;
     --color-gold: #fcd34d;
     --color-amber: #f59e0b;
+    --color-violet: #a78bfa;
     --color-canvas-bg: #070c16;
     --color-sidebar: #0a111e;
     --color-sidebar-text: #e9eff8;
@@ -699,6 +700,7 @@
     --color-ice: #075985;
     --color-gold: #b45309;
     --color-amber: #d97706;
+    --color-violet: #7c3aed;
     --color-canvas-bg: #f5f8fd;
     --color-sidebar: #ffffff;
     --color-sidebar-text: #0b1b33;
