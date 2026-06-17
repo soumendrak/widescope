@@ -169,6 +169,7 @@ pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
 
     for span in &mut spans {
         span.llm = conventions::resolver::resolve_llm_attributes(span, &conventions);
+        span.safety = conventions::safety::detect_safety_signals(span);
     }
 
     PRICING.with(|p| {
@@ -334,6 +335,7 @@ pub fn get_span_detail(span_id: &str) -> Result<String, JsValue> {
                     attributes,
                     events,
                     llm,
+                    safety: span.safety.clone(),
                     children_ids,
                 };
 
@@ -686,6 +688,7 @@ struct FilterRequest {
     service: Option<String>,
     kind: Option<String>,
     llm_only: Option<bool>,
+    safety_only: Option<bool>,
 }
 
 #[wasm_bindgen]
@@ -719,6 +722,7 @@ pub fn filter_spans(filter_json: &str) -> Result<String, JsValue> {
         }
     });
     let llm_only = filter.llm_only.unwrap_or(false);
+    let safety_only = filter.safety_only.unwrap_or(false);
 
     TRACE.with(|t| {
         let borrow = t.borrow();
@@ -745,6 +749,9 @@ pub fn filter_spans(filter_json: &str) -> Result<String, JsValue> {
                             }
                         }
                         if llm_only && span.llm.is_none() {
+                            return false;
+                        }
+                        if safety_only && span.safety.is_empty() {
                             return false;
                         }
                         true
@@ -808,6 +815,7 @@ pub fn parse_comparison_trace(raw_input: &str) -> Result<String, JsValue> {
     let conventions = CONVENTIONS.with(|c| c.borrow().clone());
     for span in &mut spans {
         span.llm = conventions::resolver::resolve_llm_attributes(span, &conventions);
+        span.safety = conventions::safety::detect_safety_signals(span);
     }
 
     let trace = build_trace(spans, format, vec![]).map_err(JsValue::from)?;

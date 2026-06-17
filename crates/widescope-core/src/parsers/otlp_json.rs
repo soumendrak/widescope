@@ -180,6 +180,7 @@ fn parse_single_span(raw: &Value, service_name: &str) -> Result<Span, String> {
         attributes,
         events,
         llm: None,
+        safety: Vec::new(),
     })
 }
 

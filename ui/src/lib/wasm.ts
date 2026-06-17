@@ -83,6 +83,7 @@ export interface SpanFilters {
   service?: string;
   kind?: string;
   llm_only?: boolean;
+  safety_only?: boolean;
 }
 
 export function filterSpans(filters: SpanFilters): string[] {

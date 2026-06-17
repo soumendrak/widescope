@@ -238,6 +238,20 @@
         </div>
       {/if}
 
+      <!-- Safety signals -->
+      {#if detail.safety.length > 0}
+        <div class="section safety-section">
+          <div class="section-title"><span class="safety-sq" aria-hidden="true"></span> Safety · {detail.safety.length} signal{detail.safety.length === 1 ? '' : 's'}</div>
+          {#each detail.safety as sig}
+            <div class="safety-row safety-row--{sig.severity}">
+              <span class="safety-cat">{sig.category.replace('_', ' ')}</span>
+              <span class="safety-sev">{sig.severity}</span>
+              <span class="safety-detail">{sig.detail}</span>
+            </div>
+          {/each}
+        </div>
+      {/if}
+
       <!-- Annotations -->
       <div class="section annotation-section">
         <div class="section-title">📝 Note</div>
@@ -752,6 +766,65 @@
     font-size: 0.7rem;
     color: var(--color-code-muted, #b9c5d8);
     white-space: pre-wrap;
+  }
+
+  /* Safety — red, distinct from LLM amber */
+  .safety-section {
+    background: color-mix(in srgb, var(--color-danger, #f87171) 7%, transparent);
+    border-left: 2px solid color-mix(in srgb, var(--color-danger, #f87171) 55%, transparent);
+  }
+
+  .safety-section .section-title { color: var(--color-danger, #f87171); }
+
+  .safety-sq {
+    width: 12px;
+    height: 7px;
+    border-radius: 2px;
+    background: var(--color-danger, #f87171);
+    flex: none;
+  }
+
+  .safety-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px dashed var(--color-border-soft, rgba(125, 211, 252, 0.07));
+  }
+
+  .safety-row:last-child { border-bottom: none; }
+
+  .safety-cat {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-danger, #f87171);
+  }
+
+  .safety-sev {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    color: var(--color-text-muted, #94a3b8);
+  }
+
+  .safety-row--high .safety-sev { color: var(--color-danger, #f87171); }
+  .safety-row--medium .safety-sev { color: var(--color-amber, #f59e0b); }
+  .safety-row--low .safety-sev { color: var(--color-text-muted, #94a3b8); }
+
+  .safety-detail {
+    flex-basis: 100%;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-code-muted, #b9c5d8);
+    word-break: break-word;
   }
 
   .annotation-section { background: var(--color-panel-highlight, rgba(255, 255, 255, 0.04)); }
