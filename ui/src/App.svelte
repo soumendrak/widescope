@@ -15,6 +15,7 @@
   import WaterfallView from './components/WaterfallView.svelte';
   import ServiceGraph from './components/ServiceGraph.svelte';
   import DiffView from './components/DiffView.svelte';
+  import TokenTrends from './components/TokenTrends.svelte';
   import SpanDetail from './components/SpanDetail.svelte';
   import DropZone from './components/DropZone.svelte';
   import ErrorBanner from './components/ErrorBanner.svelte';
@@ -48,7 +49,7 @@
 
   $: isEmbedded = new URLSearchParams(window.location.search).get('embed') === '1';
 
-  const VIEW_ORDER: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff'> = ['waterfall', 'flame', 'timeline', 'graph', 'diff'];
+  const VIEW_ORDER: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff' | 'analytics'> = ['waterfall', 'flame', 'timeline', 'graph', 'diff', 'analytics'];
 
   $: {
     const currentIdx = VIEW_ORDER.indexOf($activeView);
@@ -334,9 +335,9 @@
       if (mod && e.key === 'Enter') { e.preventDefault(); void submitEditor(); return; }
       if (mod && e.key === 'v') { e.preventDefault(); void pasteFromClipboard(); return; }
 
-      if (!mod && e.key >= '1' && e.key <= '5') {
+      if (!mod && e.key >= '1' && e.key <= '6') {
         e.preventDefault();
-        const views: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff'> = ['flame', 'timeline', 'waterfall', 'graph', 'diff'];
+        const views: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff' | 'analytics'> = ['flame', 'timeline', 'waterfall', 'graph', 'diff', 'analytics'];
         activeView.set(views[parseInt(e.key) - 1]);
         localStorage.setItem(STORAGE_KEY_VIEW, views[parseInt(e.key) - 1]);
         return;
@@ -552,12 +553,16 @@
                 <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
                   <DiffView />
                 </div>
+              {:else if $activeView === 'analytics'}
+                <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
+                  <TokenTrends />
+                </div>
               {:else}
                 <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
                   <FlameGraph bind:this={flameGraphView} layout={state.flameLayout} />
                 </div>
               {/if}
-              {#if $activeView !== 'diff'}
+              {#if $activeView !== 'diff' && $activeView !== 'analytics'}
                 <SpanDetail />
               {/if}
             {:else if state.status === 'error'}
@@ -650,6 +655,7 @@
     --color-ice: #bae6fd;
     --color-gold: #fcd34d;
     --color-amber: #f59e0b;
+    --color-violet: #a78bfa;
     --color-canvas-bg: #070c16;
     --color-sidebar: #0a111e;
     --color-sidebar-text: #e9eff8;
@@ -699,6 +705,7 @@
     --color-ice: #075985;
     --color-gold: #b45309;
     --color-amber: #d97706;
+    --color-violet: #7c3aed;
     --color-canvas-bg: #f5f8fd;
     --color-sidebar: #ffffff;
     --color-sidebar-text: #0b1b33;

@@ -17,7 +17,7 @@ export interface InitResult {
   warnings: ParseWarning[];
 }
 
-export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff';
+export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff' | 'analytics';
 
 export interface TraceSummary {
   trace_id: string;
@@ -196,6 +196,36 @@ export interface CostBreakdown {
   total_cost_usd: number;
   total_input_tokens: number;
   total_output_tokens: number;
+}
+
+export interface TokenGroup {
+  name: string;
+  input_tokens: number;
+  output_tokens: number;
+  total_tokens: number;
+  cost_usd: number;
+  span_count: number;
+}
+
+export interface TraceTokens {
+  name: string;
+  trace_id: string;
+  input_tokens: number;
+  output_tokens: number;
+  total_tokens: number;
+  cost_usd: number;
+  llm_span_count: number;
+}
+
+export interface TokenTrends {
+  per_model: TokenGroup[];
+  per_service: TokenGroup[];
+  per_trace: TraceTokens[];
+  total_input_tokens: number;
+  total_output_tokens: number;
+  total_tokens: number;
+  total_cost_usd: number;
+  trace_count: number;
 }
 
 export interface LlmDetail {

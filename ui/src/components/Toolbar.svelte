@@ -250,6 +250,7 @@
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'waterfall'} role="tab" aria-selected={$activeView === 'waterfall'} title="Waterfall (3)" on:click={() => activeView.set('waterfall')}><span class="vt-ic">≋</span><span class="vt-label">Waterfall</span></button>
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'graph'} role="tab" aria-selected={$activeView === 'graph'} title="Service graph (4)" on:click={() => activeView.set('graph')}><span class="vt-ic">◉</span><span class="vt-label">Graph</span></button>
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'diff'} role="tab" aria-selected={$activeView === 'diff'} title="Trace diff (5)" on:click={() => activeView.set('diff')}><span class="vt-ic">⇆</span><span class="vt-label">Diff</span></button>
+          <button type="button" class="view-tab" class:view-tab--active={$activeView === 'analytics'} role="tab" aria-selected={$activeView === 'analytics'} title="Token trends (6)" on:click={() => activeView.set('analytics')}><span class="vt-ic">📊</span><span class="vt-label">Trends</span></button>
         </div>
       {/if}
 
