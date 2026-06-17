@@ -186,42 +186,14 @@ widescope/
 
 > OpenInference JSON traces are now parsed natively. Convention mappings for LLM attribute normalization across OTel, OpenInference, and LangChain are bundled for all formats.
 
-## Roadmap
+## More Capabilities
 
-### Phase 1 — Trace Analytics
+Beyond loading and viewing, WideScope also supports:
 
-| Feature | Status |
-|---|---|
-| Critical path | ✅ Supported |
-| Cost breakdown | ✅ Supported |
-| Stats dashboard (latency, error rate, counts) | ✅ Supported |
-
-### Phase 2 — Power User Workflow
-
-| Feature | Status |
-|---|---|
-| Trace diff (side-by-side comparison) | ✅ Supported |
-| Span filtering (by service, status, duration, kind) | ✅ Supported |
-| Service dependency graph | ✅ Supported |
-| Export as PNG / SVG | ✅ Supported |
-
-### Phase 3 — Advanced Capabilities
-
-| Feature | Status |
-|---|---|
-| Multi-trace loading | ✅ Supported |
-| Span annotations | ✅ Supported |
-| Trace slicing | ✅ Supported |
-| Attribute search with operators (`duration>100ms`, `status=error`) | ✅ Supported |
-| Latency heatmap | ✅ Supported |
-
-### Phase 4 — Ecosystem
-
-| Feature | Status |
-|---|---|
-| Embed mode for external tool integration | ✅ Supported |
-| Zip upload (multiple trace files) | ✅ Supported |
-| Self-contained share links + deep linking | ✅ Supported |
+- **Trace analytics** — critical path, cost breakdown, and a stats dashboard (latency, error rate, counts).
+- **Power-user workflow** — trace diff (side-by-side), span filtering (service, status, duration, kind), service dependency graph, and PNG / SVG export.
+- **Advanced** — multi-trace loading, span annotations, trace slicing, attribute search with operators (`duration>100ms`, `status=error`), and a latency heatmap.
+- **Ecosystem** — embed mode for external tools, zip upload (multiple trace files), and self-contained share links with deep linking.
 
 ## Convention Mappings
 
