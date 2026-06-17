@@ -136,8 +136,10 @@ struct TraceSummary {
     warnings: Vec<ParseWarning>,
 }
 
-#[wasm_bindgen]
-pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
+/// Parse raw trace input into a fully-resolved [`Trace`] (LLM attributes
+/// resolved, costs priced). Shared by [`parse_trace`] and the cross-trace
+/// analytics in [`compute_token_trends`].
+fn parse_input_to_trace(raw_input: &str) -> Result<Trace, WideError> {
     let value: serde_json::Value =
         serde_json::from_str(raw_input).map_err(|e| WideError::InvalidJson {
             message: e.to_string(),
@@ -145,23 +147,23 @@ pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
             column: Some(e.column()),
         })?;
 
-    let format = detect_format(&value).map_err(JsValue::from)?;
+    let format = detect_format(&value)?;
 
     let (mut spans, parse_warnings) = match &format {
         models::trace::InputFormat::OtlpJson => {
-            let result = parse_otlp_with_warnings(&value).map_err(JsValue::from)?;
+            let result = parse_otlp_with_warnings(&value)?;
             (result.spans, result.warnings)
         }
         models::trace::InputFormat::JaegerJson => {
-            let result = parse_jaeger_with_warnings(&value).map_err(JsValue::from)?;
+            let result = parse_jaeger_with_warnings(&value)?;
             (result.spans, result.warnings)
         }
         models::trace::InputFormat::OpenInferenceJson => {
-            let result = parse_openinference_with_warnings(&value).map_err(JsValue::from)?;
+            let result = parse_openinference_with_warnings(&value)?;
             (result.spans, result.warnings)
         }
         _ => {
-            return Err(WideError::UnrecognizedFormat.into());
+            return Err(WideError::UnrecognizedFormat);
         }
     };
 
@@ -198,7 +200,12 @@ pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
         }
     });
 
-    let trace = build_trace(spans, format, parse_warnings).map_err(JsValue::from)?;
+    build_trace(spans, format, parse_warnings)
+}
+
+#[wasm_bindgen]
+pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
+    let trace = parse_input_to_trace(raw_input).map_err(JsValue::from)?;
 
     let error_count = trace.spans.iter().filter(|s| s.status.is_error()).count();
     let llm_span_count = trace.spans.iter().filter(|s| s.llm.is_some()).count();
@@ -1000,4 +1007,198 @@ pub fn get_cost_breakdown() -> Result<String, JsValue> {
             }
         }
     })
+}
+
+#[derive(Serialize, Default, Clone)]
+struct TokenGroup {
+    name: String,
+    input_tokens: u64,
+    output_tokens: u64,
+    total_tokens: u64,
+    cost_usd: f64,
+    span_count: u64,
+}
+
+impl TokenGroup {
+    fn add(&mut self, llm: &models::llm::LlmSpanAttributes) {
+        self.input_tokens += llm.input_tokens.unwrap_or(0);
+        self.output_tokens += llm.output_tokens.unwrap_or(0);
+        self.total_tokens += llm.total_tokens.unwrap_or(0);
+        self.cost_usd += llm.estimated_cost_usd.unwrap_or(0.0);
+        self.span_count += 1;
+    }
+}
+
+#[derive(Serialize)]
+struct TraceTokens {
+    name: String,
+    trace_id: String,
+    input_tokens: u64,
+    output_tokens: u64,
+    total_tokens: u64,
+    cost_usd: f64,
+    llm_span_count: u64,
+}
+
+#[derive(Serialize)]
+struct TokenTrends {
+    per_model: Vec<TokenGroup>,
+    per_service: Vec<TokenGroup>,
+    per_trace: Vec<TraceTokens>,
+    total_input_tokens: u64,
+    total_output_tokens: u64,
+    total_tokens: u64,
+    total_cost_usd: f64,
+    trace_count: usize,
+}
+
+fn sorted_groups(map: std::collections::HashMap<String, TokenGroup>) -> Vec<TokenGroup> {
+    let mut v: Vec<TokenGroup> = map.into_values().collect();
+    v.sort_by_key(|g| std::cmp::Reverse(g.total_tokens));
+    v
+}
+
+/// Aggregate LLM token usage across multiple loaded traces.
+///
+/// `traces_json` is a JSON array of `{ "name": string, "json": string }` —
+/// the raw trace payloads the UI keeps in its trace list. Each is parsed and
+/// priced with the currently-loaded conventions/pricing, then tokens and cost
+/// are summed per model, per service, and per trace.
+#[wasm_bindgen]
+pub fn compute_token_trends(traces_json: &str) -> Result<String, JsValue> {
+    #[derive(Deserialize)]
+    struct Entry {
+        name: String,
+        json: String,
+    }
+
+    let entries: Vec<Entry> =
+        serde_json::from_str(traces_json).map_err(|e| WideError::InvalidJson {
+            message: e.to_string(),
+            line: Some(e.line()),
+            column: Some(e.column()),
+        })?;
+
+    let mut per_model: std::collections::HashMap<String, TokenGroup> =
+        std::collections::HashMap::new();
+    let mut per_service: std::collections::HashMap<String, TokenGroup> =
+        std::collections::HashMap::new();
+    let mut per_trace: Vec<TraceTokens> = Vec::new();
+
+    for entry in &entries {
+        // Skip traces that fail to parse rather than failing the whole report.
+        let Ok(trace) = parse_input_to_trace(&entry.json) else {
+            continue;
+        };
+
+        let mut t = TraceTokens {
+            name: entry.name.clone(),
+            trace_id: trace.trace_id.clone(),
+            input_tokens: 0,
+            output_tokens: 0,
+            total_tokens: 0,
+            cost_usd: 0.0,
+            llm_span_count: 0,
+        };
+
+        for span in &trace.spans {
+            let Some(ref llm) = span.llm else { continue };
+
+            let model_key = format!(
+                "{}::{}",
+                llm.model_provider.as_deref().unwrap_or("unknown"),
+                llm.model_name.as_deref().unwrap_or("unknown")
+            );
+            per_model
+                .entry(model_key.clone())
+                .or_insert_with(|| TokenGroup {
+                    name: model_key,
+                    ..Default::default()
+                })
+                .add(llm);
+
+            let svc = span.service_name.clone();
+            per_service
+                .entry(svc.clone())
+                .or_insert_with(|| TokenGroup {
+                    name: svc,
+                    ..Default::default()
+                })
+                .add(llm);
+
+            t.input_tokens += llm.input_tokens.unwrap_or(0);
+            t.output_tokens += llm.output_tokens.unwrap_or(0);
+            t.total_tokens += llm.total_tokens.unwrap_or(0);
+            t.cost_usd += llm.estimated_cost_usd.unwrap_or(0.0);
+            t.llm_span_count += 1;
+        }
+
+        per_trace.push(t);
+    }
+
+    let per_model = sorted_groups(per_model);
+    let per_service = sorted_groups(per_service);
+
+    let trends = TokenTrends {
+        total_input_tokens: per_trace.iter().map(|t| t.input_tokens).sum(),
+        total_output_tokens: per_trace.iter().map(|t| t.output_tokens).sum(),
+        total_tokens: per_trace.iter().map(|t| t.total_tokens).sum(),
+        total_cost_usd: per_trace.iter().map(|t| t.cost_usd).sum(),
+        trace_count: per_trace.len(),
+        per_model,
+        per_service,
+        per_trace,
+    };
+
+    serde_json::to_string(&trends).map_err(|e| {
+        WideError::InvalidJson {
+            message: e.to_string(),
+            line: None,
+            column: None,
+        }
+        .into()
+    })
+}
+
+#[cfg(test)]
+mod token_trends_tests {
+    use super::*;
+
+    const OTLP: &str = r#"{"resourceSpans":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"svc-a"}}]},"scopeSpans":[{"spans":[{"traceId":"0123456789abcdef0123456789abcdef","spanId":"0123456789abcdef","name":"chat","startTimeUnixNano":"1000","endTimeUnixNano":"2000","attributes":[{"key":"gen_ai.system","value":{"stringValue":"openai"}},{"key":"gen_ai.request.model","value":{"stringValue":"gpt-4"}},{"key":"gen_ai.usage.input_tokens","value":{"intValue":"100"}},{"key":"gen_ai.usage.output_tokens","value":{"intValue":"50"}}]}]}]}]}"#;
+
+    fn load_otel_conventions() {
+        let one = include_str!("../../../conventions/opentelemetry.json");
+        let json = format!("[{one}]");
+        let result = load_conventions(&json);
+        CONVENTIONS.with(|c| *c.borrow_mut() = result.conventions);
+    }
+
+    #[test]
+    fn aggregates_tokens_across_traces() {
+        load_otel_conventions();
+        let input = serde_json::json!([
+            {"name": "t1", "json": OTLP},
+            {"name": "t2", "json": OTLP},
+        ])
+        .to_string();
+
+        let out = compute_token_trends(&input).expect("trends");
+        let v: serde_json::Value = serde_json::from_str(&out).unwrap();
+
+        assert_eq!(v["trace_count"], 2);
+        assert_eq!(v["total_input_tokens"], 200);
+        assert_eq!(v["total_output_tokens"], 100);
+        assert_eq!(v["per_model"].as_array().unwrap().len(), 1);
+        assert_eq!(v["per_model"][0]["input_tokens"], 200);
+        assert_eq!(v["per_service"][0]["name"], "svc-a");
+        assert_eq!(v["per_trace"].as_array().unwrap().len(), 2);
+    }
+
+    #[test]
+    fn skips_unparseable_traces() {
+        let input = r#"[{"name":"bad","json":"not json"}]"#;
+        let out = compute_token_trends(input).expect("trends");
+        let v: serde_json::Value = serde_json::from_str(&out).unwrap();
+        assert_eq!(v["trace_count"], 0);
+    }
 }
