@@ -20,6 +20,14 @@
 /editor/index.html
   Cache-Control: public, max-age=0, must-revalidate
 
+# Landing page scripts — externalized to satisfy the strict script-src CSP
+# (inline <script> is blocked). Not fingerprinted, so revalidate on each deploy.
+/redirect.js
+  Cache-Control: public, max-age=0, must-revalidate
+
+/landing.js
+  Cache-Control: public, max-age=0, must-revalidate
+
 # Self-hosted fonts — immutable variable-font files
 /fonts/*
   Cache-Control: public, max-age=31536000, immutable
