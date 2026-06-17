@@ -1,3 +1,4 @@
+pub mod agent_flow;
 pub mod critical_path;
 pub mod flamegraph;
 pub mod graph;

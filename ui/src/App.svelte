@@ -14,6 +14,7 @@
   import Timeline from './components/Timeline.svelte';
   import WaterfallView from './components/WaterfallView.svelte';
   import ServiceGraph from './components/ServiceGraph.svelte';
+  import AgentFlow from './components/AgentFlow.svelte';
   import DiffView from './components/DiffView.svelte';
   import SpanDetail from './components/SpanDetail.svelte';
   import DropZone from './components/DropZone.svelte';
@@ -48,7 +49,7 @@
 
   $: isEmbedded = new URLSearchParams(window.location.search).get('embed') === '1';
 
-  const VIEW_ORDER: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff'> = ['waterfall', 'flame', 'timeline', 'graph', 'diff'];
+  const VIEW_ORDER: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff'> = ['waterfall', 'flame', 'timeline', 'graph', 'agent', 'diff'];
 
   $: {
     const currentIdx = VIEW_ORDER.indexOf($activeView);
@@ -68,7 +69,7 @@
     theme.apply(storedTheme === 'dark' ? 'dark' : storedTheme === 'light' ? 'light' : (prefersDark ? 'dark' : 'light'));
 
     const storedView = localStorage.getItem(STORAGE_KEY_VIEW);
-    if (storedView === 'flame' || storedView === 'timeline' || storedView === 'waterfall' || storedView === 'graph' || storedView === 'diff') {
+    if (storedView === 'flame' || storedView === 'timeline' || storedView === 'waterfall' || storedView === 'graph' || storedView === 'agent' || storedView === 'diff') {
       activeView.set(storedView);
     }
 
@@ -334,9 +335,9 @@
       if (mod && e.key === 'Enter') { e.preventDefault(); void submitEditor(); return; }
       if (mod && e.key === 'v') { e.preventDefault(); void pasteFromClipboard(); return; }
 
-      if (!mod && e.key >= '1' && e.key <= '5') {
+      if (!mod && e.key >= '1' && e.key <= '6') {
         e.preventDefault();
-        const views: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff'> = ['flame', 'timeline', 'waterfall', 'graph', 'diff'];
+        const views: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff'> = ['flame', 'timeline', 'waterfall', 'graph', 'agent', 'diff'];
         activeView.set(views[parseInt(e.key) - 1]);
         localStorage.setItem(STORAGE_KEY_VIEW, views[parseInt(e.key) - 1]);
         return;
@@ -547,6 +548,10 @@
               {:else if $activeView === 'graph' && state.serviceGraph}
                 <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
                   <ServiceGraph graph={state.serviceGraph} />
+                </div>
+              {:else if $activeView === 'agent' && state.agentFlow}
+                <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
+                  <AgentFlow flow={state.agentFlow} />
                 </div>
               {:else if $activeView === 'diff'}
                 <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>

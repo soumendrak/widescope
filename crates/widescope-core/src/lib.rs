@@ -14,6 +14,7 @@ use wasm_bindgen::prelude::*;
 use conventions::pricing::PricingTable;
 use conventions::registry::{load_conventions, Convention};
 use errors::WideError;
+use layout::agent_flow::compute_agent_flow;
 use layout::critical_path::compute_critical_path;
 use layout::flamegraph::compute_flamegraph_layout;
 use layout::graph::compute_service_graph as build_service_graph;
@@ -397,6 +398,27 @@ pub fn compute_waterfall() -> Result<String, JsValue> {
             Some(trace) => {
                 let layout = compute_waterfall_layout(trace);
                 serde_json::to_string(&layout).map_err(|e| {
+                    WideError::InvalidJson {
+                        message: e.to_string(),
+                        line: None,
+                        column: None,
+                    }
+                    .into()
+                })
+            }
+        }
+    })
+}
+
+#[wasm_bindgen]
+pub fn compute_agent_flow_layout() -> Result<String, JsValue> {
+    TRACE.with(|t| {
+        let borrow = t.borrow();
+        match borrow.as_ref() {
+            None => Err(WideError::NoTraceLoaded.into()),
+            Some(trace) => {
+                let flow = compute_agent_flow(trace);
+                serde_json::to_string(&flow).map_err(|e| {
                     WideError::InvalidJson {
                         message: e.to_string(),
                         line: None,

@@ -249,7 +249,8 @@
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'timeline'} role="tab" aria-selected={$activeView === 'timeline'} title="Timeline (2)" on:click={() => activeView.set('timeline')}><span class="vt-ic">≡</span><span class="vt-label">Timeline</span></button>
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'waterfall'} role="tab" aria-selected={$activeView === 'waterfall'} title="Waterfall (3)" on:click={() => activeView.set('waterfall')}><span class="vt-ic">≋</span><span class="vt-label">Waterfall</span></button>
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'graph'} role="tab" aria-selected={$activeView === 'graph'} title="Service graph (4)" on:click={() => activeView.set('graph')}><span class="vt-ic">◉</span><span class="vt-label">Graph</span></button>
-          <button type="button" class="view-tab" class:view-tab--active={$activeView === 'diff'} role="tab" aria-selected={$activeView === 'diff'} title="Trace diff (5)" on:click={() => activeView.set('diff')}><span class="vt-ic">⇆</span><span class="vt-label">Diff</span></button>
+          <button type="button" class="view-tab" class:view-tab--active={$activeView === 'agent'} role="tab" aria-selected={$activeView === 'agent'} title="Agent flow (5)" on:click={() => activeView.set('agent')}><span class="vt-ic">⌥</span><span class="vt-label">Agent</span></button>
+          <button type="button" class="view-tab" class:view-tab--active={$activeView === 'diff'} role="tab" aria-selected={$activeView === 'diff'} title="Trace diff (6)" on:click={() => activeView.set('diff')}><span class="vt-ic">⇆</span><span class="vt-label">Diff</span></button>
         </div>
       {/if}
 

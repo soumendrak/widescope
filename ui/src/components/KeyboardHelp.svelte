@@ -12,7 +12,7 @@
     { keys: 'Ctrl+K', action: 'Focus search bar' },
     { keys: 'Ctrl+V', action: 'Paste JSON from clipboard' },
     { keys: 'Ctrl+Enter', action: 'Submit and parse trace' },
-    { keys: '1 / 2 / 3 / 4 / 5', action: 'Switch to Flame / Timeline / Waterfall / Graph / Diff' },
+    { keys: '1 / 2 / 3 / 4 / 5 / 6', action: 'Switch to Flame / Timeline / Waterfall / Graph / Agent / Diff' },
     { keys: '↑↓←→', action: 'Navigate spans in flame graph' },
     { keys: 'Enter', action: 'Select focused span' },
     { keys: 'F', action: 'Zoom to selected span' },

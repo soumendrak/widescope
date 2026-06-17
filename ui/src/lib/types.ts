@@ -17,7 +17,7 @@ export interface InitResult {
   warnings: ParseWarning[];
 }
 
-export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'diff';
+export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff';
 
 export interface TraceSummary {
   trace_id: string;
@@ -156,6 +156,30 @@ export interface GraphEdge {
   call_count: number;
   total_duration_ns: number;
   total_duration_display: string;
+}
+
+export interface AgentFlowNode {
+  span_id: string;
+  label: string;
+  kind: 'agent' | 'tool' | 'chain' | 'retrieval' | 'llm';
+  tool_name: string | null;
+  status: string;
+  duration_ns: number;
+  duration_display: string;
+  layer: number;
+  order: number;
+  iteration: number | null;
+}
+
+export interface AgentFlowEdge {
+  source: string;
+  target: string;
+  kind: 'spawn' | 'sequence';
+}
+
+export interface AgentFlow {
+  nodes: AgentFlowNode[];
+  edges: AgentFlowEdge[];
 }
 
 export interface ServiceGraph {

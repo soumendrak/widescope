@@ -1,6 +1,7 @@
 import init, * as widescopeCore from '../../../crates/widescope-core/pkg/widescope_core';
 import { BUNDLED_CONVENTIONS, BUNDLED_PRICING } from './conventions-bundle';
 import type {
+  AgentFlow,
   ComparisonSummary,
   CostBreakdown,
   CriticalPath,
@@ -91,6 +92,12 @@ export function filterSpans(filters: SpanFilters): string[] {
     return [];
   }
   return JSON.parse(filterFn(JSON.stringify(filters))) as string[];
+}
+
+export function getAgentFlow(): AgentFlow {
+  const fn = (widescopeCore as { compute_agent_flow_layout?: () => string }).compute_agent_flow_layout;
+  if (!fn) return { nodes: [], edges: [] };
+  return JSON.parse(fn()) as AgentFlow;
 }
 
 export function getServiceGraph(): ServiceGraph {
