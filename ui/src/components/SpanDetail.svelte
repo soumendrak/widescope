@@ -8,9 +8,11 @@
   import type { SpanDetail, LlmDetail } from '../lib/types';
   import { flyRightConfig } from '../lib/animation';
   import RetrievedDocumentsPanel from './RetrievedDocumentsPanel.svelte';
+  import LlmChatReplay from './LlmChatReplay.svelte';
 
   let detail: SpanDetail | null = null;
   let loading = false;
+  let llmView: 'chat' | 'raw' = 'chat';
   let expandedAttrs = false;
   let expandedEvents = false;
   let sidebar: HTMLElement;
@@ -202,32 +204,42 @@
           {#if llm.temperature !== null}
             <div class="kv-inline"><span>Temp</span><span>{llm.temperature}</span></div>
           {/if}
-          {#if llm.input_messages.length > 0}
-            <div class="msg-group">
-              <div class="msg-label">Prompt</div>
-              {#each llm.input_messages as m}
-                <div class="message"><span class="role">{m.role}</span><span class="content">{m.content ?? ''}</span></div>
-              {/each}
+          {#if llm.input_messages.length > 0 || llm.output_messages.length > 0 || llm.tool_calls.length > 0}
+            <div class="llm-view-toggle" role="tablist" aria-label="LLM message view">
+              <button type="button" role="tab" class:active={llmView === 'chat'} aria-selected={llmView === 'chat'} on:click={() => (llmView = 'chat')}>Chat</button>
+              <button type="button" role="tab" class:active={llmView === 'raw'} aria-selected={llmView === 'raw'} on:click={() => (llmView = 'raw')}>Raw</button>
             </div>
-          {/if}
-          {#if llm.output_messages.length > 0}
-            <div class="msg-group">
-              <div class="msg-label">Completion</div>
-              {#each llm.output_messages as m}
-                <div class="message"><span class="role">{m.role}</span><span class="content">{m.content ?? ''}</span></div>
-              {/each}
-            </div>
-          {/if}
-          {#if llm.tool_calls.length > 0}
-            <div class="msg-group">
-              <div class="msg-label">Tool calls ({llm.tool_calls.length})</div>
-              {#each llm.tool_calls as tc}
-                <div class="tool-call">
-                  <div class="tool-name">{tc.name}</div>
-                  {#if tc.arguments}<div class="tool-args">{tc.arguments}</div>{/if}
+            {#if llmView === 'chat'}
+              <LlmChatReplay {llm} />
+            {:else}
+              {#if llm.input_messages.length > 0}
+                <div class="msg-group">
+                  <div class="msg-label">Prompt</div>
+                  {#each llm.input_messages as m}
+                    <div class="message"><span class="role">{m.role}</span><span class="content">{m.content ?? ''}</span></div>
+                  {/each}
                 </div>
-              {/each}
-            </div>
+              {/if}
+              {#if llm.output_messages.length > 0}
+                <div class="msg-group">
+                  <div class="msg-label">Completion</div>
+                  {#each llm.output_messages as m}
+                    <div class="message"><span class="role">{m.role}</span><span class="content">{m.content ?? ''}</span></div>
+                  {/each}
+                </div>
+              {/if}
+              {#if llm.tool_calls.length > 0}
+                <div class="msg-group">
+                  <div class="msg-label">Tool calls ({llm.tool_calls.length})</div>
+                  {#each llm.tool_calls as tc}
+                    <div class="tool-call">
+                      <div class="tool-name">{tc.name}</div>
+                      {#if tc.arguments}<div class="tool-args">{tc.arguments}</div>{/if}
+                    </div>
+                  {/each}
+                </div>
+              {/if}
+            {/if}
           {/if}
           {#if llm.retrieved_documents.length > 0}
             <div class="msg-group">
@@ -605,6 +617,35 @@
     font-size: 0.68rem;
     color: var(--color-text-faint, #5b6b84);
     letter-spacing: 0.06em;
+  }
+
+  .llm-view-toggle {
+    display: inline-flex;
+    gap: 2px;
+    padding: 2px;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--color-border-soft, rgba(125, 211, 252, 0.07));
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--color-canvas-bg, #070c16) 60%, transparent);
+  }
+
+  .llm-view-toggle button {
+    background: none;
+    border: 0;
+    border-radius: 5px;
+    padding: 0.2rem 0.7rem;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted, #9aa8bd);
+    transition: background 0.15s var(--ease-spring, ease), color 0.15s var(--ease-spring, ease);
+  }
+
+  .llm-view-toggle button.active {
+    background: var(--color-llm-badge-bg, rgba(245, 158, 11, 0.16));
+    color: var(--color-gold, #fcd34d);
   }
 
   .token-row {
