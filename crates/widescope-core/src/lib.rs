@@ -1054,7 +1054,7 @@ struct TokenTrends {
 
 fn sorted_groups(map: std::collections::HashMap<String, TokenGroup>) -> Vec<TokenGroup> {
     let mut v: Vec<TokenGroup> = map.into_values().collect();
-    v.sort_by(|a, b| b.total_tokens.cmp(&a.total_tokens));
+    v.sort_by_key(|g| std::cmp::Reverse(g.total_tokens));
     v
 }
 
