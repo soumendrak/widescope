@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import type { FlameGraphLayout, FlameNode } from '../lib/types';
-  import { selectedSpanId, hoveredSpanId, focusedSpanId, searchResults, sliceStartNs, sliceEndNs } from '../stores/selection';
+  import { selectedSpanId, hoveredSpanId, focusedSpanId, searchResults, filteredSpanIds, sliceStartNs, sliceEndNs } from '../stores/selection';
   import { getCriticalPath } from '../lib/wasm';
   import type { CriticalPath } from '../lib/types';
   import { SERVICE_COLORS } from '../lib/palette';
@@ -42,6 +42,9 @@
   let canvasW = 0;
   let canvasH = 0;
   let visualMaxDepth = 0;
+  // Active toolbar-filter mask — non-matching nodes are dimmed like search misses.
+  let renderHasFilter = false;
+  let renderFilterSet = new Set<string>();
 
   // Live-region for screen reader announcements
   let ariaLive = '';
@@ -205,6 +208,8 @@
     const activeSearchResults = $searchResults;
     const hasSearch = activeSearchResults.length > 0;
     const searchMatchSet = new Set(activeSearchResults);
+    renderHasFilter = $filteredSpanIds.length > 0;
+    renderFilterSet = new Set($filteredSpanIds);
     const palette = getCanvasPalette();
 
     const sStart = $sliceStartNs;
@@ -309,12 +314,13 @@
     const minW = 1;
     const rw = Math.max(pw, minW);
     const isSearchMatch = !hasSearch || searchMatchSet.has(node.span_id);
+    const isFilterMatch = !renderHasFilter || renderFilterSet.has(node.span_id);
 
     const baseColor = heatmapMode
       ? heatmapColor(node)
       : (colorMap.get(node.color_key) ?? '#64748b');
     ctx!.save();
-    if (hasSearch && !isSearchMatch) {
+    if ((hasSearch && !isSearchMatch) || (renderHasFilter && !isFilterMatch)) {
       ctx!.globalAlpha = 0.22;
     }
     ctx!.fillStyle = baseColor;
@@ -355,6 +361,12 @@
       ctx!.strokeRect(px + 1, py + 1, rw - 2, ROW_HEIGHT - 3);
     }
 
+    if (node.safety_category) {
+      ctx!.strokeStyle = '#f87171';
+      ctx!.lineWidth = 2;
+      ctx!.strokeRect(px + 1, py + 1, rw - 2, ROW_HEIGHT - 3);
+    }
+
     if (node.is_llm && pw > 14) {
       ctx!.font = '10px sans-serif';
       ctx!.fillStyle = palette.codeText;
@@ -388,7 +400,7 @@
     if (node.span_id === sel || node.span_id === hov || node.span_id === foc) return true;
     if (hasSearch && searchMatchSet.has(node.span_id)) return true;
     if (showCriticalPath && criticalPathSet.has(node.span_id)) return true;
-    if (node.is_error || node.is_llm) return true;
+    if (node.is_error || node.is_llm || node.safety_category) return true;
 
     return !(node.width < TINY_SPAN_TOTAL_RATIO && pw < TINY_SPAN_PIXEL_WIDTH);
   }
@@ -717,12 +729,14 @@
     scheduleRender();
   });
   const unsubSearch = searchResults.subscribe(() => scheduleRender());
+  const unsubFilter = filteredSpanIds.subscribe(() => scheduleRender());
 
   onDestroy(() => {
     unsubSel();
     unsubHov();
     unsubFoc();
     unsubSearch();
+    unsubFilter();
     cancelAnimationFrame(animFrameId);
   });
 

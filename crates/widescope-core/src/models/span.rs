@@ -1,4 +1,5 @@
 use crate::models::llm::LlmSpanAttributes;
+use crate::models::safety::SafetySignal;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
@@ -21,6 +22,18 @@ pub struct Span {
     pub attributes: HashMap<String, AttributeValue>,
     pub events: Vec<SpanEvent>,
     pub llm: Option<LlmSpanAttributes>,
+    #[serde(default)]
+    pub safety: Vec<SafetySignal>,
+}
+
+impl Span {
+    /// Highest-severity safety category on this span, for badge/coloring.
+    pub fn top_safety_category(&self) -> Option<String> {
+        self.safety
+            .iter()
+            .max_by_key(|s| s.severity)
+            .map(|s: &SafetySignal| s.category.as_str().to_string())
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

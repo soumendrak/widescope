@@ -1,3 +1,4 @@
+use crate::models::safety::SafetySignal;
 use serde::ser::Serializer;
 use serde::{Deserialize, Serialize};
 
@@ -18,6 +19,7 @@ pub struct FlameNode {
     pub color_key: String,
     pub is_error: bool,
     pub is_llm: bool,
+    pub safety_category: Option<String>,
     pub duration_ns: u64,
     pub self_time_ns: u64,
     pub duration_display: String,
@@ -42,6 +44,7 @@ pub struct TimelineBlock {
     pub row_index: u32,
     pub is_error: bool,
     pub is_llm: bool,
+    pub safety_category: Option<String>,
     pub duration_ns: u64,
     pub duration_display: String,
 }
@@ -81,6 +84,7 @@ pub struct SpanDetailResponse {
     pub attributes: Vec<(String, String)>,
     pub events: Vec<EventDetail>,
     pub llm: Option<LlmDetail>,
+    pub safety: Vec<SafetySignal>,
     pub children_ids: Vec<String>,
 }
 
@@ -141,6 +145,7 @@ pub struct WaterfallRow {
     pub color_key: String,
     pub is_error: bool,
     pub is_llm: bool,
+    pub safety_category: Option<String>,
     pub has_children: bool,
     pub duration_ns: u64,
     pub duration_display: String,

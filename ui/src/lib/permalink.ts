@@ -26,6 +26,7 @@ const VIEW_NAMES: ReadonlyArray<ViewName> = [
   'graph',
   'agent',
   'diff',
+  'analytics',
 ];
 
 /**

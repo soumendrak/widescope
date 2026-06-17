@@ -207,6 +207,7 @@ mod tests {
             attributes: HashMap::new(),
             events: vec![],
             llm: llm_attr,
+            safety: vec![],
         }
     }
 

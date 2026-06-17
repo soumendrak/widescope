@@ -11,6 +11,7 @@ import type {
   ServiceGraph,
   SpanDetail,
   TimelineLayout,
+  TokenTrends,
   TraceSummary,
   WasmError,
   WaterfallLayout,
@@ -84,6 +85,7 @@ export interface SpanFilters {
   service?: string;
   kind?: string;
   llm_only?: boolean;
+  safety_only?: boolean;
 }
 
 export function filterSpans(filters: SpanFilters): string[] {
@@ -133,6 +135,16 @@ export function getCostBreakdown(): CostBreakdown | null {
   const fn = (widescopeCore as { get_cost_breakdown?: () => string }).get_cost_breakdown;
   if (!fn) return null;
   return JSON.parse(fn()) as CostBreakdown;
+}
+
+/** Aggregate token usage across the raw trace payloads the UI holds in its list. */
+export function computeTokenTrends(
+  traces: { name: string; json: string }[],
+): TokenTrends | null {
+  const fn = (widescopeCore as { compute_token_trends?: (s: string) => string })
+    .compute_token_trends;
+  if (!fn) return null;
+  return JSON.parse(fn(JSON.stringify(traces))) as TokenTrends;
 }
 
 /** Whether the WASM share-link compressor is available (i.e. WASM is loaded). */

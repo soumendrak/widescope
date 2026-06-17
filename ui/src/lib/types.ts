@@ -17,7 +17,7 @@ export interface InitResult {
   warnings: ParseWarning[];
 }
 
-export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff';
+export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics';
 
 export interface TraceSummary {
   trace_id: string;
@@ -43,6 +43,15 @@ export interface FlameGraphLayout {
   trace_duration_display: string;
 }
 
+export type SafetyCategory = 'pii' | 'jailbreak' | 'refusal' | 'content_policy';
+export type SafetySeverity = 'low' | 'medium' | 'high';
+
+export interface SafetySignal {
+  category: SafetyCategory;
+  severity: SafetySeverity;
+  detail: string;
+}
+
 export interface FlameNode {
   span_id: string;
   label: string;
@@ -52,6 +61,7 @@ export interface FlameNode {
   color_key: string;
   is_error: boolean;
   is_llm: boolean;
+  safety_category: SafetyCategory | null;
   duration_ns: number;
   self_time_ns: number;
   duration_display: string;
@@ -74,6 +84,7 @@ export interface TimelineBlock {
   row_index: number;
   is_error: boolean;
   is_llm: boolean;
+  safety_category: SafetyCategory | null;
   duration_ns: number;
   duration_display: string;
 }
@@ -102,6 +113,7 @@ export interface SpanDetail {
   attributes: [string, string][];
   events: EventDetail[];
   llm: LlmDetail | null;
+  safety: SafetySignal[];
   children_ids: string[];
 }
 
@@ -123,6 +135,7 @@ export interface WaterfallRow {
   color_key: string;
   is_error: boolean;
   is_llm: boolean;
+  safety_category: SafetyCategory | null;
   has_children: boolean;
   duration_ns: number;
   duration_display: string;
@@ -220,6 +233,36 @@ export interface CostBreakdown {
   total_cost_usd: number;
   total_input_tokens: number;
   total_output_tokens: number;
+}
+
+export interface TokenGroup {
+  name: string;
+  input_tokens: number;
+  output_tokens: number;
+  total_tokens: number;
+  cost_usd: number;
+  span_count: number;
+}
+
+export interface TraceTokens {
+  name: string;
+  trace_id: string;
+  input_tokens: number;
+  output_tokens: number;
+  total_tokens: number;
+  cost_usd: number;
+  llm_span_count: number;
+}
+
+export interface TokenTrends {
+  per_model: TokenGroup[];
+  per_service: TokenGroup[];
+  per_trace: TraceTokens[];
+  total_input_tokens: number;
+  total_output_tokens: number;
+  total_tokens: number;
+  total_cost_usd: number;
+  trace_count: number;
 }
 
 export interface LlmDetail {

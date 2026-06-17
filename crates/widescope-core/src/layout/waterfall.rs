@@ -106,6 +106,7 @@ fn visit_span(
         color_key: span.service_name.clone(),
         is_error: span.status.is_error(),
         is_llm: span.llm.is_some(),
+        safety_category: span.top_safety_category(),
         has_children,
         duration_ns: span.duration_ns,
         duration_display: format_duration(span.duration_ns),
