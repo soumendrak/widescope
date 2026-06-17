@@ -24,6 +24,7 @@ const VIEW_NAMES: ReadonlyArray<ViewName> = [
   'timeline',
   'waterfall',
   'graph',
+  'agent',
   'diff',
   'analytics',
 ];

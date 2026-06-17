@@ -1,0 +1,119 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          { "key": "service.name", "value": { "stringValue": "research-agent" } }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": { "name": "langchain-tracer", "version": "0.1.0" },
+          "spans": [
+            {
+              "traceId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "spanId": "a000000000000001",
+              "name": "agent.run",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000000000000",
+              "endTimeUnixNano": "1712500000900000000",
+              "status": { "code": 1 },
+              "attributes": [
+                { "key": "langchain.request.type", "value": { "stringValue": "agent" } }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "spanId": "a000000000000002",
+              "name": "agent.plan",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000010000000",
+              "endTimeUnixNano": "1712500000120000000",
+              "status": { "code": 1 },
+              "attributes": [
+                { "key": "langchain.request.type", "value": { "stringValue": "chat_model" } },
+                { "key": "langchain.request.model", "value": { "stringValue": "gpt-4o" } },
+                { "key": "langchain.usage.total_tokens", "value": { "intValue": "412" } }
+              ],
+              "events": [],
+              "parentSpanId": "a000000000000001"
+            },
+            {
+              "traceId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "spanId": "a000000000000003",
+              "name": "tool.web_search",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000130000000",
+              "endTimeUnixNano": "1712500000260000000",
+              "status": { "code": 1 },
+              "attributes": [
+                { "key": "langchain.request.type", "value": { "stringValue": "tool" } }
+              ],
+              "events": [],
+              "parentSpanId": "a000000000000001"
+            },
+            {
+              "traceId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "spanId": "a000000000000004",
+              "name": "tool.web_search",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000270000000",
+              "endTimeUnixNano": "1712500000390000000",
+              "status": { "code": 1 },
+              "attributes": [
+                { "key": "langchain.request.type", "value": { "stringValue": "tool" } }
+              ],
+              "events": [],
+              "parentSpanId": "a000000000000001"
+            },
+            {
+              "traceId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "spanId": "a000000000000005",
+              "name": "tool.calculator",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000400000000",
+              "endTimeUnixNano": "1712500000440000000",
+              "status": { "code": 2, "message": "division by zero" },
+              "attributes": [
+                { "key": "langchain.request.type", "value": { "stringValue": "tool" } }
+              ],
+              "events": [],
+              "parentSpanId": "a000000000000001"
+            },
+            {
+              "traceId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "spanId": "a000000000000006",
+              "name": "chain.summarize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000450000000",
+              "endTimeUnixNano": "1712500000890000000",
+              "status": { "code": 1 },
+              "attributes": [
+                { "key": "langchain.request.type", "value": { "stringValue": "chain" } }
+              ],
+              "events": [],
+              "parentSpanId": "a000000000000001"
+            },
+            {
+              "traceId": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "spanId": "a000000000000007",
+              "name": "agent.synthesize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000460000000",
+              "endTimeUnixNano": "1712500000880000000",
+              "status": { "code": 1 },
+              "attributes": [
+                { "key": "langchain.request.type", "value": { "stringValue": "chat_model" } },
+                { "key": "langchain.request.model", "value": { "stringValue": "gpt-4o" } },
+                { "key": "langchain.usage.total_tokens", "value": { "intValue": "806" } }
+              ],
+              "events": [],
+              "parentSpanId": "a000000000000006"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 import { traceState } from '../stores/trace';
 import { focusedSpanId, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from '../stores/selection';
 import { traceList } from '../stores/traceList';
-import { parseTrace, getFlameGraphLayout, getTimelineLayout, getWaterfallLayout, getServiceGraph, safeParseWasmError } from './wasm';
+import { parseTrace, getFlameGraphLayout, getTimelineLayout, getWaterfallLayout, getServiceGraph, getAgentFlow, safeParseWasmError } from './wasm';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 const LARGE_TRACE_BYTES = 5 * 1024 * 1024;
@@ -120,7 +120,8 @@ export function handleRawInput(text: string, isSample: boolean, showLoading = tr
     const timelineLayout = getTimelineLayout();
     const waterfallLayout = getWaterfallLayout();
     const serviceGraph = getServiceGraph();
-    traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, isSample);
+    const agentFlow = getAgentFlow();
+    traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, agentFlow, isSample);
 
     // Add to trace list for multi-trace switching
     const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
@@ -179,8 +180,9 @@ export async function handleRawInputAsync(text: string, isSample: boolean, showL
     }
     const waterfallLayout = getWaterfallLayout();
     const serviceGraph = getServiceGraph();
+    const agentFlow = getAgentFlow();
 
-    traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, isSample);
+    traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, agentFlow, isSample);
 
     const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
     traceList.add(name, text);
