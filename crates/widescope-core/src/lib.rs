@@ -1312,6 +1312,153 @@ pub fn compute_token_trends(traces_json: &str) -> Result<String, JsValue> {
     })
 }
 
+#[derive(Serialize)]
+struct DashboardRow {
+    name: String,
+    trace_id: String,
+    detected_format: String,
+    span_count: usize,
+    service_count: usize,
+    error_count: usize,
+    llm_span_count: usize,
+    total_duration_ns: u64,
+    total_duration_display: String,
+    latency_p95_display: String,
+    cost_usd: f64,
+    root_service: Option<String>,
+    has_errors: bool,
+}
+
+#[derive(Serialize)]
+struct ServiceFrequency {
+    name: String,
+    trace_count: usize,
+}
+
+#[derive(Serialize)]
+struct Dashboard {
+    rows: Vec<DashboardRow>,
+    trace_count: usize,
+    total_spans: usize,
+    total_errors: usize,
+    total_llm_spans: usize,
+    total_cost_usd: f64,
+    avg_duration_ns: u64,
+    avg_duration_display: String,
+    top_services: Vec<ServiceFrequency>,
+}
+
+/// Compute an at-a-glance summary across multiple loaded traces.
+///
+/// `traces_json` is a JSON array of `{ "name": string, "json": string }` — the
+/// same raw payloads the UI keeps in its trace list. Each is parsed and priced
+/// with the currently-loaded conventions/pricing into a per-trace row, plus
+/// aggregate totals and how many traces each service appears in. Traces that
+/// fail to parse are skipped rather than failing the whole dashboard.
+#[wasm_bindgen]
+pub fn compute_dashboard(traces_json: &str) -> Result<String, JsValue> {
+    #[derive(Deserialize)]
+    struct Entry {
+        name: String,
+        json: String,
+    }
+
+    let entries: Vec<Entry> =
+        serde_json::from_str(traces_json).map_err(|e| WideError::InvalidJson {
+            message: e.to_string(),
+            line: Some(e.line()),
+            column: Some(e.column()),
+        })?;
+
+    let mut rows: Vec<DashboardRow> = Vec::new();
+    let mut service_freq: std::collections::HashMap<String, usize> =
+        std::collections::HashMap::new();
+
+    for entry in &entries {
+        let Ok(trace) = parse_input_to_trace(&entry.json) else {
+            continue;
+        };
+
+        let error_count = trace.spans.iter().filter(|s| s.status.is_error()).count();
+        let llm_span_count = trace.spans.iter().filter(|s| s.llm.is_some()).count();
+        let cost_usd: f64 = trace
+            .spans
+            .iter()
+            .filter_map(|s| s.llm.as_ref().and_then(|l| l.estimated_cost_usd))
+            .sum();
+
+        let mut durations: Vec<u64> = trace.spans.iter().map(|s| s.duration_ns).collect();
+        durations.sort_unstable();
+        let p95 = percentile(&durations, 0.95);
+
+        let services: std::collections::HashSet<&str> =
+            trace.spans.iter().map(|s| s.service_name.as_str()).collect();
+        for svc in &services {
+            *service_freq.entry((*svc).to_string()).or_insert(0) += 1;
+        }
+
+        let root_service = trace
+            .root_span_ids
+            .first()
+            .and_then(|id| trace.get_span(id).map(|s| s.service_name.clone()));
+
+        rows.push(DashboardRow {
+            name: entry.name.clone(),
+            trace_id: trace.trace_id.clone(),
+            detected_format: trace.detected_format.as_str().to_string(),
+            span_count: trace.span_count,
+            service_count: trace.service_count,
+            error_count,
+            llm_span_count,
+            total_duration_ns: trace.total_duration_ns,
+            total_duration_display: format_duration(trace.total_duration_ns),
+            latency_p95_display: format_duration(p95),
+            cost_usd,
+            root_service,
+            has_errors: trace.has_errors,
+        });
+    }
+
+    let trace_count = rows.len();
+    let total_duration_ns: u64 = rows.iter().map(|r| r.total_duration_ns).sum();
+    let avg_duration_ns = if trace_count > 0 {
+        total_duration_ns / trace_count as u64
+    } else {
+        0
+    };
+
+    let mut top_services: Vec<ServiceFrequency> = service_freq
+        .into_iter()
+        .map(|(name, trace_count)| ServiceFrequency { name, trace_count })
+        .collect();
+    top_services.sort_by(|a, b| {
+        b.trace_count
+            .cmp(&a.trace_count)
+            .then_with(|| a.name.cmp(&b.name))
+    });
+
+    let dashboard = Dashboard {
+        total_spans: rows.iter().map(|r| r.span_count).sum(),
+        total_errors: rows.iter().map(|r| r.error_count).sum(),
+        total_llm_spans: rows.iter().map(|r| r.llm_span_count).sum(),
+        total_cost_usd: rows.iter().map(|r| r.cost_usd).sum(),
+        avg_duration_ns,
+        avg_duration_display: format_duration(avg_duration_ns),
+        trace_count,
+        rows,
+        top_services,
+    };
+
+    serde_json::to_string(&dashboard).map_err(|e| {
+        WideError::InvalidJson {
+            message: e.to_string(),
+            line: None,
+            column: None,
+        }
+        .into()
+    })
+}
+
 /// Attribute keys that carry a session/conversation identifier, in priority
 /// order. Covers OTel GenAI semconv (`session.id`, `gen_ai.conversation.id`),
 /// LangChain (`session_id`), and common `conversation`/`thread` variants.
@@ -1477,6 +1624,34 @@ pub fn compute_session_groups(traces_json: &str) -> Result<String, JsValue> {
         }
         .into()
     })
+}
+
+#[cfg(test)]
+mod dashboard_tests {
+    use super::*;
+
+    const OTLP_ERR: &str = r#"{"resourceSpans":[{"resource":{"attributes":[{"key":"service.name","value":{"stringValue":"svc-a"}}]},"scopeSpans":[{"spans":[{"traceId":"0123456789abcdef0123456789abcdef","spanId":"0123456789abcdef","name":"root","startTimeUnixNano":"1000","endTimeUnixNano":"3000","status":{"code":2}}]}]}]}"#;
+
+    #[test]
+    fn aggregates_across_traces_and_skips_bad() {
+        let input = serde_json::json!([
+            {"name": "t1", "json": OTLP_ERR},
+            {"name": "t2", "json": OTLP_ERR},
+            {"name": "bad", "json": "not json"},
+        ])
+        .to_string();
+
+        let out = compute_dashboard(&input).expect("dashboard");
+        let v: serde_json::Value = serde_json::from_str(&out).unwrap();
+
+        assert_eq!(v["trace_count"], 2);
+        assert_eq!(v["rows"].as_array().unwrap().len(), 2);
+        assert_eq!(v["total_spans"], 2);
+        assert_eq!(v["total_errors"], 2);
+        assert_eq!(v["rows"][0]["has_errors"], true);
+        assert_eq!(v["top_services"][0]["name"], "svc-a");
+        assert_eq!(v["top_services"][0]["trace_count"], 2);
+    }
 }
 
 #[cfg(test)]

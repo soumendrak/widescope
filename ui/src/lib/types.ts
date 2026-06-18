@@ -17,7 +17,7 @@ export interface InitResult {
   warnings: ParseWarning[];
 }
 
-export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics' | 'matrix';
+export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics' | 'matrix' | 'dashboard';
 
 export interface TraceSummary {
   trace_id: string;
@@ -276,6 +276,39 @@ export interface TokenTrends {
   total_tokens: number;
   total_cost_usd: number;
   trace_count: number;
+}
+
+export interface DashboardRow {
+  name: string;
+  trace_id: string;
+  detected_format: string;
+  span_count: number;
+  service_count: number;
+  error_count: number;
+  llm_span_count: number;
+  total_duration_ns: number;
+  total_duration_display: string;
+  latency_p95_display: string;
+  cost_usd: number;
+  root_service: string | null;
+  has_errors: boolean;
+}
+
+export interface ServiceFrequency {
+  name: string;
+  trace_count: number;
+}
+
+export interface Dashboard {
+  rows: DashboardRow[];
+  trace_count: number;
+  total_spans: number;
+  total_errors: number;
+  total_llm_spans: number;
+  total_cost_usd: number;
+  avg_duration_ns: number;
+  avg_duration_display: string;
+  top_services: ServiceFrequency[];
 }
 
 export interface SessionGroup {

@@ -6,6 +6,7 @@ import type {
   ComparisonSummary,
   CostBreakdown,
   CriticalPath,
+  Dashboard,
   FlameGraphLayout,
   InitResult,
   ParseWarning,
@@ -153,6 +154,16 @@ export function computeTokenTrends(
     .compute_token_trends;
   if (!fn) return null;
   return JSON.parse(fn(JSON.stringify(traces))) as TokenTrends;
+}
+
+/** Compute an at-a-glance dashboard across the raw trace payloads in the UI's list. */
+export function computeDashboard(
+  traces: { name: string; json: string }[],
+): Dashboard | null {
+  const fn = (widescopeCore as { compute_dashboard?: (s: string) => string })
+    .compute_dashboard;
+  if (!fn) return null;
+  return JSON.parse(fn(JSON.stringify(traces))) as Dashboard;
 }
 
 /** Group the UI's raw trace payloads by session id with aggregated metrics. */

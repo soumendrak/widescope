@@ -289,6 +289,9 @@
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'diff'} role="tab" aria-selected={$activeView === 'diff'} title="Trace diff (6)" on:click={() => activeView.set('diff')}><span class="vt-ic">⇆</span><span class="vt-label">Diff</span></button>
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'analytics'} role="tab" aria-selected={$activeView === 'analytics'} title="Token trends (7)" on:click={() => activeView.set('analytics')}><span class="vt-ic">📊</span><span class="vt-label">Trends</span></button>
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'matrix'} role="tab" aria-selected={$activeView === 'matrix'} title="Comparison matrix (8)" on:click={() => activeView.set('matrix')}><span class="vt-ic">⊞</span><span class="vt-label">Matrix</span></button>
+          {#if traceCount > 1}
+            <button type="button" class="view-tab" class:view-tab--active={$activeView === 'dashboard'} role="tab" aria-selected={$activeView === 'dashboard'} title="Multi-trace dashboard (9)" on:click={() => activeView.set('dashboard')}><span class="vt-ic">▦</span><span class="vt-label">Dashboard</span></button>
+          {/if}
         </div>
       {/if}
 

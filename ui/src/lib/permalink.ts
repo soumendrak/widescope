@@ -28,6 +28,7 @@ const VIEW_NAMES: ReadonlyArray<ViewName> = [
   'diff',
   'analytics',
   'matrix',
+  'dashboard',
 ];
 
 /**
