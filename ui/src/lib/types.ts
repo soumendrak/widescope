@@ -265,6 +265,28 @@ export interface TokenTrends {
   trace_count: number;
 }
 
+export interface SessionGroup {
+  /** null when no session attribute was found (standalone trace). */
+  session_id: string | null;
+  /** Indices into the trace list (positions in the UI dropdown order). */
+  trace_indices: number[];
+  trace_names: string[];
+  trace_count: number;
+  span_count: number;
+  llm_span_count: number;
+  error_count: number;
+  total_cost_usd: number;
+  total_duration_ns: number;
+  total_duration_display: string;
+}
+
+export interface SessionGroups {
+  groups: SessionGroup[];
+  /** Number of multi-trace sessions; 0 means the UI keeps a flat list. */
+  session_count: number;
+  standalone_count: number;
+}
+
 export interface LlmDetail {
   operation_type: string;
   model_name: string | null;

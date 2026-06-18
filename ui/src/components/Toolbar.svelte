@@ -4,7 +4,8 @@
   import { openFilePicker } from '../lib/input';
   import { theme } from '../lib/theme';
   import { buildShareUrl, isShareSupported } from '../lib/permalink';
-  import { searchSpans, filterSpans, getCostBreakdown, type SpanFilters } from '../lib/wasm';
+  import { searchSpans, filterSpans, getCostBreakdown, computeSessionGroups, type SpanFilters } from '../lib/wasm';
+  import type { SessionGroup } from '../lib/types';
   import {
     activeView,
     focusedSpanId,
@@ -50,8 +51,24 @@
   $: traceCount = $traceList.length;
   $: activeTraceIdx = $traceList.findIndex(e => $traceState.summary && (e.json.includes($traceState.summary.trace_id)));
 
+  // Session grouping: recompute only when the set of loaded traces changes.
+  $: sessionGroups = traceCount > 1 ? (computeSessionGroups($traceList)?.groups ?? []) : [];
+  $: hasSessions = sessionGroups.some(g => g.session_id && g.trace_count > 1);
+  $: activeSession = sessionGroups.find(
+    g => g.session_id && g.trace_count > 1 && g.trace_indices.includes(activeTraceIdx),
+  ) as SessionGroup | undefined;
+  $: sessionCostDisplay = activeSession?.total_cost_usd
+    ? `$${activeSession.total_cost_usd < 0.01 ? activeSession.total_cost_usd.toFixed(6) : activeSession.total_cost_usd.toFixed(4)}`
+    : '';
+
   function switchTrace(index: number): void {
     traceList.switchTo(index);
+  }
+
+  function sessionLabel(g: SessionGroup): string {
+    const id = g.session_id ?? '';
+    const short = id.length > 24 ? `${id.slice(0, 21)}…` : id;
+    return `session ${short} (${g.trace_count})`;
   }
 
   $: applyFilters($filterStatus, $filterService, $filterKind, $filterLlmOnly, $filterSafetyOnly);
@@ -198,9 +215,25 @@
 
       {#if traceCount > 1}
         <select class="trace-select" value={activeTraceIdx} on:change={(e) => switchTrace(parseInt(e.currentTarget.value))} aria-label="Switch trace">
-          {#each $traceList as entry, i}
-            <option value={i}>{entry.name}</option>
-          {/each}
+          {#if hasSessions}
+            {#each sessionGroups as g}
+              {#if g.session_id && g.trace_count > 1}
+                <optgroup label={sessionLabel(g)}>
+                  {#each g.trace_indices as i}
+                    <option value={i}>{$traceList[i]?.name}</option>
+                  {/each}
+                </optgroup>
+              {:else}
+                {#each g.trace_indices as i}
+                  <option value={i}>{$traceList[i]?.name}</option>
+                {/each}
+              {/if}
+            {/each}
+          {:else}
+            {#each $traceList as entry, i}
+              <option value={i}>{entry.name}</option>
+            {/each}
+          {/if}
         </select>
         <span class="trace-count">{traceCount} traces</span>
       {/if}
@@ -313,6 +346,12 @@
       <div class="stats-left">
         {#if isSample}
           <span class="sample-badge">sample</span>
+        {/if}
+        {#if activeSession}
+          <span class="session-badge" title="Session {activeSession.session_id}: {activeSession.trace_count} traces · {activeSession.span_count} spans{activeSession.error_count > 0 ? ` · ${activeSession.error_count} errors` : ''}{sessionCostDisplay ? ` · est ${sessionCostDisplay}` : ''} · {activeSession.total_duration_display}">
+            ⛓ session {activeSession.trace_count} traces{sessionCostDisplay ? ` · ${sessionCostDisplay}` : ''}{activeSession.error_count > 0 ? ` · ${activeSession.error_count} err` : ''}
+          </span>
+          <span class="stat-sep">·</span>
         {/if}
         <span class="format-badge">{FORMAT_LABELS[summary.detected_format] ?? summary.detected_format}</span>
         <span class="stat">spans <b>{summary.span_count}</b></span>
@@ -895,6 +934,17 @@
     font-size: 0.62rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .session-badge {
+    color: var(--color-success, #34d399);
+    background: color-mix(in srgb, var(--color-success, #34d399) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-success, #34d399) 30%, transparent);
+    border-radius: 999px;
+    padding: 0.12rem 0.55rem;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
     white-space: nowrap;
   }
 

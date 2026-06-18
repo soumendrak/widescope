@@ -1200,6 +1200,224 @@ pub fn compute_token_trends(traces_json: &str) -> Result<String, JsValue> {
     })
 }
 
+/// Attribute keys that carry a session/conversation identifier, in priority
+/// order. Covers OTel GenAI semconv (`session.id`, `gen_ai.conversation.id`),
+/// LangChain (`session_id`), and common `conversation`/`thread` variants.
+const SESSION_KEYS: &[&str] = &[
+    "session.id",
+    "session_id",
+    "gen_ai.conversation.id",
+    "conversation.id",
+    "conversation_id",
+    "thread.id",
+    "thread_id",
+];
+
+/// Detect a session id for a trace by scanning resource then span attributes
+/// for the first known session key with a non-empty string value.
+fn detect_session_id(trace: &Trace) -> Option<String> {
+    let from = |attrs: &std::collections::HashMap<String, AttributeValue>| {
+        SESSION_KEYS.iter().find_map(|k| {
+            attrs
+                .get(*k)
+                .and_then(|v| v.as_str())
+                .filter(|s| !s.is_empty())
+                .map(|s| s.to_string())
+        })
+    };
+    trace
+        .resources
+        .values()
+        .find_map(|r| from(&r.attributes))
+        .or_else(|| trace.spans.iter().find_map(|s| from(&s.attributes)))
+}
+
+#[derive(Serialize)]
+struct SessionGroup {
+    /// `None` when no session attribute was found (standalone trace).
+    session_id: Option<String>,
+    /// Indices into the input `traces_json` array (= positions in the UI list).
+    trace_indices: Vec<usize>,
+    trace_names: Vec<String>,
+    trace_count: usize,
+    span_count: usize,
+    llm_span_count: usize,
+    error_count: usize,
+    total_cost_usd: f64,
+    total_duration_ns: u64,
+    total_duration_display: String,
+}
+
+/// Group loaded traces by session id and aggregate per-session metrics.
+///
+/// `traces_json` is the same `[{ "name", "json" }]` payload [`compute_token_trends`]
+/// takes. Traces with a shared session attribute are grouped; traces without
+/// one each become a standalone group (`session_id: null`). Insertion order is
+/// preserved so the UI list stays stable.
+#[wasm_bindgen]
+pub fn compute_session_groups(traces_json: &str) -> Result<String, JsValue> {
+    #[derive(Deserialize)]
+    struct Entry {
+        name: String,
+        json: String,
+    }
+
+    let entries: Vec<Entry> =
+        serde_json::from_str(traces_json).map_err(|e| WideError::InvalidJson {
+            message: e.to_string(),
+            line: Some(e.line()),
+            column: Some(e.column()),
+        })?;
+
+    // Preserve first-seen order of session keys.
+    let mut order: Vec<String> = Vec::new();
+    let mut by_key: std::collections::HashMap<String, SessionGroup> =
+        std::collections::HashMap::new();
+    let mut standalone = 0usize;
+
+    for (idx, entry) in entries.iter().enumerate() {
+        // Skip unparseable traces rather than failing the whole grouping.
+        let Ok(trace) = parse_input_to_trace(&entry.json) else {
+            continue;
+        };
+
+        let session_id = detect_session_id(&trace);
+        // Standalone traces get a unique key so they never merge together.
+        let key = match &session_id {
+            Some(id) => format!("s:{id}"),
+            None => {
+                standalone += 1;
+                format!("t:{idx}")
+            }
+        };
+
+        if !by_key.contains_key(&key) {
+            order.push(key.clone());
+        }
+        let group = by_key.entry(key).or_insert_with(|| SessionGroup {
+            session_id: session_id.clone(),
+            trace_indices: Vec::new(),
+            trace_names: Vec::new(),
+            trace_count: 0,
+            span_count: 0,
+            llm_span_count: 0,
+            error_count: 0,
+            total_cost_usd: 0.0,
+            total_duration_ns: 0,
+            total_duration_display: String::new(),
+        });
+
+        group.trace_indices.push(idx);
+        group.trace_names.push(entry.name.clone());
+        group.trace_count += 1;
+        group.span_count += trace.span_count;
+        group.llm_span_count += trace.spans.iter().filter(|s| s.llm.is_some()).count();
+        group.error_count += trace.spans.iter().filter(|s| s.status.is_error()).count();
+        group.total_cost_usd += trace
+            .spans
+            .iter()
+            .filter_map(|s| s.llm.as_ref().and_then(|l| l.estimated_cost_usd))
+            .sum::<f64>();
+        group.total_duration_ns += trace.total_duration_ns;
+    }
+
+    let mut groups: Vec<SessionGroup> = order
+        .into_iter()
+        .filter_map(|k| by_key.remove(&k))
+        .map(|mut g| {
+            g.total_duration_display = format_duration(g.total_duration_ns);
+            g
+        })
+        .collect();
+
+    #[derive(Serialize)]
+    struct SessionGroups {
+        groups: Vec<SessionGroup>,
+        /// Number of multi-trace sessions — when 0 the UI keeps the flat list.
+        session_count: usize,
+        standalone_count: usize,
+    }
+
+    let session_count = groups
+        .iter()
+        .filter(|g| g.session_id.is_some() && g.trace_count > 1)
+        .count();
+
+    // Sort multi-trace sessions first (by trace count desc), standalone after.
+    groups.sort_by(|a, b| {
+        let rank = |g: &SessionGroup| g.session_id.is_some() && g.trace_count > 1;
+        rank(b)
+            .cmp(&rank(a))
+            .then(b.trace_count.cmp(&a.trace_count))
+    });
+
+    let out = SessionGroups {
+        session_count,
+        standalone_count: standalone,
+        groups,
+    };
+
+    serde_json::to_string(&out).map_err(|e| {
+        WideError::InvalidJson {
+            message: e.to_string(),
+            line: None,
+            column: None,
+        }
+        .into()
+    })
+}
+
+#[cfg(test)]
+mod session_group_tests {
+    use super::*;
+
+    fn otlp_with_session(trace_id: &str, session: Option<&str>) -> String {
+        let attrs = match session {
+            Some(s) => format!(
+                r#",{{"key":"session.id","value":{{"stringValue":"{s}"}}}}"#
+            ),
+            None => String::new(),
+        };
+        format!(
+            r#"{{"resourceSpans":[{{"resource":{{"attributes":[{{"key":"service.name","value":{{"stringValue":"svc"}}}}]}},"scopeSpans":[{{"spans":[{{"traceId":"{trace_id}","spanId":"0123456789abcdef","name":"op","startTimeUnixNano":"1000","endTimeUnixNano":"2000","attributes":[{{"key":"x","value":{{"stringValue":"y"}}}}{attrs}]}}]}}]}}]}}"#
+        )
+    }
+
+    #[test]
+    fn groups_traces_by_session() {
+        let a = otlp_with_session("0123456789abcdef0123456789abcde1", Some("sess-1"));
+        let b = otlp_with_session("0123456789abcdef0123456789abcde2", Some("sess-1"));
+        let c = otlp_with_session("0123456789abcdef0123456789abcde3", None);
+        let input = serde_json::json!([
+            {"name": "a", "json": a},
+            {"name": "b", "json": b},
+            {"name": "c", "json": c},
+        ])
+        .to_string();
+
+        let out = compute_session_groups(&input).expect("groups");
+        let v: serde_json::Value = serde_json::from_str(&out).unwrap();
+
+        assert_eq!(v["session_count"], 1);
+        assert_eq!(v["standalone_count"], 1);
+        // First group is the multi-trace session.
+        assert_eq!(v["groups"][0]["session_id"], "sess-1");
+        assert_eq!(v["groups"][0]["trace_count"], 2);
+        assert_eq!(v["groups"][0]["trace_indices"], serde_json::json!([0, 1]));
+        assert_eq!(v["groups"][1]["session_id"], serde_json::Value::Null);
+    }
+
+    #[test]
+    fn no_sessions_means_all_standalone() {
+        let a = otlp_with_session("0123456789abcdef0123456789abcde1", None);
+        let input = serde_json::json!([{"name": "a", "json": a}]).to_string();
+        let out = compute_session_groups(&input).expect("groups");
+        let v: serde_json::Value = serde_json::from_str(&out).unwrap();
+        assert_eq!(v["session_count"], 0);
+        assert_eq!(v["standalone_count"], 1);
+    }
+}
+
 #[cfg(test)]
 mod token_trends_tests {
     use super::*;
