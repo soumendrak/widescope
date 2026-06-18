@@ -2,6 +2,7 @@ import init, * as widescopeCore from '../../../crates/widescope-core/pkg/widesco
 import { BUNDLED_CONVENTIONS, BUNDLED_PRICING } from './conventions-bundle';
 import type {
   AgentFlow,
+  ComparisonMatrix,
   ComparisonSummary,
   CostBreakdown,
   CriticalPath,
@@ -112,6 +113,12 @@ export function parseComparisonTrace(raw: string): ComparisonSummary {
   const fn = (widescopeCore as { parse_comparison_trace?: (v: string) => string }).parse_comparison_trace;
   if (!fn) throw new Error('parse_comparison_trace not available');
   return JSON.parse(fn(raw)) as ComparisonSummary;
+}
+
+export function computeComparisonMatrix(entries: { name: string; json: string }[]): ComparisonMatrix {
+  const fn = (widescopeCore as { compute_comparison_matrix?: (v: string) => string }).compute_comparison_matrix;
+  if (!fn) throw new Error('compute_comparison_matrix not available');
+  return JSON.parse(fn(JSON.stringify(entries))) as ComparisonMatrix;
 }
 
 export function getComparisonFlamegraph(): FlameGraphLayout {

@@ -257,6 +257,118 @@ pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
     })
 }
 
+#[derive(Serialize)]
+struct MatrixTrace {
+    name: String,
+    trace_id: String,
+}
+
+#[derive(Serialize)]
+struct MetricRow {
+    label: String,
+    /// Some(true) = lower is better, Some(false) = higher is better, None = neutral.
+    lower_is_better: Option<bool>,
+    values: Vec<f64>,
+    display: Vec<String>,
+}
+
+#[derive(Serialize)]
+struct ComparisonMatrix {
+    traces: Vec<MatrixTrace>,
+    rows: Vec<MetricRow>,
+}
+
+#[derive(Deserialize)]
+struct MatrixInput {
+    name: String,
+    json: String,
+}
+
+/// Build a side-by-side metrics matrix for N loaded traces.
+/// Input: JSON array of `{name, json}`. Columns = traces, rows = metrics.
+#[wasm_bindgen]
+pub fn compute_comparison_matrix(raw_input: &str) -> Result<String, JsValue> {
+    let inputs: Vec<MatrixInput> =
+        serde_json::from_str(raw_input).map_err(|e| WideError::InvalidJson {
+            message: e.to_string(),
+            line: Some(e.line()),
+            column: Some(e.column()),
+        })?;
+
+    let mut traces = Vec::with_capacity(inputs.len());
+    // Per-metric value columns, indexed by trace.
+    let (mut duration, mut spans, mut errors, mut tokens, mut cost, mut p50, mut p95) =
+        (vec![], vec![], vec![], vec![], vec![], vec![], vec![]);
+    let (mut d_disp, mut s_disp, mut e_disp, mut t_disp, mut c_disp, mut p50_disp, mut p95_disp) =
+        (vec![], vec![], vec![], vec![], vec![], vec![], vec![]);
+
+    for input in &inputs {
+        let trace = parse_input_to_trace(&input.json).map_err(JsValue::from)?;
+
+        let error_count = trace.spans.iter().filter(|s| s.status.is_error()).count();
+        let token_count: u64 = trace
+            .spans
+            .iter()
+            .filter_map(|s| s.llm.as_ref())
+            .map(|llm| {
+                llm.total_tokens
+                    .unwrap_or_else(|| llm.input_tokens.unwrap_or(0) + llm.output_tokens.unwrap_or(0))
+            })
+            .sum();
+        let total_cost: f64 = trace
+            .spans
+            .iter()
+            .filter_map(|s| s.llm.as_ref())
+            .filter_map(|llm| llm.estimated_cost_usd)
+            .sum();
+
+        let mut durations: Vec<u64> = trace.spans.iter().map(|s| s.duration_ns).collect();
+        durations.sort_unstable();
+        let lp50 = percentile(&durations, 0.50);
+        let lp95 = percentile(&durations, 0.95);
+
+        traces.push(MatrixTrace {
+            name: input.name.clone(),
+            trace_id: trace.trace_id.clone(),
+        });
+
+        duration.push(trace.total_duration_ns as f64);
+        d_disp.push(format_duration(trace.total_duration_ns));
+        spans.push(trace.span_count as f64);
+        s_disp.push(trace.span_count.to_string());
+        errors.push(error_count as f64);
+        e_disp.push(error_count.to_string());
+        tokens.push(token_count as f64);
+        t_disp.push(token_count.to_string());
+        cost.push(total_cost);
+        c_disp.push(format!("${total_cost:.4}"));
+        p50.push(lp50 as f64);
+        p50_disp.push(format_duration(lp50));
+        p95.push(lp95 as f64);
+        p95_disp.push(format_duration(lp95));
+    }
+
+    let rows = vec![
+        MetricRow { label: "Total duration".into(), lower_is_better: Some(true), values: duration, display: d_disp },
+        MetricRow { label: "Span count".into(), lower_is_better: None, values: spans, display: s_disp },
+        MetricRow { label: "Error count".into(), lower_is_better: Some(true), values: errors, display: e_disp },
+        MetricRow { label: "Token count".into(), lower_is_better: None, values: tokens, display: t_disp },
+        MetricRow { label: "Cost (USD)".into(), lower_is_better: Some(true), values: cost, display: c_disp },
+        MetricRow { label: "P50 latency".into(), lower_is_better: Some(true), values: p50, display: p50_disp },
+        MetricRow { label: "P95 latency".into(), lower_is_better: Some(true), values: p95, display: p95_disp },
+    ];
+
+    let matrix = ComparisonMatrix { traces, rows };
+    serde_json::to_string(&matrix).map_err(|e| {
+        WideError::InvalidJson {
+            message: e.to_string(),
+            line: None,
+            column: None,
+        }
+        .into()
+    })
+}
+
 #[wasm_bindgen]
 pub fn compute_flamegraph() -> Result<String, JsValue> {
     TRACE.with(|t| {

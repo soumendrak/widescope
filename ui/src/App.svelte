@@ -16,6 +16,7 @@
   import ServiceGraph from './components/ServiceGraph.svelte';
   import AgentFlow from './components/AgentFlow.svelte';
   import DiffView from './components/DiffView.svelte';
+  import ComparisonTable from './components/ComparisonTable.svelte';
   import TokenTrends from './components/TokenTrends.svelte';
   import SpanDetail from './components/SpanDetail.svelte';
   import DropZone from './components/DropZone.svelte';
@@ -50,7 +51,7 @@
 
   $: isEmbedded = new URLSearchParams(window.location.search).get('embed') === '1';
 
-  const VIEW_ORDER: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics'> = ['waterfall', 'flame', 'timeline', 'graph', 'agent', 'diff', 'analytics'];
+  const VIEW_ORDER: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics' | 'matrix'> = ['waterfall', 'flame', 'timeline', 'graph', 'agent', 'diff', 'analytics', 'matrix'];
 
   $: {
     const currentIdx = VIEW_ORDER.indexOf($activeView);
@@ -70,7 +71,7 @@
     theme.apply(storedTheme === 'dark' ? 'dark' : storedTheme === 'light' ? 'light' : (prefersDark ? 'dark' : 'light'));
 
     const storedView = localStorage.getItem(STORAGE_KEY_VIEW);
-    if (storedView === 'flame' || storedView === 'timeline' || storedView === 'waterfall' || storedView === 'graph' || storedView === 'agent' || storedView === 'diff' || storedView === 'analytics') {
+    if (storedView === 'flame' || storedView === 'timeline' || storedView === 'waterfall' || storedView === 'graph' || storedView === 'agent' || storedView === 'diff' || storedView === 'analytics' || storedView === 'matrix') {
       activeView.set(storedView);
     }
 
@@ -336,9 +337,9 @@
       if (mod && e.key === 'Enter') { e.preventDefault(); void submitEditor(); return; }
       if (mod && e.key === 'v') { e.preventDefault(); void pasteFromClipboard(); return; }
 
-      if (!mod && e.key >= '1' && e.key <= '7') {
+      if (!mod && e.key >= '1' && e.key <= '8') {
         e.preventDefault();
-        const views: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics'> = ['flame', 'timeline', 'waterfall', 'graph', 'agent', 'diff', 'analytics'];
+        const views: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics' | 'matrix'> = ['flame', 'timeline', 'waterfall', 'graph', 'agent', 'diff', 'analytics', 'matrix'];
         activeView.set(views[parseInt(e.key) - 1]);
         localStorage.setItem(STORAGE_KEY_VIEW, views[parseInt(e.key) - 1]);
         return;
@@ -562,12 +563,16 @@
                 <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
                   <TokenTrends />
                 </div>
+              {:else if $activeView === 'matrix'}
+                <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
+                  <ComparisonTable />
+                </div>
               {:else}
                 <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
                   <FlameGraph bind:this={flameGraphView} layout={state.flameLayout} />
                 </div>
               {/if}
-              {#if $activeView !== 'diff' && $activeView !== 'analytics'}
+              {#if $activeView !== 'diff' && $activeView !== 'analytics' && $activeView !== 'matrix'}
                 <SpanDetail />
               {/if}
             {:else if state.status === 'error'}
