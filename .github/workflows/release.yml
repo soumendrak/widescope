@@ -66,11 +66,16 @@ jobs:
         working-directory: ui
         run: npm ci
 
-      # Build WASM here (cross-platform via bash) so beforeBuildCommand only has
-      # to run the Vite build. The Vite build then bundles crates/widescope-core/pkg.
+      # Build the frontend explicitly with controlled working directories.
+      # tauri.conf.json's beforeBuildCommand is empty, so tauri-action just
+      # bundles the prebuilt ui/dist — no dependence on the command's CWD/shell.
       - name: Build WASM
         shell: bash
         run: wasm-pack build crates/widescope-core --target web --out-dir pkg
+
+      - name: Build UI
+        working-directory: ui
+        run: npm run build
 
       - name: Build app and upload to release
         uses: tauri-apps/tauri-action@v0
