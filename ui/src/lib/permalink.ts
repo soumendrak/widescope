@@ -38,12 +38,27 @@ export const MAX_SHARE_DATA_CHARS = 32_000;
 export interface PermalinkState {
   /** base64url gzip blob from `#trace=` — still encoded; decode with decodeTrace. */
   traceData: string | null;
-  /** Remote trace URL from `?trace=` in the query string. */
+  /** Remote trace URL from `?trace=`, or one built from `?trace_id=&source=&url=`. */
   traceUrl: string | null;
   /** Initial view, if a valid one was supplied. */
   view: ViewName | null;
   /** Span id to pre-select. */
   spanId: string | null;
+}
+
+/**
+ * Build the fetch URL for a trace held by an OpenTelemetry backend.
+ *
+ * Jaeger and Tempo both serve a single trace at `GET {base}/api/traces/{id}` —
+ * Jaeger replies with Jaeger JSON and Tempo with OTLP JSON, both of which
+ * WideScope already parses, so no backend-specific decoding is needed.
+ *
+ * ponytail: Axiom skipped — it needs an API token + dataset query, which can't
+ * ride in a shareable URL. Add a connector when someone actually asks for it.
+ */
+function backendTraceUrl(source: string, base: string, traceId: string): string | null {
+  if (source !== 'jaeger' && source !== 'tempo') return null;
+  return `${base.replace(/\/+$/, '')}/api/traces/${encodeURIComponent(traceId)}`;
 }
 
 export interface ShareUrlResult {
@@ -156,9 +171,15 @@ export function parsePermalink(href: string = window.location.href): PermalinkSt
   const query = url.searchParams;
   const pick = (key: string): string | null => hash.get(key) ?? query.get(key);
 
+  const traceId = query.get('trace_id');
+  const source = query.get('source');
+  const collector = query.get('url') ?? query.get('collector');
+  const byId =
+    traceId && source && collector ? backendTraceUrl(source, collector, traceId) : null;
+
   return {
     traceData: hash.get('trace'),
-    traceUrl: query.get('trace'),
+    traceUrl: query.get('trace') ?? byId,
     view: coerceView(pick('view')),
     spanId: pick('span'),
   };
