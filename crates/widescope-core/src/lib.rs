@@ -9,7 +9,16 @@ mod utils;
 
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
+#[cfg(target_arch = "wasm32")]
 use wasm_bindgen::prelude::*;
+
+// Error carried out of the bindings: a JS value in the browser, a plain
+// `WideError` natively (the CLI). `JsValue` can't be constructed off-wasm —
+// `JsValue::from_str` aborts — so native error paths must avoid it.
+#[cfg(target_arch = "wasm32")]
+type ApiError = JsValue;
+#[cfg(not(target_arch = "wasm32"))]
+type ApiError = errors::WideError;
 
 use conventions::pricing::PricingTable;
 use conventions::registry::{load_conventions, Convention};
@@ -57,8 +66,8 @@ struct InitResult {
     warnings: Vec<ParseWarning>,
 }
 
-#[wasm_bindgen]
-pub fn init(conventions_json: &str) -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn init(conventions_json: &str) -> Result<String, ApiError> {
     set_panic_hook();
 
     let result = load_conventions(conventions_json);
@@ -89,8 +98,8 @@ struct InitPricingResult {
     warnings: Vec<ParseWarning>,
 }
 
-#[wasm_bindgen]
-pub fn init_pricing(pricing_json: &str) -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn init_pricing(pricing_json: &str) -> Result<String, ApiError> {
     let mut table = PricingTable::new();
     let mut warnings = Vec::new();
     let loaded = match table.load(pricing_json) {
@@ -205,9 +214,9 @@ fn parse_input_to_trace(raw_input: &str) -> Result<Trace, WideError> {
     build_trace(spans, format, parse_warnings)
 }
 
-#[wasm_bindgen]
-pub fn parse_trace(raw_input: &str) -> Result<String, JsValue> {
-    let trace = parse_input_to_trace(raw_input).map_err(JsValue::from)?;
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn parse_trace(raw_input: &str) -> Result<String, ApiError> {
+    let trace = parse_input_to_trace(raw_input).map_err(ApiError::from)?;
 
     let error_count = trace.spans.iter().filter(|s| s.status.is_error()).count();
     let llm_span_count = trace.spans.iter().filter(|s| s.llm.is_some()).count();
@@ -286,8 +295,8 @@ struct MatrixInput {
 
 /// Build a side-by-side metrics matrix for N loaded traces.
 /// Input: JSON array of `{name, json}`. Columns = traces, rows = metrics.
-#[wasm_bindgen]
-pub fn compute_comparison_matrix(raw_input: &str) -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn compute_comparison_matrix(raw_input: &str) -> Result<String, ApiError> {
     let inputs: Vec<MatrixInput> =
         serde_json::from_str(raw_input).map_err(|e| WideError::InvalidJson {
             message: e.to_string(),
@@ -303,7 +312,7 @@ pub fn compute_comparison_matrix(raw_input: &str) -> Result<String, JsValue> {
         (vec![], vec![], vec![], vec![], vec![], vec![], vec![]);
 
     for input in &inputs {
-        let trace = parse_input_to_trace(&input.json).map_err(JsValue::from)?;
+        let trace = parse_input_to_trace(&input.json).map_err(ApiError::from)?;
 
         let error_count = trace.spans.iter().filter(|s| s.status.is_error()).count();
         let token_count: u64 = trace
@@ -369,8 +378,8 @@ pub fn compute_comparison_matrix(raw_input: &str) -> Result<String, JsValue> {
     })
 }
 
-#[wasm_bindgen]
-pub fn compute_flamegraph() -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn compute_flamegraph() -> Result<String, ApiError> {
     TRACE.with(|t| {
         let borrow = t.borrow();
         match borrow.as_ref() {
@@ -390,8 +399,8 @@ pub fn compute_flamegraph() -> Result<String, JsValue> {
     })
 }
 
-#[wasm_bindgen]
-pub fn compute_timeline() -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn compute_timeline() -> Result<String, ApiError> {
     TRACE.with(|t| {
         let borrow = t.borrow();
         match borrow.as_ref() {
@@ -411,8 +420,8 @@ pub fn compute_timeline() -> Result<String, JsValue> {
     })
 }
 
-#[wasm_bindgen]
-pub fn get_span_detail(span_id: &str) -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn get_span_detail(span_id: &str) -> Result<String, ApiError> {
     TRACE.with(|t| {
         let borrow = t.borrow();
         match borrow.as_ref() {
@@ -472,8 +481,8 @@ pub fn get_span_detail(span_id: &str) -> Result<String, JsValue> {
     })
 }
 
-#[wasm_bindgen]
-pub fn search_spans(query: &str) -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn search_spans(query: &str) -> Result<String, ApiError> {
     let normalized_query = query.trim().to_ascii_lowercase();
 
     if normalized_query.is_empty() {
@@ -510,8 +519,8 @@ pub fn search_spans(query: &str) -> Result<String, JsValue> {
     })
 }
 
-#[wasm_bindgen]
-pub fn compute_waterfall() -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn compute_waterfall() -> Result<String, ApiError> {
     TRACE.with(|t| {
         let borrow = t.borrow();
         match borrow.as_ref() {
@@ -531,8 +540,8 @@ pub fn compute_waterfall() -> Result<String, JsValue> {
     })
 }
 
-#[wasm_bindgen]
-pub fn compute_agent_flow_layout() -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn compute_agent_flow_layout() -> Result<String, ApiError> {
     TRACE.with(|t| {
         let borrow = t.borrow();
         match borrow.as_ref() {
@@ -552,8 +561,8 @@ pub fn compute_agent_flow_layout() -> Result<String, JsValue> {
     })
 }
 
-#[wasm_bindgen]
-pub fn get_service_graph() -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn get_service_graph() -> Result<String, ApiError> {
     TRACE.with(|t| {
         let borrow = t.borrow();
         match borrow.as_ref() {
@@ -842,8 +851,8 @@ struct FilterRequest {
     safety_only: Option<bool>,
 }
 
-#[wasm_bindgen]
-pub fn filter_spans(filter_json: &str) -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn filter_spans(filter_json: &str) -> Result<String, ApiError> {
     let filter: FilterRequest =
         serde_json::from_str(filter_json).map_err(|e| WideError::InvalidJson {
             message: e.to_string(),
@@ -936,8 +945,8 @@ struct ComparisonSummary {
     trace_id: String,
 }
 
-#[wasm_bindgen]
-pub fn parse_comparison_trace(raw_input: &str) -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn parse_comparison_trace(raw_input: &str) -> Result<String, ApiError> {
     let value: serde_json::Value =
         serde_json::from_str(raw_input).map_err(|e| WideError::InvalidJson {
             message: e.to_string(),
@@ -945,19 +954,19 @@ pub fn parse_comparison_trace(raw_input: &str) -> Result<String, JsValue> {
             column: Some(e.column()),
         })?;
 
-    let format = detect_format(&value).map_err(JsValue::from)?;
+    let format = detect_format(&value).map_err(ApiError::from)?;
 
     let (mut spans, _parse_warnings) = match &format {
         models::trace::InputFormat::OtlpJson => {
-            let result = parse_otlp_with_warnings(&value).map_err(JsValue::from)?;
+            let result = parse_otlp_with_warnings(&value).map_err(ApiError::from)?;
             (result.spans, result.warnings)
         }
         models::trace::InputFormat::JaegerJson => {
-            let result = parse_jaeger_with_warnings(&value).map_err(JsValue::from)?;
+            let result = parse_jaeger_with_warnings(&value).map_err(ApiError::from)?;
             (result.spans, result.warnings)
         }
         models::trace::InputFormat::OpenInferenceJson => {
-            let result = parse_openinference_with_warnings(&value).map_err(JsValue::from)?;
+            let result = parse_openinference_with_warnings(&value).map_err(ApiError::from)?;
             (result.spans, result.warnings)
         }
         _ => return Err(WideError::UnrecognizedFormat.into()),
@@ -969,7 +978,7 @@ pub fn parse_comparison_trace(raw_input: &str) -> Result<String, JsValue> {
         span.safety = conventions::safety::detect_safety_signals(span);
     }
 
-    let trace = build_trace(spans, format, vec![]).map_err(JsValue::from)?;
+    let trace = build_trace(spans, format, vec![]).map_err(ApiError::from)?;
 
     let error_count = trace.spans.iter().filter(|s| s.status.is_error()).count();
     let llm_span_count = trace.spans.iter().filter(|s| s.llm.is_some()).count();
@@ -999,8 +1008,8 @@ pub fn parse_comparison_trace(raw_input: &str) -> Result<String, JsValue> {
     })
 }
 
-#[wasm_bindgen]
-pub fn get_comparison_flamegraph() -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn get_comparison_flamegraph() -> Result<String, ApiError> {
     COMPARISON_TRACE.with(|t| {
         let borrow = t.borrow();
         match borrow.as_ref() {
@@ -1024,26 +1033,26 @@ pub fn get_comparison_flamegraph() -> Result<String, JsValue> {
 ///
 /// Returns `[format tag] + deflate(json)` bytes; the UI base64url-encodes them
 /// into the URL `#fragment`.
-#[wasm_bindgen]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 pub fn compress_share(json: &str) -> Vec<u8> {
     share::compress_share(json)
 }
 
 /// Decode a share blob produced by [`compress_share`] back into trace JSON.
-#[wasm_bindgen]
-pub fn decompress_share(blob: &[u8]) -> Result<String, JsValue> {
-    share::decompress_share(blob).map_err(JsValue::from)
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn decompress_share(blob: &[u8]) -> Result<String, ApiError> {
+    share::decompress_share(blob).map_err(ApiError::from)
 }
 
-#[wasm_bindgen]
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 pub fn clear_comparison() {
     COMPARISON_TRACE.with(|t| {
         *t.borrow_mut() = None;
     });
 }
 
-#[wasm_bindgen]
-pub fn get_critical_path() -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn get_critical_path() -> Result<String, ApiError> {
     TRACE.with(|t| {
         let borrow = t.borrow();
         match borrow.as_ref() {
@@ -1074,8 +1083,8 @@ struct CostEntry {
     spans: Vec<String>,
 }
 
-#[wasm_bindgen]
-pub fn get_cost_breakdown() -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn get_cost_breakdown() -> Result<String, ApiError> {
     TRACE.with(|t| {
         let borrow = t.borrow();
         match borrow.as_ref() {
@@ -1216,8 +1225,8 @@ fn sorted_groups(map: std::collections::HashMap<String, TokenGroup>) -> Vec<Toke
 /// the raw trace payloads the UI keeps in its trace list. Each is parsed and
 /// priced with the currently-loaded conventions/pricing, then tokens and cost
 /// are summed per model, per service, and per trace.
-#[wasm_bindgen]
-pub fn compute_token_trends(traces_json: &str) -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn compute_token_trends(traces_json: &str) -> Result<String, ApiError> {
     #[derive(Deserialize)]
     struct Entry {
         name: String,
@@ -1355,8 +1364,8 @@ struct Dashboard {
 /// with the currently-loaded conventions/pricing into a per-trace row, plus
 /// aggregate totals and how many traces each service appears in. Traces that
 /// fail to parse are skipped rather than failing the whole dashboard.
-#[wasm_bindgen]
-pub fn compute_dashboard(traces_json: &str) -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn compute_dashboard(traces_json: &str) -> Result<String, ApiError> {
     #[derive(Deserialize)]
     struct Entry {
         name: String,
@@ -1513,8 +1522,8 @@ struct SessionGroup {
 /// takes. Traces with a shared session attribute are grouped; traces without
 /// one each become a standalone group (`session_id: null`). Insertion order is
 /// preserved so the UI list stays stable.
-#[wasm_bindgen]
-pub fn compute_session_groups(traces_json: &str) -> Result<String, JsValue> {
+#[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
+pub fn compute_session_groups(traces_json: &str) -> Result<String, ApiError> {
     #[derive(Deserialize)]
     struct Entry {
         name: String,
