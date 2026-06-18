@@ -15,7 +15,9 @@
   import WaterfallView from './components/WaterfallView.svelte';
   import ServiceGraph from './components/ServiceGraph.svelte';
   import AgentFlow from './components/AgentFlow.svelte';
+  import AgentTimeline from './components/AgentTimeline.svelte';
   import DiffView from './components/DiffView.svelte';
+  import ComparisonTable from './components/ComparisonTable.svelte';
   import TokenTrends from './components/TokenTrends.svelte';
   import DashboardView from './components/DashboardView.svelte';
   import SpanDetail from './components/SpanDetail.svelte';
@@ -51,7 +53,9 @@
 
   $: isEmbedded = new URLSearchParams(window.location.search).get('embed') === '1';
 
-  const VIEW_ORDER: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics' | 'dashboard'> = ['waterfall', 'flame', 'timeline', 'graph', 'agent', 'diff', 'analytics', 'dashboard'];
+  const VIEW_ORDER: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics' | 'matrix' | 'dashboard'> = ['waterfall', 'flame', 'timeline', 'graph', 'agent', 'diff', 'analytics', 'matrix', 'dashboard'];
+
+  let agentSubview: 'flow' | 'timeline' = 'flow';
 
   $: {
     const currentIdx = VIEW_ORDER.indexOf($activeView);
@@ -71,7 +75,7 @@
     theme.apply(storedTheme === 'dark' ? 'dark' : storedTheme === 'light' ? 'light' : (prefersDark ? 'dark' : 'light'));
 
     const storedView = localStorage.getItem(STORAGE_KEY_VIEW);
-    if (storedView === 'flame' || storedView === 'timeline' || storedView === 'waterfall' || storedView === 'graph' || storedView === 'agent' || storedView === 'diff' || storedView === 'analytics' || storedView === 'dashboard') {
+    if (storedView === 'flame' || storedView === 'timeline' || storedView === 'waterfall' || storedView === 'graph' || storedView === 'agent' || storedView === 'diff' || storedView === 'analytics' || storedView === 'matrix' || storedView === 'dashboard') {
       activeView.set(storedView);
     }
 
@@ -337,9 +341,9 @@
       if (mod && e.key === 'Enter') { e.preventDefault(); void submitEditor(); return; }
       if (mod && e.key === 'v') { e.preventDefault(); void pasteFromClipboard(); return; }
 
-      if (!mod && e.key >= '1' && e.key <= '8') {
+      if (!mod && e.key >= '1' && e.key <= '9') {
         e.preventDefault();
-        const views: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics' | 'dashboard'> = ['flame', 'timeline', 'waterfall', 'graph', 'agent', 'diff', 'analytics', 'dashboard'];
+        const views: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics' | 'matrix' | 'dashboard'> = ['flame', 'timeline', 'waterfall', 'graph', 'agent', 'diff', 'analytics', 'matrix', 'dashboard'];
         activeView.set(views[parseInt(e.key) - 1]);
         localStorage.setItem(STORAGE_KEY_VIEW, views[parseInt(e.key) - 1]);
         return;
@@ -552,8 +556,16 @@
                   <ServiceGraph graph={state.serviceGraph} />
                 </div>
               {:else if $activeView === 'agent' && state.agentFlow}
-                <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
-                  <AgentFlow flow={state.agentFlow} />
+                <div class="view-wrapper agent-view" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
+                  <div class="agent-subview-toggle" role="tablist" aria-label="Agent view mode">
+                    <button type="button" role="tab" class:active={agentSubview === 'flow'} aria-selected={agentSubview === 'flow'} on:click={() => (agentSubview = 'flow')}>Flow</button>
+                    <button type="button" role="tab" class:active={agentSubview === 'timeline'} aria-selected={agentSubview === 'timeline'} on:click={() => (agentSubview = 'timeline')}>Timeline</button>
+                  </div>
+                  {#if agentSubview === 'timeline'}
+                    <AgentTimeline flow={state.agentFlow} />
+                  {:else}
+                    <AgentFlow flow={state.agentFlow} />
+                  {/if}
                 </div>
               {:else if $activeView === 'diff'}
                 <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
@@ -562,6 +574,10 @@
               {:else if $activeView === 'analytics'}
                 <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
                   <TokenTrends />
+                </div>
+              {:else if $activeView === 'matrix'}
+                <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
+                  <ComparisonTable />
                 </div>
               {:else if $activeView === 'dashboard'}
                 <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
@@ -572,7 +588,7 @@
                   <FlameGraph bind:this={flameGraphView} layout={state.flameLayout} />
                 </div>
               {/if}
-              {#if $activeView !== 'diff' && $activeView !== 'analytics' && $activeView !== 'dashboard'}
+              {#if $activeView !== 'diff' && $activeView !== 'analytics' && $activeView !== 'matrix' && $activeView !== 'dashboard'}
                 <SpanDetail />
               {/if}
             {:else if state.status === 'error'}
@@ -1348,6 +1364,39 @@
     flex: 1;
     min-height: 0;
     display: flex;
+  }
+
+  .agent-view {
+    flex-direction: column;
+  }
+
+  .agent-subview-toggle {
+    display: inline-flex;
+    gap: 2px;
+    padding: 2px;
+    margin: 0.5rem 0.5rem 0;
+    border: 1px solid var(--color-border-soft, rgba(125, 211, 252, 0.07));
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--color-canvas-bg, #070c16) 60%, transparent);
+    align-self: flex-start;
+  }
+
+  .agent-subview-toggle button {
+    background: none;
+    border: 0;
+    border-radius: 5px;
+    padding: 0.2rem 0.8rem;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted, #9aa8bd);
+  }
+
+  .agent-subview-toggle button.active {
+    background: var(--color-badge-bg, rgba(59, 130, 246, 0.16));
+    color: var(--color-sky, #7dd3fc);
   }
 
   .empty-state {

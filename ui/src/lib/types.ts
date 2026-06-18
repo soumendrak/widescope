@@ -17,7 +17,7 @@ export interface InitResult {
   warnings: ParseWarning[];
 }
 
-export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics' | 'dashboard';
+export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics' | 'matrix' | 'dashboard';
 
 export interface TraceSummary {
   trace_id: string;
@@ -182,6 +182,9 @@ export interface AgentFlowNode {
   layer: number;
   order: number;
   iteration: number | null;
+  arguments: string | null;
+  result: string | null;
+  detail: string | null;
 }
 
 export interface AgentFlowEdge {
@@ -209,6 +212,16 @@ export interface ComparisonSummary {
   error_count: number;
   llm_span_count: number;
   trace_id: string;
+}
+
+export interface ComparisonMatrix {
+  traces: { name: string; trace_id: string }[];
+  rows: {
+    label: string;
+    lower_is_better: boolean | null;
+    values: number[];
+    display: string[];
+  }[];
 }
 
 export interface CriticalPath {
@@ -296,6 +309,28 @@ export interface Dashboard {
   avg_duration_ns: number;
   avg_duration_display: string;
   top_services: ServiceFrequency[];
+}
+
+export interface SessionGroup {
+  /** null when no session attribute was found (standalone trace). */
+  session_id: string | null;
+  /** Indices into the trace list (positions in the UI dropdown order). */
+  trace_indices: number[];
+  trace_names: string[];
+  trace_count: number;
+  span_count: number;
+  llm_span_count: number;
+  error_count: number;
+  total_cost_usd: number;
+  total_duration_ns: number;
+  total_duration_display: string;
+}
+
+export interface SessionGroups {
+  groups: SessionGroup[];
+  /** Number of multi-trace sessions; 0 means the UI keeps a flat list. */
+  session_count: number;
+  standalone_count: number;
 }
 
 export interface LlmDetail {

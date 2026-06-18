@@ -22,6 +22,12 @@ pub struct AgentFlowNode {
     pub order: usize,
     /// Iteration index for repeated tool/chain calls under the same parent (loops).
     pub iteration: Option<usize>,
+    /// Tool-call arguments (tool nodes only) — shown inline in the timeline view.
+    pub arguments: Option<String>,
+    /// Tool-call result (tool nodes only) — shown inline in the timeline view.
+    pub result: Option<String>,
+    /// First output-message content for llm/agent nodes — the agent's "thought".
+    pub detail: Option<String>,
 }
 
 /// A directed edge: an agent spawning a child step ("spawn"), or sequential
@@ -103,9 +109,14 @@ pub fn compute_agent_flow(trace: &Trace) -> AgentFlow {
             None => continue,
         };
         let llm = span.llm.as_ref();
-        let tool_name = llm
-            .and_then(|l| l.tool_calls.first().map(|t| t.name.clone()))
-            .filter(|_| *kind == "tool");
+        let first_tool = llm.and_then(|l| l.tool_calls.first());
+        let tool_name = first_tool.map(|t| t.name.clone()).filter(|_| *kind == "tool");
+        let arguments = first_tool.and_then(|t| t.arguments.clone());
+        let result = first_tool.and_then(|t| t.result.clone());
+        // The agent's "thought" — the model's first output message, if any.
+        let detail = llm
+            .and_then(|l| l.output_messages.first())
+            .and_then(|m| m.content.clone());
 
         let parent = flow_parent(span_id);
 
@@ -127,6 +138,9 @@ pub fn compute_agent_flow(trace: &Trace) -> AgentFlow {
             layer: layer_of(span_id),
             order: *order_of.get(span_id).unwrap_or(&0),
             iteration,
+            arguments,
+            result,
+            detail,
         });
 
         if let Some(p) = parent {
@@ -177,8 +191,8 @@ mod tests {
                 .map(|n| {
                     vec![ToolCall {
                         name: n.to_string(),
-                        arguments: None,
-                        result: None,
+                        arguments: Some(format!("{{\"q\":\"{n}\"}}")),
+                        result: Some("ok".to_string()),
                     }]
                 })
                 .unwrap_or_default(),
@@ -236,6 +250,8 @@ mod tests {
         let t2 = flow.nodes.iter().find(|n| n.span_id == "t2").unwrap();
         assert_eq!(t2.layer, 1, "tool is one layer below its agent");
         assert_eq!(t2.iteration, Some(1), "second search call is iteration 1");
+        assert_eq!(t2.arguments.as_deref(), Some("{\"q\":\"search\"}"), "tool args inline");
+        assert_eq!(t2.result.as_deref(), Some("ok"), "tool result inline");
 
         // spawn edges a->t1, a->t2 ; sequence edge t1->t2.
         assert!(flow
