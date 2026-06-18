@@ -4,6 +4,7 @@
   import { loadWasm, getInitWarnings, getSpanDetail } from './lib/wasm';
   import { openFilePicker, handleFile, handleRawInputAsync } from './lib/input';
   import { parsePermalink, decodeTrace } from './lib/permalink';
+  import { setupTauriFileOpen } from './lib/tauri';
   import { SAMPLE_TRACE } from './lib/sample';
   import { traceState } from './stores/trace';
   import { theme } from './lib/theme';
@@ -111,6 +112,9 @@
       wasmError = String(e);
       return;
     }
+
+    // Desktop (Tauri) only: load a trace opened via double-click or File → Open.
+    void setupTauriFileOpen((text) => { void loadEditorText(text); });
 
     const permalink = parsePermalink();
     let permalinkLoaded = false;

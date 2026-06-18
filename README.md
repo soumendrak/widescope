@@ -118,6 +118,38 @@ just clean         # remove Rust, WASM package, UI dist, and node_modules artifa
 - **`just build` produces the deployable static assets** in `ui/dist/`.
 - **`wasm-opt` is optional** — the build still succeeds without it, but the generated `.wasm` will be larger.
 
+## Desktop app (Tauri)
+
+`src-tauri/` wraps the **same** Svelte + WASM UI in a native window — no separate
+codebase. The desktop build adds the one thing the browser can't do: open trace
+files straight off local disk.
+
+- **File → Open** (⌘/Ctrl+O) and a native file picker.
+- **Double-click a `.json` / `.trace` file** → opens in WideScope (OS file
+  association; also works via `widescope path/to/trace.json`).
+
+Files are read in Rust and handed to the existing WASM parser, so every viewer
+feature works identically to the web app.
+
+```bash
+cargo install tauri-cli --version '^2'   # one-time
+just tauri-dev                            # run the desktop app (hot-reloads the UI)
+just tauri-build                          # produce a .dmg / .msi / .deb / .AppImage
+```
+
+> The desktop shell is its own Cargo workspace, so the main Rust CI
+> (`cargo check --workspace`) does not compile Tauri. Linux builds need the
+> usual `webkit2gtk` dev packages — see the
+> [Tauri prerequisites](https://tauri.app/start/prerequisites/). For polished
+> bundles run `cargo tauri icon ui/public/icons/icon-512x512.png` once to
+> generate platform icons.
+
+Deferred from [#34](https://github.com/soumendrak/widescope/issues/34) until
+there's a real need: native (non-WASM) parsing / memory-mapped loading
+(Phase 3), system tray, multi-window, folder watching, and recent-files
+(Phase 2). The WASM path already parses every supported format inside the
+webview.
+
 ## Deployment on Cloudflare Pages
 
 This repo is set up to publish the static `ui/dist/` bundle to **Cloudflare Pages** from GitHub Actions.

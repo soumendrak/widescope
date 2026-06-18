@@ -5,6 +5,9 @@ Cargo.lock
 # wasm-pack output
 crates/widescope-core/pkg/
 
+# Tauri generated schemas/icons (src-tauri/target/ already covered by target/)
+src-tauri/gen/
+
 # Node / UI
 ui/node_modules/
 ui/dist/
