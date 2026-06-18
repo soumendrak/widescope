@@ -5,6 +5,7 @@
   import { openFilePicker, handleFile, handleRawInputAsync } from './lib/input';
   import { parsePermalink, decodeTrace } from './lib/permalink';
   import { setupTauriFileOpen } from './lib/tauri';
+  import { connectLive, disconnectLive } from './lib/live';
   import { SAMPLE_TRACE } from './lib/sample';
   import { traceState } from './stores/trace';
   import { theme } from './lib/theme';
@@ -141,6 +142,11 @@
       // Landing-page "Try the sample trace" CTA deep link.
       loadSampleJson();
     }
+
+    // Live mode: stream traces from an SSE relay and auto-select each newest one.
+    // ponytail: every trace runs the full editor load — fine for Phase 1 cadence.
+    const liveUrl = new URLSearchParams(window.location.search).get('live');
+    if (liveUrl) connectLive(liveUrl, (json) => { void loadEditorText(json); });
   });
 
   /** Pre-select a span from a share link, ignoring it if absent in the trace. */
@@ -154,6 +160,7 @@
   }
 
   onDestroy(() => {
+    disconnectLive();
     clearLiveParseTimer();
     editorResizeObserver?.disconnect();
     if (globalKeydownHandler) document.removeEventListener('keydown', globalKeydownHandler);

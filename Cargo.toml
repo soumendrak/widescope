@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/widescope-core"]
+members = ["crates/widescope-core", "crates/widescope-cli"]
 # src-tauri is its own workspace (heavy Tauri deps) — keep it out of the
 # lightweight `cargo check --workspace` CI. Build it with `just tauri-build`.
 exclude = ["src-tauri"]
