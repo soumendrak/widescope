@@ -16,33 +16,7 @@ try {
   throw e;
 }
 
-// Register the PWA service worker — vite-plugin-pwa handles generation
-// Registration is deferred to avoid blocking initial render
-if ('serviceWorker' in navigator) {
-  // Only register in production (dev server uses HMR, not SW)
-  if (import.meta.env.PROD) {
-    window.addEventListener('load', async () => {
-      try {
-        const reg = await navigator.serviceWorker.register('/sw.js');
-        console.log('[WideScope PWA] Service worker registered', reg.scope);
-
-        // Check for updates on each page load
-        reg.addEventListener('updatefound', () => {
-          const installing = reg.installing;
-          if (installing) {
-            installing.addEventListener('statechange', () => {
-              if (installing.state === 'installed' && navigator.serviceWorker.controller) {
-                // New version available — auto-update (configured in vite.config.ts)
-                console.log('[WideScope PWA] Update installed, will activate on next reload');
-              }
-            });
-          }
-        });
-      } catch (err) {
-        console.warn('[WideScope PWA] Service worker registration failed:', err);
-      }
-    });
-  }
-}
+// PWA service worker is registered by vite-plugin-pwa's auto-injected
+// registerSW.js (registerType: 'autoUpdate' in vite.config.ts).
 
 export default app;
