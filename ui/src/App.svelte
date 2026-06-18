@@ -137,7 +137,20 @@
       // Landing-page "Try the sample trace" CTA deep link.
       loadSampleJson();
     }
+
+    // Host bridge: an embedding host (e.g. the VS Code extension) posts trace
+    // text in via postMessage instead of a URL, so big files dodge URL limits.
+    // Announce readiness so the host waits for the listener (WASM load is async).
+    window.addEventListener('message', hostMessageHandler);
+    if (window.parent !== window) window.parent.postMessage({ type: 'widescope:ready' }, '*');
   });
+
+  function hostMessageHandler(event: MessageEvent): void {
+    const data = event.data;
+    if (data && data.type === 'widescope:load' && typeof data.text === 'string') {
+      void loadEditorText(data.text);
+    }
+  }
 
   /** Pre-select a span from a share link, ignoring it if absent in the trace. */
   function applyPermalinkSpan(spanId: string): void {
@@ -152,6 +165,7 @@
   onDestroy(() => {
     clearLiveParseTimer();
     editorResizeObserver?.disconnect();
+    window.removeEventListener('message', hostMessageHandler);
     if (globalKeydownHandler) document.removeEventListener('keydown', globalKeydownHandler);
   });
 
