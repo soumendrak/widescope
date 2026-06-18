@@ -85,7 +85,9 @@ ui-install:
 tauri-dev: build-wasm
     cd src-tauri && cargo tauri dev
 
-tauri-build:
+# build-wasm first: beforeBuildCommand only runs the Vite build (kept
+# cross-platform for the Windows/Linux CI), so WASM is built here.
+tauri-build: build-wasm
     cd src-tauri && cargo tauri build
 
 # ═══════════════════════════════════════════════════════════════════════
