@@ -39,4 +39,42 @@ jobs:
     - name: cargo test
       run: cargo test --workspace
 
+  ui:
+    name: UI — unit + e2e
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install Rust toolchain
+      uses: dtolnay/rust-toolchain@stable
+      with:
+        targets: wasm32-unknown-unknown
+
+    - name: Install wasm-pack
+      uses: jetli/wasm-pack-action@v0.4.0
+
+    - name: Build WASM
+      run: wasm-pack build crates/widescope-core --target web --out-dir pkg
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+        cache: npm
+        cache-dependency-path: ui/package-lock.json
+
+    - name: Install UI deps
+      working-directory: ui
+      run: npm ci
+
+    - name: Unit tests (vitest)
+      working-directory: ui
+      run: npm test
+
+    - name: Install Playwright browser
+      working-directory: ui
+      run: npx playwright install --with-deps chromium
+
+    - name: E2E tests (Playwright)
+      working-directory: ui
+      run: npm run e2e
 
