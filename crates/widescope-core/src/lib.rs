@@ -1,3 +1,7 @@
+// `WideError::X.into()` converts to JsValue on wasm but is identity natively,
+// where `ApiError = WideError` — so clippy's useless_conversion only fires off-wasm.
+#![cfg_attr(not(target_arch = "wasm32"), allow(clippy::useless_conversion))]
+
 mod conventions;
 mod errors;
 mod layout;
