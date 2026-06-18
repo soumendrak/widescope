@@ -9,6 +9,7 @@ import type {
   InitResult,
   ParseWarning,
   ServiceGraph,
+  SessionGroups,
   SpanDetail,
   TimelineLayout,
   TokenTrends,
@@ -145,6 +146,16 @@ export function computeTokenTrends(
     .compute_token_trends;
   if (!fn) return null;
   return JSON.parse(fn(JSON.stringify(traces))) as TokenTrends;
+}
+
+/** Group the UI's raw trace payloads by session id with aggregated metrics. */
+export function computeSessionGroups(
+  traces: { name: string; json: string }[],
+): SessionGroups | null {
+  const fn = (widescopeCore as { compute_session_groups?: (s: string) => string })
+    .compute_session_groups;
+  if (!fn) return null;
+  return JSON.parse(fn(JSON.stringify(traces))) as SessionGroups;
 }
 
 /** Whether the WASM share-link compressor is available (i.e. WASM is loaded). */
