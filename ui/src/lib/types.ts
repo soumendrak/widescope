@@ -17,7 +17,7 @@ export interface InitResult {
   warnings: ParseWarning[];
 }
 
-export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics';
+export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics' | 'matrix';
 
 export interface TraceSummary {
   trace_id: string;
@@ -212,6 +212,16 @@ export interface ComparisonSummary {
   error_count: number;
   llm_span_count: number;
   trace_id: string;
+}
+
+export interface ComparisonMatrix {
+  traces: { name: string; trace_id: string }[];
+  rows: {
+    label: string;
+    lower_is_better: boolean | null;
+    values: number[];
+    display: string[];
+  }[];
 }
 
 export interface CriticalPath {
