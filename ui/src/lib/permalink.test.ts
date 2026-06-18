@@ -94,6 +94,20 @@ describe('parsePermalink', () => {
     expect(state.view).toBe('flame');
   });
 
+  it('builds a Jaeger/Tempo fetch URL from trace_id + source + url', () => {
+    const state = parsePermalink(
+      'https://widescope.test/?trace_id=abc123&source=jaeger&url=http://jaeger:16686/',
+    );
+    expect(state.traceUrl).toBe('http://jaeger:16686/api/traces/abc123');
+  });
+
+  it('ignores trace-by-id for an unknown source', () => {
+    const state = parsePermalink(
+      'https://widescope.test/?trace_id=abc123&source=zipkin&url=http://z:9411',
+    );
+    expect(state.traceUrl).toBeNull();
+  });
+
   it('ignores an unknown view value', () => {
     const state = parsePermalink('https://widescope.test/#view=hologram');
     expect(state.view).toBeNull();
