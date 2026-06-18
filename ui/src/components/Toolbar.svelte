@@ -255,6 +255,9 @@
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'agent'} role="tab" aria-selected={$activeView === 'agent'} title="Agent flow (5)" on:click={() => activeView.set('agent')}><span class="vt-ic">⌥</span><span class="vt-label">Agent</span></button>
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'diff'} role="tab" aria-selected={$activeView === 'diff'} title="Trace diff (6)" on:click={() => activeView.set('diff')}><span class="vt-ic">⇆</span><span class="vt-label">Diff</span></button>
           <button type="button" class="view-tab" class:view-tab--active={$activeView === 'analytics'} role="tab" aria-selected={$activeView === 'analytics'} title="Token trends (7)" on:click={() => activeView.set('analytics')}><span class="vt-ic">📊</span><span class="vt-label">Trends</span></button>
+          {#if traceCount > 1}
+            <button type="button" class="view-tab" class:view-tab--active={$activeView === 'dashboard'} role="tab" aria-selected={$activeView === 'dashboard'} title="Multi-trace dashboard (8)" on:click={() => activeView.set('dashboard')}><span class="vt-ic">▦</span><span class="vt-label">Dashboard</span></button>
+          {/if}
         </div>
       {/if}
 

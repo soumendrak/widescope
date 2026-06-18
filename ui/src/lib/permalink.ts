@@ -27,6 +27,7 @@ const VIEW_NAMES: ReadonlyArray<ViewName> = [
   'agent',
   'diff',
   'analytics',
+  'dashboard',
 ];
 
 /**
