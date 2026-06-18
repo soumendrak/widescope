@@ -15,6 +15,7 @@
   import WaterfallView from './components/WaterfallView.svelte';
   import ServiceGraph from './components/ServiceGraph.svelte';
   import AgentFlow from './components/AgentFlow.svelte';
+  import AgentTimeline from './components/AgentTimeline.svelte';
   import DiffView from './components/DiffView.svelte';
   import TokenTrends from './components/TokenTrends.svelte';
   import SpanDetail from './components/SpanDetail.svelte';
@@ -51,6 +52,8 @@
   $: isEmbedded = new URLSearchParams(window.location.search).get('embed') === '1';
 
   const VIEW_ORDER: Array<'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics'> = ['waterfall', 'flame', 'timeline', 'graph', 'agent', 'diff', 'analytics'];
+
+  let agentSubview: 'flow' | 'timeline' = 'flow';
 
   $: {
     const currentIdx = VIEW_ORDER.indexOf($activeView);
@@ -551,8 +554,16 @@
                   <ServiceGraph graph={state.serviceGraph} />
                 </div>
               {:else if $activeView === 'agent' && state.agentFlow}
-                <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
-                  <AgentFlow flow={state.agentFlow} />
+                <div class="view-wrapper agent-view" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
+                  <div class="agent-subview-toggle" role="tablist" aria-label="Agent view mode">
+                    <button type="button" role="tab" class:active={agentSubview === 'flow'} aria-selected={agentSubview === 'flow'} on:click={() => (agentSubview = 'flow')}>Flow</button>
+                    <button type="button" role="tab" class:active={agentSubview === 'timeline'} aria-selected={agentSubview === 'timeline'} on:click={() => (agentSubview = 'timeline')}>Timeline</button>
+                  </div>
+                  {#if agentSubview === 'timeline'}
+                    <AgentTimeline flow={state.agentFlow} />
+                  {:else}
+                    <AgentFlow flow={state.agentFlow} />
+                  {/if}
                 </div>
               {:else if $activeView === 'diff'}
                 <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
@@ -1343,6 +1354,39 @@
     flex: 1;
     min-height: 0;
     display: flex;
+  }
+
+  .agent-view {
+    flex-direction: column;
+  }
+
+  .agent-subview-toggle {
+    display: inline-flex;
+    gap: 2px;
+    padding: 2px;
+    margin: 0.5rem 0.5rem 0;
+    border: 1px solid var(--color-border-soft, rgba(125, 211, 252, 0.07));
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--color-canvas-bg, #070c16) 60%, transparent);
+    align-self: flex-start;
+  }
+
+  .agent-subview-toggle button {
+    background: none;
+    border: 0;
+    border-radius: 5px;
+    padding: 0.2rem 0.8rem;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted, #9aa8bd);
+  }
+
+  .agent-subview-toggle button.active {
+    background: var(--color-badge-bg, rgba(59, 130, 246, 0.16));
+    color: var(--color-sky, #7dd3fc);
   }
 
   .empty-state {

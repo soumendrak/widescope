@@ -182,6 +182,9 @@ export interface AgentFlowNode {
   layer: number;
   order: number;
   iteration: number | null;
+  arguments: string | null;
+  result: string | null;
+  detail: string | null;
 }
 
 export interface AgentFlowEdge {
