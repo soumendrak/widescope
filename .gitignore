@@ -5,6 +5,16 @@ Cargo.lock
 # wasm-pack output
 crates/widescope-core/pkg/
 
+# Tauri generated schemas/icons (src-tauri/target/ already covered by target/)
+src-tauri/gen/
+# `cargo tauri icon` also emits mobile/Windows-Store assets we don't ship —
+# only the desktop icon set (icon.ico/icns + the referenced PNGs) is committed.
+src-tauri/icons/android/
+src-tauri/icons/ios/
+src-tauri/icons/Square*Logo.png
+src-tauri/icons/StoreLogo.png
+src-tauri/icons/64x64.png
+
 # Node / UI
 ui/node_modules/
 ui/dist/

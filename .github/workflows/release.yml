@@ -1,0 +1,91 @@
+name: Release Desktop
+
+# Tauri can't cross-compile (each OS needs its own webview), so we fan out
+# across macOS / Linux / Windows runners and let tauri-action build the native
+# bundle and upload it to a GitHub Release.
+#
+# Cut a release by pushing a version tag:
+#     git tag v0.1.0 && git push origin v0.1.0
+# (workflow_dispatch is for test builds — it drafts a release named after the
+# branch, which you can delete.)
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest     # WideScope.app + aarch64 .dmg
+          - platform: ubuntu-22.04     # .deb + .rpm + .AppImage
+          - platform: windows-latest   # .msi + NSIS .exe
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Linux webview + bundling system libs (Tauri v2 needs webkit2gtk 4.1).
+      - name: Install Linux dependencies
+        if: matrix.platform == 'ubuntu-22.04'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev libgtk-3-dev librsvg2-dev patchelf \
+            libayatana-appindicator3-dev libssl-dev build-essential file
+
+      - name: Install Rust (with wasm target)
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: wasm32-unknown-unknown
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: |
+            .
+            src-tauri
+
+      - name: Install wasm-pack
+        uses: taiki-e/install-action@v2
+        with:
+          tool: wasm-pack
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: ui/package-lock.json
+
+      - name: Install UI dependencies
+        working-directory: ui
+        run: npm ci
+
+      # Build the frontend explicitly with controlled working directories.
+      # tauri.conf.json's beforeBuildCommand is empty, so tauri-action just
+      # bundles the prebuilt ui/dist — no dependence on the command's CWD/shell.
+      - name: Build WASM
+        shell: bash
+        run: wasm-pack build crates/widescope-core --target web --out-dir pkg
+
+      - name: Build UI
+        working-directory: ui
+        run: npm run build
+
+      - name: Build app and upload to release
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: 'WideScope ${{ github.ref_name }}'
+          releaseBody: |
+            Desktop builds — download the installer for your OS below.
+            Unsigned: macOS Gatekeeper / Windows SmartScreen may warn on first launch.
+          releaseDraft: true
+          prerelease: false

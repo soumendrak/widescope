@@ -74,6 +74,24 @@ ui-install:
     cd ui && npm install
 
 # ═══════════════════════════════════════════════════════════════════════
+# Desktop (Tauri)
+# ═══════════════════════════════════════════════════════════════════════
+# One-time: `cargo install tauri-cli --version '^2'` (or `cargo binstall`).
+# The web UI is unchanged — these wrap it in a native window with local-file
+# open and .json/.trace double-click associations.
+
+# build-wasm first so a cold checkout has crates/widescope-core/pkg/ for the
+# UI dev server to import (beforeDevCommand only starts Vite).
+tauri-dev: build-wasm
+    cd src-tauri && cargo tauri dev
+
+# Build the full frontend (WASM + UI dist) first; beforeBuildCommand is empty
+# so `cargo tauri build` just bundles the prebuilt ui/dist — no working-dir or
+# shell assumptions to break under tauri-action in CI.
+tauri-build: build
+    cd src-tauri && cargo tauri build
+
+# ═══════════════════════════════════════════════════════════════════════
 # Housekeeping
 # ═══════════════════════════════════════════════════════════════════════
 
@@ -82,3 +100,4 @@ clean:
     rm -rf {{_wasm_pkg}}
     rm -rf ui/dist
     rm -rf ui/node_modules
+    rm -rf src-tauri/target src-tauri/gen
