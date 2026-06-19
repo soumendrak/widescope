@@ -13,7 +13,7 @@
   <img src="https://img.shields.io/badge/Rust-WASM-0F172A?logo=rust&logoColor=white" alt="Rust and WASM" />
   <img src="https://img.shields.io/badge/UI-Svelte%205-FF3E00?logo=svelte&logoColor=white" alt="Svelte 5" />
   <img src="https://img.shields.io/badge/hosting-Cloudflare%20Pages-F38020?logo=cloudflare&logoColor=white" alt="Cloudflare Pages" />
-  <img src="https://img.shields.io/badge/license-MIT-22C55E" alt="MIT license" />
+  <img src="https://img.shields.io/badge/license-Apache--2.0-22C55E" alt="Apache 2.0 license" />
 </p>
 
 <p align="center">
@@ -222,4 +222,4 @@ Questions or ideas? [Open an issue](https://github.com/soumendrak/widescope/issu
 
 ## License
 
-MIT
+[Apache License 2.0](LICENSE)
