@@ -2,9 +2,13 @@
   "use strict";
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ----- header state ----- */
+  /* ----- header state + scroll-to-top floater ----- */
   const hdr = document.getElementById("hdr");
-  const onScrollHdr = () => hdr.classList.toggle("scrolled", scrollY > 24);
+  const toTop = document.getElementById("toTop");
+  const onScrollHdr = () => {
+    hdr.classList.toggle("scrolled", scrollY > 24);
+    toTop.classList.toggle("show", scrollY > innerHeight * 0.6);
+  };
   addEventListener("scroll", onScrollHdr, {passive:true}); onScrollHdr();
 
   /* ----- scroll ruler: the page is a 2,400 ms trace ----- */
@@ -50,17 +54,48 @@
     iio.observe(insp);
   }
 
-  /* ----- hero tabs: flame <-> timeline (replays build animation) ----- */
+  /* ----- hero tabs: flame / timeline / waterfall / graph -----
+     pinned scope advances views with scroll; clicking a tab scrolls to it. */
   const tabs = document.querySelectorAll(".tab");
   const lyrs = document.querySelectorAll(".lyr");
-  tabs.forEach(tab => tab.addEventListener("click", () => {
-    tabs.forEach(t => { t.classList.toggle("on", t === tab); t.setAttribute("aria-selected", t === tab); });
+  const pin = document.querySelector(".pinwrap");
+  const views = Array.from(tabs).map(t => t.dataset.view);
+  let current = null;
+  function setView(view){
+    if(view === current) return;
+    current = view;
+    tabs.forEach(t => { const on = t.dataset.view === view; t.classList.toggle("on", on); t.setAttribute("aria-selected", on); });
     lyrs.forEach(l => {
-      const on = l.dataset.lyr === tab.dataset.view;
+      const on = l.dataset.lyr === view;
       l.classList.toggle("off", !on);
       l.classList.remove("act");
       if(on){ void l.offsetWidth; l.classList.add("act"); } // reflow → replay cascade
     });
+  }
+  setView("flame");
+
+  // pinning only kicks in on wider, motion-OK viewports (matches CSS)
+  const pinned = () => pin && pin.offsetHeight > innerHeight * 1.5 && !reduced;
+
+  let viewRAF = null;
+  const onScrollViews = () => {
+    if(viewRAF || !pinned()) return;
+    viewRAF = requestAnimationFrame(() => {
+      viewRAF = null;
+      const span = pin.offsetHeight - innerHeight;       // scrollable distance while pinned
+      const p = Math.min(1, Math.max(0, -pin.getBoundingClientRect().top / span));
+      setView(views[Math.min(views.length - 1, Math.floor(p * views.length))]);
+    });
+  };
+  addEventListener("scroll", onScrollViews, {passive:true}); onScrollViews();
+
+  tabs.forEach((tab, i) => tab.addEventListener("click", () => {
+    if(pinned()){
+      const span = pin.offsetHeight - innerHeight;
+      scrollTo({ top: pin.offsetTop + (i + 0.5) / views.length * span, behavior: reduced ? "auto" : "smooth" });
+    } else {
+      setView(tab.dataset.view);
+    }
   }));
 
   /* ----- span tooltip ----- */

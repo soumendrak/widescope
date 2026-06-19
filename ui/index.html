@@ -548,6 +548,62 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
 .foot .made{width:100%;margin-top:8px;color:var(--faint)}
 .foot .made b{color:var(--muted);font-weight:500}
 
+/* ---------- scroll-to-top floater ---------- */
+.totop{
+  position:fixed;right:20px;bottom:20px;z-index:90;
+  width:46px;height:46px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:20px;line-height:1;color:var(--text);
+  background:var(--grad-cta);border:1px solid rgba(186,230,253,.25);
+  box-shadow:0 10px 30px -10px rgba(37,99,235,.6),0 1px 0 rgba(255,255,255,.25) inset;
+  opacity:0;transform:translateY(14px) scale(.85);pointer-events:none;
+  transition:opacity .3s var(--ease),transform .3s var(--ease),box-shadow .25s;
+}
+.totop.show{opacity:1;transform:none;pointer-events:auto}
+.totop:hover{transform:translateY(-3px);box-shadow:0 16px 38px -10px rgba(37,99,235,.75),0 1px 0 rgba(255,255,255,.25) inset}
+@media (max-width:640px){.totop{right:14px;bottom:14px;width:42px;height:42px}}
+
+/* ============================================================
+   SCROLL-PINNED SCOPE  (tabs advance as you scroll)
+   ============================================================ */
+.pinwrap{position:relative}
+.scroll-cue{display:none}                 /* shown only when pinning is active */
+@media (min-width:721px) and (prefers-reduced-motion:no-preference){
+  .pinwrap{height:520vh}                 /* ponytail: 4 views × ~130vh of scroll, tune here */
+  .pinwrap .scope{position:sticky;top:96px;margin-top:0}
+  .scroll-cue{
+    display:flex;align-items:center;gap:8px;opacity:.8;
+    position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
+    font-family:var(--font-mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--faint);
+  }
+  .scroll-cue::after{content:"↓";animation:cuebob 1.8s var(--ease) infinite}
+}
+@keyframes cuebob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+
+/* critical-path emphasis (waterfall) */
+.tspan.crit{box-shadow:0 0 0 1.5px var(--sky),0 1px 0 rgba(255,255,255,.22) inset,0 5px 18px -4px rgba(56,189,248,.5)}
+.tspan.hot.crit{box-shadow:0 0 0 1.5px var(--gold),0 1px 0 rgba(255,255,255,.35) inset,0 5px 18px -4px rgba(245,158,11,.55)}
+
+/* service graph */
+.sgraph{position:absolute;inset:22px}
+.sgraph svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.sgedge{stroke:rgba(125,211,252,.35);stroke-width:1.5;stroke-dasharray:5 6;vector-effect:non-scaling-stroke;
+  animation:dashmove 2.4s linear infinite}
+.sgedge.weak{stroke:rgba(125,211,252,.16)}
+.node{
+  position:absolute;transform:translate(-50%,-50%);
+  font-family:var(--font-mono);font-size:11.5px;letter-spacing:.02em;color:var(--ice);
+  background:linear-gradient(180deg,rgba(17,28,48,.97),rgba(9,15,27,.97));
+  border:1px solid var(--line);border-radius:10px;padding:9px 13px;white-space:nowrap;
+  box-shadow:0 8px 22px -10px rgba(2,6,18,.85);cursor:crosshair;
+  transition:border-color .2s,transform .2s;
+}
+.node small{display:block;color:var(--faint);font-size:9.5px;letter-spacing:.05em;margin-top:2px}
+.node.hot{border-color:rgba(252,211,77,.4);color:var(--gold)}
+.node.hot small{color:rgba(245,158,11,.7)}
+.lyr.act .node{animation:pop .5s var(--ease) backwards;animation-delay:var(--d,0s)}
+@keyframes pop{from{opacity:0;transform:translate(-50%,-50%) scale(.82)}to{opacity:1;transform:translate(-50%,-50%)}}
+
 /* ============================================================
    RESPONSIVE
    ============================================================ */
@@ -579,6 +635,8 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
   .scope-foot .kbd-hint{display:none}
   .hero-cta .btn{width:100%;justify-content:center}
   .diff-total{margin-left:0;width:100%}
+  .node{font-size:9.5px;padding:6px 8px}
+  .node small{display:none}
 }
 
 /* ============================================================
@@ -648,8 +706,9 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
         <span>No backend</span><span>No upload</span><span>No telemetry</span><span>MIT licensed</span>
       </div>
 
-      <!-- live trace window -->
-      <div class="scope stage stage-5" role="img" aria-label="Animated demo of WideScope rendering a flame graph and timeline of an AI agent trace">
+      <!-- live trace window (pins while scrolling; tabs advance with scroll) -->
+      <div class="pinwrap">
+      <div class="scope stage stage-5" role="img" aria-label="Animated demo of WideScope rendering a flame graph, timeline, waterfall and service graph of an AI agent trace">
         <div class="scope-bar">
           <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
           <div class="scope-file">⬡ <b>rag-agent.otlp.json</b> · 38 spans · 4 services</div>
@@ -658,6 +717,8 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
         <div class="tabs" role="tablist" aria-label="Trace views">
           <button class="tab on" data-view="flame" role="tab" aria-selected="true">▲ Flame <span class="hk">F</span></button>
           <button class="tab" data-view="timeline" role="tab" aria-selected="false">≡ Timeline <span class="hk">T</span></button>
+          <button class="tab" data-view="waterfall" role="tab" aria-selected="false">⌄ Waterfall <span class="hk">W</span></button>
+          <button class="tab" data-view="graph" role="tab" aria-selected="false">⬡ Graph <span class="hk">G</span></button>
         </div>
 
         <div class="viz" id="viz">
@@ -727,6 +788,49 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
               <div class="tspan" style="left:66.6%;width:19.6%;--d:.6s" data-n="http.post" data-ms="473 ms">http.post</div>
             </div>
           </div>
+
+          <!-- WATERFALL layer (cascade + critical path) -->
+          <div class="lyr off" data-lyr="waterfall">
+            <div class="row">
+              <span class="lane-label" style="top:-9px">critical path · 1,892 ms</span>
+              <div class="tspan crit" style="left:.5%;width:99%;--d:.05s" data-n="agent.run" data-ms="2,412 ms" data-x="root span">agent.run</div>
+            </div>
+            <div class="row">
+              <div class="tspan hot crit" style="left:8.2%;width:16%;--d:.16s" data-n="plan · llm" data-ms="388 ms" data-x="612 tokens">plan · llm</div>
+            </div>
+            <div class="row">
+              <div class="tspan crit" style="left:24.9%;width:26%;--d:.27s" data-n="retrieve" data-ms="628 ms" data-x="12 documents">retrieve</div>
+            </div>
+            <div class="row">
+              <div class="tspan dim" style="left:51.6%;width:8%;--d:.38s" data-n="rerank" data-ms="196 ms" data-x="off critical path">rerank</div>
+            </div>
+            <div class="row">
+              <div class="tspan hot crit" style="left:60.3%;width:32%;--d:.49s" data-n="generate" data-ms="771 ms" data-x="self 519 ms">generate</div>
+            </div>
+            <div class="row">
+              <div class="tspan crit" style="left:93%;width:6.5%;--d:.6s" data-n="stream" data-ms="158 ms" data-x="412 tokens · sse">stream</div>
+            </div>
+          </div>
+
+          <!-- SERVICE GRAPH layer (who calls whom) -->
+          <div class="lyr off" data-lyr="graph">
+            <div class="sgraph">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <line class="sgedge" x1="11" y1="50" x2="32" y2="16"/>
+                <line class="sgedge" x1="11" y1="50" x2="32" y2="82"/>
+                <line class="sgedge" x1="32" y1="82" x2="56" y2="82"/>
+                <line class="sgedge" x1="56" y1="82" x2="74" y2="50"/>
+                <line class="sgedge" x1="74" y1="50" x2="74" y2="16"/>
+                <line class="sgedge weak" x1="32" y1="16" x2="74" y2="16"/>
+              </svg>
+              <div class="node"      style="left:11%;top:50%;--d:.05s" data-n="gateway" data-ms="2,412 ms" data-x="entry · 1 call">gateway<small>1 call · 2,412 ms</small></div>
+              <div class="node hot"  style="left:32%;top:16%;--d:.18s" data-n="planner · llm" data-ms="388 ms" data-x="claude-sonnet-4-6">planner · llm<small>1 call · 388 ms</small></div>
+              <div class="node"      style="left:32%;top:82%;--d:.28s" data-n="retriever" data-ms="628 ms" data-x="12 docs">retriever<small>1 call · 628 ms</small></div>
+              <div class="node"      style="left:56%;top:82%;--d:.38s" data-n="vector.db" data-ms="302 ms" data-x="hnsw · ef=128">vector.db<small>3 calls · 302 ms</small></div>
+              <div class="node"      style="left:74%;top:50%;--d:.48s" data-n="reranker" data-ms="196 ms" data-x="batch=64">reranker<small>1 call · 196 ms</small></div>
+              <div class="node hot"  style="left:74%;top:16%;--d:.58s" data-n="generator · llm" data-ms="771 ms" data-x="streaming · sse">generator · llm<small>1 call · 771 ms</small></div>
+            </div>
+          </div>
         </div>
 
         <div class="scope-foot">
@@ -737,6 +841,8 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
           <span class="kbd-hint"><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> navigate · <kbd>F</kbd> fit · <kbd>0</kbd> reset</span>
         </div>
       </div>
+      <div class="scroll-cue" aria-hidden="true">scroll to cycle views</div>
+      </div><!-- /pinwrap -->
 
       <!-- formats marquee -->
       <div class="marq stage stage-5" aria-label="Supported formats and ecosystems">
@@ -960,6 +1066,8 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
 </footer>
 
 <div class="tip" id="tip" role="tooltip"></div>
+
+<a href="#top" id="toTop" class="totop" aria-label="Scroll to top">↑</a>
 
 <script src="/landing.js"></script>
 </body>
