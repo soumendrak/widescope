@@ -91,6 +91,20 @@ tauri-dev: build-wasm
 tauri-build: build
     cd src-tauri && cargo tauri build
 
+# Cut a desktop release: bump the version in tauri.conf.json + Cargo.toml,
+# commit, tag, and push. The release.yml workflow then builds Win/Linux/macOS
+# installers and uploads them to a draft GitHub Release to review and publish.
+# Run on an up-to-date main. Usage (no "v" prefix): just release 0.2.0
+release version:
+    sed 's/"version": "[^"]*"/"version": "{{version}}"/' src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp && mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
+    sed 's/^version = "[^"]*"/version = "{{version}}"/' src-tauri/Cargo.toml > src-tauri/Cargo.toml.tmp && mv src-tauri/Cargo.toml.tmp src-tauri/Cargo.toml
+    git add src-tauri/tauri.conf.json src-tauri/Cargo.toml
+    git commit -m "release: v{{version}}"
+    git tag v{{version}}
+    git push origin HEAD
+    git push origin v{{version}}
+    @echo "Tagged v{{version}} — watch the 'Release Desktop' workflow, then publish the draft release on GitHub."
+
 # ═══════════════════════════════════════════════════════════════════════
 # Housekeeping
 # ═══════════════════════════════════════════════════════════════════════
