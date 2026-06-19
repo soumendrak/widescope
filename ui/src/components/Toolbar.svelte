@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount, onDestroy } from 'svelte';
   import { traceState } from '../stores/trace';
   import { traceList } from '../stores/traceList';
   import { openFilePicker } from '../lib/input';
@@ -130,6 +131,44 @@
 
   function onSearchInput(event: Event): void {
     applySearch((event.currentTarget as HTMLInputElement).value);
+  }
+
+  // --- PWA install ---
+  // `beforeinstallprompt` fires on Chromium browsers when WideScope is
+  // installable; we capture it so our own button can trigger the native prompt.
+  // (Safari/Firefox don't fire it — the button simply stays hidden there.)
+  type InstallPromptEvent = Event & {
+    prompt: () => Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  };
+  let installPrompt: InstallPromptEvent | null = null;
+  let installed = false;
+
+  function onBeforeInstall(e: Event): void {
+    e.preventDefault();
+    installPrompt = e as InstallPromptEvent;
+  }
+  function onAppInstalled(): void {
+    installed = true;
+    installPrompt = null;
+  }
+
+  onMount(() => {
+    // Already launched as an installed PWA → nothing to offer.
+    if (window.matchMedia('(display-mode: standalone)').matches) installed = true;
+    window.addEventListener('beforeinstallprompt', onBeforeInstall);
+    window.addEventListener('appinstalled', onAppInstalled);
+  });
+  onDestroy(() => {
+    window.removeEventListener('beforeinstallprompt', onBeforeInstall);
+    window.removeEventListener('appinstalled', onAppInstalled);
+  });
+
+  async function installApp(): Promise<void> {
+    if (!installPrompt) return;
+    await installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null; // the captured prompt can only be used once
   }
 
   // --- Share / permalink ---
@@ -346,6 +385,15 @@
           </span>
         {/if}
       </button>
+      {#if installPrompt && !installed}
+        <button
+          type="button"
+          class="install-btn"
+          aria-label="Install WideScope as an app"
+          title="Install WideScope as an app"
+          on:click={installApp}
+        >⬇ Install</button>
+      {/if}
       <button type="button" class="theme-btn" aria-label="Toggle theme" on:click={() => theme.toggle()}>{themeLabel}</button>
       <button
         type="button"
@@ -865,6 +913,26 @@
     transform: scale(1.04);
   }
   .share-btn--active { background: var(--color-panel-highlight, rgba(125, 211, 252, 0.05)); }
+
+  /* Install (PWA) — a subtle sky accent so the CTA stands out from the icons. */
+  .install-btn {
+    padding: 0.32rem 0.6rem;
+    border: 1px solid color-mix(in srgb, var(--color-sky, #7dd3fc) 45%, transparent);
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--color-sky, #7dd3fc) 12%, transparent);
+    color: var(--color-toolbar-text, #e9eff8);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background 0.15s var(--ease-spring), border-color 0.15s var(--ease-spring), transform 0.15s var(--ease-bounce);
+  }
+  .install-btn:hover {
+    background: color-mix(in srgb, var(--color-sky, #7dd3fc) 20%, transparent);
+    transform: scale(1.04);
+  }
 
   .share-popover {
     position: absolute;
