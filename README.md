@@ -48,6 +48,24 @@ Sample trace files are available in [`test-fixtures/`](test-fixtures/) if you wa
 
 ---
 
+## Download
+
+Prefer a native desktop app (opens local files, double-click `.json`/`.trace` to
+view)? Grab the installer for your OS from the
+[**latest release**](https://github.com/soumendrak/widescope/releases/latest):
+
+| OS | Installer |
+|---|---|
+| **Windows** | `WideScope_*_x64_en-US.msi` (or `_x64-setup.exe`) |
+| **macOS** (Apple Silicon) | `WideScope_*_aarch64.dmg` |
+| **Linux** | `WideScope_*_amd64.deb`, `*.x86_64.rpm`, or `*_amd64.AppImage` |
+
+Builds are unsigned: on first launch macOS Gatekeeper (right-click → **Open**) or
+Windows SmartScreen (**More info → Run anyway**) may warn. Prefer to build it
+yourself? See [Desktop app (Tauri)](#desktop-app-tauri).
+
+---
+
 ## Features
 
 - **Zero backend** — static UI + WASM, deployable to Cloudflare Pages, any CDN, or any static host.
