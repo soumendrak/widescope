@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onMount, onDestroy } from 'svelte';
   import { traceState } from '../stores/trace';
   import { traceList } from '../stores/traceList';
   import { openFilePicker } from '../lib/input';
@@ -21,6 +22,7 @@
     fullscreen,
   } from '../stores/selection';
   import { budgets, checkViolations } from '../stores/budgets';
+  import { liveState } from '../lib/live';
   import BudgetsDialog from './BudgetsDialog.svelte';
 
   export let onOpenFile: () => void = () => openFilePicker();
@@ -131,6 +133,44 @@
     applySearch((event.currentTarget as HTMLInputElement).value);
   }
 
+  // --- PWA install ---
+  // `beforeinstallprompt` fires on Chromium browsers when WideScope is
+  // installable; we capture it so our own button can trigger the native prompt.
+  // (Safari/Firefox don't fire it — the button simply stays hidden there.)
+  type InstallPromptEvent = Event & {
+    prompt: () => Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  };
+  let installPrompt: InstallPromptEvent | null = null;
+  let installed = false;
+
+  function onBeforeInstall(e: Event): void {
+    e.preventDefault();
+    installPrompt = e as InstallPromptEvent;
+  }
+  function onAppInstalled(): void {
+    installed = true;
+    installPrompt = null;
+  }
+
+  onMount(() => {
+    // Already launched as an installed PWA → nothing to offer.
+    if (window.matchMedia('(display-mode: standalone)').matches) installed = true;
+    window.addEventListener('beforeinstallprompt', onBeforeInstall);
+    window.addEventListener('appinstalled', onAppInstalled);
+  });
+  onDestroy(() => {
+    window.removeEventListener('beforeinstallprompt', onBeforeInstall);
+    window.removeEventListener('appinstalled', onAppInstalled);
+  });
+
+  async function installApp(): Promise<void> {
+    if (!installPrompt) return;
+    await installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null; // the captured prompt can only be used once
+  }
+
   // --- Share / permalink ---
 
   type SharePopover = { text: string; kind: 'success' | 'warn' | 'error'; download: boolean };
@@ -212,6 +252,17 @@
         <span class="name">WideScope</span>
       </a>
       <button type="button" class="btn-open" on:click={onOpenFile}>Open file <kbd>⌘O</kbd></button>
+
+      {#if $liveState.url}
+        <span
+          class="live-badge"
+          class:live-badge--off={!$liveState.connected}
+          title={$liveState.connected ? `Live: ${$liveState.url} · ${$liveState.count} received` : `Live (disconnected): ${$liveState.url}`}
+        >
+          <span class="live-dot" aria-hidden="true"></span>
+          {$liveState.connected ? 'LIVE' : 'OFFLINE'}{$liveState.count > 0 ? ` · ${$liveState.count}` : ''}
+        </span>
+      {/if}
 
       {#if traceCount > 1}
         <select class="trace-select" value={activeTraceIdx} on:change={(e) => switchTrace(parseInt(e.currentTarget.value))} aria-label="Switch trace">
@@ -334,6 +385,15 @@
           </span>
         {/if}
       </button>
+      {#if installPrompt && !installed}
+        <button
+          type="button"
+          class="install-btn"
+          aria-label="Install WideScope as an app"
+          title="Install WideScope as an app"
+          on:click={installApp}
+        >⬇ Install</button>
+      {/if}
       <button type="button" class="theme-btn" aria-label="Toggle theme" on:click={() => theme.toggle()}>{themeLabel}</button>
       <button
         type="button"
@@ -565,6 +625,43 @@
     font-size: 0.66rem;
     letter-spacing: 0.08em;
     white-space: nowrap;
+  }
+
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--color-danger, #f87171);
+    background: color-mix(in srgb, var(--color-danger, #f87171) 14%, transparent);
+    border: 1px solid color-mix(in srgb, var(--color-danger, #f87171) 35%, transparent);
+    border-radius: 999px;
+    padding: 0.16rem 0.55rem;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  .live-badge--off {
+    color: var(--color-toolbar-muted, #8b9cb5);
+    background: var(--color-panel-subtle, rgba(125, 211, 252, 0.06));
+    border-color: var(--color-border, rgba(125, 211, 252, 0.13));
+  }
+
+  .live-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: live-pulse 1.4s ease-in-out infinite;
+  }
+
+  .live-badge--off .live-dot { animation: none; }
+
+  @keyframes live-pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.35; transform: scale(0.7); }
   }
 
   .status-loading {
@@ -816,6 +913,26 @@
     transform: scale(1.04);
   }
   .share-btn--active { background: var(--color-panel-highlight, rgba(125, 211, 252, 0.05)); }
+
+  /* Install (PWA) — a subtle sky accent so the CTA stands out from the icons. */
+  .install-btn {
+    padding: 0.32rem 0.6rem;
+    border: 1px solid color-mix(in srgb, var(--color-sky, #7dd3fc) 45%, transparent);
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--color-sky, #7dd3fc) 12%, transparent);
+    color: var(--color-toolbar-text, #e9eff8);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    line-height: 1;
+    white-space: nowrap;
+    transition: background 0.15s var(--ease-spring), border-color 0.15s var(--ease-spring), transform 0.15s var(--ease-bounce);
+  }
+  .install-btn:hover {
+    background: color-mix(in srgb, var(--color-sky, #7dd3fc) 20%, transparent);
+    transform: scale(1.04);
+  }
 
   .share-popover {
     position: absolute;

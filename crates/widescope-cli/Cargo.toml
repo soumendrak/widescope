@@ -1,0 +1,16 @@
+[package]
+name = "widescope-cli"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "Headless CLI for WideScope trace analysis (analyze, compare, check)"
+
+[[bin]]
+name = "widescope"
+path = "src/main.rs"
+
+[dependencies]
+widescope-core = { path = "../widescope-core", default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+clap = { version = "4", features = ["derive"] }

@@ -4,6 +4,7 @@
   import { loadWasm, getInitWarnings, getSpanDetail } from './lib/wasm';
   import { openFilePicker, handleFile, handleRawInputAsync } from './lib/input';
   import { parsePermalink, decodeTrace } from './lib/permalink';
+  import { connectLive, disconnectLive } from './lib/live';
   import { SAMPLE_TRACE } from './lib/sample';
   import { traceState } from './stores/trace';
   import { theme } from './lib/theme';
@@ -143,6 +144,11 @@
     // Announce readiness so the host waits for the listener (WASM load is async).
     window.addEventListener('message', hostMessageHandler);
     if (window.parent !== window) window.parent.postMessage({ type: 'widescope:ready' }, '*');
+
+    // Live mode: stream traces from an SSE relay and auto-select each newest one.
+    // ponytail: every trace runs the full editor load — fine for Phase 1 cadence.
+    const liveUrl = new URLSearchParams(window.location.search).get('live');
+    if (liveUrl) connectLive(liveUrl, (json) => { void loadEditorText(json); });
   });
 
   function hostMessageHandler(event: MessageEvent): void {
@@ -163,6 +169,7 @@
   }
 
   onDestroy(() => {
+    disconnectLive();
     clearLiveParseTimer();
     editorResizeObserver?.disconnect();
     window.removeEventListener('message', hostMessageHandler);

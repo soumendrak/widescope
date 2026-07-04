@@ -1,0 +1,65 @@
+name: WideScope trace compare
+description: Compare two LLM trace JSON files and post the diff as a PR comment, optionally failing on budget violations.
+author: WideScope
+
+inputs:
+  baseline:
+    description: Path to the baseline trace JSON (OTLP / Jaeger / OpenInference).
+    required: true
+  candidate:
+    description: Path to the candidate trace JSON.
+    required: true
+  budget:
+    description: >
+      Optional JSON object of budget limits checked against the candidate, e.g.
+      '{"max_total_tokens": 100000, "max_spans": 500}'. Supported keys:
+      max_spans, max_input_tokens, max_output_tokens, max_total_tokens.
+    required: false
+    default: ""
+  fail-on-budget:
+    description: Fail the action when a budget limit is exceeded.
+    required: false
+    default: "true"
+  comment:
+    description: Post (or update) a comment on the PR with the diff table.
+    required: false
+    default: "true"
+  github-token:
+    description: Token used to post the PR comment.
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  budget-exceeded:
+    description: "true if any budget limit was exceeded."
+    value: ${{ steps.compare.outputs.budget_exceeded }}
+
+runs:
+  using: composite
+  steps:
+    - id: compare
+      shell: bash
+      run: node "$GITHUB_ACTION_PATH/compare.js" "${{ inputs.baseline }}" "${{ inputs.candidate }}" '${{ inputs.budget }}'
+
+    - if: ${{ inputs.comment == 'true' && github.event.pull_request.number }}
+      uses: peter-evans/find-comment@v3
+      id: find
+      with:
+        issue-number: ${{ github.event.pull_request.number }}
+        comment-author: github-actions[bot]
+        body-includes: widescope-trace-compare
+
+    - if: ${{ inputs.comment == 'true' && github.event.pull_request.number }}
+      uses: peter-evans/create-or-update-comment@v4
+      with:
+        token: ${{ inputs.github-token }}
+        comment-id: ${{ steps.find.outputs.comment-id }}
+        issue-number: ${{ github.event.pull_request.number }}
+        body: ${{ steps.compare.outputs.body }}
+        edit-mode: replace
+
+    - if: ${{ inputs.fail-on-budget == 'true' && steps.compare.outputs.budget_exceeded == 'true' }}
+      shell: bash
+      run: |
+        echo "::error::Trace budget exceeded"
+        exit 1
