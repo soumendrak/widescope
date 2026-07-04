@@ -37,9 +37,9 @@ async function openViewer(context, uri) {
   };
 
   // Push once the iframe signals it's ready, and again on every file save.
-  panel.webview.onDidReceiveMessage((m) => {
+  const sub = panel.webview.onDidReceiveMessage((m) => {
     if (m && m.type === 'ready') void push();
-  }, undefined, context.subscriptions);
+  });
 
   // Watch the whole dir with a plain '*' and match by path, so filenames with
   // glob metachars (trace[1].json) still fire. Atomic saves land as create, not
@@ -51,7 +51,7 @@ async function openViewer(context, uri) {
   const onChange = (changed) => { if (changed.fsPath === uri.fsPath) void push(); };
   watcher.onDidChange(onChange);
   watcher.onDidCreate(onChange);
-  panel.onDidDispose(() => watcher.dispose());
+  panel.onDidDispose(() => { sub.dispose(); watcher.dispose(); });
 }
 
 function basename(uri) {
