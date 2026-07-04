@@ -152,11 +152,27 @@
       loadSampleJson();
     }
 
+    // Host bridge: an embedding host (e.g. the VS Code extension) posts trace
+    // text in via postMessage instead of a URL, so big files dodge URL limits.
+    // Announce readiness so the host waits for the listener (WASM load is async).
+    window.addEventListener('message', hostMessageHandler);
+    if (window.parent !== window) window.parent.postMessage({ type: 'widescope:ready' }, '*');
+
     // Live mode: stream traces from an SSE relay and auto-select each newest one.
     // ponytail: every trace runs the full editor load — fine for Phase 1 cadence.
     const liveUrl = new URLSearchParams(window.location.search).get('live');
     if (liveUrl) connectLive(liveUrl, (json) => { void loadEditorText(json); });
   });
+
+  function hostMessageHandler(event: MessageEvent): void {
+    // Only the embedding parent drives this bridge; ignore any other frame.
+    // (The host webview origin isn't statically known, so gate on source.)
+    if (event.source !== window.parent) return;
+    const data = event.data;
+    if (data && data.type === 'widescope:load' && typeof data.text === 'string') {
+      void loadEditorText(data.text);
+    }
+  }
 
   /** Pre-select a span from a share link, ignoring it if absent in the trace. */
   function applyPermalinkSpan(spanId: string): void {
@@ -172,6 +188,7 @@
     disconnectLive();
     clearLiveParseTimer();
     editorResizeObserver?.disconnect();
+    window.removeEventListener('message', hostMessageHandler);
     if (globalKeydownHandler) document.removeEventListener('keydown', globalKeydownHandler);
   });
 
