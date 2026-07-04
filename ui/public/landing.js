@@ -166,14 +166,48 @@
     });
   }
 
-  /* ----- cursor glow on cards ----- */
+  /* ----- cursor glow + 3D tilt on cards ----- */
+  const tilt3d = matchMedia("(pointer:fine)").matches && !reduced;
   document.querySelectorAll(".card, .zero").forEach(c => {
     c.addEventListener("mousemove", e => {
       const r = c.getBoundingClientRect();
-      c.style.setProperty("--mx", (e.clientX - r.left) + "px");
-      c.style.setProperty("--my", (e.clientY - r.top) + "px");
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      c.style.setProperty("--mx", x + "px");
+      c.style.setProperty("--my", y + "px");
+      if(tilt3d){
+        c.style.setProperty("--cry", ((x / r.width - .5) * 7).toFixed(2) + "deg");
+        c.style.setProperty("--crx", ((.5 - y / r.height) * 6).toFixed(2) + "deg");
+      }
+    });
+    c.addEventListener("mouseleave", () => {
+      c.style.setProperty("--crx", "0deg");
+      c.style.setProperty("--cry", "0deg");
     });
   });
+
+  /* ----- 3D tilt on the hero scope: flattens as it centers, steers with the pointer ----- */
+  const scope3d = document.querySelector(".scope");
+  if(scope3d && tilt3d){
+    let px = 0, py = 0, raf3d = null;
+    const apply3d = () => {
+      raf3d = null;
+      const r = scope3d.getBoundingClientRect();
+      const c = (r.top + r.height / 2 - innerHeight / 2) / innerHeight; // 0 = vertically centered
+      const sx = Math.max(-4, Math.min(12, c * 16));
+      scope3d.style.setProperty("--rx", (sx + py).toFixed(2) + "deg");
+      scope3d.style.setProperty("--ry", px.toFixed(2) + "deg");
+    };
+    const queue3d = () => { if(!raf3d) raf3d = requestAnimationFrame(apply3d); };
+    addEventListener("scroll", queue3d, {passive:true});
+    scope3d.addEventListener("mousemove", e => {
+      const r = scope3d.getBoundingClientRect();
+      px = ((e.clientX - r.left) / r.width - .5) * 6;
+      py = (.5 - (e.clientY - r.top) / r.height) * 5;
+      queue3d();
+    });
+    scope3d.addEventListener("mouseleave", () => { px = 0; py = 0; queue3d(); });
+    apply3d();
+  }
 
   document.getElementById("yr").textContent = new Date().getFullYear();
 })();
