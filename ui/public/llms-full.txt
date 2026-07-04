@@ -60,6 +60,7 @@ The app has two parts:
 - Repository: https://github.com/soumendrak/widescope
 - Landing page: https://widescope.soumendrak.com
 - Live app (editor): https://widescope.soumendrak.com/editor/
+- Get a trace file (export guide): https://widescope.soumendrak.com/docs/
 - Issues: https://github.com/soumendrak/widescope/issues
 - Releases: https://github.com/soumendrak/widescope/releases
 - Author: https://soumendrak.com
