@@ -35,6 +35,11 @@ export async function readFileText(file: File): Promise<string | null> {
   return await file.text();
 }
 
+async function inflateRaw(data: Uint8Array): Promise<Uint8Array> {
+  const stream = new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw')));
+  return new Uint8Array(await stream.arrayBuffer());
+}
+
 async function readZipFile(file: File): Promise<string | null> {
   // Minimal ZIP parser for trace files
   const buffer = await file.arrayBuffer();
@@ -58,9 +63,18 @@ async function readZipFile(file: File): Promise<string | null> {
 
     const dataStart = nameStart + fileNameLen + extraLen;
 
-    if (compMethod === 0 && name.endsWith('.json')) {
-      const content = decoder.decode(new Uint8Array(buffer, dataStart, compLen));
-      entries.push(content);
+    if (name.endsWith('.json')) {
+      const raw = new Uint8Array(buffer, dataStart, compLen);
+      // 0 = stored, 8 = deflate (the two methods real zip tools produce).
+      if (compMethod === 0) {
+        entries.push(decoder.decode(raw));
+      } else if (compMethod === 8) {
+        try {
+          entries.push(decoder.decode(await inflateRaw(raw)));
+        } catch {
+          // skip entries we can't inflate (unsupported/corrupt)
+        }
+      }
     }
 
     offset = dataStart + compLen;
