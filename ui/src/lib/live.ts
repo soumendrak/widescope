@@ -12,37 +12,51 @@
  */
 import { writable } from 'svelte/store';
 
+export type LiveStatus = 'connecting' | 'streaming' | 'disconnected';
+
 export interface LiveState {
   /** SSE endpoint, or null when not in live mode. */
   url: string | null;
-  /** True while the EventSource connection is open. */
-  connected: boolean;
+  /** Connection lifecycle: opening, open, or dropped (EventSource auto-retries). */
+  status: LiveStatus;
+  /** When true, incoming traces are ignored (connection stays open). */
+  paused: boolean;
   /** Number of traces received this session. */
   count: number;
 }
 
-export const liveState = writable<LiveState>({ url: null, connected: false, count: 0 });
+export const liveState = writable<LiveState>({ url: null, status: 'disconnected', paused: false, count: 0 });
 
 let source: EventSource | null = null;
+let paused = false;
 
 /** Subscribe to an SSE endpoint; each event's data is one trace JSON payload. */
 export function connectLive(url: string, onTrace: (json: string) => void): void {
   disconnectLive();
-  liveState.set({ url, connected: false, count: 0 });
+  paused = false;
+  liveState.set({ url, status: 'connecting', paused: false, count: 0 });
 
   source = new EventSource(url);
-  source.onopen = () => liveState.update((s) => ({ ...s, connected: true }));
-  source.onerror = () => liveState.update((s) => ({ ...s, connected: false }));
+  source.onopen = () => liveState.update((s) => ({ ...s, status: 'streaming' }));
+  source.onerror = () => liveState.update((s) => ({ ...s, status: 'disconnected' }));
   source.onmessage = (e) => {
     if (typeof e.data !== 'string' || !e.data.trim()) return;
-    onTrace(e.data);
     liveState.update((s) => ({ ...s, count: s.count + 1 }));
+    if (paused) return;
+    onTrace(e.data);
   };
+}
+
+/** Pause or resume rendering of incoming traces; the SSE connection stays open. */
+export function toggleLivePause(): void {
+  paused = !paused;
+  liveState.update((s) => ({ ...s, paused }));
 }
 
 /** Close the live connection, if any. The badge stays until reset. */
 export function disconnectLive(): void {
   source?.close();
   source = null;
-  liveState.update((s) => ({ ...s, connected: false }));
+  paused = false;
+  liveState.update((s) => ({ ...s, status: 'disconnected', paused: false }));
 }

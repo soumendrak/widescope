@@ -22,7 +22,7 @@
     fullscreen,
   } from '../stores/selection';
   import { budgets, checkViolations } from '../stores/budgets';
-  import { liveState } from '../lib/live';
+  import { liveState, toggleLivePause } from '../lib/live';
   import BudgetsDialog from './BudgetsDialog.svelte';
 
   export let onOpenFile: () => void = () => openFilePicker();
@@ -256,12 +256,30 @@
       {#if $liveState.url}
         <span
           class="live-badge"
-          class:live-badge--off={!$liveState.connected}
-          title={$liveState.connected ? `Live: ${$liveState.url} · ${$liveState.count} received` : `Live (disconnected): ${$liveState.url}`}
+          class:live-badge--connecting={$liveState.status === 'connecting'}
+          class:live-badge--off={$liveState.status === 'disconnected'}
+          class:live-badge--paused={$liveState.paused && $liveState.status === 'streaming'}
+          title={`Live ${$liveState.url} — ${$liveState.status}${$liveState.paused ? ' (paused)' : ''} · ${$liveState.count} received`}
         >
           <span class="live-dot" aria-hidden="true"></span>
-          {$liveState.connected ? 'LIVE' : 'OFFLINE'}{$liveState.count > 0 ? ` · ${$liveState.count}` : ''}
+          {$liveState.status === 'connecting'
+            ? 'CONNECTING'
+            : $liveState.status === 'disconnected'
+              ? 'OFFLINE'
+              : $liveState.paused
+                ? 'PAUSED'
+                : 'LIVE'}{$liveState.count > 0 ? ` · ${$liveState.count}` : ''}
         </span>
+        {#if $liveState.status === 'streaming'}
+          <button
+            type="button"
+            class="live-pause"
+            on:click={toggleLivePause}
+            title={$liveState.paused ? 'Resume live updates' : 'Pause live updates'}
+          >
+            {$liveState.paused ? 'Resume' : 'Pause'}
+          </button>
+        {/if}
       {/if}
 
       {#if traceCount > 1}
@@ -649,6 +667,36 @@
     border-color: var(--color-border, rgba(125, 211, 252, 0.13));
   }
 
+  .live-badge--connecting {
+    color: var(--color-amber, #f59e0b);
+    background: color-mix(in srgb, var(--color-amber, #f59e0b) 14%, transparent);
+    border-color: color-mix(in srgb, var(--color-amber, #f59e0b) 35%, transparent);
+  }
+
+  .live-badge--paused {
+    color: var(--color-toolbar-muted, #8b9cb5);
+    background: var(--color-panel-subtle, rgba(125, 211, 252, 0.06));
+    border-color: var(--color-border, rgba(125, 211, 252, 0.13));
+  }
+
+  .live-pause {
+    border: 1px solid var(--color-border, rgba(125, 211, 252, 0.13));
+    background: var(--color-panel-subtle, rgba(125, 211, 252, 0.06));
+    color: var(--color-toolbar-text, #e9eff8);
+    border-radius: 999px;
+    padding: 0.16rem 0.6rem;
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  .live-pause:hover {
+    border-color: color-mix(in srgb, var(--color-sky, #7dd3fc) 38%, transparent);
+  }
+
   .live-dot {
     width: 7px;
     height: 7px;
@@ -657,7 +705,8 @@
     animation: live-pulse 1.4s ease-in-out infinite;
   }
 
-  .live-badge--off .live-dot { animation: none; }
+  .live-badge--off .live-dot,
+  .live-badge--paused .live-dot { animation: none; }
 
   @keyframes live-pulse {
     0%, 100% { opacity: 1; transform: scale(1); }
