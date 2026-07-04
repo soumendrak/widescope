@@ -152,6 +152,9 @@
   });
 
   function hostMessageHandler(event: MessageEvent): void {
+    // Only the embedding parent drives this bridge; ignore any other frame.
+    // (The host webview origin isn't statically known, so gate on source.)
+    if (event.source !== window.parent) return;
     const data = event.data;
     if (data && data.type === 'widescope:load' && typeof data.text === 'string') {
       void loadEditorText(data.text);

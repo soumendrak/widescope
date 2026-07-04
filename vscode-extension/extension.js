@@ -41,8 +41,15 @@ async function openViewer(context, uri) {
     if (m && m.type === 'ready') void push();
   }, undefined, context.subscriptions);
 
-  const watcher = vscode.workspace.createFileSystemWatcher(uri.fsPath);
+  // RelativePattern (not a raw fsPath string) so the glob matches on Windows
+  // and for paths with glob-special chars. Atomic saves land as create, not
+  // change, so watch both.
+  const dir = vscode.Uri.joinPath(uri, '..');
+  const watcher = vscode.workspace.createFileSystemWatcher(
+    new vscode.RelativePattern(dir, basename(uri))
+  );
   watcher.onDidChange(() => void push());
+  watcher.onDidCreate(() => void push());
   panel.onDidDispose(() => watcher.dispose());
 }
 
