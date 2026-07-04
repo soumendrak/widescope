@@ -45,12 +45,19 @@
   let timelineView: { focusView: () => void } | null = null;
   let waterfallView: { focusView: () => void } | null = null;
   let showKeyboardHelp = false;
+  let showFeatureHint = false;
   let lastViewIdx = 0;
   let slideDirection: 1 | -1 = 1;
 
   const STORAGE_KEY_THEME = 'widescope:theme';
   const STORAGE_KEY_VIEW = 'widescope:view';
   const STORAGE_KEY_EDITOR = 'widescope:editor';
+  const STORAGE_KEY_HINT_DISMISSED = 'widescope:hint-dismissed';
+
+  function dismissFeatureHint() {
+    showFeatureHint = false;
+    localStorage.setItem(STORAGE_KEY_HINT_DISMISSED, '1');
+  }
 
   $: isEmbedded = new URLSearchParams(window.location.search).get('embed') === '1';
 
@@ -74,6 +81,8 @@
     const storedTheme = localStorage.getItem(STORAGE_KEY_THEME);
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     theme.apply(storedTheme === 'dark' ? 'dark' : storedTheme === 'light' ? 'light' : (prefersDark ? 'dark' : 'light'));
+
+    showFeatureHint = !localStorage.getItem(STORAGE_KEY_HINT_DISMISSED);
 
     const storedView = localStorage.getItem(STORAGE_KEY_VIEW);
     if (storedView === 'flame' || storedView === 'timeline' || storedView === 'waterfall' || storedView === 'graph' || storedView === 'agent' || storedView === 'diff' || storedView === 'analytics' || storedView === 'matrix' || storedView === 'dashboard') {
@@ -549,6 +558,16 @@
 
         {#if editorValue.trim()}
           <div class="workspace">
+            {#if showFeatureHint}
+              <div class="feature-hint" role="note" transition:fly={{ y: -8, duration: 200 }}>
+                <span class="feature-hint-text">
+                  Tip: press <button type="button" class="feature-hint-key" on:click={() => (showKeyboardHelp = true)}>?</button> for shortcuts ·
+                  try <code>duration&gt;100ms</code> or <code>status=error</code> in search ·
+                  compare many runs with matrix view + session grouping.
+                </span>
+                <button type="button" class="feature-hint-close" aria-label="Dismiss hint" on:click={dismissFeatureHint}>✕</button>
+              </div>
+            {/if}
             {#if state.status === 'loaded' && state.flameLayout}
               {#if $activeView === 'timeline' && state.timelineLayout}
                 <div class="view-wrapper" in:fly={viewSlideIn(slideDirection)} out:fly={viewSlideOut(slideDirection)}>
@@ -1354,6 +1373,55 @@
     font-size: 0.74rem;
     color: var(--color-danger, #f87171);
   }
+
+  .feature-hint {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 20;
+    max-width: min(680px, calc(100% - 24px));
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 12px;
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--color-text-muted, #9aa8bd);
+    background: var(--color-surface, #0d1626);
+    border: 1px solid var(--color-border, rgba(125, 211, 252, 0.13));
+    border-radius: 10px;
+    box-shadow: var(--shadow-panel), 0 4px 16px rgba(0, 0, 0, 0.25);
+  }
+  .feature-hint code {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11.5px;
+    color: var(--color-text, #e9eff8);
+    background: var(--color-border-soft, rgba(125, 211, 252, 0.07));
+    padding: 1px 5px;
+    border-radius: 5px;
+  }
+  .feature-hint-key {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    color: var(--color-text, #e9eff8);
+    background: var(--color-border-soft, rgba(125, 211, 252, 0.07));
+    border: 1px solid var(--color-border, rgba(125, 211, 252, 0.13));
+    border-radius: 5px;
+    padding: 0 6px;
+    cursor: pointer;
+  }
+  .feature-hint-key:hover { color: var(--color-accent, #3b82f6); }
+  .feature-hint-close {
+    flex: none;
+    color: var(--color-text-faint, #5b6b84);
+    background: none;
+    border: none;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 2px 4px;
+    line-height: 1;
+  }
+  .feature-hint-close:hover { color: var(--color-text, #e9eff8); }
 
   .workspace {
     flex: 1;
