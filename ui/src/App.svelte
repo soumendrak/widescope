@@ -30,6 +30,7 @@
 
   let wasmReady = false;
   let wasmError: string | null = null;
+  let remoteTraceLoading = false;
   let editorValue = '';
   let editorMessage: string | null = null;
   let editorCollapsed = false;
@@ -123,11 +124,14 @@
         editorMessage = 'Failed to load the shared trace from the link.';
       }
     } else if (permalink.traceUrl) {
+      remoteTraceLoading = true;
       try {
         await loadTraceFromUrl(permalink.traceUrl);
         permalinkLoaded = true;
       } catch {
         editorMessage = 'Failed to load trace from URL.';
+      } finally {
+        remoteTraceLoading = false;
       }
     }
 
@@ -410,13 +414,13 @@
       <pre>{wasmError}</pre>
       <p>Please try refreshing the page. If the issue persists, check that your browser supports WebAssembly.</p>
     </div>
-  {:else if !wasmReady}
+  {:else if !wasmReady || remoteTraceLoading}
     <div class="splash">
       <div class="splash-inner">
         <span class="splash-ring" aria-hidden="true"></span>
         <img class="splash-logo" src="/widescope-logo.svg" alt="" width="64" height="64" />
         <span class="splash-name">WideScope</span>
-        <span class="splash-loading">initializing wasm…</span>
+        <span class="splash-loading">{remoteTraceLoading ? 'fetching trace…' : 'initializing wasm…'}</span>
       </div>
     </div>
   {:else}
