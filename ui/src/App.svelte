@@ -463,6 +463,7 @@
               <span class="format-chip"><b>Jaeger</b> data[].spans</span>
               <span class="format-chip"><b>OpenInference</b> spans</span>
               <span class="privacy-note">⬢ no backend · no upload · no telemetry</span>
+              <a class="format-chip format-chip--link" href="/docs/">No trace yet? Get one →</a>
               <span class="drop-hint">drag a .json anywhere</span>
             </div>
           </section>
@@ -1089,6 +1090,18 @@
   .format-chip b {
     color: var(--color-sky, #7dd3fc);
     font-weight: 500;
+  }
+
+  .format-chip--link {
+    color: var(--color-sky, #7dd3fc);
+    border-color: color-mix(in srgb, var(--color-sky, #7dd3fc) 32%, transparent);
+    text-decoration: none;
+    transition: border-color 0.2s var(--ease-spring), background 0.2s var(--ease-spring);
+  }
+
+  .format-chip--link:hover {
+    border-color: color-mix(in srgb, var(--color-sky, #7dd3fc) 55%, transparent);
+    background: var(--color-panel-highlight, rgba(125, 211, 252, 0.05));
   }
 
   .drop-hint {
