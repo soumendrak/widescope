@@ -1,6 +1,7 @@
 import { traceState } from '../stores/trace';
 import { focusedSpanId, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from '../stores/selection';
 import { traceList } from '../stores/traceList';
+import { saveRecent } from './recent';
 import { parseTrace, getFlameGraphLayout, getTimelineLayout, getWaterfallLayout, getServiceGraph, getAgentFlow, safeParseWasmError } from './wasm';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
@@ -118,7 +119,7 @@ export async function handleFile(file: File, onText?: (text: string) => void): P
   handleRawInput(text, false);
 }
 
-export function handleRawInput(text: string, isSample: boolean, showLoading = true): boolean {
+export function handleRawInput(text: string, isSample: boolean, showLoading = true, persist = false): boolean {
   if (showLoading) {
     traceState.setLoading();
   }
@@ -140,6 +141,7 @@ export function handleRawInput(text: string, isSample: boolean, showLoading = tr
     // Add to trace list for multi-trace switching
     const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
     traceList.add(name, text);
+    if (persist) void saveRecent(name, text);
 
     return true;
   } catch (err) {
@@ -153,7 +155,7 @@ function nextFrame(): Promise<void> {
   return new Promise((resolve) => requestAnimationFrame(() => resolve()));
 }
 
-export async function handleRawInputAsync(text: string, isSample: boolean, showLoading = true): Promise<boolean> {
+export async function handleRawInputAsync(text: string, isSample: boolean, showLoading = true, persist = false): Promise<boolean> {
   if (showLoading) {
     const sizeMb = text.length / 1024 / 1024;
     const phase = text.length >= LARGE_TRACE_BYTES
@@ -200,6 +202,7 @@ export async function handleRawInputAsync(text: string, isSample: boolean, showL
 
     const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
     traceList.add(name, text);
+    if (persist) void saveRecent(name, text);
 
     return true;
   } catch (err) {

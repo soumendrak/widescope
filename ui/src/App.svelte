@@ -6,6 +6,7 @@
   import { parsePermalink, decodeTrace } from './lib/permalink';
   import { connectLive, disconnectLive } from './lib/live';
   import { SAMPLE_TRACE } from './lib/sample';
+  import { recentTraces, loadRecent, getRecentJson, clearRecent } from './lib/recent';
   import { traceState } from './stores/trace';
   import { theme } from './lib/theme';
   import { flyUpConfig, viewSlideIn, viewSlideOut } from './lib/animation';
@@ -115,6 +116,8 @@
       editorExpandedHeight = Math.max(DEFAULT_EDITOR_HEIGHT_PX, editorCurrentHeight);
     }
 
+    void loadRecent();
+
     try {
       await loadWasm();
       wasmReady = true;
@@ -161,7 +164,7 @@
     // Live mode: stream traces from an SSE relay and auto-select each newest one.
     // ponytail: every trace runs the full editor load — fine for Phase 1 cadence.
     const liveUrl = new URLSearchParams(window.location.search).get('live');
-    if (liveUrl) connectLive(liveUrl, (json) => { void loadEditorText(json); });
+    if (liveUrl) connectLive(liveUrl, (json) => { void loadEditorText(json, false); }); // ephemeral stream — don't persist
   });
 
   function hostMessageHandler(event: MessageEvent): void {
@@ -198,7 +201,7 @@
     liveParseTimer = null;
   }
 
-  async function applyEditorValue(showLoading = false): Promise<boolean> {
+  async function applyEditorValue(showLoading = false, persist = false): Promise<boolean> {
     editorMessage = null;
     if (!editorValue.trim()) {
       selectedSpanId.set(null);
@@ -209,7 +212,7 @@
       traceState.reset();
       return false;
     }
-    return await handleRawInputAsync(editorValue, false, showLoading);
+    return await handleRawInputAsync(editorValue, false, showLoading, persist);
   }
 
   function scheduleLiveParse(): void {
@@ -276,11 +279,11 @@
     document.body.style.userSelect = '';
   }
 
-  async function loadEditorText(text: string): Promise<boolean> {
+  async function loadEditorText(text: string, persist = true): Promise<boolean> {
     editorValue = text;
     expandEditor();
     clearLiveParseTimer();
-    return await applyEditorValue(true);
+    return await applyEditorValue(true, persist);
   }
 
   function openEditorFilePicker(): void {
@@ -288,7 +291,13 @@
   }
 
   function loadSampleJson(): void {
-    void loadEditorText(SAMPLE_TRACE);
+    void loadEditorText(SAMPLE_TRACE, false); // built-in sample — don't persist to Recent
+  }
+
+  async function reloadRecent(id: number): Promise<void> {
+    const json = await getRecentJson(id);
+    if (json) await loadEditorText(json);
+    else editorMessage = 'That recent trace is no longer available.';
   }
 
   function clearEditorJson(): void {
@@ -333,7 +342,7 @@
 
   async function submitEditor(): Promise<void> {
     clearLiveParseTimer();
-    const parsed = await applyEditorValue(true);
+    const parsed = await applyEditorValue(true, true); // explicit user submit — persist to Recent
     if (!parsed) return;
     collapseEditor();
     activeView.set($activeView || VIEW_ORDER[0]);
@@ -496,6 +505,21 @@
               <a class="format-chip format-chip--link" href="/docs/">No trace yet? Get one →</a>
               <span class="drop-hint">drag a .json anywhere</span>
             </div>
+
+            {#if $recentTraces.length > 0}
+              <div class="recent-row" aria-label="Recent traces">
+                <span class="recent-label">Recent</span>
+                {#each $recentTraces as r (r.id)}
+                  <button
+                    type="button"
+                    class="recent-chip"
+                    title={`Reload ${r.name} · ${(r.size / 1024 / 1024).toFixed(1)} MB`}
+                    on:click={() => reloadRecent(r.id)}
+                  >{r.name}</button>
+                {/each}
+                <button type="button" class="recent-clear" title="Forget all recent traces" on:click={() => void clearRecent()}>Clear</button>
+              </div>
+            {/if}
           </section>
         {/if}
 
@@ -1149,6 +1173,57 @@
     border-style: dashed;
     color: var(--color-text-faint, #5b6b84);
   }
+
+  .recent-row {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .recent-label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-faint, #5b6b84);
+  }
+
+  .recent-chip {
+    max-width: 220px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 0.32rem 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--color-sky, #7dd3fc) 26%, transparent);
+    border-radius: 999px;
+    background: var(--color-badge-bg, rgba(59, 130, 246, 0.16));
+    color: var(--color-sky, #7dd3fc);
+    cursor: pointer;
+    transition: background 0.15s var(--ease-spring), transform 0.15s var(--ease-bounce);
+  }
+
+  .recent-chip:hover {
+    background: color-mix(in srgb, var(--color-accent, #3b82f6) 28%, transparent);
+    transform: translateY(-1px);
+  }
+
+  .recent-clear {
+    background: none;
+    border: none;
+    color: var(--color-text-faint, #5b6b84);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    cursor: pointer;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    padding: 0 0.2rem;
+  }
+
+  .recent-clear:hover { color: var(--color-danger, #f87171); }
 
   .editor-panel {
     display: flex;
