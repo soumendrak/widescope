@@ -29,7 +29,7 @@
 
 ## Source code
 
-- [soumendrak/widescope](https://github.com/soumendrak/widescope) — Full source code (MIT license)
+- [soumendrak/widescope](https://github.com/soumendrak/widescope) — Full source code (Apache 2.0 license)
 - [soumendrak/widescope/releases](https://github.com/soumendrak/widescope/releases) — Releases and changelog
 - [soumendrak/widescope/issues](https://github.com/soumendrak/widescope/issues) — Bug reports and feature requests
 
