@@ -86,10 +86,7 @@ impl PricingTable {
             if let Some(candidates) = self.index.get(&candidate_key) {
                 return self.choose(candidates, provider_norm.as_deref());
             }
-            match strip_one_numeric_suffix(&candidate_key) {
-                Some(shorter) => candidate_key = shorter,
-                None => return None,
-            }
+            candidate_key = strip_one_numeric_suffix(&candidate_key)?;
         }
     }
 
