@@ -22,6 +22,7 @@
     fullscreen,
   } from '../stores/selection';
   import { budgets, checkViolations } from '../stores/budgets';
+  import { annotations } from '../stores/annotations';
   import { liveState, toggleLivePause } from '../lib/live';
   import BudgetsDialog from './BudgetsDialog.svelte';
 
@@ -209,7 +210,15 @@
       return;
     }
     try {
-      const result = await buildShareUrl({ json, view: $activeView, spanId: $selectedSpanId });
+      // Carry only notes for spans in *this* trace, so sharing one trace never
+      // leaks notes the sender wrote on other traces.
+      const traceSpanIds = new Set(filterSpans({}));
+      const allNotes = $annotations;
+      const notes: Record<string, string> = {};
+      for (const id of traceSpanIds) {
+        if (allNotes[id]) notes[id] = allNotes[id];
+      }
+      const result = await buildShareUrl({ json, view: $activeView, spanId: $selectedSpanId, notes });
       if (result.tooLarge) {
         const kb = Math.round(result.dataChars / 1024);
         showSharePopover({

@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import type { WaterfallLayout, WaterfallRow } from '../lib/types';
   import { selectedSpanId, hoveredSpanId, filteredSpanIds } from '../stores/selection';
+  import { annotations } from '../stores/annotations';
   import { SERVICE_COLORS } from '../lib/palette';
 
   export let layout: WaterfallLayout;
@@ -261,6 +262,10 @@
             <span class="wf-op-name" title="{row.service_name}: {row.operation_name}">
               {row.operation_name}
             </span>
+
+            {#if $annotations[row.span_id]}
+              <span class="wf-note" title={"Note: " + $annotations[row.span_id]} aria-label="Has a note">📝</span>
+            {/if}
 
             {#if row.safety_category}
               <span class="wf-safety" title="Safety signal: {row.safety_category.replace('_', ' ')}">🛡 {row.safety_category.replace('_', ' ')}</span>
@@ -587,6 +592,18 @@
 
   .wf-bar--safety {
     box-shadow: inset 0 0 0 1.5px rgba(248, 113, 113, 0.9);
+  }
+
+  /* Red-ringed note marker — spot a commented span without opening it. */
+  .wf-note {
+    flex: none;
+    font-size: 10px;
+    line-height: 1;
+    padding: 1px 3px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-danger, #f87171) 70%, transparent);
+    background: color-mix(in srgb, var(--color-danger, #f87171) 16%, transparent);
+    cursor: help;
   }
 
   .wf-safety {

@@ -120,7 +120,24 @@ describe('parsePermalink', () => {
       traceUrl: null,
       view: null,
       spanId: null,
+      notes: null,
     });
+  });
+
+  it('decodes span notes carried in the hash', () => {
+    const notes = { 's-1': 'looks slow', 's-2': 'retry storm' };
+    const encoded = bytesToBase64Url(new TextEncoder().encode(JSON.stringify(notes)));
+    const state = parsePermalink(`https://widescope.test/#trace=X&notes=${encoded}`);
+    expect(state.notes).toEqual(notes);
+  });
+
+  it('drops empty note text and yields null when nothing remains', () => {
+    const encoded = bytesToBase64Url(new TextEncoder().encode(JSON.stringify({ 's-1': '  ' })));
+    expect(parsePermalink(`https://widescope.test/#notes=${encoded}`).notes).toBeNull();
+  });
+
+  it('ignores a malformed notes param', () => {
+    expect(parsePermalink('https://widescope.test/#notes=@@not-base64@@').notes).toBeNull();
   });
 });
 
@@ -144,6 +161,30 @@ describe('buildShareUrl', () => {
     expect(parsed.spanId).toBe('span-1');
     expect(parsed.traceData).not.toBeNull();
     expect(await decodeTrace(parsed.traceData as string)).toBe(json);
+  });
+
+  it('round-trips span notes through the share link', async () => {
+    const notes = { 'span-1': 'hot path', 'span-9': 'check this' };
+    const result = await buildShareUrl({
+      json: readFixture(FIXTURES[0]),
+      view: 'waterfall',
+      spanId: 'span-1',
+      notes,
+      baseUrl,
+    });
+    expect(parsePermalink(result.url).notes).toEqual(notes);
+  });
+
+  it('omits the notes param when there are no notes', async () => {
+    const result = await buildShareUrl({
+      json: readFixture(FIXTURES[0]),
+      view: 'flame',
+      spanId: null,
+      notes: { 'span-1': '   ' },
+      baseUrl,
+    });
+    expect(result.url).not.toContain('notes=');
+    expect(parsePermalink(result.url).notes).toBeNull();
   });
 
   it('omits the span param when no span is selected', async () => {

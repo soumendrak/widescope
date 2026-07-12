@@ -273,7 +273,10 @@
 
       <!-- Annotations -->
       <div class="section annotation-section">
-        <div class="section-title">📝 Note</div>
+        <div class="section-title">
+          📝 Note
+          {#if noteText.trim()}<span class="note-dot" title="This span has a note" aria-hidden="true"></span>{/if}
+        </div>
         <textarea
           class="annotation-input"
           placeholder="Add a note for this span…"
@@ -876,6 +879,15 @@
   }
 
   .annotation-section { background: var(--color-panel-highlight, rgba(255, 255, 255, 0.04)); }
+
+  .note-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--color-danger, #f87171);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger, #f87171) 22%, transparent);
+    flex: none;
+  }
 
   .annotation-input {
     width: 100%;

@@ -46,6 +46,8 @@ export interface PermalinkState {
   view: ViewName | null;
   /** Span id to pre-select. */
   spanId: string | null;
+  /** Span notes carried with the trace (span id → text), or null. */
+  notes: Record<string, string> | null;
 }
 
 /**
@@ -152,6 +154,23 @@ export async function decodeTrace(encoded: string): Promise<string> {
   return decompressShare(bytes);
 }
 
+/** Decode a `notes=` param (base64url JSON) into a span-id → text map, or null. */
+function decodeNotes(value: string | null): Record<string, string> | null {
+  if (!value) return null;
+  try {
+    const json = new TextDecoder().decode(base64UrlToBytes(value));
+    const parsed = JSON.parse(json) as unknown;
+    if (!parsed || typeof parsed !== 'object') return null;
+    const result: Record<string, string> = {};
+    for (const [id, text] of Object.entries(parsed as Record<string, unknown>)) {
+      if (typeof text === 'string' && text.trim()) result[id] = text;
+    }
+    return Object.keys(result).length ? result : null;
+  } catch {
+    return null;
+  }
+}
+
 function coerceView(value: string | null): ViewName | null {
   return value !== null && VIEW_NAMES.includes(value as ViewName)
     ? (value as ViewName)
@@ -184,6 +203,7 @@ export function parsePermalink(href: string = window.location.href): PermalinkSt
     traceUrl: query.get('trace') ?? byId,
     view: coerceView(pick('view')),
     spanId: pick('span'),
+    notes: decodeNotes(hash.get('notes')),
   };
 }
 
@@ -197,6 +217,7 @@ function defaultBaseUrl(): string {
  * @param opts.json    Raw trace JSON to embed.
  * @param opts.view    View mode to restore.
  * @param opts.spanId  Span to pre-select, or null.
+ * @param opts.notes   Span notes to carry (span id → text); empty ones are dropped.
  * @param opts.baseUrl Base URL to build on; defaults to the current location.
  * @returns The URL plus a `tooLarge` flag the caller should check before sharing.
  */
@@ -204,6 +225,7 @@ export async function buildShareUrl(opts: {
   json: string;
   view: ViewName;
   spanId: string | null;
+  notes?: Record<string, string>;
   baseUrl?: string;
 }): Promise<ShareUrlResult> {
   const data = await encodeTrace(opts.json);
@@ -212,6 +234,12 @@ export async function buildShareUrl(opts: {
   params.set('view', opts.view);
   if (opts.spanId) {
     params.set('span', opts.spanId);
+  }
+  const notes = opts.notes
+    ? Object.fromEntries(Object.entries(opts.notes).filter(([, t]) => t.trim()))
+    : {};
+  if (Object.keys(notes).length > 0) {
+    params.set('notes', bytesToBase64Url(new TextEncoder().encode(JSON.stringify(notes))));
   }
   const base = opts.baseUrl ?? defaultBaseUrl();
   return {
