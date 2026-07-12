@@ -68,9 +68,9 @@ function backendTraceUrl(source: string, base: string, traceId: string): string 
 export interface ShareUrlResult {
   /** The shareable URL. Still returned when `tooLarge` so the caller can decide. */
   url: string;
-  /** Length of the encoded trace blob, in characters. */
+  /** Combined length of the embedded payload (trace blob + notes), in characters. */
   dataChars: number;
-  /** True when the blob exceeds {@link MAX_SHARE_DATA_CHARS}. */
+  /** True when the payload exceeds {@link MAX_SHARE_DATA_CHARS}. */
   tooLarge: boolean;
 }
 
@@ -238,13 +238,18 @@ export async function buildShareUrl(opts: {
   const notes = opts.notes
     ? Object.fromEntries(Object.entries(opts.notes).filter(([, t]) => t.trim()))
     : {};
+  let notesEncoded = '';
   if (Object.keys(notes).length > 0) {
-    params.set('notes', bytesToBase64Url(new TextEncoder().encode(JSON.stringify(notes))));
+    notesEncoded = bytesToBase64Url(new TextEncoder().encode(JSON.stringify(notes)));
+    params.set('notes', notesEncoded);
   }
   const base = opts.baseUrl ?? defaultBaseUrl();
+  // Guard on the full embedded payload (trace + notes): a small trace with
+  // large notes can still blow past browser/chat URL limits.
+  const dataChars = data.length + notesEncoded.length;
   return {
     url: `${base}#${params.toString()}`,
-    dataChars: data.length,
-    tooLarge: data.length > MAX_SHARE_DATA_CHARS,
+    dataChars,
+    tooLarge: dataChars > MAX_SHARE_DATA_CHARS,
   };
 }
