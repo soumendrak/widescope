@@ -28,6 +28,7 @@
   import Footer from './components/Footer.svelte';
   import KeyboardHelp from './components/KeyboardHelp.svelte';
   import { activeView, focusedSpanId, fullscreen, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from './stores/selection';
+  import { annotations } from './stores/annotations';
 
   let wasmReady = false;
   let wasmError: string | null = null;
@@ -148,6 +149,7 @@
     }
 
     if (permalinkLoaded) {
+      if (permalink.notes) annotations.setMany(permalink.notes);
       if (permalink.view) activeView.set(permalink.view);
       if (permalink.spanId) applyPermalinkSpan(permalink.spanId);
     } else if (new URLSearchParams(window.location.search).get('sample') === '1') {

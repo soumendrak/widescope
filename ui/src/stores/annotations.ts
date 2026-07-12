@@ -48,6 +48,22 @@ function createAnnotationStore() {
       });
     },
 
+    /** Import notes (e.g. from a shared trace link) into the store and localStorage. */
+    setMany(notes: Record<string, string>) {
+      const entries = Object.entries(notes).filter(([, text]) => text.trim());
+      if (entries.length === 0) return;
+      for (const [spanId, text] of entries) {
+        try {
+          localStorage.setItem(STORAGE_PREFIX + spanId, text);
+        } catch { /* quota exceeded */ }
+      }
+      update((s) => {
+        const next = { ...s };
+        for (const [spanId, text] of entries) next[spanId] = text;
+        return next;
+      });
+    },
+
     removeNote(spanId: string) {
       try {
         localStorage.removeItem(STORAGE_PREFIX + spanId);
