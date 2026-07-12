@@ -4,7 +4,7 @@
   "description": "Open LLM/agent trace JSON files in the WideScope viewer without leaving VS Code.",
   "version": "0.1.0",
   "publisher": "soumendrak",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "repository": { "type": "git", "url": "https://github.com/soumendrak/widescope" },
   "engines": { "vscode": "^1.84.0" },
   "categories": ["Visualization", "Debuggers"],

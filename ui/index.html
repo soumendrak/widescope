@@ -353,6 +353,14 @@ kbd{
 }
 .chip b{color:var(--sky);font-weight:500}
 
+/* "also in the box" feature strip */
+.featlist{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:56px}
+.featlist .feat-k{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold);margin-right:8px;white-space:nowrap;
+}
+.featlist .chip{white-space:normal}
+
 /* ============================================================
    SECTION 02 — INSPECT
    ============================================================ */
@@ -703,7 +711,8 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
       <p class="lede stage stage-3">
         WideScope turns raw <b>OTLP, Jaeger, and OpenInference JSON</b> into flame graphs, timelines,
         token costs, and side-by-side diffs — parsed by <b>Rust&nbsp;/&nbsp;WASM</b>, rendered at 60&nbsp;fps,
-        and never leaving your browser tab.
+        and never leaving your browser tab. Even sharing is serverless: <b>the whole trace travels
+        inside the link</b>.
       </p>
       <div class="hero-cta stage stage-4">
         <a class="btn btn-primary btn-lg magnet" href="/editor/">
@@ -714,7 +723,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
         </a>
       </div>
       <div class="hero-meta stage stage-4">
-        <span>No backend</span><span>No upload</span><span>No telemetry</span><span>MIT licensed</span>
+        <span>No backend</span><span>No upload</span><span>No telemetry</span><span>Serverless sharing</span><span>Apache 2.0</span>
       </div>
 
       <!-- live trace window (pins while scrolling; tabs advance with scroll) -->
@@ -953,6 +962,20 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
           </div>
         </div>
       </div>
+
+      <div class="featlist reveal" data-rd="3" aria-label="More capabilities">
+        <span class="feat-k">also in the box ›</span>
+        <span class="chip">trace diff + <b>matrix view</b></span>
+        <span class="chip">cost &amp; token analytics</span>
+        <span class="chip">attribute search · <b>duration&gt;100ms</b></span>
+        <span class="chip">latency heatmap</span>
+        <span class="chip">span annotations</span>
+        <span class="chip">PNG / SVG export</span>
+        <span class="chip">multi-trace + zip loading</span>
+        <span class="chip">session grouping</span>
+        <span class="chip"><b>VS Code</b> extension</span>
+        <span class="chip">embed mode</span>
+      </div>
     </div>
   </section>
 
@@ -1074,7 +1097,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
       <a href="https://github.com/soumendrak/widescope/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
       <a href="https://github.com/soumendrak/widescope/issues" target="_blank" rel="noopener">Issues</a>
     </nav>
-    <span class="made">built with <b>Rust 🦀 + WASM + Svelte 5</b> · MIT licensed · © <span id="yr">2026</span> soumendrak · trace_id: <b>w1d3sc0p3</b></span>
+    <span class="made">built with <b>Rust 🦀 + WASM + Svelte 5</b> · Apache 2.0 licensed · © <span id="yr">2026</span> soumendrak · trace_id: <b>w1d3sc0p3</b></span>
   </div>
 </footer>
 
