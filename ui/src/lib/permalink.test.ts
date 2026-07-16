@@ -187,6 +187,25 @@ describe('buildShareUrl', () => {
     expect(parsePermalink(result.url).notes).toBeNull();
   });
 
+  it('counts large notes toward the size guard', async () => {
+    // A tiny trace stays well under the limit on its own...
+    const json = JSON.stringify({ resourceSpans: [] });
+    const small = await buildShareUrl({ json, view: 'flame', spanId: null, baseUrl });
+    expect(small.tooLarge).toBe(false);
+    // ...but bulky notes must push dataChars over and flip tooLarge.
+    let big = '';
+    while (big.length < MAX_SHARE_DATA_CHARS * 2) big += 'x';
+    const withNotes = await buildShareUrl({
+      json,
+      view: 'flame',
+      spanId: null,
+      notes: { 'span-1': big },
+      baseUrl,
+    });
+    expect(withNotes.dataChars).toBeGreaterThan(MAX_SHARE_DATA_CHARS);
+    expect(withNotes.tooLarge).toBe(true);
+  });
+
   it('omits the span param when no span is selected', async () => {
     const result = await buildShareUrl({
       json: readFixture(FIXTURES[0]),

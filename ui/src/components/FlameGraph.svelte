@@ -5,6 +5,11 @@
   import { getCriticalPath } from '../lib/wasm';
   import type { CriticalPath } from '../lib/types';
   import { SERVICE_COLORS } from '../lib/palette';
+  import { annotations } from '../stores/annotations';
+
+  // Span ids that currently have a note; kept live so the marker appears the
+  // moment a note is added and updates across every view.
+  let noteIds = new Set<string>();
 
   export let layout: FlameGraphLayout;
 
@@ -382,6 +387,19 @@
       ctx!.fillText(node.label, px + (node.is_llm ? 14 : 4), py + ROW_HEIGHT - 7);
       ctx!.restore();
     }
+
+    // Red note marker — a filled dot in the top-right corner, always full
+    // opacity so it stays visible even on dimmed/filtered spans.
+    if (noteIds.has(node.span_id)) {
+      ctx!.globalAlpha = 1;
+      ctx!.beginPath();
+      ctx!.arc(px + rw - 4.5, py + 4.5, 3, 0, Math.PI * 2);
+      ctx!.fillStyle = '#f87171';
+      ctx!.fill();
+      ctx!.lineWidth = 1;
+      ctx!.strokeStyle = 'rgba(2, 6, 18, 0.85)';
+      ctx!.stroke();
+    }
     ctx!.restore();
   }
 
@@ -401,6 +419,7 @@
     if (hasSearch && searchMatchSet.has(node.span_id)) return true;
     if (showCriticalPath && criticalPathSet.has(node.span_id)) return true;
     if (node.is_error || node.is_llm || node.safety_category) return true;
+    if (noteIds.has(node.span_id)) return true;
 
     return !(node.width < TINY_SPAN_TOTAL_RATIO && pw < TINY_SPAN_PIXEL_WIDTH);
   }
@@ -730,6 +749,10 @@
   });
   const unsubSearch = searchResults.subscribe(() => scheduleRender());
   const unsubFilter = filteredSpanIds.subscribe(() => scheduleRender());
+  const unsubNotes = annotations.subscribe((a) => {
+    noteIds = new Set(Object.keys(a));
+    scheduleRender();
+  });
 
   onDestroy(() => {
     unsubSel();
@@ -737,6 +760,7 @@
     unsubFoc();
     unsubSearch();
     unsubFilter();
+    unsubNotes();
     cancelAnimationFrame(animFrameId);
   });
 

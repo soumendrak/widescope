@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from 'svelte';
   import { fly } from 'svelte/transition';
-  import { loadWasm, getInitWarnings, getSpanDetail } from './lib/wasm';
+  import { loadWasm, getInitWarnings, getSpanDetail, filterSpans } from './lib/wasm';
   import { openFilePicker, handleFile, handleRawInputAsync } from './lib/input';
   import { parsePermalink, decodeTrace } from './lib/permalink';
   import { connectLive, disconnectLive } from './lib/live';
@@ -149,7 +149,16 @@
     }
 
     if (permalinkLoaded) {
-      if (permalink.notes) annotations.setMany(permalink.notes);
+      if (permalink.notes) {
+        // Only import notes for spans that exist in the trace we just loaded, so
+        // a crafted or stale link can't pollute annotations on other traces that
+        // happen to share a span id.
+        const traceSpanIds = new Set(filterSpans({}));
+        const scoped = Object.fromEntries(
+          Object.entries(permalink.notes).filter(([id]) => traceSpanIds.has(id)),
+        );
+        annotations.setMany(scoped);
+      }
       if (permalink.view) activeView.set(permalink.view);
       if (permalink.spanId) applyPermalinkSpan(permalink.spanId);
     } else if (new URLSearchParams(window.location.search).get('sample') === '1') {
