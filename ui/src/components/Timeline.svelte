@@ -3,6 +3,7 @@
   import type { TimelineBlock, TimelineLayout, TimelineRow } from '../lib/types';
   import { focusedSpanId, hoveredSpanId, searchResults, selectedSpanId, filteredSpanIds } from '../stores/selection';
   import { SERVICE_COLORS } from '../lib/palette';
+  import { annotations } from '../stores/annotations';
 
   export let layout: TimelineLayout;
 
@@ -321,6 +322,11 @@
                 {#if width >= 88}
                   <text x={x + (block.is_llm ? 18 : 8)} y={rowMeta.y + 18} class="span-label">{block.label}</text>
                 {/if}
+                {#if $annotations[block.span_id]}
+                  <circle cx={x + width - 3.5} cy={rowMeta.y + 5} r="3.5" class="span-note-dot">
+                    <title>Note: {$annotations[block.span_id]}</title>
+                  </circle>
+                {/if}
               </g>
             {/each}
           {/each}
@@ -477,6 +483,12 @@
     fill: var(--color-code-text, rgba(255, 255, 255, 0.95));
     pointer-events: none;
     user-select: none;
+  }
+
+  .span-note-dot {
+    fill: var(--color-danger, #f87171);
+    stroke: rgba(2, 6, 18, 0.85);
+    stroke-width: 1;
   }
 
   .span-label {
