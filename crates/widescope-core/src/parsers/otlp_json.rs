@@ -137,13 +137,10 @@ fn parse_single_span(raw: &Value, service_name: &str) -> Result<Span, String> {
         .and_then(parse_nano_ts)
         .ok_or_else(|| format!("span {}: missing endTimeUnixNano", span_id))?;
 
-    let (start_time_ns, end_time_ns) = if start_time_ns <= end_time_ns {
-        (start_time_ns, end_time_ns)
-    } else {
-        (end_time_ns, start_time_ns)
-    };
-
-    let duration_ns = end_time_ns - start_time_ns;
+    // Inverted clocks are left as parsed: trace_builder normalises them and is
+    // the only place that can warn about it. Swapping here made that warning
+    // unreachable, so a trace with broken timestamps looked clean.
+    let duration_ns = end_time_ns.saturating_sub(start_time_ns);
 
     let status = parse_status(raw);
 

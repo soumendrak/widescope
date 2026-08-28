@@ -155,6 +155,35 @@ pub fn build_trace(
         detect_and_sever_cycles(children_map, &span_index, &spans);
     warnings.append(&mut cycle_warnings);
 
+    // A span pointing at a parent that is not in the file becomes an extra root
+    // below. That is the right rendering, but silence made a truncated export
+    // indistinguishable from a complete one.
+    let orphans: Vec<&Span> = spans
+        .iter()
+        .filter(|s| {
+            s.parent_span_id
+                .as_ref()
+                .is_some_and(|pid| !span_index.contains_key(pid))
+        })
+        .collect();
+    if !orphans.is_empty() {
+        let sample = orphans[0];
+        warnings.push(
+            ParseWarning::new(
+                "ORPHAN_PARENT",
+                format!(
+                    "{} span(s) reference a parent that is not in this file (shown as roots)",
+                    orphans.len()
+                ),
+            )
+            .with_count(orphans.len())
+            .with_context(serde_json::json!({
+                "span_id": sample.span_id,
+                "missing_parent_span_id": sample.parent_span_id,
+            })),
+        );
+    }
+
     // 6. Identify roots
     let in_children: HashSet<String> = children_map
         .values()
