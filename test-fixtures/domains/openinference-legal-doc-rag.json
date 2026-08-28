@@ -1,0 +1,874 @@
+{
+  "metadata": {
+    "source": "widescope-fixture-generator",
+    "fixture": "legal-doc-rag"
+  },
+  "spans": [
+    {
+      "name": "legal.contract_review_agent",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-root-001"
+      },
+      "parent_id": null,
+      "span_kind": "AGENT",
+      "start_time_unix_nano": "1713200000150000000",
+      "end_time_unix_nano": "1713200013845274518",
+      "status_code": "OK",
+      "attributes": {
+        "workflow.name": "contract-clause-review",
+        "contract.id": "synthetic-contract-c6e99a",
+        "openinference.span.kind": "AGENT"
+      },
+      "events": []
+    },
+    {
+      "name": "retriever.search_clauses",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-retriever-000"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RETRIEVER",
+      "start_time_unix_nano": "1713200000200000000",
+      "end_time_unix_nano": "1713200000302797726",
+      "status_code": "OK",
+      "attributes": {
+        "retrieval.query": "indemnification clause precedent",
+        "retrieval.documents.0.document.id": "contract-clause-indemnification-0",
+        "retrieval.documents.0.document.score": 0.851,
+        "retrieval.documents.0.document.content": "Sample synthetic clause text for indemnification scenario 0, for fixture purposes only and not real legal language.",
+        "retrieval.documents.1.document.id": "contract-clause-indemnification-1",
+        "retrieval.documents.1.document.score": 0.774,
+        "retrieval.documents.1.document.content": "Sample synthetic clause text for indemnification scenario 1, for fixture purposes only and not real legal language.",
+        "retrieval.documents.2.document.id": "contract-clause-indemnification-2",
+        "retrieval.documents.2.document.score": 0.717,
+        "retrieval.documents.2.document.content": "Sample synthetic clause text for indemnification scenario 2, for fixture purposes only and not real legal language.",
+        "retrieval.documents.3.document.id": "contract-clause-indemnification-3",
+        "retrieval.documents.3.document.score": 0.937,
+        "retrieval.documents.3.document.content": "Sample synthetic clause text for indemnification scenario 3, for fixture purposes only and not real legal language.",
+        "openinference.span.kind": "RETRIEVER"
+      },
+      "events": []
+    },
+    {
+      "name": "reranker.rerank_documents",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-reranker-000"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RERANKER",
+      "start_time_unix_nano": "1713200000307797726",
+      "end_time_unix_nano": "1713200000404722973",
+      "status_code": "OK",
+      "attributes": {
+        "rerank.model": "cross-encoder-v2",
+        "rerank.top_n": 4,
+        "openinference.span.kind": "RERANKER"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.analyze_clause",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-llm-000"
+      },
+      "parent_id": "legal-chain-000",
+      "span_kind": "LLM",
+      "start_time_unix_nano": "1713200000411722973",
+      "end_time_unix_nano": "1713200002610712977",
+      "status_code": "OK",
+      "attributes": {
+        "llm.model_name": "claude-3-5-sonnet",
+        "llm.provider": "anthropic",
+        "llm.token_count.prompt": 1236,
+        "llm.token_count.completion": 481,
+        "llm.invocation_parameters.temperature": 0.1,
+        "clause.category": "indemnification",
+        "openinference.span.kind": "LLM"
+      },
+      "events": []
+    },
+    {
+      "name": "tool.citation_lookup",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-tool-000"
+      },
+      "parent_id": "legal-chain-000",
+      "span_kind": "TOOL",
+      "start_time_unix_nano": "1713200002615712977",
+      "end_time_unix_nano": "1713200002666690501",
+      "status_code": "OK",
+      "attributes": {
+        "tool.name": "citation_lookup",
+        "tool.arguments": "{\"category\": \"indemnification\"}",
+        "tool.result": "3 precedents found for indemnification",
+        "openinference.span.kind": "TOOL"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.chain",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-chain-000"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "CHAIN",
+      "start_time_unix_nano": "1713200000409722973",
+      "end_time_unix_nano": "1713200002668690501",
+      "status_code": "OK",
+      "attributes": {
+        "chain.type": "sequential",
+        "clause.category": "indemnification",
+        "openinference.span.kind": "CHAIN"
+      },
+      "events": []
+    },
+    {
+      "name": "retriever.search_clauses",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-retriever-001"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RETRIEVER",
+      "start_time_unix_nano": "1713200002698690501",
+      "end_time_unix_nano": "1713200002887478945",
+      "status_code": "OK",
+      "attributes": {
+        "retrieval.query": "termination clause precedent",
+        "retrieval.documents.0.document.id": "contract-clause-termination-0",
+        "retrieval.documents.0.document.score": 0.567,
+        "retrieval.documents.0.document.content": "Sample synthetic clause text for termination scenario 0, for fixture purposes only and not real legal language.",
+        "retrieval.documents.1.document.id": "contract-clause-termination-1",
+        "retrieval.documents.1.document.score": 0.78,
+        "retrieval.documents.1.document.content": "Sample synthetic clause text for termination scenario 1, for fixture purposes only and not real legal language.",
+        "retrieval.documents.2.document.id": "contract-clause-termination-2",
+        "retrieval.documents.2.document.score": 0.83,
+        "retrieval.documents.2.document.content": "Sample synthetic clause text for termination scenario 2, for fixture purposes only and not real legal language.",
+        "retrieval.documents.3.document.id": "contract-clause-termination-3",
+        "retrieval.documents.3.document.score": 0.665,
+        "retrieval.documents.3.document.content": "Sample synthetic clause text for termination scenario 3, for fixture purposes only and not real legal language.",
+        "openinference.span.kind": "RETRIEVER"
+      },
+      "events": []
+    },
+    {
+      "name": "reranker.rerank_documents",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-reranker-001"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RERANKER",
+      "start_time_unix_nano": "1713200002892478945",
+      "end_time_unix_nano": "1713200002980806303",
+      "status_code": "OK",
+      "attributes": {
+        "rerank.model": "cross-encoder-v2",
+        "rerank.top_n": 4,
+        "openinference.span.kind": "RERANKER"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.analyze_clause",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-llm-001"
+      },
+      "parent_id": "legal-chain-001",
+      "span_kind": "LLM",
+      "start_time_unix_nano": "1713200002987806303",
+      "end_time_unix_nano": "1713200004180446926",
+      "status_code": "OK",
+      "attributes": {
+        "llm.model_name": "gpt-4o",
+        "llm.provider": "openai",
+        "llm.token_count.prompt": 1904,
+        "llm.token_count.completion": 381,
+        "llm.invocation_parameters.temperature": 0.1,
+        "clause.category": "termination",
+        "openinference.span.kind": "LLM"
+      },
+      "events": []
+    },
+    {
+      "name": "tool.citation_lookup",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-tool-001"
+      },
+      "parent_id": "legal-chain-001",
+      "span_kind": "TOOL",
+      "start_time_unix_nano": "1713200004185446926",
+      "end_time_unix_nano": "1713200004262253699",
+      "status_code": "OK",
+      "attributes": {
+        "tool.name": "citation_lookup",
+        "tool.arguments": "{\"category\": \"termination\"}",
+        "tool.result": "3 precedents found for termination",
+        "openinference.span.kind": "TOOL"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.chain",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-chain-001"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "CHAIN",
+      "start_time_unix_nano": "1713200002985806303",
+      "end_time_unix_nano": "1713200004264253699",
+      "status_code": "OK",
+      "attributes": {
+        "chain.type": "sequential",
+        "clause.category": "termination",
+        "openinference.span.kind": "CHAIN"
+      },
+      "events": []
+    },
+    {
+      "name": "retriever.search_clauses",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-retriever-002"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RETRIEVER",
+      "start_time_unix_nano": "1713200004294253699",
+      "end_time_unix_nano": "1713200004480573823",
+      "status_code": "OK",
+      "attributes": {
+        "retrieval.query": "limitation_of_liability clause precedent",
+        "retrieval.documents.0.document.id": "contract-clause-limitation_of_liability-0",
+        "retrieval.documents.0.document.score": 0.611,
+        "retrieval.documents.0.document.content": "Sample synthetic clause text for limitation_of_liability scenario 0, for fixture purposes only and not real legal language.",
+        "retrieval.documents.1.document.id": "contract-clause-limitation_of_liability-1",
+        "retrieval.documents.1.document.score": 0.675,
+        "retrieval.documents.1.document.content": "Sample synthetic clause text for limitation_of_liability scenario 1, for fixture purposes only and not real legal language.",
+        "retrieval.documents.2.document.id": "contract-clause-limitation_of_liability-2",
+        "retrieval.documents.2.document.score": 0.955,
+        "retrieval.documents.2.document.content": "Sample synthetic clause text for limitation_of_liability scenario 2, for fixture purposes only and not real legal language.",
+        "retrieval.documents.3.document.id": "contract-clause-limitation_of_liability-3",
+        "retrieval.documents.3.document.score": 0.91,
+        "retrieval.documents.3.document.content": "Sample synthetic clause text for limitation_of_liability scenario 3, for fixture purposes only and not real legal language.",
+        "openinference.span.kind": "RETRIEVER"
+      },
+      "events": []
+    },
+    {
+      "name": "reranker.rerank_documents",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-reranker-002"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RERANKER",
+      "start_time_unix_nano": "1713200004485573823",
+      "end_time_unix_nano": "1713200004546300316",
+      "status_code": "OK",
+      "attributes": {
+        "rerank.model": "cross-encoder-v2",
+        "rerank.top_n": 4,
+        "openinference.span.kind": "RERANKER"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.analyze_clause",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-llm-002"
+      },
+      "parent_id": "legal-chain-002",
+      "span_kind": "LLM",
+      "start_time_unix_nano": "1713200004553300316",
+      "end_time_unix_nano": "1713200006479528912",
+      "status_code": "OK",
+      "attributes": {
+        "llm.model_name": "gpt-4o",
+        "llm.provider": "openai",
+        "llm.token_count.prompt": 2588,
+        "llm.token_count.completion": 340,
+        "llm.invocation_parameters.temperature": 0.1,
+        "clause.category": "limitation_of_liability",
+        "openinference.span.kind": "LLM"
+      },
+      "events": []
+    },
+    {
+      "name": "tool.citation_lookup",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-tool-002"
+      },
+      "parent_id": "legal-chain-002",
+      "span_kind": "TOOL",
+      "start_time_unix_nano": "1713200006484528912",
+      "end_time_unix_nano": "1713200006545191605",
+      "status_code": "OK",
+      "attributes": {
+        "tool.name": "citation_lookup",
+        "tool.arguments": "{\"category\": \"limitation_of_liability\"}",
+        "tool.result": "3 precedents found for limitation_of_liability",
+        "openinference.span.kind": "TOOL"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.chain",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-chain-002"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "CHAIN",
+      "start_time_unix_nano": "1713200004551300316",
+      "end_time_unix_nano": "1713200006547191605",
+      "status_code": "OK",
+      "attributes": {
+        "chain.type": "sequential",
+        "clause.category": "limitation_of_liability",
+        "openinference.span.kind": "CHAIN"
+      },
+      "events": []
+    },
+    {
+      "name": "retriever.search_clauses",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-retriever-003"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RETRIEVER",
+      "start_time_unix_nano": "1713200006577191605",
+      "end_time_unix_nano": "1713200006812675709",
+      "status_code": "OK",
+      "attributes": {
+        "retrieval.query": "confidentiality clause precedent",
+        "retrieval.documents.0.document.id": "contract-clause-confidentiality-0",
+        "retrieval.documents.0.document.score": 0.813,
+        "retrieval.documents.0.document.content": "Sample synthetic clause text for confidentiality scenario 0, for fixture purposes only and not real legal language.",
+        "retrieval.documents.1.document.id": "contract-clause-confidentiality-1",
+        "retrieval.documents.1.document.score": 0.923,
+        "retrieval.documents.1.document.content": "Sample synthetic clause text for confidentiality scenario 1, for fixture purposes only and not real legal language.",
+        "retrieval.documents.2.document.id": "contract-clause-confidentiality-2",
+        "retrieval.documents.2.document.score": 0.961,
+        "retrieval.documents.2.document.content": "Sample synthetic clause text for confidentiality scenario 2, for fixture purposes only and not real legal language.",
+        "retrieval.documents.3.document.id": "contract-clause-confidentiality-3",
+        "retrieval.documents.3.document.score": 0.864,
+        "retrieval.documents.3.document.content": "Sample synthetic clause text for confidentiality scenario 3, for fixture purposes only and not real legal language.",
+        "openinference.span.kind": "RETRIEVER"
+      },
+      "events": []
+    },
+    {
+      "name": "reranker.rerank_documents",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-reranker-003"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RERANKER",
+      "start_time_unix_nano": "1713200006817675709",
+      "end_time_unix_nano": "1713200006916409842",
+      "status_code": "OK",
+      "attributes": {
+        "rerank.model": "cross-encoder-v2",
+        "rerank.top_n": 4,
+        "openinference.span.kind": "RERANKER"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.analyze_clause",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-llm-003"
+      },
+      "parent_id": "legal-chain-003",
+      "span_kind": "LLM",
+      "start_time_unix_nano": "1713200006923409842",
+      "end_time_unix_nano": "1713200007979535994",
+      "status_code": "OK",
+      "attributes": {
+        "llm.model_name": "claude-3-5-sonnet",
+        "llm.provider": "anthropic",
+        "llm.token_count.prompt": 2666,
+        "llm.token_count.completion": 529,
+        "llm.invocation_parameters.temperature": 0.1,
+        "clause.category": "confidentiality",
+        "openinference.span.kind": "LLM"
+      },
+      "events": []
+    },
+    {
+      "name": "tool.citation_lookup",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-tool-003"
+      },
+      "parent_id": "legal-chain-003",
+      "span_kind": "TOOL",
+      "start_time_unix_nano": "1713200007984535994",
+      "end_time_unix_nano": "1713200008069321402",
+      "status_code": "OK",
+      "attributes": {
+        "tool.name": "citation_lookup",
+        "tool.arguments": "{\"category\": \"confidentiality\"}",
+        "tool.result": "3 precedents found for confidentiality",
+        "openinference.span.kind": "TOOL"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.chain",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-chain-003"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "CHAIN",
+      "start_time_unix_nano": "1713200006921409842",
+      "end_time_unix_nano": "1713200008071321402",
+      "status_code": "OK",
+      "attributes": {
+        "chain.type": "sequential",
+        "clause.category": "confidentiality",
+        "openinference.span.kind": "CHAIN"
+      },
+      "events": []
+    },
+    {
+      "name": "retriever.search_clauses",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-retriever-004"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RETRIEVER",
+      "start_time_unix_nano": "1713200008101321402",
+      "end_time_unix_nano": "1713200008252087163",
+      "status_code": "OK",
+      "attributes": {
+        "retrieval.query": "governing_law clause precedent",
+        "retrieval.documents.0.document.id": "contract-clause-governing_law-0",
+        "retrieval.documents.0.document.score": 0.649,
+        "retrieval.documents.0.document.content": "Sample synthetic clause text for governing_law scenario 0, for fixture purposes only and not real legal language.",
+        "retrieval.documents.1.document.id": "contract-clause-governing_law-1",
+        "retrieval.documents.1.document.score": 0.777,
+        "retrieval.documents.1.document.content": "Sample synthetic clause text for governing_law scenario 1, for fixture purposes only and not real legal language.",
+        "retrieval.documents.2.document.id": "contract-clause-governing_law-2",
+        "retrieval.documents.2.document.score": 0.582,
+        "retrieval.documents.2.document.content": "Sample synthetic clause text for governing_law scenario 2, for fixture purposes only and not real legal language.",
+        "retrieval.documents.3.document.id": "contract-clause-governing_law-3",
+        "retrieval.documents.3.document.score": 0.841,
+        "retrieval.documents.3.document.content": "Sample synthetic clause text for governing_law scenario 3, for fixture purposes only and not real legal language.",
+        "openinference.span.kind": "RETRIEVER"
+      },
+      "events": []
+    },
+    {
+      "name": "reranker.rerank_documents",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-reranker-004"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RERANKER",
+      "start_time_unix_nano": "1713200008257087163",
+      "end_time_unix_nano": "1713200008345008515",
+      "status_code": "OK",
+      "attributes": {
+        "rerank.model": "cross-encoder-v2",
+        "rerank.top_n": 4,
+        "openinference.span.kind": "RERANKER"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.analyze_clause",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-llm-004"
+      },
+      "parent_id": "legal-chain-004",
+      "span_kind": "LLM",
+      "start_time_unix_nano": "1713200008352008515",
+      "end_time_unix_nano": "1713200008983784930",
+      "status_code": "OK",
+      "attributes": {
+        "llm.model_name": "gpt-4o",
+        "llm.provider": "openai",
+        "llm.token_count.prompt": 3104,
+        "llm.token_count.completion": 742,
+        "llm.invocation_parameters.temperature": 0.1,
+        "clause.category": "governing_law",
+        "openinference.span.kind": "LLM"
+      },
+      "events": []
+    },
+    {
+      "name": "tool.citation_lookup",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-tool-004"
+      },
+      "parent_id": "legal-chain-004",
+      "span_kind": "TOOL",
+      "start_time_unix_nano": "1713200008988784930",
+      "end_time_unix_nano": "1713200009077455702",
+      "status_code": "OK",
+      "attributes": {
+        "tool.name": "citation_lookup",
+        "tool.arguments": "{\"category\": \"governing_law\"}",
+        "tool.result": "3 precedents found for governing_law",
+        "openinference.span.kind": "TOOL"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.chain",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-chain-004"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "CHAIN",
+      "start_time_unix_nano": "1713200008350008515",
+      "end_time_unix_nano": "1713200009079455702",
+      "status_code": "OK",
+      "attributes": {
+        "chain.type": "sequential",
+        "clause.category": "governing_law",
+        "openinference.span.kind": "CHAIN"
+      },
+      "events": []
+    },
+    {
+      "name": "retriever.search_clauses",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-retriever-005"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RETRIEVER",
+      "start_time_unix_nano": "1713200009109455702",
+      "end_time_unix_nano": "1713200009367051487",
+      "status_code": "OK",
+      "attributes": {
+        "retrieval.query": "assignment clause precedent",
+        "retrieval.documents.0.document.id": "contract-clause-assignment-0",
+        "retrieval.documents.0.document.score": 0.879,
+        "retrieval.documents.0.document.content": "Sample synthetic clause text for assignment scenario 0, for fixture purposes only and not real legal language.",
+        "retrieval.documents.1.document.id": "contract-clause-assignment-1",
+        "retrieval.documents.1.document.score": 0.763,
+        "retrieval.documents.1.document.content": "Sample synthetic clause text for assignment scenario 1, for fixture purposes only and not real legal language.",
+        "retrieval.documents.2.document.id": "contract-clause-assignment-2",
+        "retrieval.documents.2.document.score": 0.75,
+        "retrieval.documents.2.document.content": "Sample synthetic clause text for assignment scenario 2, for fixture purposes only and not real legal language.",
+        "retrieval.documents.3.document.id": "contract-clause-assignment-3",
+        "retrieval.documents.3.document.score": 0.682,
+        "retrieval.documents.3.document.content": "Sample synthetic clause text for assignment scenario 3, for fixture purposes only and not real legal language.",
+        "openinference.span.kind": "RETRIEVER"
+      },
+      "events": []
+    },
+    {
+      "name": "reranker.rerank_documents",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-reranker-005"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RERANKER",
+      "start_time_unix_nano": "1713200009372051487",
+      "end_time_unix_nano": "1713200009444337898",
+      "status_code": "OK",
+      "attributes": {
+        "rerank.model": "cross-encoder-v2",
+        "rerank.top_n": 4,
+        "openinference.span.kind": "RERANKER"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.analyze_clause",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-llm-005"
+      },
+      "parent_id": "legal-chain-005",
+      "span_kind": "LLM",
+      "start_time_unix_nano": "1713200009451337898",
+      "end_time_unix_nano": "1713200010688853482",
+      "status_code": "OK",
+      "attributes": {
+        "llm.model_name": "claude-3-5-sonnet",
+        "llm.provider": "anthropic",
+        "llm.token_count.prompt": 3169,
+        "llm.token_count.completion": 379,
+        "llm.invocation_parameters.temperature": 0.1,
+        "clause.category": "assignment",
+        "openinference.span.kind": "LLM"
+      },
+      "events": []
+    },
+    {
+      "name": "tool.citation_lookup",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-tool-005"
+      },
+      "parent_id": "legal-chain-005",
+      "span_kind": "TOOL",
+      "start_time_unix_nano": "1713200010693853482",
+      "end_time_unix_nano": "1713200010754051623",
+      "status_code": "OK",
+      "attributes": {
+        "tool.name": "citation_lookup",
+        "tool.arguments": "{\"category\": \"assignment\"}",
+        "tool.result": "3 precedents found for assignment",
+        "openinference.span.kind": "TOOL"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.chain",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-chain-005"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "CHAIN",
+      "start_time_unix_nano": "1713200009449337898",
+      "end_time_unix_nano": "1713200010756051623",
+      "status_code": "OK",
+      "attributes": {
+        "chain.type": "sequential",
+        "clause.category": "assignment",
+        "openinference.span.kind": "CHAIN"
+      },
+      "events": []
+    },
+    {
+      "name": "retriever.search_clauses",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-retriever-006"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RETRIEVER",
+      "start_time_unix_nano": "1713200010786051623",
+      "end_time_unix_nano": "1713200011075747705",
+      "status_code": "OK",
+      "attributes": {
+        "retrieval.query": "force_majeure clause precedent",
+        "retrieval.documents.0.document.id": "contract-clause-force_majeure-0",
+        "retrieval.documents.0.document.score": 0.572,
+        "retrieval.documents.0.document.content": "Sample synthetic clause text for force_majeure scenario 0, for fixture purposes only and not real legal language.",
+        "retrieval.documents.1.document.id": "contract-clause-force_majeure-1",
+        "retrieval.documents.1.document.score": 0.81,
+        "retrieval.documents.1.document.content": "Sample synthetic clause text for force_majeure scenario 1, for fixture purposes only and not real legal language.",
+        "retrieval.documents.2.document.id": "contract-clause-force_majeure-2",
+        "retrieval.documents.2.document.score": 0.759,
+        "retrieval.documents.2.document.content": "Sample synthetic clause text for force_majeure scenario 2, for fixture purposes only and not real legal language.",
+        "retrieval.documents.3.document.id": "contract-clause-force_majeure-3",
+        "retrieval.documents.3.document.score": 0.733,
+        "retrieval.documents.3.document.content": "Sample synthetic clause text for force_majeure scenario 3, for fixture purposes only and not real legal language.",
+        "openinference.span.kind": "RETRIEVER"
+      },
+      "events": []
+    },
+    {
+      "name": "reranker.rerank_documents",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-reranker-006"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RERANKER",
+      "start_time_unix_nano": "1713200011080747705",
+      "end_time_unix_nano": "1713200011122741588",
+      "status_code": "OK",
+      "attributes": {
+        "rerank.model": "cross-encoder-v2",
+        "rerank.top_n": 4,
+        "openinference.span.kind": "RERANKER"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.analyze_clause",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-llm-006"
+      },
+      "parent_id": "legal-chain-006",
+      "span_kind": "LLM",
+      "start_time_unix_nano": "1713200011129741588",
+      "end_time_unix_nano": "1713200011633323966",
+      "status_code": "OK",
+      "attributes": {
+        "llm.model_name": "claude-3-5-sonnet",
+        "llm.provider": "anthropic",
+        "llm.token_count.prompt": 3189,
+        "llm.token_count.completion": 815,
+        "llm.invocation_parameters.temperature": 0.1,
+        "clause.category": "force_majeure",
+        "openinference.span.kind": "LLM"
+      },
+      "events": []
+    },
+    {
+      "name": "tool.citation_lookup",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-tool-006"
+      },
+      "parent_id": "legal-chain-006",
+      "span_kind": "TOOL",
+      "start_time_unix_nano": "1713200011638323966",
+      "end_time_unix_nano": "1713200011682656183",
+      "status_code": "OK",
+      "attributes": {
+        "tool.name": "citation_lookup",
+        "tool.arguments": "{\"category\": \"force_majeure\"}",
+        "tool.result": "3 precedents found for force_majeure",
+        "openinference.span.kind": "TOOL"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.chain",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-chain-006"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "CHAIN",
+      "start_time_unix_nano": "1713200011127741588",
+      "end_time_unix_nano": "1713200011684656183",
+      "status_code": "OK",
+      "attributes": {
+        "chain.type": "sequential",
+        "clause.category": "force_majeure",
+        "openinference.span.kind": "CHAIN"
+      },
+      "events": []
+    },
+    {
+      "name": "retriever.search_clauses",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-retriever-007"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RETRIEVER",
+      "start_time_unix_nano": "1713200011714656183",
+      "end_time_unix_nano": "1713200011952807318",
+      "status_code": "OK",
+      "attributes": {
+        "retrieval.query": "dispute_resolution clause precedent",
+        "retrieval.documents.0.document.id": "contract-clause-dispute_resolution-0",
+        "retrieval.documents.0.document.score": 0.914,
+        "retrieval.documents.0.document.content": "Sample synthetic clause text for dispute_resolution scenario 0, for fixture purposes only and not real legal language.",
+        "retrieval.documents.1.document.id": "contract-clause-dispute_resolution-1",
+        "retrieval.documents.1.document.score": 0.612,
+        "retrieval.documents.1.document.content": "Sample synthetic clause text for dispute_resolution scenario 1, for fixture purposes only and not real legal language.",
+        "retrieval.documents.2.document.id": "contract-clause-dispute_resolution-2",
+        "retrieval.documents.2.document.score": 0.836,
+        "retrieval.documents.2.document.content": "Sample synthetic clause text for dispute_resolution scenario 2, for fixture purposes only and not real legal language.",
+        "retrieval.documents.3.document.id": "contract-clause-dispute_resolution-3",
+        "retrieval.documents.3.document.score": 0.577,
+        "retrieval.documents.3.document.content": "Sample synthetic clause text for dispute_resolution scenario 3, for fixture purposes only and not real legal language.",
+        "openinference.span.kind": "RETRIEVER"
+      },
+      "events": []
+    },
+    {
+      "name": "reranker.rerank_documents",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-reranker-007"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "RERANKER",
+      "start_time_unix_nano": "1713200011957807318",
+      "end_time_unix_nano": "1713200012027690072",
+      "status_code": "OK",
+      "attributes": {
+        "rerank.model": "cross-encoder-v2",
+        "rerank.top_n": 4,
+        "openinference.span.kind": "RERANKER"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.analyze_clause",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-llm-007"
+      },
+      "parent_id": "legal-chain-007",
+      "span_kind": "LLM",
+      "start_time_unix_nano": "1713200012034690072",
+      "end_time_unix_nano": "1713200013702282147",
+      "status_code": "OK",
+      "attributes": {
+        "llm.model_name": "gpt-4o",
+        "llm.provider": "openai",
+        "llm.token_count.prompt": 2910,
+        "llm.token_count.completion": 591,
+        "llm.invocation_parameters.temperature": 0.1,
+        "clause.category": "dispute_resolution",
+        "openinference.span.kind": "LLM"
+      },
+      "events": []
+    },
+    {
+      "name": "tool.citation_lookup",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-tool-007"
+      },
+      "parent_id": "legal-chain-007",
+      "span_kind": "TOOL",
+      "start_time_unix_nano": "1713200013707282147",
+      "end_time_unix_nano": "1713200013793274518",
+      "status_code": "OK",
+      "attributes": {
+        "tool.name": "citation_lookup",
+        "tool.arguments": "{\"category\": \"dispute_resolution\"}",
+        "tool.result": "3 precedents found for dispute_resolution",
+        "openinference.span.kind": "TOOL"
+      },
+      "events": []
+    },
+    {
+      "name": "llm.chain",
+      "context": {
+        "trace_id": "932caf5c68fbaeb55a036995c2622c84",
+        "span_id": "legal-chain-007"
+      },
+      "parent_id": "legal-root-001",
+      "span_kind": "CHAIN",
+      "start_time_unix_nano": "1713200012032690072",
+      "end_time_unix_nano": "1713200013795274518",
+      "status_code": "OK",
+      "attributes": {
+        "chain.type": "sequential",
+        "clause.category": "dispute_resolution",
+        "openinference.span.kind": "CHAIN"
+      },
+      "events": []
+    }
+  ]
+}

@@ -136,3 +136,75 @@ fn visit_span(
         );
     }
 }
+
+/// Degenerate traces: nothing to lay out, and everything at the same instant.
+#[cfg(test)]
+mod edge_tests {
+    use super::*;
+
+    use crate::models::span::{Span, SpanKind, SpanStatus};
+    use crate::models::trace::{InputFormat, Trace};
+    use std::collections::HashMap;
+
+    fn span(id: &str, parent: Option<&str>, start: u64, dur: u64) -> Span {
+        Span {
+            trace_id: "t".into(),
+            span_id: id.into(),
+            parent_span_id: parent.map(String::from),
+            operation_name: id.into(),
+            service_name: "svc".into(),
+            span_kind: SpanKind::Internal,
+            start_time_ns: start,
+            end_time_ns: start + dur,
+            duration_ns: dur,
+            self_time_ns: dur,
+            status: SpanStatus::Ok,
+            attributes: HashMap::new(),
+            events: vec![],
+            llm: None,
+            safety: vec![],
+        }
+    }
+
+    fn build(spans: Vec<Span>) -> Trace {
+        crate::trace_builder::build_trace(spans, InputFormat::Unknown, vec![]).unwrap()
+    }
+
+    /// A trace with no spans at all — reachable through the comparison view,
+    /// which lays out whatever it is handed.
+    fn empty_trace() -> Trace {
+        let mut trace = build(vec![span("only", None, 0, 1)]);
+        trace.spans.clear();
+        trace.root_span_ids.clear();
+        trace.span_index.clear();
+        trace
+    }
+
+    #[test]
+    fn an_empty_trace_lays_out_to_nothing() {
+        let layout = compute_waterfall_layout(&empty_trace());
+        assert!(layout.rows.is_empty());
+        assert_eq!(layout.trace_duration_ns, 0);
+        assert_eq!(layout.trace_duration_display, "0ns");
+        assert_eq!(layout.max_depth, 0);
+    }
+
+    #[test]
+    fn zero_duration_spans_still_get_a_positive_width() {
+        // Every span starts and ends at the same instant: the divisor would be
+        // zero and every bar would collapse.
+        let layout = compute_waterfall_layout(&build(vec![
+            span("root", None, 100, 0),
+            span("child", Some("root"), 100, 0),
+        ]));
+        assert_eq!(layout.rows.len(), 2);
+        for row in &layout.rows {
+            assert!(
+                row.x_end > row.x_start,
+                "row {} collapsed to zero width",
+                row.span_id
+            );
+            assert!(row.x_start >= 0.0);
+        }
+    }
+}

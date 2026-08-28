@@ -253,7 +253,7 @@
       bind:this={svgEl}
       width={Math.max(viewportWidth, LABEL_WIDTH + RIGHT_PADDING)}
       height={svgHeight}
-      role="img"
+      role="group"
       aria-label="Timeline swimlane view"
     >
       <g class="time-axis">
@@ -317,7 +317,7 @@
                   style={`fill: ${fill};`}
                 />
                 {#if block.is_llm}
-                  <text x={x + 6} y={rowMeta.y + 18} class="span-icon">⚡</text>
+                  <text x={x + 6} y={rowMeta.y + 18} class="span-icon">⚡︎</text>
                 {/if}
                 {#if width >= 88}
                   <text x={x + (block.is_llm ? 18 : 8)} y={rowMeta.y + 18} class="span-label">{block.label}</text>

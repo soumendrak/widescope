@@ -1,3 +1,29 @@
+/*
+ * Theme. Shares the editor's storage key so crossing / -> /editor/ keeps the
+ * same look; the dark-default resolution matches lib/theme.ts.
+ */
+(function initTheme() {
+  var KEY = 'widescope:theme';
+  var stored = null;
+  try { stored = localStorage.getItem(KEY); } catch (e) { /* storage blocked */ }
+  var theme = stored === 'light' || stored === 'dark'
+    ? stored
+    : (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  document.documentElement.setAttribute('data-theme', theme);
+
+  document.addEventListener('click', function (e) {
+    var btn = e.target.closest && e.target.closest('#themeToggle');
+    if (!btn) return;
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem(KEY, next); } catch (err) { /* storage blocked */ }
+  });
+})();
+
+// Opt the page into JS-driven motion. Everything animated is hidden only
+// under `.js-motion`, so a blocked or failed script leaves content visible.
+document.documentElement.classList.add('js-motion');
+
 (function(){
   "use strict";
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;

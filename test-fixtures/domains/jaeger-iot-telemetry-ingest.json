@@ -1,0 +1,5956 @@
+{
+  "data": [
+    {
+      "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+      "processes": {
+        "mqtt": {
+          "serviceName": "mqtt-broker"
+        },
+        "ingest": {
+          "serviceName": "ingest-gateway"
+        },
+        "kafka": {
+          "serviceName": "kafka"
+        },
+        "stream": {
+          "serviceName": "stream-processor"
+        },
+        "tsdb": {
+          "serviceName": "timeseries-db"
+        }
+      },
+      "spans": [
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "fab6856f67786767",
+          "operationName": "mqtt.publish_batch",
+          "references": [],
+          "startTime": 1712700000000000,
+          "duration": 59638,
+          "processID": "mqtt",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "producer"
+            },
+            {
+              "key": "mqtt.qos",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "mqtt.batch_size",
+              "type": "int64",
+              "value": 42
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "b4332f01fbaf8f58",
+          "operationName": "ingest.batch_receive",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "fab6856f67786767"
+            }
+          ],
+          "startTime": 1712700000002000,
+          "duration": 46698,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "ingest.batch_id",
+              "type": "string",
+              "value": "batch-0"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "4f05df4af981c351",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000003074,
+          "duration": 876,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-000"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 43
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "3ea8bb8b0d3b659b",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000004080,
+          "duration": 607,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-001"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 57
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "e2c9e45adc225a7a",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000004948,
+          "duration": 619,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-002"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 56
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "8c8ebed550478265",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000005716,
+          "duration": 847,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-003"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 66
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "2f10c23842c9779e",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000006615,
+          "duration": 217,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-004"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 96
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "501bafe8e45ed9bf",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000006896,
+          "duration": 254,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-005"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 85
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "e9bd849004b9f0ff",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000007266,
+          "duration": 211,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-006"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 54
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "970b6ddc75cc782d",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000007481,
+          "duration": 560,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-007"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 96
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "898d625493ee8f6a",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000008163,
+          "duration": 649,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-008"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 18
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "053984e07240f6ad",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000008889,
+          "duration": 170,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-009"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 55
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "e1a2418c2f568c03",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000009314,
+          "duration": 500,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-010"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 114
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "e716e36fc9a5138f",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000009941,
+          "duration": 514,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-011"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 97
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "b1637da0583c701f",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000010607,
+          "duration": 323,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-012"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 104
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "275f2a11b434f7ab",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000011009,
+          "duration": 500,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-013"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 119
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "60cb481fe9f65bae",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000011733,
+          "duration": 870,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-014"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 51
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "24e98be0c50b7a2c",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000012886,
+          "duration": 284,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-015"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 40
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "f49ada332145163f",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000013438,
+          "duration": 819,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-016"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 40
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "cf81b7206f2e1bdb",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000014307,
+          "duration": 152,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-017"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 117
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "812926337c6675d3",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000014488,
+          "duration": 751,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-018"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 114
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "ed355ca5ebaabdda",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000015534,
+          "duration": 486,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-019"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 93
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "6c8beec019049097",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000016143,
+          "duration": 696,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-020"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 43
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "8431eb448b77892c",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000017000,
+          "duration": 142,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-021"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 88
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "2af5f391c21abdd3",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000017253,
+          "duration": 871,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-022"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 127
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "0c191a4a741ce27d",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000018240,
+          "duration": 885,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-023"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 53
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "4a2f1c82cd44f6fc",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000019326,
+          "duration": 271,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-024"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 99
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "7728da23ddbb6ab0",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000019889,
+          "duration": 320,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-025"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 114
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "be4e176b42317490",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000020365,
+          "duration": 293,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-026"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 59
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "ef0a6668f40c1851",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000020714,
+          "duration": 432,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-027"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 52
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "81e02c8b309c7c3a",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000021248,
+          "duration": 833,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-028"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 78
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "56e0179afc50bbb9",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000022353,
+          "duration": 210,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-029"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 46
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "18c0874ac42c7d74",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000022819,
+          "duration": 402,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-030"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 70
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "ae4646494d45a235",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000023380,
+          "duration": 739,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-031"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 56
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "0add9e8463450877",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000024193,
+          "duration": 864,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-032"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 45
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "2f4fb5cff45671d0",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000025070,
+          "duration": 487,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-033"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 50
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "6625efae7dc1cac1",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000025768,
+          "duration": 347,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-034"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 82
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "e17c1c169ec99e5d",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000026170,
+          "duration": 582,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-035"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 53
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "4ee2354cdae05e6e",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000026779,
+          "duration": 826,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-036"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 27
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "5323eb2c5cc15a45",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000027733,
+          "duration": 451,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-037"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 127
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "1d99e95346080eff",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000028258,
+          "duration": 303,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-038"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 85
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "f76fede207861541",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000028563,
+          "duration": 742,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-039"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 99
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "419a213d5595eb12",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000029483,
+          "duration": 157,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-040"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 114
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "bc2d29f438ad6613",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "b4332f01fbaf8f58"
+            }
+          ],
+          "startTime": 1712700000029793,
+          "duration": 450,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-00-041"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-00/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 89
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "c741df1bc5e3ea00",
+          "operationName": "kafka.produce",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "fab6856f67786767"
+            }
+          ],
+          "startTime": 1712700000030743,
+          "duration": 16955,
+          "processID": "kafka",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "producer"
+            },
+            {
+              "key": "messaging.system",
+              "type": "string",
+              "value": "kafka"
+            },
+            {
+              "key": "messaging.destination",
+              "type": "string",
+              "value": "telemetry.raw"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "6c3ab85878fab5fd",
+          "operationName": "stream.process_batch",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "fab6856f67786767"
+            }
+          ],
+          "startTime": 1712700000047698,
+          "duration": 4971,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "consumer"
+            },
+            {
+              "key": "messaging.system",
+              "type": "string",
+              "value": "kafka"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "2f9da8b4fff57960",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000048198,
+          "duration": 372,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 0
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "e36dd1ab60698299",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000048577,
+          "duration": 62,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "a03aac056aaff14f",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000048671,
+          "duration": 331,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 2
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "eaed19a06ab2480a",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000049011,
+          "duration": 371,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 3
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "5c539a18d2f7be96",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000049406,
+          "duration": 370,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 4
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "53b162e0f46af9a4",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000049809,
+          "duration": 204,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 5
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "461ec30912ae1390",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000050062,
+          "duration": 100,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 6
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "6a6698ae38458303",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000050198,
+          "duration": 209,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 7
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "ba8497529ae140f1",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000050420,
+          "duration": 327,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 8
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "12dc5eb9a62e42e3",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000050753,
+          "duration": 246,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 9
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "ef7748bc5aaef02f",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000051028,
+          "duration": 208,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 10
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "fe59b43c3a29ecd7",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000051243,
+          "duration": 229,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 11
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "5fc2a6dda752f3ea",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000051511,
+          "duration": 174,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 12
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "e59c23caf1264044",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000051720,
+          "duration": 99,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 13
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "9ce66a99db20c491",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6c3ab85878fab5fd"
+            }
+          ],
+          "startTime": 1712700000051847,
+          "duration": 322,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 14
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "6dbbc8e547387dc6",
+          "operationName": "tsdb.write_batch",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "fab6856f67786767"
+            }
+          ],
+          "startTime": 1712700000052669,
+          "duration": 5969,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "db.system",
+              "type": "string",
+              "value": "timeseries"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "10b3907dcacccd65",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000053169,
+          "duration": 331,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 0
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "6cbd49440204fd42",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000053530,
+          "duration": 121,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "ded5edecb75d0f78",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000053659,
+          "duration": 378,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 2
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "b11fb3f248e227f2",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000054063,
+          "duration": 329,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 3
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "91a0fefadb995198",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000054435,
+          "duration": 374,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 4
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "f51909f242884888",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000054812,
+          "duration": 372,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 5
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "354eb587f51a244f",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000055184,
+          "duration": 429,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 6
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "c7e56b18315ecf9f",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000055661,
+          "duration": 261,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 7
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "7ccf84d09eca13bd",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000055969,
+          "duration": 435,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 8
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "8a8838ce76a5a002",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000056443,
+          "duration": 383,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 9
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "33eb798610216332",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000056826,
+          "duration": 260,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 10
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "c53589e2e8da8528",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000057124,
+          "duration": 116,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 11
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "cca1885e2f6c5f34",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000057289,
+          "duration": 81,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 12
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "d63e831228e0f401",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000057404,
+          "duration": 443,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 13
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "84ac0ffdc270cf3b",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "6dbbc8e547387dc6"
+            }
+          ],
+          "startTime": 1712700000057889,
+          "duration": 249,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 14
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "9c12ba2e9651c69c",
+          "operationName": "mqtt.publish_batch",
+          "references": [],
+          "startTime": 1712700000159638,
+          "duration": 59634,
+          "processID": "mqtt",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "producer"
+            },
+            {
+              "key": "mqtt.qos",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "mqtt.batch_size",
+              "type": "int64",
+              "value": 42
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "3bf2e641607fc29f",
+          "operationName": "ingest.batch_receive",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "9c12ba2e9651c69c"
+            }
+          ],
+          "startTime": 1712700000161638,
+          "duration": 46984,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "ingest.batch_id",
+              "type": "string",
+              "value": "batch-1"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "4d5b5e7143c50f20",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000162699,
+          "duration": 400,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-000"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 16
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "9df4648ed7515f29",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000163190,
+          "duration": 211,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-001"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 60
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "7633b7e681634ff5",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000163615,
+          "duration": 124,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-002"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 36
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "b96d8ae131550f32",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000163761,
+          "duration": 175,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-003"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 46
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "ad6a73a737d6c72f",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000164163,
+          "duration": 726,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-004"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 90
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "d46e5cb4e6b86a41",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000165137,
+          "duration": 175,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-005"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 104
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "843eed5a795572df",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000165603,
+          "duration": 181,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-006"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 126
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "fe80d77ad740d11f",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000165894,
+          "duration": 725,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-007"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 109
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "dcf3ef720d64b972",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000166877,
+          "duration": 154,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-008"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 18
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "95e0ee4c5be02ca1",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000167276,
+          "duration": 805,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-009"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 53
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "862a1b13cbe1bb52",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000168299,
+          "duration": 890,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-010"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 87
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "a73f67ab8d812bbe",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000169293,
+          "duration": 261,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-011"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 78
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "3f9eb26e22c59235",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000169810,
+          "duration": 659,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-012"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 51
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "4f4609d4fbde0962",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000170526,
+          "duration": 833,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-013"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 18
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "adaafee949587fb9",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000171477,
+          "duration": 652,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-014"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 114
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "b9e5595545731a4e",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000172153,
+          "duration": 271,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-015"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 49
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "61ab4be5930cf4ea",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000172613,
+          "duration": 308,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-016"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 35
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "a9f94ea3f14390c7",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000172923,
+          "duration": 876,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-017"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 73
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "a1678602e2c6fa1b",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000173981,
+          "duration": 214,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-018"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 66
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "dbcb09bb9e26ede9",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000174270,
+          "duration": 853,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-019"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 36
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "d42469fa2c20d8d5",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000175340,
+          "duration": 866,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-020"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 87
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "465c9f199fe70048",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000176442,
+          "duration": 847,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-021"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 54
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "9d5f7038f2bfd8f3",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000177530,
+          "duration": 247,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-022"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 63
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "08514ae4b518bdb1",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000178039,
+          "duration": 870,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-023"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 53
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "26535aa98b3b4049",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000179058,
+          "duration": 662,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-024"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 63
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "a5364763de2340fb",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000179968,
+          "duration": 541,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-025"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 55
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "ea5903744794642d",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000180694,
+          "duration": 262,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-026"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 104
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "0fd16311f3812903",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000181013,
+          "duration": 199,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-027"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 116
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "665b0248bb572306",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000181275,
+          "duration": 736,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-028"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 107
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "5036fb5e35bcd67d",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000182109,
+          "duration": 408,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-029"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 30
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "e34fb912af3c9e9e",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000182677,
+          "duration": 246,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-030"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 44
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "9d62fb50f3ce234c",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000183206,
+          "duration": 537,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-031"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 67
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "52b6a6c37df88cbf",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000183795,
+          "duration": 879,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-032"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 101
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "84e338ff740312f0",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000184881,
+          "duration": 616,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-033"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 38
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "a4932fe69ff8a01d",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000185692,
+          "duration": 739,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-034"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 128
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "eacee11595fd49cf",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000186491,
+          "duration": 512,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-035"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 113
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "fff51c8fcb9a1014",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000187059,
+          "duration": 702,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-036"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 123
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "0ac3dbbdb1777922",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000187948,
+          "duration": 477,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-037"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 127
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "a50a1edd80f0acca",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000188581,
+          "duration": 237,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-038"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 89
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "36afa59bd6f26981",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000188868,
+          "duration": 620,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-039"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 54
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "723a82fd6b299da6",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000189781,
+          "duration": 531,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-040"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 69
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "e505f6e8d16be474",
+          "operationName": "ingest.validate_message",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "3bf2e641607fc29f"
+            }
+          ],
+          "startTime": 1712700000190517,
+          "duration": 377,
+          "processID": "ingest",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "device.id",
+              "type": "string",
+              "value": "sensor-01-041"
+            },
+            {
+              "key": "mqtt.topic",
+              "type": "string",
+              "value": "telemetry/sensor-01/temp"
+            },
+            {
+              "key": "payload.bytes",
+              "type": "int64",
+              "value": 111
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "e01a1a1c36e47214",
+          "operationName": "kafka.produce",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "9c12ba2e9651c69c"
+            }
+          ],
+          "startTime": 1712700000191394,
+          "duration": 16228,
+          "processID": "kafka",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "producer"
+            },
+            {
+              "key": "messaging.system",
+              "type": "string",
+              "value": "kafka"
+            },
+            {
+              "key": "messaging.destination",
+              "type": "string",
+              "value": "telemetry.raw"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "f0f17405193e5233",
+          "operationName": "stream.process_batch",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "9c12ba2e9651c69c"
+            }
+          ],
+          "startTime": 1712700000207622,
+          "duration": 5325,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "consumer"
+            },
+            {
+              "key": "messaging.system",
+              "type": "string",
+              "value": "kafka"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "dda26d89587c7346",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000208122,
+          "duration": 203,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 0
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "9efdd1658408851f",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000208326,
+          "duration": 175,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "12a92db2c47338f2",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000208551,
+          "duration": 60,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 2
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "3aac7d643568ed81",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000208626,
+          "duration": 357,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 3
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "b3adf784bfb90117",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000209014,
+          "duration": 323,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 4
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "c9b37ec0c8927965",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000209353,
+          "duration": 332,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 5
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "ad182ffdad3582bd",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000209713,
+          "duration": 373,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 6
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "ae015e40c69a2357",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000210124,
+          "duration": 330,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 7
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "4daef485a962db5c",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000210487,
+          "duration": 382,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 8
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "70072e6851cd842b",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000210893,
+          "duration": 342,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 9
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "30def376689fc4d6",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000211245,
+          "duration": 340,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 10
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "96d5d40987e7be20",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000211623,
+          "duration": 160,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 11
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "ac6cd82311a7fb10",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000211813,
+          "duration": 118,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 12
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "c9cb41585fae42ad",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000211947,
+          "duration": 308,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 13
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "3a14f8bd988ad5af",
+          "operationName": "stream.transform_window",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f0f17405193e5233"
+            }
+          ],
+          "startTime": 1712700000212264,
+          "duration": 183,
+          "processID": "stream",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "window.index",
+              "type": "int64",
+              "value": 14
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "f726daca34a615a2",
+          "operationName": "tsdb.write_batch",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "9c12ba2e9651c69c"
+            }
+          ],
+          "startTime": 1712700000212947,
+          "duration": 5325,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "db.system",
+              "type": "string",
+              "value": "timeseries"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "e1641751f85ed3f1",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000213447,
+          "duration": 127,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 0
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "fef343b269558605",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000213602,
+          "duration": 232,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 1
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "7f3a093cb3a402ef",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000213860,
+          "duration": 89,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 2
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "80a1ea4619a12c2c",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000213978,
+          "duration": 371,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 3
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "7c2065cc9439fd94",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000214365,
+          "duration": 141,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 4
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "3b6fecf8d2db5dd2",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000214528,
+          "duration": 390,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 5
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "ae74f29ed2f94497",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000214920,
+          "duration": 312,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 6
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "91213dd3e8b8203e",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000215265,
+          "duration": 268,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 7
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "5c12d9aee8a56528",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000215544,
+          "duration": 452,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 8
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "d00c305fecf9bc92",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000216039,
+          "duration": 104,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 9
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "0630606f47d629e4",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000216151,
+          "duration": 119,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 10
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "0354eff0e769c1a0",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000216300,
+          "duration": 266,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 11
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "ddf91fcff710da28",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000216572,
+          "duration": 372,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 12
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "f3fbed0596fbe77a",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000216985,
+          "duration": 263,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 13
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+          "spanID": "e49cdbf5692f4565",
+          "operationName": "tsdb.write_point",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "9a388ecf7aee0f382c77adb08792ca25",
+              "spanID": "f726daca34a615a2"
+            }
+          ],
+          "startTime": 1712700000217286,
+          "duration": 486,
+          "processID": "tsdb",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "point.index",
+              "type": "int64",
+              "value": 14
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        }
+      ]
+    }
+  ]
+}

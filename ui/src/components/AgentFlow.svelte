@@ -73,7 +73,7 @@
   <div class="empty">No agentic spans detected in this trace</div>
 {:else}
   <div class="agent-scroll">
-    <svg {width} {height} role="img" aria-label="Agent flow graph">
+    <svg {width} {height} role="group" aria-label="Agent flow graph">
       {#each flow.edges as edge (edge.source + edge.target + edge.kind)}
         {@const s = posById.get(edge.source)}
         {@const t = posById.get(edge.target)}
