@@ -47,6 +47,22 @@ use parsers::otlp_json::parse_otlp_with_warnings;
 use trace_builder::build_trace;
 use utils::{format_duration, format_timestamp_display};
 
+/// Serialize a response payload, mapping the (practically unreachable) failure
+/// into the API error type.
+///
+/// Nineteen call sites used to inline this closure; one place to get it right
+/// is also one place for a test to reach, which is why it exists.
+fn to_json<T: Serialize>(value: &T) -> Result<String, ApiError> {
+    serde_json::to_string(value).map_err(|e| {
+        WideError::InvalidJson {
+            message: e.to_string(),
+            line: None,
+            column: None,
+        }
+        .into()
+    })
+}
+
 thread_local! {
     static TRACE: RefCell<Option<Trace>> = const { RefCell::new(None) };
     static TRACE_LIST: RefCell<Vec<(String, Trace)>> = const { RefCell::new(Vec::new()) };
@@ -86,14 +102,7 @@ pub fn init(conventions_json: &str) -> Result<String, ApiError> {
         warnings: result.warnings,
     };
 
-    serde_json::to_string(&init_result).map_err(|e| {
-        WideError::InvalidJson {
-            message: e.to_string(),
-            line: None,
-            column: None,
-        }
-        .into()
-    })
+    to_json(&init_result)
 }
 
 #[derive(Serialize)]
@@ -122,14 +131,7 @@ pub fn init_pricing(pricing_json: &str) -> Result<String, ApiError> {
         models_loaded: loaded,
         warnings,
     };
-    serde_json::to_string(&result).map_err(|e| {
-        WideError::InvalidJson {
-            message: e.to_string(),
-            line: None,
-            column: None,
-        }
-        .into()
-    })
+    to_json(&result)
 }
 
 #[derive(Serialize)]
@@ -260,14 +262,7 @@ pub fn parse_trace(raw_input: &str) -> Result<String, ApiError> {
         *t.borrow_mut() = Some(trace);
     });
 
-    serde_json::to_string(&summary).map_err(|e| {
-        WideError::InvalidJson {
-            message: e.to_string(),
-            line: None,
-            column: None,
-        }
-        .into()
-    })
+    to_json(&summary)
 }
 
 #[derive(Serialize)]
@@ -372,14 +367,7 @@ pub fn compute_comparison_matrix(raw_input: &str) -> Result<String, ApiError> {
     ];
 
     let matrix = ComparisonMatrix { traces, rows };
-    serde_json::to_string(&matrix).map_err(|e| {
-        WideError::InvalidJson {
-            message: e.to_string(),
-            line: None,
-            column: None,
-        }
-        .into()
-    })
+    to_json(&matrix)
 }
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
@@ -390,14 +378,7 @@ pub fn compute_flamegraph() -> Result<String, ApiError> {
             None => Err(WideError::NoTraceLoaded.into()),
             Some(trace) => {
                 let layout = compute_flamegraph_layout(trace);
-                serde_json::to_string(&layout).map_err(|e| {
-                    WideError::InvalidJson {
-                        message: e.to_string(),
-                        line: None,
-                        column: None,
-                    }
-                    .into()
-                })
+                to_json(&layout)
             }
         }
     })
@@ -411,14 +392,7 @@ pub fn compute_timeline() -> Result<String, ApiError> {
             None => Err(WideError::NoTraceLoaded.into()),
             Some(trace) => {
                 let layout = compute_timeline_layout(trace);
-                serde_json::to_string(&layout).map_err(|e| {
-                    WideError::InvalidJson {
-                        message: e.to_string(),
-                        line: None,
-                        column: None,
-                    }
-                    .into()
-                })
+                to_json(&layout)
             }
         }
     })
@@ -472,14 +446,7 @@ pub fn get_span_detail(span_id: &str) -> Result<String, ApiError> {
                     children_ids,
                 };
 
-                serde_json::to_string(&detail).map_err(|e| {
-                    WideError::InvalidJson {
-                        message: e.to_string(),
-                        line: None,
-                        column: None,
-                    }
-                    .into()
-                })
+                to_json(&detail)
             }
         }
     })
@@ -510,14 +477,7 @@ pub fn search_spans(query: &str) -> Result<String, ApiError> {
                 let span_ids: Vec<String> =
                     matches.into_iter().map(|(span_id, _)| span_id).collect();
 
-                serde_json::to_string(&span_ids).map_err(|e| {
-                    WideError::InvalidJson {
-                        message: e.to_string(),
-                        line: None,
-                        column: None,
-                    }
-                    .into()
-                })
+                to_json(&span_ids)
             }
         }
     })
@@ -531,14 +491,7 @@ pub fn compute_waterfall() -> Result<String, ApiError> {
             None => Err(WideError::NoTraceLoaded.into()),
             Some(trace) => {
                 let layout = compute_waterfall_layout(trace);
-                serde_json::to_string(&layout).map_err(|e| {
-                    WideError::InvalidJson {
-                        message: e.to_string(),
-                        line: None,
-                        column: None,
-                    }
-                    .into()
-                })
+                to_json(&layout)
             }
         }
     })
@@ -552,14 +505,7 @@ pub fn compute_agent_flow_layout() -> Result<String, ApiError> {
             None => Err(WideError::NoTraceLoaded.into()),
             Some(trace) => {
                 let flow = compute_agent_flow(trace);
-                serde_json::to_string(&flow).map_err(|e| {
-                    WideError::InvalidJson {
-                        message: e.to_string(),
-                        line: None,
-                        column: None,
-                    }
-                    .into()
-                })
+                to_json(&flow)
             }
         }
     })
@@ -573,14 +519,7 @@ pub fn get_service_graph() -> Result<String, ApiError> {
             None => Err(WideError::NoTraceLoaded.into()),
             Some(trace) => {
                 let graph = build_service_graph(trace);
-                serde_json::to_string(&graph).map_err(|e| {
-                    WideError::InvalidJson {
-                        message: e.to_string(),
-                        line: None,
-                        column: None,
-                    }
-                    .into()
-                })
+                to_json(&graph)
             }
         }
     })
@@ -692,11 +631,6 @@ fn parse_search_operators(query: &str) -> Option<Vec<(String, String, String)>> 
         if token == &"llm" {
             ops.push(("llm".into(), "=".into(), "true".into()));
             has_op = true;
-        } else if let Some(eq_pos) = token.find('=') {
-            let key = token[..eq_pos].to_ascii_lowercase();
-            let val = token[eq_pos + 1..].to_ascii_lowercase();
-            ops.push((key, "=".into(), val));
-            has_op = true;
         } else if let Some(gt_pos) = token.find('>') {
             if token.as_bytes().get(gt_pos + 1) == Some(&b'=') {
                 let key = token[..gt_pos].to_ascii_lowercase();
@@ -718,6 +652,11 @@ fn parse_search_operators(query: &str) -> Option<Vec<(String, String, String)>> 
                 let val = token[lt_pos + 1..].to_ascii_lowercase();
                 ops.push((key, "<".into(), val));
             }
+            has_op = true;
+        } else if let Some(eq_pos) = token.find('=') {
+            let key = token[..eq_pos].to_ascii_lowercase();
+            let val = token[eq_pos + 1..].to_ascii_lowercase();
+            ops.push((key, "=".into(), val));
             has_op = true;
         } else if token.contains('~') {
             let parts: Vec<&str> = token.splitn(2, '~').collect();
@@ -924,14 +863,7 @@ pub fn filter_spans(filter_json: &str) -> Result<String, ApiError> {
                     .collect();
 
                 matches.sort();
-                serde_json::to_string(&matches).map_err(|e| {
-                    WideError::InvalidJson {
-                        message: e.to_string(),
-                        line: None,
-                        column: None,
-                    }
-                    .into()
-                })
+                to_json(&matches)
             }
         }
     })
@@ -1002,14 +934,7 @@ pub fn parse_comparison_trace(raw_input: &str) -> Result<String, ApiError> {
         *t.borrow_mut() = Some(trace);
     });
 
-    serde_json::to_string(&summary).map_err(|e| {
-        WideError::InvalidJson {
-            message: e.to_string(),
-            line: None,
-            column: None,
-        }
-        .into()
-    })
+    to_json(&summary)
 }
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
@@ -1020,14 +945,7 @@ pub fn get_comparison_flamegraph() -> Result<String, ApiError> {
             None => Err(WideError::NoTraceLoaded.into()),
             Some(trace) => {
                 let layout = compute_flamegraph_layout(trace);
-                serde_json::to_string(&layout).map_err(|e| {
-                    WideError::InvalidJson {
-                        message: e.to_string(),
-                        line: None,
-                        column: None,
-                    }
-                    .into()
-                })
+                to_json(&layout)
             }
         }
     })
@@ -1063,14 +981,7 @@ pub fn get_critical_path() -> Result<String, ApiError> {
             None => Err(WideError::NoTraceLoaded.into()),
             Some(trace) => {
                 let cp = compute_critical_path(trace);
-                serde_json::to_string(&cp).map_err(|e| {
-                    WideError::InvalidJson {
-                        message: e.to_string(),
-                        line: None,
-                        column: None,
-                    }
-                    .into()
-                })
+                to_json(&cp)
             }
         }
     })
@@ -1161,14 +1072,7 @@ pub fn get_cost_breakdown() -> Result<String, ApiError> {
                     entries: owned_entries,
                 };
 
-                serde_json::to_string(&breakdown).map_err(|e| {
-                    WideError::InvalidJson {
-                        message: e.to_string(),
-                        line: None,
-                        column: None,
-                    }
-                    .into()
-                })
+                to_json(&breakdown)
             }
         }
     })
@@ -1315,14 +1219,7 @@ pub fn compute_token_trends(traces_json: &str) -> Result<String, ApiError> {
         per_trace,
     };
 
-    serde_json::to_string(&trends).map_err(|e| {
-        WideError::InvalidJson {
-            message: e.to_string(),
-            line: None,
-            column: None,
-        }
-        .into()
-    })
+    to_json(&trends)
 }
 
 #[derive(Serialize)]
@@ -1462,14 +1359,7 @@ pub fn compute_dashboard(traces_json: &str) -> Result<String, ApiError> {
         top_services,
     };
 
-    serde_json::to_string(&dashboard).map_err(|e| {
-        WideError::InvalidJson {
-            message: e.to_string(),
-            line: None,
-            column: None,
-        }
-        .into()
-    })
+    to_json(&dashboard)
 }
 
 /// Attribute keys that carry a session/conversation identifier, in priority
@@ -1629,14 +1519,7 @@ pub fn compute_session_groups(traces_json: &str) -> Result<String, ApiError> {
         groups,
     };
 
-    serde_json::to_string(&out).map_err(|e| {
-        WideError::InvalidJson {
-            message: e.to_string(),
-            line: None,
-            column: None,
-        }
-        .into()
-    })
+    to_json(&out)
 }
 
 #[cfg(test)]
@@ -1758,5 +1641,590 @@ mod token_trends_tests {
         let out = compute_token_trends(input).expect("trends");
         let v: serde_json::Value = serde_json::from_str(&out).unwrap();
         assert_eq!(v["trace_count"], 0);
+    }
+}
+
+/// End-to-end tests for the binding surface.
+///
+/// Every exported function is reachable natively because `ApiError` is a plain
+/// `WideError` off-wasm, so error paths are exercised here rather than left to
+/// the browser. Each `#[test]` runs on its own thread, which is what keeps the
+/// thread-local trace state from leaking between cases.
+#[cfg(test)]
+mod api_tests {
+    use super::*;
+
+    const OTLP: &str = include_str!("../../../test-fixtures/otlp/sample_llm_pipeline.json");
+    const JAEGER: &str = include_str!("../../../test-fixtures/jaeger/sample_llm_pipeline.json");
+    const OI: &str = include_str!("../../../test-fixtures/openinference/sample_llm_pipeline.json");
+    const EDGE: &str = include_str!("../../../test-fixtures/domains/otlp-edge-cases.json");
+    const K8S: &str = include_str!("../../../test-fixtures/domains/otlp-kubernetes-control-plane.json");
+
+    const OTEL_CONV: &str = include_str!("../../../conventions/opentelemetry.json");
+    const OI_CONV: &str = include_str!("../../../conventions/openinference.json");
+    const LC_CONV: &str = include_str!("../../../conventions/langchain.json");
+    const PRICING_JSON: &str = include_str!("../../../conventions/pricing.json");
+
+    fn json(raw: &str) -> serde_json::Value {
+        serde_json::from_str(raw).expect("response should be JSON")
+    }
+
+    /// Load conventions + pricing the way the UI does at boot.
+    fn boot() {
+        let merged = format!("[{OTEL_CONV},{OI_CONV},{LC_CONV}]");
+        init(&merged).expect("conventions load");
+        init_pricing(PRICING_JSON).expect("pricing load");
+    }
+
+    fn load(raw: &str) -> serde_json::Value {
+        json(&parse_trace(raw).expect("fixture should parse"))
+    }
+
+    // ---------------------------------------------------------------- init
+
+    #[test]
+    fn init_reports_how_many_conventions_loaded() {
+        let merged = format!("[{OTEL_CONV},{OI_CONV},{LC_CONV}]");
+        let v = json(&init(&merged).unwrap());
+        assert_eq!(v["conventions_loaded"], 3);
+        assert_eq!(v["warnings"].as_array().unwrap().len(), 0);
+    }
+
+    #[test]
+    fn init_surfaces_a_warning_for_a_malformed_convention() {
+        let v = json(&init(r#"[{"name":"broken"}]"#).unwrap());
+        assert_eq!(v["conventions_loaded"], 0);
+        assert_eq!(v["warnings"][0]["code"], "CONVENTION_ERROR");
+    }
+
+    #[test]
+    fn init_warns_when_the_payload_is_not_an_array() {
+        let v = json(&init("{}").unwrap());
+        assert_eq!(v["conventions_loaded"], 0);
+        assert_eq!(v["warnings"][0]["code"], "CONVENTION_ERROR");
+    }
+
+    #[test]
+    fn init_pricing_loads_the_bundled_table() {
+        let v = json(&init_pricing(PRICING_JSON).unwrap());
+        assert!(v["models_loaded"].as_u64().unwrap() >= 20);
+    }
+
+    #[test]
+    fn init_pricing_reports_a_warning_rather_than_failing_on_bad_input() {
+        // A broken pricing table costs the cost column, not the whole session,
+        // so it degrades to zero models plus a warning.
+        let v = json(&init_pricing("not json").unwrap());
+        assert_eq!(v["models_loaded"], 0);
+        assert_eq!(v["warnings"].as_array().unwrap().len(), 1);
+    }
+
+    // --------------------------------------------------------- parse_trace
+
+    #[test]
+    fn parse_trace_reads_all_three_formats() {
+        for (raw, format) in [
+            (OTLP, "OtlpJson"),
+            (JAEGER, "JaegerJson"),
+            (OI, "OpenInferenceJson"),
+        ] {
+            let v = load(raw);
+            assert_eq!(v["detected_format"], format, "format for {format}");
+            assert_eq!(v["span_count"], 7);
+        }
+    }
+
+    #[test]
+    fn parse_trace_resolves_llm_spans_and_cost_once_conventions_are_loaded() {
+        boot();
+        let v = load(OTLP);
+        assert_eq!(v["llm_span_count"], 4);
+        let cost = json(&get_cost_breakdown().unwrap());
+        assert!(cost["total_cost_usd"].as_f64().unwrap() > 0.0);
+    }
+
+    #[test]
+    fn parse_trace_reports_data_quality_warnings() {
+        let v = load(EDGE);
+        let codes: Vec<&str> = v["warnings"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|w| w["code"].as_str().unwrap())
+            .collect();
+        assert!(codes.contains(&"DUPLICATE_SPAN_ID"), "{codes:?}");
+        assert!(codes.contains(&"ORPHAN_PARENT"), "{codes:?}");
+        assert!(codes.contains(&"TIMESTAMP_INVERTED"), "{codes:?}");
+    }
+
+    #[test]
+    fn parse_trace_rejects_invalid_json_with_a_position() {
+        let err = parse_trace("{ not json").unwrap_err();
+        match err {
+            WideError::InvalidJson { line, .. } => assert_eq!(line, Some(1)),
+            other => panic!("expected InvalidJson, got {other:?}"),
+        }
+    }
+
+    #[test]
+    fn parse_trace_rejects_an_unrecognized_shape() {
+        assert!(matches!(
+            parse_trace(r#"{"hello":"world"}"#).unwrap_err(),
+            WideError::UnrecognizedFormat
+        ));
+    }
+
+    // ------------------------------------------------------------- layouts
+
+    #[test]
+    fn layouts_need_a_loaded_trace() {
+        for result in [
+            compute_flamegraph(),
+            compute_timeline(),
+            compute_waterfall(),
+            get_service_graph(),
+            get_critical_path(),
+            compute_agent_flow_layout(),
+        ] {
+            assert!(matches!(result.unwrap_err(), WideError::NoTraceLoaded));
+        }
+    }
+
+    #[test]
+    fn flamegraph_covers_every_span() {
+        load(OTLP);
+        let v = json(&compute_flamegraph().unwrap());
+        assert_eq!(v["nodes"].as_array().unwrap().len(), 7);
+    }
+
+    #[test]
+    fn timeline_groups_spans_into_service_lanes() {
+        load(OTLP);
+        let v = json(&compute_timeline().unwrap());
+        assert_eq!(v["blocks"].as_array().unwrap().len(), 7);
+        // Three services in the sample, each with at least one lane row.
+        assert!(v["rows"].as_array().unwrap().len() >= 3);
+    }
+
+    #[test]
+    fn waterfall_rows_are_depth_ordered() {
+        load(OTLP);
+        let v = json(&compute_waterfall().unwrap());
+        let rows = v["rows"].as_array().unwrap();
+        assert_eq!(rows.len(), 7);
+        assert_eq!(rows[0]["depth"], 0);
+    }
+
+    #[test]
+    fn service_graph_links_the_calling_services() {
+        load(K8S);
+        let v = json(&get_service_graph().unwrap());
+        assert_eq!(v["nodes"].as_array().unwrap().len(), 6);
+        assert!(!v["edges"].as_array().unwrap().is_empty());
+    }
+
+    #[test]
+    fn critical_path_is_a_chain_through_the_root() {
+        load(OTLP);
+        let v = json(&get_critical_path().unwrap());
+        assert!(!v["span_ids"].as_array().unwrap().is_empty());
+    }
+
+    #[test]
+    fn agent_flow_layout_is_available_for_an_llm_trace() {
+        boot();
+        load(OTLP);
+        let v = json(&compute_agent_flow_layout().unwrap());
+        assert!(v.get("nodes").is_some());
+    }
+
+    // --------------------------------------------------------- span detail
+
+    #[test]
+    fn span_detail_needs_a_loaded_trace() {
+        assert!(matches!(
+            get_span_detail("whatever").unwrap_err(),
+            WideError::NoTraceLoaded
+        ));
+    }
+
+    #[test]
+    fn span_detail_rejects_an_unknown_span_id() {
+        load(OTLP);
+        assert!(get_span_detail("ffffffffffffffff").is_err());
+    }
+
+    #[test]
+    fn span_detail_carries_timing_and_llm_metadata() {
+        boot();
+        let summary = load(OTLP);
+        let flame = json(&compute_flamegraph().unwrap());
+        let root_id = summary["trace_id"].as_str().unwrap().to_string();
+        assert!(!root_id.is_empty());
+
+        let llm_span = flame["nodes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .find(|n| n["is_llm"] == true)
+            .expect("sample trace has LLM spans");
+        let detail = json(&get_span_detail(llm_span["span_id"].as_str().unwrap()).unwrap());
+        assert!(detail["duration_display"].as_str().unwrap().len() > 1);
+        assert!(detail["llm"]["model_name"].is_string());
+    }
+
+    // -------------------------------------------------------------- search
+
+    #[test]
+    fn search_needs_a_loaded_trace() {
+        assert!(matches!(
+            search_spans("chat").unwrap_err(),
+            WideError::NoTraceLoaded
+        ));
+    }
+
+    #[test]
+    fn search_matches_span_names_and_reports_misses() {
+        load(OTLP);
+        let hits = json(&search_spans("chat").unwrap());
+        assert!(!hits.as_array().unwrap().is_empty());
+        let misses = json(&search_spans("nothing-matches-this").unwrap());
+        assert!(misses.as_array().unwrap().is_empty());
+    }
+
+    // -------------------------------------------------------------- filter
+
+    #[test]
+    fn filter_needs_a_loaded_trace() {
+        assert!(matches!(
+            filter_spans("{}").unwrap_err(),
+            WideError::NoTraceLoaded
+        ));
+    }
+
+    #[test]
+    fn filter_rejects_a_malformed_request() {
+        load(OTLP);
+        assert!(filter_spans("{").is_err());
+    }
+
+    #[test]
+    fn filter_narrows_by_each_facet() {
+        boot();
+        load(OTLP);
+        let all = json(&filter_spans("{}").unwrap());
+        assert_eq!(all.as_array().unwrap().len(), 7);
+
+        // Empty strings mean "no filter", not "match the empty value".
+        let blank = json(&filter_spans(r#"{"status":"","service":"","kind":""}"#).unwrap());
+        assert_eq!(blank.as_array().unwrap().len(), 7);
+
+        let llm = json(&filter_spans(r#"{"llm_only":true}"#).unwrap());
+        assert_eq!(llm.as_array().unwrap().len(), 4);
+
+        let none = json(&filter_spans(r#"{"kind":"producer"}"#).unwrap());
+        assert!(none.as_array().unwrap().is_empty());
+
+        let safety = json(&filter_spans(r#"{"safety_only":true}"#).unwrap());
+        assert!(safety.as_array().unwrap().is_empty());
+    }
+
+    // ---------------------------------------------------------- comparison
+
+    #[test]
+    fn comparison_flamegraph_needs_a_comparison_trace() {
+        assert!(matches!(
+            get_comparison_flamegraph().unwrap_err(),
+            WideError::NoTraceLoaded
+        ));
+    }
+
+    #[test]
+    fn comparison_trace_round_trips_and_clears() {
+        load(OTLP);
+        let v = json(&parse_comparison_trace(JAEGER).unwrap());
+        assert_eq!(v["span_count"], 7);
+        assert!(get_comparison_flamegraph().is_ok());
+
+        clear_comparison();
+        assert!(get_comparison_flamegraph().is_err());
+    }
+
+    #[test]
+    fn comparison_trace_rejects_junk() {
+        assert!(parse_comparison_trace("{}").is_err());
+    }
+
+    // -------------------------------------------------------------- share
+
+    #[test]
+    fn share_blobs_round_trip() {
+        let blob = compress_share(OTLP);
+        assert!(blob.len() < OTLP.len());
+        assert_eq!(decompress_share(&blob).unwrap(), OTLP);
+    }
+
+    #[test]
+    fn share_rejects_a_corrupt_blob() {
+        assert!(decompress_share(&[0, 1, 2, 3]).is_err());
+        assert!(decompress_share(&[]).is_err());
+    }
+
+    // ------------------------------------------------------ cost breakdown
+
+    #[test]
+    fn cost_breakdown_needs_a_loaded_trace() {
+        assert!(matches!(
+            get_cost_breakdown().unwrap_err(),
+            WideError::NoTraceLoaded
+        ));
+    }
+
+    #[test]
+    fn cost_breakdown_is_empty_without_llm_spans() {
+        load(K8S);
+        let v = json(&get_cost_breakdown().unwrap());
+        assert_eq!(v["total_cost_usd"], 0.0);
+    }
+
+    // ------------------------------------------------- multi-trace metrics
+
+    fn two_traces() -> String {
+        serde_json::to_string(&serde_json::json!([
+            { "name": "a", "json": OTLP },
+            { "name": "b", "json": JAEGER },
+        ]))
+        .unwrap()
+    }
+
+    #[test]
+    fn comparison_matrix_has_one_column_per_trace() {
+        boot();
+        let v = json(&compute_comparison_matrix(&two_traces()).unwrap());
+        assert_eq!(v["traces"].as_array().unwrap().len(), 2);
+        let rows = v["rows"].as_array().unwrap();
+        assert_eq!(rows.len(), 7, "one row per metric");
+        // Every metric carries a value and a display string per trace.
+        for row in rows {
+            assert_eq!(row["values"].as_array().unwrap().len(), 2);
+            assert_eq!(row["display"].as_array().unwrap().len(), 2);
+        }
+    }
+
+    #[test]
+    fn comparison_matrix_rejects_malformed_input() {
+        assert!(compute_comparison_matrix("[").is_err());
+        assert!(compute_comparison_matrix(r#"[{"name":"a","json":"{}"}]"#).is_err());
+    }
+
+    #[test]
+    fn token_trends_aggregate_across_traces() {
+        boot();
+        let v = json(&compute_token_trends(&two_traces()).unwrap());
+        assert_eq!(v["trace_count"], 2);
+    }
+
+    #[test]
+    fn token_trends_reject_malformed_input() {
+        assert!(compute_token_trends("[").is_err());
+    }
+
+    #[test]
+    fn dashboard_summarizes_every_trace() {
+        boot();
+        let v = json(&compute_dashboard(&two_traces()).unwrap());
+        assert_eq!(v["rows"].as_array().unwrap().len(), 2);
+        assert_eq!(v["trace_count"], 2);
+        assert_eq!(v["total_spans"], 14);
+    }
+
+    #[test]
+    fn dashboard_rejects_malformed_input() {
+        assert!(compute_dashboard("[").is_err());
+    }
+
+    #[test]
+    fn session_groups_fall_back_to_one_group_per_trace() {
+        let v = json(&compute_session_groups(&two_traces()).unwrap());
+        assert!(!v["groups"].as_array().unwrap().is_empty());
+    }
+
+    #[test]
+    fn session_groups_reject_malformed_input() {
+        assert!(compute_session_groups("[").is_err());
+    }
+}
+
+#[cfg(test)]
+mod to_json_tests {
+    use super::*;
+
+    #[test]
+    fn to_json_serializes_a_payload() {
+        assert_eq!(to_json(&vec![1, 2, 3]).unwrap(), "[1,2,3]");
+    }
+
+    #[test]
+    fn to_json_reports_a_payload_serde_cannot_encode() {
+        // JSON object keys must be strings, so a map keyed by a tuple is the
+        // input that makes serialization fail — the arm every response shares.
+        let mut impossible = std::collections::HashMap::new();
+        impossible.insert((1, 2), "value");
+        let err = to_json(&impossible).unwrap_err();
+        assert!(matches!(err, WideError::InvalidJson { .. }));
+    }
+}
+
+/// The in-trace search DSL: `duration>100ms status=error service~api kind=client llm`.
+///
+/// Each operator gets its own case because a wrong comparison here silently
+/// hides spans rather than failing loudly.
+#[cfg(test)]
+mod search_dsl_tests {
+    use super::*;
+    use models::span::{SpanKind, SpanStatus};
+
+    fn span(name: &str, service: &str, duration_ns: u64) -> Span {
+        Span {
+            trace_id: "t".into(),
+            span_id: name.to_string(),
+            parent_span_id: None,
+            operation_name: name.to_string(),
+            service_name: service.to_string(),
+            span_kind: SpanKind::Client,
+            start_time_ns: 0,
+            end_time_ns: duration_ns,
+            duration_ns,
+            self_time_ns: duration_ns,
+            status: SpanStatus::Ok,
+            attributes: std::collections::HashMap::from([(
+                "http.route".to_string(),
+                AttributeValue::String("/api/chat".into()),
+            )]),
+            events: vec![],
+            llm: None,
+            safety: vec![],
+        }
+    }
+
+    /// Minimal resolved LLM metadata — presence is all the `llm` token checks.
+    fn llm_marker() -> LlmSpanAttributes {
+        LlmSpanAttributes {
+            operation_type: models::llm::LlmOperationType::ChatCompletion,
+            model_name: None,
+            model_provider: None,
+            input_tokens: None,
+            output_tokens: None,
+            total_tokens: None,
+            estimated_cost_usd: None,
+            input_messages: vec![],
+            output_messages: vec![],
+            tool_calls: vec![],
+            temperature: None,
+            top_p: None,
+            max_tokens: None,
+            embedding_dimensions: None,
+            embedding_count: None,
+            retrieved_documents: vec![],
+            eval_scores: vec![],
+        }
+    }
+
+    #[test]
+    fn a_query_without_operators_matches_everything() {
+        assert!(parse_search_operators("just some words").is_none());
+        assert!(span_matches_operators(&span("a", "svc", 10), "just some words"));
+    }
+
+    #[test]
+    fn duration_units_all_convert_to_nanoseconds() {
+        assert_eq!(parse_duration_query("1ms"), Some(1_000_000));
+        assert_eq!(parse_duration_query("1µs"), Some(1_000));
+        assert_eq!(parse_duration_query("1us"), Some(1_000));
+        assert_eq!(parse_duration_query("1.5s"), Some(1_500_000_000));
+        assert_eq!(parse_duration_query("250"), Some(250));
+        assert_eq!(parse_duration_query("wat"), None);
+    }
+
+    #[test]
+    fn every_duration_comparison_is_honoured() {
+        let s = span("a", "svc", 100_000_000); // 100ms
+        assert!(span_matches_operators(&s, "duration>50ms"));
+        assert!(!span_matches_operators(&s, "duration>100ms"));
+        assert!(span_matches_operators(&s, "duration>=100ms"));
+        assert!(!span_matches_operators(&s, "duration>=101ms"));
+        assert!(span_matches_operators(&s, "dur<200ms"));
+        assert!(!span_matches_operators(&s, "dur<100ms"));
+        assert!(span_matches_operators(&s, "dur<=100ms"));
+        assert!(!span_matches_operators(&s, "dur<=99ms"));
+        assert!(span_matches_operators(&s, "duration=100ms"));
+        assert!(!span_matches_operators(&s, "duration=99ms"));
+    }
+
+    #[test]
+    fn an_unparseable_duration_matches_nothing() {
+        assert!(!span_matches_operators(&span("a", "svc", 10), "duration>wat"));
+    }
+
+    #[test]
+    fn status_kind_and_service_filter_independently() {
+        let s = span("a", "api-gateway", 10);
+        assert!(span_matches_operators(&s, "status=ok"));
+        assert!(!span_matches_operators(&s, "status=error"));
+        assert!(span_matches_operators(&s, "kind=client"));
+        assert!(!span_matches_operators(&s, "kind=server"));
+        assert!(span_matches_operators(&s, "service~api"));
+        assert!(span_matches_operators(&s, "svc~gateway"));
+        assert!(!span_matches_operators(&s, "service~payments"));
+    }
+
+    #[test]
+    fn the_llm_token_requires_resolved_llm_metadata() {
+        let mut s = span("a", "svc", 10);
+        assert!(!span_matches_operators(&s, "llm"));
+        s.llm = Some(llm_marker());
+        assert!(span_matches_operators(&s, "llm"));
+    }
+
+    #[test]
+    fn an_unknown_key_falls_back_to_attribute_matching() {
+        let mut s = span("a", "svc", 10);
+        assert!(span_matches_operators(&s, "route~chat"));
+        assert!(!span_matches_operators(&s, "route~missing"));
+
+        // Non-text attribute values never match a text query.
+        s.attributes = std::collections::HashMap::from([(
+            "http.status".to_string(),
+            AttributeValue::Int(200),
+        )]);
+        assert!(!span_matches_operators(&s, "status~200"));
+
+        s.attributes = std::collections::HashMap::from([(
+            "tags".to_string(),
+            AttributeValue::StringArray(vec!["alpha".into(), "beta".into()]),
+        )]);
+        assert!(span_matches_operators(&s, "tags~beta"));
+        assert!(!span_matches_operators(&s, "tags~gamma"));
+    }
+
+    #[test]
+    fn operators_combine_conjunctively() {
+        let s = span("a", "api", 100_000_000);
+        assert!(span_matches_operators(&s, "duration>50ms service~api status=ok"));
+        assert!(!span_matches_operators(&s, "duration>50ms service~payments"));
+    }
+
+    #[test]
+    fn a_lone_tilde_without_a_key_is_ignored() {
+        // `~foo` parses to key "" which matches any attribute key.
+        assert!(parse_search_operators("~foo").is_some());
+    }
+
+    #[test]
+    fn percentiles_interpolate_over_the_sorted_slice() {
+        assert_eq!(percentile(&[], 0.5), 0);
+        assert_eq!(percentile(&[10], 0.5), 10);
+        assert_eq!(percentile(&[10, 20, 30, 40], 0.5), 30);
+        assert_eq!(percentile(&[10, 20, 30, 40], 0.95), 40);
     }
 }

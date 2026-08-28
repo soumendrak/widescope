@@ -18,7 +18,8 @@ For deep implementation details — data models, wire contracts, edge-case rules
 8. [Rebuilding the Share Dictionary](#8-rebuilding-the-share-dictionary)
 9. [Publishing (Cloudflare Pages + Custom Domain)](#9-publishing-cloudflare-pages--custom-domain)
 10. [Code Style](#10-code-style)
-11. [PR Checklist](#11-pr-checklist)
+11. [Test Coverage](#11-test-coverage)
+12. [PR Checklist](#12-pr-checklist)
 
 ---
 
@@ -329,7 +330,30 @@ If you're forking and want to deploy to your own domain:
 
 ---
 
-## 11. PR Checklist
+## 11. Test Coverage
+
+Both suites are gated in CI, and the gates only ever move up.
+
+```bash
+just coverage        # Rust, per-file summary
+just coverage-html   # Rust, browsable report
+just coverage-ui     # UI (vitest + v8), fails under the configured thresholds
+```
+
+- **Rust**: 100% of lines, enforced by `cargo llvm-cov --fail-under-lines` in CI.
+  The single exception is `to_js` in `lib.rs` — the `WideError -> JsValue`
+  bridge traps on a non-wasm target, so `cargo test` can never execute it. Every
+  exported function's logic lives in a `*_inner` function that tests drive
+  directly; keep that split when you add one.
+- **UI**: thresholds live in the vitest config. Components are tested through
+  `@testing-library/svelte` — assert what a user sees, not internal state. What
+  is excluded (canvas paint loops, animation frames, the entry bootstrap) is
+  listed in the config with a reason on each line.
+
+If a change genuinely cannot be covered, say why in the PR rather than lowering
+a threshold.
+
+## 12. PR Checklist
 
 Before opening a PR, please confirm:
 
@@ -337,6 +361,7 @@ Before opening a PR, please confirm:
 - [ ] `just check` — compiles clean
 - [ ] `just clippy` — no warnings
 - [ ] `just test` — tests pass
+- [ ] `just coverage-gate` and `just coverage-ui` — coverage gates hold
 - [ ] `just build` — UI bundle builds
 - [ ] Added or updated a test fixture if you changed parser, layout, or convention behavior
 - [ ] Updated the README **Supported Formats** table if you added a parser

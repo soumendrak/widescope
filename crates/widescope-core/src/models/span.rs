@@ -98,7 +98,9 @@ impl SpanStatus {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+// PartialEq so tests can assert a decoded attribute equals what the export
+// carried, rather than comparing display strings.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AttributeValue {
     String(String),

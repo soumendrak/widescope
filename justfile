@@ -57,6 +57,27 @@ fmt:
 test:
     RUSTFLAGS="" {{_cargo}} test --workspace
 
+# Line/region coverage for the Rust workspace. llvm-tools ships inside the
+# toolchain but cargo-llvm-cov does not always find it, hence the explicit paths.
+coverage:
+    RUSTFLAGS="" LLVM_COV="$(ls -d ${HOME}/.rustup/toolchains/*/lib/rustlib/*/bin | head -1)/llvm-cov" \
+    LLVM_PROFDATA="$(ls -d ${HOME}/.rustup/toolchains/*/lib/rustlib/*/bin | head -1)/llvm-profdata" \
+        {{_cargo}} llvm-cov --workspace --summary-only
+
+# Same run, but fails when line coverage drops below the gate CI enforces.
+coverage-gate min="100":
+    RUSTFLAGS="" LLVM_COV="$(ls -d ${HOME}/.rustup/toolchains/*/lib/rustlib/*/bin | head -1)/llvm-cov" \
+    LLVM_PROFDATA="$(ls -d ${HOME}/.rustup/toolchains/*/lib/rustlib/*/bin | head -1)/llvm-profdata" \
+        {{_cargo}} llvm-cov --workspace --summary-only --fail-under-lines {{min}}
+
+coverage-html:
+    RUSTFLAGS="" LLVM_COV="$(ls -d ${HOME}/.rustup/toolchains/*/lib/rustlib/*/bin | head -1)/llvm-cov" \
+    LLVM_PROFDATA="$(ls -d ${HOME}/.rustup/toolchains/*/lib/rustlib/*/bin | head -1)/llvm-profdata" \
+        {{_cargo}} llvm-cov --workspace --html --open
+
+coverage-ui:
+    cd ui && npx vitest run --coverage
+
 bench-fixtures:
     RUSTFLAGS="" {{_cargo}} run -p widescope-core --example bench_fixtures -- test-fixtures
 

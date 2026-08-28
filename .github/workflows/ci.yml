@@ -8,6 +8,8 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  # Raise these when coverage rises; never lower them to make a build pass.
+  RUST_COVERAGE_MIN: "100"
 
 jobs:
   rust:
@@ -39,6 +41,14 @@ jobs:
     - name: cargo test
       run: cargo test --workspace
 
+    - name: Install cargo-llvm-cov
+      uses: taiki-e/install-action@cargo-llvm-cov
+
+    # The gate is the point of the coverage work: a PR that drops a line below
+    # this fails here rather than in a review comment six months later.
+    - name: Coverage gate
+      run: cargo llvm-cov --workspace --summary-only --fail-under-lines ${{ env.RUST_COVERAGE_MIN }}
+
   ui:
     name: UI — unit + e2e
     runs-on: ubuntu-latest
@@ -66,9 +76,10 @@ jobs:
       working-directory: ui
       run: npm ci
 
-    - name: Unit tests (vitest)
+    - name: Unit tests + coverage gate (vitest)
       working-directory: ui
-      run: npm test
+      # Thresholds live in the vitest config so `npm test` fails locally too.
+      run: npx vitest run --coverage
 
     - name: Install Playwright browser
       working-directory: ui
