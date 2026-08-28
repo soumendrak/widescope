@@ -1,0 +1,3730 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "kube-apiserver"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "3c29b62179273c8e",
+              "name": "apiserver.handle_request",
+              "kind": 2,
+              "startTimeUnixNano": "1712500000000000000",
+              "endTimeUnixNano": "1712500000161195336",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/v1/namespaces/default/pods"
+                  }
+                },
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-00-bb81e"
+                  }
+                },
+                {
+                  "key": "k8s.namespace",
+                  "value": {
+                    "stringValue": "default"
+                  }
+                },
+                {
+                  "key": "apiserver.verb",
+                  "value": {
+                    "stringValue": "create"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "b5bb682575ec87a1",
+              "name": "apiserver.authenticate",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000001000000",
+              "endTimeUnixNano": "1712500000002006466",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "auth.method",
+                  "value": {
+                    "stringValue": "x509"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "3c29b62179273c8e"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "71ac826a6fce4847",
+              "name": "apiserver.authorize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000002206466",
+              "endTimeUnixNano": "1712500000003987310",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "authz.decision",
+                  "value": {
+                    "stringValue": "allow"
+                  }
+                },
+                {
+                  "key": "rbac.role",
+                  "value": {
+                    "stringValue": "pod-creator"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "3c29b62179273c8e"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "2da86a78c49ea20e",
+              "name": "apiserver.handle_request",
+              "kind": 2,
+              "startTimeUnixNano": "1712500000300450602",
+              "endTimeUnixNano": "1712500000483202637",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/v1/namespaces/default/pods"
+                  }
+                },
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-01-7c371"
+                  }
+                },
+                {
+                  "key": "k8s.namespace",
+                  "value": {
+                    "stringValue": "default"
+                  }
+                },
+                {
+                  "key": "apiserver.verb",
+                  "value": {
+                    "stringValue": "create"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "32684b27b95e9093",
+              "name": "apiserver.authenticate",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000301450602",
+              "endTimeUnixNano": "1712500000304605640",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "auth.method",
+                  "value": {
+                    "stringValue": "x509"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "2da86a78c49ea20e"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "48334896a68f812d",
+              "name": "apiserver.authorize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000304805640",
+              "endTimeUnixNano": "1712500000306573597",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "authz.decision",
+                  "value": {
+                    "stringValue": "allow"
+                  }
+                },
+                {
+                  "key": "rbac.role",
+                  "value": {
+                    "stringValue": "pod-creator"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "2da86a78c49ea20e"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "f78e2978aa2447c4",
+              "name": "apiserver.handle_request",
+              "kind": 2,
+              "startTimeUnixNano": "1712500000644750953",
+              "endTimeUnixNano": "1712500000785208189",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/v1/namespaces/default/pods"
+                  }
+                },
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-02-fe878"
+                  }
+                },
+                {
+                  "key": "k8s.namespace",
+                  "value": {
+                    "stringValue": "default"
+                  }
+                },
+                {
+                  "key": "apiserver.verb",
+                  "value": {
+                    "stringValue": "create"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "62ddaed16dc0cf0b",
+              "name": "apiserver.authenticate",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000645750953",
+              "endTimeUnixNano": "1712500000647109617",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "auth.method",
+                  "value": {
+                    "stringValue": "x509"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "f78e2978aa2447c4"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "9cd7f78df0cac5e4",
+              "name": "apiserver.authorize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000647309617",
+              "endTimeUnixNano": "1712500000649381345",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "authz.decision",
+                  "value": {
+                    "stringValue": "allow"
+                  }
+                },
+                {
+                  "key": "rbac.role",
+                  "value": {
+                    "stringValue": "pod-creator"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "f78e2978aa2447c4"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "7cee9d9136682575",
+              "name": "apiserver.handle_request",
+              "kind": 2,
+              "startTimeUnixNano": "1712500000857587827",
+              "endTimeUnixNano": "1712500001022359823",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/v1/namespaces/default/pods"
+                  }
+                },
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-03-9273d"
+                  }
+                },
+                {
+                  "key": "k8s.namespace",
+                  "value": {
+                    "stringValue": "default"
+                  }
+                },
+                {
+                  "key": "apiserver.verb",
+                  "value": {
+                    "stringValue": "create"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "250def91799e2786",
+              "name": "apiserver.authenticate",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000858587827",
+              "endTimeUnixNano": "1712500000862143123",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "auth.method",
+                  "value": {
+                    "stringValue": "x509"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7cee9d9136682575"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "d3748421599e3e9c",
+              "name": "apiserver.authorize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000862343123",
+              "endTimeUnixNano": "1712500000865047806",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "authz.decision",
+                  "value": {
+                    "stringValue": "allow"
+                  }
+                },
+                {
+                  "key": "rbac.role",
+                  "value": {
+                    "stringValue": "pod-creator"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7cee9d9136682575"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "7d5552c7f47e8e80",
+              "name": "apiserver.handle_request",
+              "kind": 2,
+              "startTimeUnixNano": "1712500001191781343",
+              "endTimeUnixNano": "1712500001338010490",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/v1/namespaces/default/pods"
+                  }
+                },
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-04-9bbd4"
+                  }
+                },
+                {
+                  "key": "k8s.namespace",
+                  "value": {
+                    "stringValue": "default"
+                  }
+                },
+                {
+                  "key": "apiserver.verb",
+                  "value": {
+                    "stringValue": "create"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "e952eb9d8e96cf37",
+              "name": "apiserver.authenticate",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001192781343",
+              "endTimeUnixNano": "1712500001195155471",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "auth.method",
+                  "value": {
+                    "stringValue": "x509"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7d5552c7f47e8e80"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "cb990c801f97b768",
+              "name": "apiserver.authorize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001195355471",
+              "endTimeUnixNano": "1712500001198283523",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "authz.decision",
+                  "value": {
+                    "stringValue": "allow"
+                  }
+                },
+                {
+                  "key": "rbac.role",
+                  "value": {
+                    "stringValue": "pod-creator"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7d5552c7f47e8e80"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "d3ada8b4f2222d3b",
+              "name": "apiserver.handle_request",
+              "kind": 2,
+              "startTimeUnixNano": "1712500001452520981",
+              "endTimeUnixNano": "1712500001618237308",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/v1/namespaces/default/pods"
+                  }
+                },
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-05-7daec"
+                  }
+                },
+                {
+                  "key": "k8s.namespace",
+                  "value": {
+                    "stringValue": "default"
+                  }
+                },
+                {
+                  "key": "apiserver.verb",
+                  "value": {
+                    "stringValue": "create"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "41a3dbd199b364f7",
+              "name": "apiserver.authenticate",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001453520981",
+              "endTimeUnixNano": "1712500001456454980",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "auth.method",
+                  "value": {
+                    "stringValue": "x509"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "d3ada8b4f2222d3b"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "3bb387d080589ab0",
+              "name": "apiserver.authorize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001456654980",
+              "endTimeUnixNano": "1712500001459609717",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "authz.decision",
+                  "value": {
+                    "stringValue": "allow"
+                  }
+                },
+                {
+                  "key": "rbac.role",
+                  "value": {
+                    "stringValue": "pod-creator"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "d3ada8b4f2222d3b"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "9c429ca42db0b956",
+              "name": "apiserver.handle_request",
+              "kind": 2,
+              "startTimeUnixNano": "1712500001776797356",
+              "endTimeUnixNano": "1712500001951118412",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/v1/namespaces/default/pods"
+                  }
+                },
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-06-4a24b"
+                  }
+                },
+                {
+                  "key": "k8s.namespace",
+                  "value": {
+                    "stringValue": "default"
+                  }
+                },
+                {
+                  "key": "apiserver.verb",
+                  "value": {
+                    "stringValue": "create"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "af67442931a4c455",
+              "name": "apiserver.authenticate",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001777797356",
+              "endTimeUnixNano": "1712500001781718527",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "auth.method",
+                  "value": {
+                    "stringValue": "x509"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "9c429ca42db0b956"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "5e1db7e9e779f6be",
+              "name": "apiserver.authorize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001781918527",
+              "endTimeUnixNano": "1712500001783910933",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "authz.decision",
+                  "value": {
+                    "stringValue": "allow"
+                  }
+                },
+                {
+                  "key": "rbac.role",
+                  "value": {
+                    "stringValue": "pod-creator"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "9c429ca42db0b956"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "b504e1427bbc14eb",
+              "name": "apiserver.handle_request",
+              "kind": 2,
+              "startTimeUnixNano": "1712500002093346134",
+              "endTimeUnixNano": "1712500002192369368",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/v1/namespaces/default/pods"
+                  }
+                },
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-07-d812c"
+                  }
+                },
+                {
+                  "key": "k8s.namespace",
+                  "value": {
+                    "stringValue": "default"
+                  }
+                },
+                {
+                  "key": "apiserver.verb",
+                  "value": {
+                    "stringValue": "create"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "be24bca87305fc38",
+              "name": "apiserver.authenticate",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002094346134",
+              "endTimeUnixNano": "1712500002095747939",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "auth.method",
+                  "value": {
+                    "stringValue": "x509"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b504e1427bbc14eb"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "8e69f6342e5e2ab2",
+              "name": "apiserver.authorize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002095947939",
+              "endTimeUnixNano": "1712500002097476885",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "authz.decision",
+                  "value": {
+                    "stringValue": "allow"
+                  }
+                },
+                {
+                  "key": "rbac.role",
+                  "value": {
+                    "stringValue": "pod-creator"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b504e1427bbc14eb"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "e44aa5c9af9f0ba3",
+              "name": "apiserver.handle_request",
+              "kind": 2,
+              "startTimeUnixNano": "1712500002317381054",
+              "endTimeUnixNano": "1712500002450638711",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/v1/namespaces/default/pods"
+                  }
+                },
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-08-114af"
+                  }
+                },
+                {
+                  "key": "k8s.namespace",
+                  "value": {
+                    "stringValue": "default"
+                  }
+                },
+                {
+                  "key": "apiserver.verb",
+                  "value": {
+                    "stringValue": "create"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "d90f871f5c471360",
+              "name": "apiserver.authenticate",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002318381054",
+              "endTimeUnixNano": "1712500002320038440",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "auth.method",
+                  "value": {
+                    "stringValue": "x509"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "e44aa5c9af9f0ba3"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "ead4d6df146afca5",
+              "name": "apiserver.authorize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002320238440",
+              "endTimeUnixNano": "1712500002321505578",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "authz.decision",
+                  "value": {
+                    "stringValue": "allow"
+                  }
+                },
+                {
+                  "key": "rbac.role",
+                  "value": {
+                    "stringValue": "pod-creator"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "e44aa5c9af9f0ba3"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "4de1e90c80621db2",
+              "name": "apiserver.handle_request",
+              "kind": 2,
+              "startTimeUnixNano": "1712500002608176406",
+              "endTimeUnixNano": "1712500002749470389",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/v1/namespaces/default/pods"
+                  }
+                },
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-09-f2e1e"
+                  }
+                },
+                {
+                  "key": "k8s.namespace",
+                  "value": {
+                    "stringValue": "default"
+                  }
+                },
+                {
+                  "key": "apiserver.verb",
+                  "value": {
+                    "stringValue": "create"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "12f19d54dbcecc24",
+              "name": "apiserver.authenticate",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002609176406",
+              "endTimeUnixNano": "1712500002610728549",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "auth.method",
+                  "value": {
+                    "stringValue": "x509"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4de1e90c80621db2"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "b35c47009edc77eb",
+              "name": "apiserver.authorize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002610928549",
+              "endTimeUnixNano": "1712500002613707278",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "authz.decision",
+                  "value": {
+                    "stringValue": "allow"
+                  }
+                },
+                {
+                  "key": "rbac.role",
+                  "value": {
+                    "stringValue": "pod-creator"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4de1e90c80621db2"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "779212cccf1052fd",
+              "name": "apiserver.handle_request",
+              "kind": 2,
+              "startTimeUnixNano": "1712500002839569100",
+              "endTimeUnixNano": "1712500002966451402",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/v1/namespaces/default/pods"
+                  }
+                },
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-10-c2bce"
+                  }
+                },
+                {
+                  "key": "k8s.namespace",
+                  "value": {
+                    "stringValue": "default"
+                  }
+                },
+                {
+                  "key": "apiserver.verb",
+                  "value": {
+                    "stringValue": "create"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "a3176f812815a064",
+              "name": "apiserver.authenticate",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002840569100",
+              "endTimeUnixNano": "1712500002843674003",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "auth.method",
+                  "value": {
+                    "stringValue": "x509"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "779212cccf1052fd"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "c2957cac42b13d72",
+              "name": "apiserver.authorize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002843874003",
+              "endTimeUnixNano": "1712500002846498597",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "authz.decision",
+                  "value": {
+                    "stringValue": "allow"
+                  }
+                },
+                {
+                  "key": "rbac.role",
+                  "value": {
+                    "stringValue": "pod-creator"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "779212cccf1052fd"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "b9ae6fbf3eea2913",
+              "name": "apiserver.handle_request",
+              "kind": 2,
+              "startTimeUnixNano": "1712500003088867065",
+              "endTimeUnixNano": "1712500003218061368",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "http.method",
+                  "value": {
+                    "stringValue": "POST"
+                  }
+                },
+                {
+                  "key": "http.route",
+                  "value": {
+                    "stringValue": "/api/v1/namespaces/default/pods"
+                  }
+                },
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-11-9d234"
+                  }
+                },
+                {
+                  "key": "k8s.namespace",
+                  "value": {
+                    "stringValue": "default"
+                  }
+                },
+                {
+                  "key": "apiserver.verb",
+                  "value": {
+                    "stringValue": "create"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "0a35755ade7c55dc",
+              "name": "apiserver.authenticate",
+              "kind": 1,
+              "startTimeUnixNano": "1712500003089867065",
+              "endTimeUnixNano": "1712500003091520555",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "auth.method",
+                  "value": {
+                    "stringValue": "x509"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b9ae6fbf3eea2913"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "06edc0668235ba6e",
+              "name": "apiserver.authorize",
+              "kind": 1,
+              "startTimeUnixNano": "1712500003091720555",
+              "endTimeUnixNano": "1712500003093579841",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "authz.decision",
+                  "value": {
+                    "stringValue": "allow"
+                  }
+                },
+                {
+                  "key": "rbac.role",
+                  "value": {
+                    "stringValue": "pod-creator"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b9ae6fbf3eea2913"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "etcd"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "8dcb74f21345d2cc",
+              "name": "etcd.txn.put",
+              "kind": 3,
+              "startTimeUnixNano": "1712500000004487310",
+              "endTimeUnixNano": "1712500000009766864",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "etcd.key",
+                  "value": {
+                    "stringValue": "/registry/pods/default/web-00-bb81e"
+                  }
+                },
+                {
+                  "key": "etcd.revision",
+                  "value": {
+                    "intValue": "100000"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "3c29b62179273c8e"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "e8038a39d5e08539",
+              "name": "etcd.wal.fsync",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000004987310",
+              "endTimeUnixNano": "1712500000008766864",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "wal.bytes",
+                  "value": {
+                    "intValue": "3408"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "8dcb74f21345d2cc"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "810a485ed03241b4",
+              "name": "etcd.txn.put",
+              "kind": 3,
+              "startTimeUnixNano": "1712500000307073597",
+              "endTimeUnixNano": "1712500000310772556",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "etcd.key",
+                  "value": {
+                    "stringValue": "/registry/pods/default/web-01-7c371"
+                  }
+                },
+                {
+                  "key": "etcd.revision",
+                  "value": {
+                    "intValue": "100001"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "2da86a78c49ea20e"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "d419b1b673bd4755",
+              "name": "etcd.wal.fsync",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000307573597",
+              "endTimeUnixNano": "1712500000309772556",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "wal.bytes",
+                  "value": {
+                    "intValue": "3826"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "810a485ed03241b4"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "0c02d4e518ca6eaa",
+              "name": "etcd.txn.put",
+              "kind": 3,
+              "startTimeUnixNano": "1712500000649881345",
+              "endTimeUnixNano": "1712500000654667914",
+              "status": {
+                "code": 2,
+                "message": "etcdserver: requested lease not found"
+              },
+              "attributes": [
+                {
+                  "key": "etcd.key",
+                  "value": {
+                    "stringValue": "/registry/pods/default/web-02-fe878"
+                  }
+                },
+                {
+                  "key": "etcd.revision",
+                  "value": {
+                    "intValue": "100002"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "exception",
+                  "timeUnixNano": "1712500000654567914",
+                  "attributes": [
+                    {
+                      "key": "exception.type",
+                      "value": {
+                        "stringValue": "etcdserver.ErrLeaseExpired"
+                      }
+                    },
+                    {
+                      "key": "exception.message",
+                      "value": {
+                        "stringValue": "lease 93697b590481194f expired before commit"
+                      }
+                    },
+                    {
+                      "key": "exception.stacktrace",
+                      "value": {
+                        "stringValue": "etcdserver/lease.go:214 -> mvcc/kvstore_txn.go:88"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "f78e2978aa2447c4"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "c8d82f01b7210760",
+              "name": "etcd.wal.fsync",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000650381345",
+              "endTimeUnixNano": "1712500000653667914",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "wal.bytes",
+                  "value": {
+                    "intValue": "620"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0c02d4e518ca6eaa"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "8fe21da80270815f",
+              "name": "etcd.txn.put",
+              "kind": 3,
+              "startTimeUnixNano": "1712500000865547806",
+              "endTimeUnixNano": "1712500000870625833",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "etcd.key",
+                  "value": {
+                    "stringValue": "/registry/pods/default/web-03-9273d"
+                  }
+                },
+                {
+                  "key": "etcd.revision",
+                  "value": {
+                    "intValue": "100003"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7cee9d9136682575"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "e85df2fbdaa35adf",
+              "name": "etcd.wal.fsync",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000866047806",
+              "endTimeUnixNano": "1712500000869625833",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "wal.bytes",
+                  "value": {
+                    "intValue": "3773"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "8fe21da80270815f"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "4319e1b429ad564b",
+              "name": "etcd.txn.put",
+              "kind": 3,
+              "startTimeUnixNano": "1712500001198783523",
+              "endTimeUnixNano": "1712500001201465999",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "etcd.key",
+                  "value": {
+                    "stringValue": "/registry/pods/default/web-04-9bbd4"
+                  }
+                },
+                {
+                  "key": "etcd.revision",
+                  "value": {
+                    "intValue": "100004"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7d5552c7f47e8e80"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "858f9a3e247cb2c0",
+              "name": "etcd.wal.fsync",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001199283523",
+              "endTimeUnixNano": "1712500001200465999",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "wal.bytes",
+                  "value": {
+                    "intValue": "3926"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4319e1b429ad564b"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "54c24026cdea5b9a",
+              "name": "etcd.txn.put",
+              "kind": 3,
+              "startTimeUnixNano": "1712500001460109717",
+              "endTimeUnixNano": "1712500001462880607",
+              "status": {
+                "code": 2,
+                "message": "etcdserver: requested lease not found"
+              },
+              "attributes": [
+                {
+                  "key": "etcd.key",
+                  "value": {
+                    "stringValue": "/registry/pods/default/web-05-7daec"
+                  }
+                },
+                {
+                  "key": "etcd.revision",
+                  "value": {
+                    "intValue": "100005"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "exception",
+                  "timeUnixNano": "1712500001462780607",
+                  "attributes": [
+                    {
+                      "key": "exception.type",
+                      "value": {
+                        "stringValue": "etcdserver.ErrLeaseExpired"
+                      }
+                    },
+                    {
+                      "key": "exception.message",
+                      "value": {
+                        "stringValue": "lease 1e6af41e3a2517ee expired before commit"
+                      }
+                    },
+                    {
+                      "key": "exception.stacktrace",
+                      "value": {
+                        "stringValue": "etcdserver/lease.go:214 -> mvcc/kvstore_txn.go:88"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "d3ada8b4f2222d3b"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "2145128edfed863b",
+              "name": "etcd.wal.fsync",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001460609717",
+              "endTimeUnixNano": "1712500001461880607",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "wal.bytes",
+                  "value": {
+                    "intValue": "2346"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "54c24026cdea5b9a"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "e9cd56481fb33925",
+              "name": "etcd.txn.put",
+              "kind": 3,
+              "startTimeUnixNano": "1712500001784410933",
+              "endTimeUnixNano": "1712500001788403503",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "etcd.key",
+                  "value": {
+                    "stringValue": "/registry/pods/default/web-06-4a24b"
+                  }
+                },
+                {
+                  "key": "etcd.revision",
+                  "value": {
+                    "intValue": "100006"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "9c429ca42db0b956"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "8e4d27eb0d1cb7c2",
+              "name": "etcd.wal.fsync",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001784910933",
+              "endTimeUnixNano": "1712500001787403503",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "wal.bytes",
+                  "value": {
+                    "intValue": "523"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "e9cd56481fb33925"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "9955b73647f0bbe4",
+              "name": "etcd.txn.put",
+              "kind": 3,
+              "startTimeUnixNano": "1712500002097976885",
+              "endTimeUnixNano": "1712500002101574218",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "etcd.key",
+                  "value": {
+                    "stringValue": "/registry/pods/default/web-07-d812c"
+                  }
+                },
+                {
+                  "key": "etcd.revision",
+                  "value": {
+                    "intValue": "100007"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b504e1427bbc14eb"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "229cfdd24a2eeb45",
+              "name": "etcd.wal.fsync",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002098476885",
+              "endTimeUnixNano": "1712500002100574218",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "wal.bytes",
+                  "value": {
+                    "intValue": "1684"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "9955b73647f0bbe4"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "eab8f67897996faf",
+              "name": "etcd.txn.put",
+              "kind": 3,
+              "startTimeUnixNano": "1712500002322005578",
+              "endTimeUnixNano": "1712500002324965135",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "etcd.key",
+                  "value": {
+                    "stringValue": "/registry/pods/default/web-08-114af"
+                  }
+                },
+                {
+                  "key": "etcd.revision",
+                  "value": {
+                    "intValue": "100008"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "e44aa5c9af9f0ba3"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "b893ccb49192be8f",
+              "name": "etcd.wal.fsync",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002322505578",
+              "endTimeUnixNano": "1712500002323965135",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "wal.bytes",
+                  "value": {
+                    "intValue": "2128"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "eab8f67897996faf"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "48631d076231e171",
+              "name": "etcd.txn.put",
+              "kind": 3,
+              "startTimeUnixNano": "1712500002614207278",
+              "endTimeUnixNano": "1712500002619678249",
+              "status": {
+                "code": 2,
+                "message": "etcdserver: requested lease not found"
+              },
+              "attributes": [
+                {
+                  "key": "etcd.key",
+                  "value": {
+                    "stringValue": "/registry/pods/default/web-09-f2e1e"
+                  }
+                },
+                {
+                  "key": "etcd.revision",
+                  "value": {
+                    "intValue": "100009"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "exception",
+                  "timeUnixNano": "1712500002619578249",
+                  "attributes": [
+                    {
+                      "key": "exception.type",
+                      "value": {
+                        "stringValue": "etcdserver.ErrLeaseExpired"
+                      }
+                    },
+                    {
+                      "key": "exception.message",
+                      "value": {
+                        "stringValue": "lease 10d472406eb1ff00 expired before commit"
+                      }
+                    },
+                    {
+                      "key": "exception.stacktrace",
+                      "value": {
+                        "stringValue": "etcdserver/lease.go:214 -> mvcc/kvstore_txn.go:88"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "4de1e90c80621db2"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "ce761497aa7947d9",
+              "name": "etcd.wal.fsync",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002614707278",
+              "endTimeUnixNano": "1712500002618678249",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "wal.bytes",
+                  "value": {
+                    "intValue": "2379"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "48631d076231e171"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "aca08ef7bcd5c297",
+              "name": "etcd.txn.put",
+              "kind": 3,
+              "startTimeUnixNano": "1712500002846998597",
+              "endTimeUnixNano": "1712500002851280057",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "etcd.key",
+                  "value": {
+                    "stringValue": "/registry/pods/default/web-10-c2bce"
+                  }
+                },
+                {
+                  "key": "etcd.revision",
+                  "value": {
+                    "intValue": "100010"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "779212cccf1052fd"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "2284c4cab3209eb8",
+              "name": "etcd.wal.fsync",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002847498597",
+              "endTimeUnixNano": "1712500002850280057",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "wal.bytes",
+                  "value": {
+                    "intValue": "881"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "aca08ef7bcd5c297"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "38facc3bbe5924a3",
+              "name": "etcd.txn.put",
+              "kind": 3,
+              "startTimeUnixNano": "1712500003094079841",
+              "endTimeUnixNano": "1712500003097215395",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "etcd.key",
+                  "value": {
+                    "stringValue": "/registry/pods/default/web-11-9d234"
+                  }
+                },
+                {
+                  "key": "etcd.revision",
+                  "value": {
+                    "intValue": "100011"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b9ae6fbf3eea2913"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "7935b4cd4cd5f55f",
+              "name": "etcd.wal.fsync",
+              "kind": 1,
+              "startTimeUnixNano": "1712500003094579841",
+              "endTimeUnixNano": "1712500003096215395",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "wal.bytes",
+                  "value": {
+                    "intValue": "2518"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "38facc3bbe5924a3"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "kube-scheduler"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "64b50af03b971722",
+              "name": "scheduler.schedule_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500000010766864",
+              "endTimeUnixNano": "1712500000027256139",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-00-bb81e"
+                  }
+                },
+                {
+                  "key": "scheduler.nodes_considered",
+                  "value": {
+                    "intValue": "20"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "3c29b62179273c8e"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "f244f58d669cbee3",
+              "name": "scheduler.filter_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000011766864",
+              "endTimeUnixNano": "1712500000020047899",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.predicates",
+                  "value": {
+                    "stringValue": "PodFitsResources,PodFitsHostPorts"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "64b50af03b971722"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "772a077021721a27",
+              "name": "scheduler.score_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000020547899",
+              "endTimeUnixNano": "1712500000026256139",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.selected_node",
+                  "value": {
+                    "stringValue": "node-8"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "64b50af03b971722"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "d05ad7853c1f76eb",
+              "name": "scheduler.schedule_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500000311772556",
+              "endTimeUnixNano": "1712500000328392218",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-01-7c371"
+                  }
+                },
+                {
+                  "key": "scheduler.nodes_considered",
+                  "value": {
+                    "intValue": "6"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "2da86a78c49ea20e"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "97706ca828bca038",
+              "name": "scheduler.filter_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000312772556",
+              "endTimeUnixNano": "1712500000315953127",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.predicates",
+                  "value": {
+                    "stringValue": "PodFitsResources,PodFitsHostPorts"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "d05ad7853c1f76eb"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "5813dbad3c681d06",
+              "name": "scheduler.score_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000316453127",
+              "endTimeUnixNano": "1712500000327392218",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.selected_node",
+                  "value": {
+                    "stringValue": "node-7"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "d05ad7853c1f76eb"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "474f36e8b5359309",
+              "name": "scheduler.schedule_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500000655667914",
+              "endTimeUnixNano": "1712500000666462113",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-02-fe878"
+                  }
+                },
+                {
+                  "key": "scheduler.nodes_considered",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "f78e2978aa2447c4"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "cc6273931bdb2a0d",
+              "name": "scheduler.filter_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000656667914",
+              "endTimeUnixNano": "1712500000660149113",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.predicates",
+                  "value": {
+                    "stringValue": "PodFitsResources,PodFitsHostPorts"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "474f36e8b5359309"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "f3dbe4d58fed8a72",
+              "name": "scheduler.score_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000660649113",
+              "endTimeUnixNano": "1712500000665462113",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.selected_node",
+                  "value": {
+                    "stringValue": "node-5"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "474f36e8b5359309"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "9c1e2a8a3c0ed16b",
+              "name": "scheduler.schedule_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500000871625833",
+              "endTimeUnixNano": "1712500000885282503",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-03-9273d"
+                  }
+                },
+                {
+                  "key": "scheduler.nodes_considered",
+                  "value": {
+                    "intValue": "20"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7cee9d9136682575"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "fe16849ef307590d",
+              "name": "scheduler.filter_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000872625833",
+              "endTimeUnixNano": "1712500000877665908",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.predicates",
+                  "value": {
+                    "stringValue": "PodFitsResources,PodFitsHostPorts"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "9c1e2a8a3c0ed16b"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "273e34f98dff7e4c",
+              "name": "scheduler.score_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000878165908",
+              "endTimeUnixNano": "1712500000884282503",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.selected_node",
+                  "value": {
+                    "stringValue": "node-1"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "9c1e2a8a3c0ed16b"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "83eb8cb37f0a72e9",
+              "name": "scheduler.schedule_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500001202465999",
+              "endTimeUnixNano": "1712500001218018878",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-04-9bbd4"
+                  }
+                },
+                {
+                  "key": "scheduler.nodes_considered",
+                  "value": {
+                    "intValue": "17"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7d5552c7f47e8e80"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "d34119f3374cebd4",
+              "name": "scheduler.filter_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001203465999",
+              "endTimeUnixNano": "1712500001209297854",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.predicates",
+                  "value": {
+                    "stringValue": "PodFitsResources,PodFitsHostPorts"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "83eb8cb37f0a72e9"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "d3fd81b6ee7b3bb1",
+              "name": "scheduler.score_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001209797854",
+              "endTimeUnixNano": "1712500001217018878",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.selected_node",
+                  "value": {
+                    "stringValue": "node-2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "83eb8cb37f0a72e9"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "d39f917c10696489",
+              "name": "scheduler.schedule_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500001463880607",
+              "endTimeUnixNano": "1712500001480131518",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-05-7daec"
+                  }
+                },
+                {
+                  "key": "scheduler.nodes_considered",
+                  "value": {
+                    "intValue": "19"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "d3ada8b4f2222d3b"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "a30fd54c7b2c1d0e",
+              "name": "scheduler.filter_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001464880607",
+              "endTimeUnixNano": "1712500001471633246",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.predicates",
+                  "value": {
+                    "stringValue": "PodFitsResources,PodFitsHostPorts"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "d39f917c10696489"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "2adcd93c0a5eb2d3",
+              "name": "scheduler.score_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001472133246",
+              "endTimeUnixNano": "1712500001479131518",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.selected_node",
+                  "value": {
+                    "stringValue": "node-3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "d39f917c10696489"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "b70a3a4419f4fe02",
+              "name": "scheduler.schedule_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500001789403503",
+              "endTimeUnixNano": "1712500001810048573",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-06-4a24b"
+                  }
+                },
+                {
+                  "key": "scheduler.nodes_considered",
+                  "value": {
+                    "intValue": "16"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "9c429ca42db0b956"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "0864d3979317de23",
+              "name": "scheduler.filter_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001790403503",
+              "endTimeUnixNano": "1712500001799797987",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.predicates",
+                  "value": {
+                    "stringValue": "PodFitsResources,PodFitsHostPorts"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b70a3a4419f4fe02"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "f0749d0b7d52b20c",
+              "name": "scheduler.score_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001800297987",
+              "endTimeUnixNano": "1712500001809048573",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.selected_node",
+                  "value": {
+                    "stringValue": "node-3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b70a3a4419f4fe02"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "4d134955a7b92868",
+              "name": "scheduler.schedule_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500002102574218",
+              "endTimeUnixNano": "1712500002112888402",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-07-d812c"
+                  }
+                },
+                {
+                  "key": "scheduler.nodes_considered",
+                  "value": {
+                    "intValue": "20"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b504e1427bbc14eb"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "492545a102186d0f",
+              "name": "scheduler.filter_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002103574218",
+              "endTimeUnixNano": "1712500002108800251",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.predicates",
+                  "value": {
+                    "stringValue": "PodFitsResources,PodFitsHostPorts"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4d134955a7b92868"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "99f7c9e215edfe6a",
+              "name": "scheduler.score_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002109300251",
+              "endTimeUnixNano": "1712500002111888402",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.selected_node",
+                  "value": {
+                    "stringValue": "node-5"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4d134955a7b92868"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "6688437717713daf",
+              "name": "scheduler.schedule_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500002325965135",
+              "endTimeUnixNano": "1712500002346321620",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-08-114af"
+                  }
+                },
+                {
+                  "key": "scheduler.nodes_considered",
+                  "value": {
+                    "intValue": "20"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "e44aa5c9af9f0ba3"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "3405dff69a912715",
+              "name": "scheduler.filter_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002326965135",
+              "endTimeUnixNano": "1712500002334947014",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.predicates",
+                  "value": {
+                    "stringValue": "PodFitsResources,PodFitsHostPorts"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "6688437717713daf"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "d51cf591093a9ef4",
+              "name": "scheduler.score_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002335447014",
+              "endTimeUnixNano": "1712500002345321620",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.selected_node",
+                  "value": {
+                    "stringValue": "node-4"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "6688437717713daf"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "815df1bcadd49c5f",
+              "name": "scheduler.schedule_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500002620678249",
+              "endTimeUnixNano": "1712500002641647421",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-09-f2e1e"
+                  }
+                },
+                {
+                  "key": "scheduler.nodes_considered",
+                  "value": {
+                    "intValue": "20"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4de1e90c80621db2"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "7794e1dd4c786a2e",
+              "name": "scheduler.filter_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002621678249",
+              "endTimeUnixNano": "1712500002631336144",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.predicates",
+                  "value": {
+                    "stringValue": "PodFitsResources,PodFitsHostPorts"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "815df1bcadd49c5f"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "b2618c1266f6a906",
+              "name": "scheduler.score_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002631836144",
+              "endTimeUnixNano": "1712500002640647421",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.selected_node",
+                  "value": {
+                    "stringValue": "node-7"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "815df1bcadd49c5f"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "3425ded302b2ac09",
+              "name": "scheduler.schedule_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500002852280057",
+              "endTimeUnixNano": "1712500002867517070",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-10-c2bce"
+                  }
+                },
+                {
+                  "key": "scheduler.nodes_considered",
+                  "value": {
+                    "intValue": "4"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "779212cccf1052fd"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "dc275c54898f425d",
+              "name": "scheduler.filter_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002853280057",
+              "endTimeUnixNano": "1712500002862595267",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.predicates",
+                  "value": {
+                    "stringValue": "PodFitsResources,PodFitsHostPorts"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "3425ded302b2ac09"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "8d9f2b87f6e3490c",
+              "name": "scheduler.score_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002863095267",
+              "endTimeUnixNano": "1712500002866517070",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.selected_node",
+                  "value": {
+                    "stringValue": "node-7"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "3425ded302b2ac09"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "945ae1b0f46cfdfd",
+              "name": "scheduler.schedule_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500003098215395",
+              "endTimeUnixNano": "1712500003117632157",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-11-9d234"
+                  }
+                },
+                {
+                  "key": "scheduler.nodes_considered",
+                  "value": {
+                    "intValue": "18"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b9ae6fbf3eea2913"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "ef5207918795ef33",
+              "name": "scheduler.filter_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500003099215395",
+              "endTimeUnixNano": "1712500003103363690",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.predicates",
+                  "value": {
+                    "stringValue": "PodFitsResources,PodFitsHostPorts"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "945ae1b0f46cfdfd"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "8b1e6d3791e8b2e3",
+              "name": "scheduler.score_nodes",
+              "kind": 1,
+              "startTimeUnixNano": "1712500003103863690",
+              "endTimeUnixNano": "1712500003116632157",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "scheduler.selected_node",
+                  "value": {
+                    "stringValue": "node-6"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "945ae1b0f46cfdfd"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "kubelet"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "8f64f7fd633dbdde",
+              "name": "kubelet.sync_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500000029256139",
+              "endTimeUnixNano": "1712500000159195336",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-00-bb81e"
+                  }
+                },
+                {
+                  "key": "k8s.node.name",
+                  "value": {
+                    "stringValue": "node-3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "3c29b62179273c8e"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "bd2aa399dac946dc",
+              "name": "kubelet.sync_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500000330392218",
+              "endTimeUnixNano": "1712500000481202637",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-01-7c371"
+                  }
+                },
+                {
+                  "key": "k8s.node.name",
+                  "value": {
+                    "stringValue": "node-4"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "2da86a78c49ea20e"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "8e7eca0fa5f6b8a8",
+              "name": "kubelet.sync_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500000668462113",
+              "endTimeUnixNano": "1712500000783208189",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-02-fe878"
+                  }
+                },
+                {
+                  "key": "k8s.node.name",
+                  "value": {
+                    "stringValue": "node-8"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "f78e2978aa2447c4"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "6428da8099f4efba",
+              "name": "kubelet.sync_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500000887282503",
+              "endTimeUnixNano": "1712500001020359823",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-03-9273d"
+                  }
+                },
+                {
+                  "key": "k8s.node.name",
+                  "value": {
+                    "stringValue": "node-2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7cee9d9136682575"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "c863e2601a746266",
+              "name": "kubelet.sync_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500001220018878",
+              "endTimeUnixNano": "1712500001336010490",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-04-9bbd4"
+                  }
+                },
+                {
+                  "key": "k8s.node.name",
+                  "value": {
+                    "stringValue": "node-2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7d5552c7f47e8e80"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "7dc2c9a7a5236bb4",
+              "name": "kubelet.sync_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500001482131518",
+              "endTimeUnixNano": "1712500001616237308",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-05-7daec"
+                  }
+                },
+                {
+                  "key": "k8s.node.name",
+                  "value": {
+                    "stringValue": "node-6"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "d3ada8b4f2222d3b"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "f1cb80b2b73a41ba",
+              "name": "kubelet.sync_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500001812048573",
+              "endTimeUnixNano": "1712500001949118412",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-06-4a24b"
+                  }
+                },
+                {
+                  "key": "k8s.node.name",
+                  "value": {
+                    "stringValue": "node-5"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "9c429ca42db0b956"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "4aabc4b3a7e38e74",
+              "name": "kubelet.sync_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500002114888402",
+              "endTimeUnixNano": "1712500002190369368",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-07-d812c"
+                  }
+                },
+                {
+                  "key": "k8s.node.name",
+                  "value": {
+                    "stringValue": "node-2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b504e1427bbc14eb"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "e863a5e850a965cd",
+              "name": "kubelet.sync_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500002348321620",
+              "endTimeUnixNano": "1712500002448638711",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-08-114af"
+                  }
+                },
+                {
+                  "key": "k8s.node.name",
+                  "value": {
+                    "stringValue": "node-4"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "e44aa5c9af9f0ba3"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "63f76c7a9ceb98bf",
+              "name": "kubelet.sync_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500002643647421",
+              "endTimeUnixNano": "1712500002747470389",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-09-f2e1e"
+                  }
+                },
+                {
+                  "key": "k8s.node.name",
+                  "value": {
+                    "stringValue": "node-1"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4de1e90c80621db2"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "acaead49a6fa5ca9",
+              "name": "kubelet.sync_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500002869517070",
+              "endTimeUnixNano": "1712500002964451402",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-10-c2bce"
+                  }
+                },
+                {
+                  "key": "k8s.node.name",
+                  "value": {
+                    "stringValue": "node-6"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "779212cccf1052fd"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "76bd54661b85a998",
+              "name": "kubelet.sync_pod",
+              "kind": 3,
+              "startTimeUnixNano": "1712500003119632157",
+              "endTimeUnixNano": "1712500003216061368",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "k8s.pod.name",
+                  "value": {
+                    "stringValue": "web-11-9d234"
+                  }
+                },
+                {
+                  "key": "k8s.node.name",
+                  "value": {
+                    "stringValue": "node-1"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b9ae6fbf3eea2913"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "cni-plugin"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "131ca3766e4d58e7",
+              "name": "cni.add",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000032256139",
+              "endTimeUnixNano": "1712500000101017544",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "cni.plugin",
+                  "value": {
+                    "stringValue": "calico"
+                  }
+                },
+                {
+                  "key": "cni.pod_ip",
+                  "value": {
+                    "stringValue": "10.244.97.76"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "8f64f7fd633dbdde"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "59c0996daeee6f52",
+              "name": "cni.add",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000333392218",
+              "endTimeUnixNano": "1712500000415878406",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "cni.plugin",
+                  "value": {
+                    "stringValue": "calico"
+                  }
+                },
+                {
+                  "key": "cni.pod_ip",
+                  "value": {
+                    "stringValue": "10.244.90.206"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "bd2aa399dac946dc"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "80627df7ffe0297c",
+              "name": "cni.add",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000671462113",
+              "endTimeUnixNano": "1712500000725356014",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "cni.plugin",
+                  "value": {
+                    "stringValue": "calico"
+                  }
+                },
+                {
+                  "key": "cni.pod_ip",
+                  "value": {
+                    "stringValue": "10.244.245.113"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "8e7eca0fa5f6b8a8"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "cea67c7d1afcc4f1",
+              "name": "cni.add",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000890282503",
+              "endTimeUnixNano": "1712500000960592723",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "cni.plugin",
+                  "value": {
+                    "stringValue": "calico"
+                  }
+                },
+                {
+                  "key": "cni.pod_ip",
+                  "value": {
+                    "stringValue": "10.244.120.162"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "6428da8099f4efba"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "7a40844853040b7a",
+              "name": "cni.add",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001223018878",
+              "endTimeUnixNano": "1712500001291045703",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "cni.plugin",
+                  "value": {
+                    "stringValue": "calico"
+                  }
+                },
+                {
+                  "key": "cni.pod_ip",
+                  "value": {
+                    "stringValue": "10.244.164.156"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "c863e2601a746266"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "734865425feeaa4e",
+              "name": "cni.add",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001485131518",
+              "endTimeUnixNano": "1712500001545754577",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "cni.plugin",
+                  "value": {
+                    "stringValue": "calico"
+                  }
+                },
+                {
+                  "key": "cni.pod_ip",
+                  "value": {
+                    "stringValue": "10.244.190.235"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7dc2c9a7a5236bb4"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "5ef542e196161a9c",
+              "name": "cni.add",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001815048573",
+              "endTimeUnixNano": "1712500001891128939",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "cni.plugin",
+                  "value": {
+                    "stringValue": "calico"
+                  }
+                },
+                {
+                  "key": "cni.pod_ip",
+                  "value": {
+                    "stringValue": "10.244.164.27"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "f1cb80b2b73a41ba"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "319cd75aa65fef9f",
+              "name": "cni.add",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002117888402",
+              "endTimeUnixNano": "1712500002141469440",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "cni.plugin",
+                  "value": {
+                    "stringValue": "calico"
+                  }
+                },
+                {
+                  "key": "cni.pod_ip",
+                  "value": {
+                    "stringValue": "10.244.197.130"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4aabc4b3a7e38e74"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "a2c354fa708c7e8a",
+              "name": "cni.add",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002351321620",
+              "endTimeUnixNano": "1712500002400430813",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "cni.plugin",
+                  "value": {
+                    "stringValue": "calico"
+                  }
+                },
+                {
+                  "key": "cni.pod_ip",
+                  "value": {
+                    "stringValue": "10.244.41.135"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "e863a5e850a965cd"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "e3fa6bad17408d94",
+              "name": "cni.add",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002646647421",
+              "endTimeUnixNano": "1712500002725382216",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "cni.plugin",
+                  "value": {
+                    "stringValue": "calico"
+                  }
+                },
+                {
+                  "key": "cni.pod_ip",
+                  "value": {
+                    "stringValue": "10.244.8.136"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "63f76c7a9ceb98bf"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "f7ac8cb3650e6e92",
+              "name": "cni.add",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002872517070",
+              "endTimeUnixNano": "1712500002909893238",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "cni.plugin",
+                  "value": {
+                    "stringValue": "calico"
+                  }
+                },
+                {
+                  "key": "cni.pod_ip",
+                  "value": {
+                    "stringValue": "10.244.220.28"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "acaead49a6fa5ca9"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "34d184474a7cf48d",
+              "name": "cni.add",
+              "kind": 1,
+              "startTimeUnixNano": "1712500003122632157",
+              "endTimeUnixNano": "1712500003166275018",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "cni.plugin",
+                  "value": {
+                    "stringValue": "calico"
+                  }
+                },
+                {
+                  "key": "cni.pod_ip",
+                  "value": {
+                    "stringValue": "10.244.23.26"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "76bd54661b85a998"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "csi-driver"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "2e310275dff6c15c",
+              "name": "csi.node_publish_volume",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000103017544",
+              "endTimeUnixNano": "1712500000158195336",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "csi.driver",
+                  "value": {
+                    "stringValue": "ebs.csi.aws.com"
+                  }
+                },
+                {
+                  "key": "csi.volume_id",
+                  "value": {
+                    "stringValue": "vol-611a11f51252"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "8f64f7fd633dbdde"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "9a279764017f2ed6",
+              "name": "csi.node_publish_volume",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000417878406",
+              "endTimeUnixNano": "1712500000480202637",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "csi.driver",
+                  "value": {
+                    "stringValue": "ebs.csi.aws.com"
+                  }
+                },
+                {
+                  "key": "csi.volume_id",
+                  "value": {
+                    "stringValue": "vol-e173e4eaede5"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "bd2aa399dac946dc"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "79bfbdabe898736a",
+              "name": "csi.node_publish_volume",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000727356014",
+              "endTimeUnixNano": "1712500000782208189",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "csi.driver",
+                  "value": {
+                    "stringValue": "ebs.csi.aws.com"
+                  }
+                },
+                {
+                  "key": "csi.volume_id",
+                  "value": {
+                    "stringValue": "vol-a518f32cf214"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "8e7eca0fa5f6b8a8"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "4a3e3e04d42f8ac2",
+              "name": "csi.node_publish_volume",
+              "kind": 1,
+              "startTimeUnixNano": "1712500000962592723",
+              "endTimeUnixNano": "1712500001019359823",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "csi.driver",
+                  "value": {
+                    "stringValue": "ebs.csi.aws.com"
+                  }
+                },
+                {
+                  "key": "csi.volume_id",
+                  "value": {
+                    "stringValue": "vol-972d33e5901a"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "6428da8099f4efba"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "05814d32feb3e719",
+              "name": "csi.node_publish_volume",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001293045703",
+              "endTimeUnixNano": "1712500001335010490",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "csi.driver",
+                  "value": {
+                    "stringValue": "ebs.csi.aws.com"
+                  }
+                },
+                {
+                  "key": "csi.volume_id",
+                  "value": {
+                    "stringValue": "vol-4248ac9ed336"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "c863e2601a746266"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "2fe981b29ee11b92",
+              "name": "csi.node_publish_volume",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001547754577",
+              "endTimeUnixNano": "1712500001615237308",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "csi.driver",
+                  "value": {
+                    "stringValue": "ebs.csi.aws.com"
+                  }
+                },
+                {
+                  "key": "csi.volume_id",
+                  "value": {
+                    "stringValue": "vol-9cda1a2a3c98"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7dc2c9a7a5236bb4"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "f8169b1a83bdceca",
+              "name": "csi.node_publish_volume",
+              "kind": 1,
+              "startTimeUnixNano": "1712500001893128939",
+              "endTimeUnixNano": "1712500001948118412",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "csi.driver",
+                  "value": {
+                    "stringValue": "ebs.csi.aws.com"
+                  }
+                },
+                {
+                  "key": "csi.volume_id",
+                  "value": {
+                    "stringValue": "vol-2a99ed5ebe1b"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "f1cb80b2b73a41ba"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "02ce76b119ff903d",
+              "name": "csi.node_publish_volume",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002143469440",
+              "endTimeUnixNano": "1712500002189369368",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "csi.driver",
+                  "value": {
+                    "stringValue": "ebs.csi.aws.com"
+                  }
+                },
+                {
+                  "key": "csi.volume_id",
+                  "value": {
+                    "stringValue": "vol-e8343cbab46c"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4aabc4b3a7e38e74"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "908b713e95c939b7",
+              "name": "csi.node_publish_volume",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002402430813",
+              "endTimeUnixNano": "1712500002447638711",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "csi.driver",
+                  "value": {
+                    "stringValue": "ebs.csi.aws.com"
+                  }
+                },
+                {
+                  "key": "csi.volume_id",
+                  "value": {
+                    "stringValue": "vol-eb231645ae36"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "e863a5e850a965cd"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "6a7c7fa8ffe5b54f",
+              "name": "csi.node_publish_volume",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002727382216",
+              "endTimeUnixNano": "1712500002746470389",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "csi.driver",
+                  "value": {
+                    "stringValue": "ebs.csi.aws.com"
+                  }
+                },
+                {
+                  "key": "csi.volume_id",
+                  "value": {
+                    "stringValue": "vol-890d5334768b"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "63f76c7a9ceb98bf"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "df49784dc2efcd1b",
+              "name": "csi.node_publish_volume",
+              "kind": 1,
+              "startTimeUnixNano": "1712500002911893238",
+              "endTimeUnixNano": "1712500002963451402",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "csi.driver",
+                  "value": {
+                    "stringValue": "ebs.csi.aws.com"
+                  }
+                },
+                {
+                  "key": "csi.volume_id",
+                  "value": {
+                    "stringValue": "vol-03877ebce4b0"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "acaead49a6fa5ca9"
+            },
+            {
+              "traceId": "30877432d1026706d7e805da846a32c3",
+              "spanId": "ce22c8befa02eb2c",
+              "name": "csi.node_publish_volume",
+              "kind": 1,
+              "startTimeUnixNano": "1712500003168275018",
+              "endTimeUnixNano": "1712500003215061368",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "csi.driver",
+                  "value": {
+                    "stringValue": "ebs.csi.aws.com"
+                  }
+                },
+                {
+                  "key": "csi.volume_id",
+                  "value": {
+                    "stringValue": "vol-e035ee0d6495"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "76bd54661b85a998"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
