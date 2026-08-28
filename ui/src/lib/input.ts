@@ -2,7 +2,8 @@ import { refreshCriticalPath } from '../stores/criticalPath';
 import { traceState } from '../stores/trace';
 import { focusedSpanId, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from '../stores/selection';
 import { traceList } from '../stores/traceList';
-import { parseTrace, getFlameGraphLayout, getTimelineLayout, getWaterfallLayout, getServiceGraph, safeParseWasmError } from './wasm';
+import { saveRecent } from './recent';
+import { parseTrace, getFlameGraphLayout, getTimelineLayout, getWaterfallLayout, getServiceGraph, getAgentFlow, safeParseWasmError } from './wasm';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 const LARGE_TRACE_BYTES = 5 * 1024 * 1024;
@@ -36,6 +37,15 @@ export async function readFileText(file: File): Promise<string | null> {
   return await file.text();
 }
 
+async function inflateRaw(data: Uint8Array): Promise<Uint8Array> {
+  // Node's typed-array generics don't line up with DOM BlobPart once
+  // `types: ["node"]` is on; this is a plain Uint8Array at runtime.
+  const stream = new Response(
+    new Blob([data as unknown as BlobPart]).stream().pipeThrough(new DecompressionStream('deflate-raw')),
+  );
+  return new Uint8Array(await stream.arrayBuffer());
+}
+
 async function readZipFile(file: File): Promise<string | null> {
   // Minimal ZIP parser for trace files
   const buffer = await file.arrayBuffer();
@@ -59,9 +69,18 @@ async function readZipFile(file: File): Promise<string | null> {
 
     const dataStart = nameStart + fileNameLen + extraLen;
 
-    if (compMethod === 0 && name.endsWith('.json')) {
-      const content = decoder.decode(new Uint8Array(buffer, dataStart, compLen));
-      entries.push(content);
+    if (name.endsWith('.json')) {
+      const raw = new Uint8Array(buffer, dataStart, compLen);
+      // 0 = stored, 8 = deflate (the two methods real zip tools produce).
+      if (compMethod === 0) {
+        entries.push(decoder.decode(raw));
+      } else if (compMethod === 8) {
+        try {
+          entries.push(decoder.decode(await inflateRaw(raw)));
+        } catch {
+          // skip entries we can't inflate (unsupported/corrupt)
+        }
+      }
     }
 
     offset = dataStart + compLen;
@@ -105,7 +124,7 @@ export async function handleFile(file: File, onText?: (text: string) => void): P
   handleRawInput(text, false);
 }
 
-export function handleRawInput(text: string, isSample: boolean, showLoading = true): boolean {
+export function handleRawInput(text: string, isSample: boolean, showLoading = true, persist = false): boolean {
   if (showLoading) {
     traceState.setLoading();
   }
@@ -121,12 +140,14 @@ export function handleRawInput(text: string, isSample: boolean, showLoading = tr
     const timelineLayout = getTimelineLayout();
     const waterfallLayout = getWaterfallLayout();
     const serviceGraph = getServiceGraph();
-    traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, isSample);
+    const agentFlow = getAgentFlow();
+    traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, agentFlow, isSample);
     refreshCriticalPath();
 
     // Add to trace list for multi-trace switching
     const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
     traceList.add(name, text);
+    if (persist) void saveRecent(name, text);
 
     return true;
   } catch (err) {
@@ -140,7 +161,7 @@ function nextFrame(): Promise<void> {
   return new Promise((resolve) => requestAnimationFrame(() => resolve()));
 }
 
-export async function handleRawInputAsync(text: string, isSample: boolean, showLoading = true): Promise<boolean> {
+export async function handleRawInputAsync(text: string, isSample: boolean, showLoading = true, persist = false): Promise<boolean> {
   if (showLoading) {
     const sizeMb = text.length / 1024 / 1024;
     const phase = text.length >= LARGE_TRACE_BYTES
@@ -181,12 +202,14 @@ export async function handleRawInputAsync(text: string, isSample: boolean, showL
     }
     const waterfallLayout = getWaterfallLayout();
     const serviceGraph = getServiceGraph();
+    const agentFlow = getAgentFlow();
 
-    traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, isSample);
+    traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, agentFlow, isSample);
     refreshCriticalPath();
 
     const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
     traceList.add(name, text);
+    if (persist) void saveRecent(name, text);
 
     return true;
   } catch (err) {

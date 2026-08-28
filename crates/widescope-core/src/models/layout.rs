@@ -1,3 +1,4 @@
+use crate::models::safety::SafetySignal;
 use serde::ser::Serializer;
 use serde::{Deserialize, Serialize};
 
@@ -18,6 +19,7 @@ pub struct FlameNode {
     pub color_key: String,
     pub is_error: bool,
     pub is_llm: bool,
+    pub safety_category: Option<String>,
     pub duration_ns: u64,
     pub self_time_ns: u64,
     pub duration_display: String,
@@ -42,6 +44,7 @@ pub struct TimelineBlock {
     pub row_index: u32,
     pub is_error: bool,
     pub is_llm: bool,
+    pub safety_category: Option<String>,
     pub duration_ns: u64,
     pub duration_display: String,
 }
@@ -81,6 +84,7 @@ pub struct SpanDetailResponse {
     pub attributes: Vec<(String, String)>,
     pub events: Vec<EventDetail>,
     pub llm: Option<LlmDetail>,
+    pub safety: Vec<SafetySignal>,
     pub children_ids: Vec<String>,
 }
 
@@ -107,6 +111,7 @@ pub struct LlmDetail {
     pub output_messages: Vec<MessageDetail>,
     pub tool_calls: Vec<ToolCallDetail>,
     pub retrieved_documents: Vec<RetrievedDocumentDetail>,
+    pub eval_scores: Vec<EvalScoreDetail>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -114,6 +119,14 @@ pub struct RetrievedDocumentDetail {
     pub id: Option<String>,
     pub score: Option<f64>,
     pub content_snippet: Option<String>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct EvalScoreDetail {
+    pub name: String,
+    pub value: f64,
+    pub threshold: Option<f64>,
+    pub passed: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -141,6 +154,7 @@ pub struct WaterfallRow {
     pub color_key: String,
     pub is_error: bool,
     pub is_llm: bool,
+    pub safety_category: Option<String>,
     pub has_children: bool,
     pub duration_ns: u64,
     pub duration_display: String,

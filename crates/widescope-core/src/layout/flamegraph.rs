@@ -86,6 +86,7 @@ fn visit_span(
         color_key: span.service_name.clone(),
         is_error: span.status.is_error(),
         is_llm: span.llm.is_some(),
+        safety_category: span.top_safety_category(),
         duration_ns: span.duration_ns,
         self_time_ns: span.self_time_ns,
         duration_display: format_duration(span.duration_ns),
@@ -109,5 +110,87 @@ fn visit_span(
             nodes,
             max_depth,
         );
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::span::{Span, SpanKind, SpanStatus};
+    use crate::models::trace::InputFormat;
+    use std::collections::HashMap;
+
+    fn span(id: &str, parent: Option<&str>, start: u64, dur: u64) -> Span {
+        Span {
+            trace_id: "t".into(),
+            span_id: id.into(),
+            parent_span_id: parent.map(String::from),
+            operation_name: id.into(),
+            service_name: "svc".into(),
+            span_kind: SpanKind::Internal,
+            start_time_ns: start,
+            end_time_ns: start + dur,
+            duration_ns: dur,
+            self_time_ns: dur,
+            status: SpanStatus::Ok,
+            attributes: HashMap::new(),
+            events: vec![],
+            llm: None,
+            safety: vec![],
+        }
+    }
+
+    fn build(spans: Vec<Span>) -> Trace {
+        crate::trace_builder::build_trace(spans, InputFormat::Unknown, vec![]).unwrap()
+    }
+
+    #[test]
+    fn root_spans_full_width_children_nested() {
+        // root [0..100], two children [0..40] and [40..100], grandchild under c1.
+        let trace = build(vec![
+            span("root", None, 0, 100),
+            span("c1", Some("root"), 0, 40),
+            span("c2", Some("root"), 40, 60),
+            span("g1", Some("c1"), 0, 40),
+        ]);
+
+        let layout = compute_flamegraph_layout(&trace);
+        assert_eq!(layout.nodes.len(), 4);
+        assert_eq!(layout.max_depth, 2);
+
+        let node = |id: &str| layout.nodes.iter().find(|n| n.span_id == id).unwrap();
+
+        // Root fills the whole width.
+        assert!((node("root").x - 0.0).abs() < 1e-9);
+        assert!((node("root").width - 1.0).abs() < 1e-9);
+        assert_eq!(node("root").depth, 0);
+        assert_eq!(node("g1").depth, 2);
+
+        // Siblings tile without overlap: c1 ends where c2 starts.
+        let c1 = node("c1");
+        let c2 = node("c2");
+        assert!(c1.x + c1.width <= c2.x + 1e-9, "siblings must not overlap");
+        // A child never exceeds its parent's span on the x axis.
+        assert!(c2.x + c2.width <= node("root").x + node("root").width + 1e-9);
+    }
+
+    #[test]
+    fn empty_trace_yields_empty_layout() {
+        let layout = compute_flamegraph_layout(&Trace {
+            trace_id: "t".into(),
+            spans: vec![],
+            span_index: HashMap::new(),
+            children_index: HashMap::new(),
+            resources: HashMap::new(),
+            root_span_ids: vec![],
+            total_duration_ns: 0,
+            span_count: 0,
+            service_count: 0,
+            has_errors: false,
+            detected_format: InputFormat::Unknown,
+            warnings: vec![],
+        });
+        assert!(layout.nodes.is_empty());
+        assert_eq!(layout.max_depth, 0);
     }
 }

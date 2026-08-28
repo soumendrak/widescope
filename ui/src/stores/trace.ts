@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import type { FlameGraphLayout, ServiceGraph, TimelineLayout, TraceSummary, WasmError, WaterfallLayout } from '../lib/types';
+import type { AgentFlow, FlameGraphLayout, ServiceGraph, TimelineLayout, TraceSummary, WasmError, WaterfallLayout } from '../lib/types';
 
 export interface TraceState {
   status: 'empty' | 'loading' | 'loaded' | 'error';
@@ -10,6 +10,7 @@ export interface TraceState {
   timelineLayout: TimelineLayout | null;
   waterfallLayout: WaterfallLayout | null;
   serviceGraph: ServiceGraph | null;
+  agentFlow: AgentFlow | null;
   error: WasmError | null;
   isSampleTrace: boolean;
 }
@@ -23,6 +24,7 @@ const initial: TraceState = {
   timelineLayout: null,
   waterfallLayout: null,
   serviceGraph: null,
+  agentFlow: null,
   error: null,
   isSampleTrace: false,
 };
@@ -41,6 +43,7 @@ function createTraceStore() {
       timelineLayout: TimelineLayout | null,
       waterfallLayout: WaterfallLayout | null,
       serviceGraph: ServiceGraph,
+      agentFlow: AgentFlow,
       isSampleTrace: boolean
     ) {
       set({
@@ -52,6 +55,7 @@ function createTraceStore() {
         timelineLayout,
         waterfallLayout,
         serviceGraph,
+        agentFlow,
         error: null,
         isSampleTrace,
       });

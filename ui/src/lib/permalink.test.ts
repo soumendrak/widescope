@@ -94,6 +94,20 @@ describe('parsePermalink', () => {
     expect(state.view).toBe('flame');
   });
 
+  it('builds a Jaeger/Tempo fetch URL from trace_id + source + url', () => {
+    const state = parsePermalink(
+      'https://widescope.test/?trace_id=abc123&source=jaeger&url=http://jaeger:16686/',
+    );
+    expect(state.traceUrl).toBe('http://jaeger:16686/api/traces/abc123');
+  });
+
+  it('ignores trace-by-id for an unknown source', () => {
+    const state = parsePermalink(
+      'https://widescope.test/?trace_id=abc123&source=zipkin&url=http://z:9411',
+    );
+    expect(state.traceUrl).toBeNull();
+  });
+
   it('ignores an unknown view value', () => {
     const state = parsePermalink('https://widescope.test/#view=hologram');
     expect(state.view).toBeNull();
@@ -106,7 +120,24 @@ describe('parsePermalink', () => {
       traceUrl: null,
       view: null,
       spanId: null,
+      notes: null,
     });
+  });
+
+  it('decodes span notes carried in the hash', () => {
+    const notes = { 's-1': 'looks slow', 's-2': 'retry storm' };
+    const encoded = bytesToBase64Url(new TextEncoder().encode(JSON.stringify(notes)));
+    const state = parsePermalink(`https://widescope.test/#trace=X&notes=${encoded}`);
+    expect(state.notes).toEqual(notes);
+  });
+
+  it('drops empty note text and yields null when nothing remains', () => {
+    const encoded = bytesToBase64Url(new TextEncoder().encode(JSON.stringify({ 's-1': '  ' })));
+    expect(parsePermalink(`https://widescope.test/#notes=${encoded}`).notes).toBeNull();
+  });
+
+  it('ignores a malformed notes param', () => {
+    expect(parsePermalink('https://widescope.test/#notes=@@not-base64@@').notes).toBeNull();
   });
 });
 
@@ -130,6 +161,49 @@ describe('buildShareUrl', () => {
     expect(parsed.spanId).toBe('span-1');
     expect(parsed.traceData).not.toBeNull();
     expect(await decodeTrace(parsed.traceData as string)).toBe(json);
+  });
+
+  it('round-trips span notes through the share link', async () => {
+    const notes = { 'span-1': 'hot path', 'span-9': 'check this' };
+    const result = await buildShareUrl({
+      json: readFixture(FIXTURES[0]),
+      view: 'waterfall',
+      spanId: 'span-1',
+      notes,
+      baseUrl,
+    });
+    expect(parsePermalink(result.url).notes).toEqual(notes);
+  });
+
+  it('omits the notes param when there are no notes', async () => {
+    const result = await buildShareUrl({
+      json: readFixture(FIXTURES[0]),
+      view: 'flame',
+      spanId: null,
+      notes: { 'span-1': '   ' },
+      baseUrl,
+    });
+    expect(result.url).not.toContain('notes=');
+    expect(parsePermalink(result.url).notes).toBeNull();
+  });
+
+  it('counts large notes toward the size guard', async () => {
+    // A tiny trace stays well under the limit on its own...
+    const json = JSON.stringify({ resourceSpans: [] });
+    const small = await buildShareUrl({ json, view: 'flame', spanId: null, baseUrl });
+    expect(small.tooLarge).toBe(false);
+    // ...but bulky notes must push dataChars over and flip tooLarge.
+    let big = '';
+    while (big.length < MAX_SHARE_DATA_CHARS * 2) big += 'x';
+    const withNotes = await buildShareUrl({
+      json,
+      view: 'flame',
+      spanId: null,
+      notes: { 'span-1': big },
+      baseUrl,
+    });
+    expect(withNotes.dataChars).toBeGreaterThan(MAX_SHARE_DATA_CHARS);
+    expect(withNotes.tooLarge).toBe(true);
   });
 
   it('omits the span param when no span is selected', async () => {

@@ -1,7 +1,4 @@
-use serde::Serialize;
-use serde_json::json;
 use thiserror::Error;
-use wasm_bindgen::JsValue;
 
 #[derive(Debug, Error)]
 pub enum WideError {
@@ -34,6 +31,14 @@ pub enum WideError {
     InvalidShareLink { message: String },
 }
 
+#[cfg(target_arch = "wasm32")]
+use serde::Serialize;
+#[cfg(target_arch = "wasm32")]
+use serde_json::json;
+#[cfg(target_arch = "wasm32")]
+use wasm_bindgen::JsValue;
+
+#[cfg(target_arch = "wasm32")]
 #[derive(Serialize)]
 struct JsError {
     error_type: &'static str,
@@ -42,6 +47,7 @@ struct JsError {
     context: serde_json::Value,
 }
 
+#[cfg(target_arch = "wasm32")]
 impl From<WideError> for JsValue {
     fn from(err: WideError) -> JsValue {
         let (code, context) = match &err {

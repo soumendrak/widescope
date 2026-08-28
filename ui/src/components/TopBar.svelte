@@ -5,7 +5,10 @@
   import { openFilePicker } from '../lib/input';
   import { theme } from '../lib/theme';
   import { buildShareUrl, isShareSupported } from '../lib/permalink';
-  import { searchSpans } from '../lib/wasm';
+  import { searchSpans, computeSessionGroups } from '../lib/wasm';
+  import { liveState, toggleLivePause } from '../lib/live';
+  import { annotations } from '../stores/annotations';
+  import type { SessionGroup } from '../lib/types';
   import {
     activeView,
     focusedSpanId,
@@ -15,7 +18,8 @@
     fullscreen,
   } from '../stores/selection';
   import { budgets, type BudgetViolation } from '../stores/budgets';
-  import { viewTabs } from '../lib/views';
+  import { viewTabs, secondaryViews } from '../lib/views';
+  import { onDestroy, onMount } from 'svelte';
 
   export let onOpenFile: () => void = () => openFilePicker();
   export let violations: BudgetViolation[] = [];
@@ -33,8 +37,65 @@
   $: activeTraceIdx = $traceList.findIndex(e => $traceState.summary && (e.json.includes($traceState.summary.trace_id)));
 
   // Tab list, the 1-5 shortcuts and the slide direction all read from
-  // lib/views.ts so they cannot drift apart.
+  // lib/views.ts so they cannot drift apart. The lenses that did not make the
+  // five-tab cut live behind the overflow button rather than lengthening it.
   $: VIEW_TABS = viewTabs((summary?.llm_span_count ?? 0) > 0);
+  $: OVERFLOW_VIEWS = secondaryViews(traceCount);
+  $: overflowActive = OVERFLOW_VIEWS.some((v) => v.id === $activeView);
+
+  let overflowOpen = false;
+  function closeOverflow(): void { overflowOpen = false; }
+
+  // Session grouping: recompute only when the set of loaded traces changes.
+  $: sessionGroups = traceCount > 1 ? (computeSessionGroups($traceList)?.groups ?? []) : [];
+  $: hasSessions = sessionGroups.some((g) => g.session_id && g.trace_count > 1);
+  $: activeSession = sessionGroups.find(
+    (g) => g.session_id && g.trace_count > 1 && g.trace_indices.includes(activeTraceIdx),
+  ) as SessionGroup | undefined;
+
+  function sessionLabel(g: SessionGroup): string {
+    const id = g.session_id ?? '';
+    const short = id.length > 24 ? `${id.slice(0, 21)}…` : id;
+    return `session ${short} (${g.trace_count})`;
+  }
+
+  // --- PWA install ---
+  // `beforeinstallprompt` fires on Chromium browsers when WideScope is
+  // installable; we capture it so our own button can trigger the native prompt.
+  // (Safari/Firefox don't fire it — the button simply stays hidden there.)
+  type InstallPromptEvent = Event & {
+    prompt: () => Promise<void>;
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+  };
+  let installPrompt: InstallPromptEvent | null = null;
+  let installed = false;
+
+  function onBeforeInstall(e: Event): void {
+    e.preventDefault();
+    installPrompt = e as InstallPromptEvent;
+  }
+  function onAppInstalled(): void {
+    installed = true;
+    installPrompt = null;
+  }
+
+  onMount(() => {
+    // Already launched as an installed PWA → nothing to offer.
+    if (window.matchMedia('(display-mode: standalone)').matches) installed = true;
+    window.addEventListener('beforeinstallprompt', onBeforeInstall);
+    window.addEventListener('appinstalled', onAppInstalled);
+  });
+  onDestroy(() => {
+    window.removeEventListener('beforeinstallprompt', onBeforeInstall);
+    window.removeEventListener('appinstalled', onAppInstalled);
+  });
+
+  async function installApp(): Promise<void> {
+    if (!installPrompt) return;
+    await installPrompt.prompt();
+    await installPrompt.userChoice;
+    installPrompt = null; // the captured prompt can only be used once
+  }
 
   function switchTrace(index: number): void {
     traceList.switchTo(index);
@@ -113,7 +174,7 @@
       return;
     }
     try {
-      const result = await buildShareUrl({ json, view: $activeView, spanId: $selectedSpanId });
+      const result = await buildShareUrl({ json, view: $activeView, spanId: $selectedSpanId, notes: $annotations });
       if (result.tooLarge) {
         const kb = Math.round(result.dataChars / 1024);
         showSharePopover({
@@ -156,11 +217,54 @@
       </a>
       <button type="button" class="btn-open" on:click={onOpenFile}>Open file <kbd>⌘O</kbd></button>
 
+      {#if $liveState.url}
+        <span
+          class="live-badge"
+          class:live-badge--connecting={$liveState.status === 'connecting'}
+          class:live-badge--off={$liveState.status === 'disconnected'}
+          class:live-badge--paused={$liveState.paused && $liveState.status === 'streaming'}
+          title={`Live ${$liveState.url} — ${$liveState.status}${$liveState.paused ? ' (paused)' : ''} · ${$liveState.count} received`}
+        >
+          <span class="live-dot" aria-hidden="true"></span>
+          {$liveState.status === 'connecting'
+            ? 'CONNECTING'
+            : $liveState.status === 'disconnected'
+              ? 'OFFLINE'
+              : $liveState.paused
+                ? 'PAUSED'
+                : 'LIVE'}{$liveState.count > 0 ? ` · ${$liveState.count}` : ''}
+        </span>
+        {#if $liveState.status === 'streaming'}
+          <button
+            type="button"
+            class="live-pause"
+            on:click={toggleLivePause}
+            title={$liveState.paused ? 'Resume live updates' : 'Pause live updates'}
+          >{$liveState.paused ? 'Resume' : 'Pause'}</button>
+        {/if}
+      {/if}
+
       {#if traceCount > 1}
         <select class="trace-select" value={activeTraceIdx} on:change={(e) => switchTrace(parseInt(e.currentTarget.value))} aria-label="Switch trace">
-          {#each $traceList as entry, i}
-            <option value={i}>{entry.name}</option>
-          {/each}
+          {#if hasSessions}
+            {#each sessionGroups as g}
+              {#if g.session_id && g.trace_count > 1}
+                <optgroup label={sessionLabel(g)}>
+                  {#each g.trace_indices as i}
+                    <option value={i}>{$traceList[i]?.name}</option>
+                  {/each}
+                </optgroup>
+              {:else}
+                {#each g.trace_indices as i}
+                  <option value={i}>{$traceList[i]?.name}</option>
+                {/each}
+              {/if}
+            {/each}
+          {:else}
+            {#each $traceList as entry, i}
+              <option value={i}>{entry.name}</option>
+            {/each}
+          {/if}
         </select>
         <span class="trace-count">{traceCount} traces</span>
       {/if}
@@ -207,19 +311,48 @@
           {/if}
         </div>
 
-        <div class="view-tabs" role="tablist" aria-label="View mode">
-          {#each VIEW_TABS as tab, i}
+        <div class="view-bar">
+          <div class="view-tabs" role="tablist" aria-label="View mode">
+            {#each VIEW_TABS as tab, i}
+              <button
+                type="button"
+                class="view-tab"
+                class:view-tab--active={$activeView === tab.id}
+                role="tab"
+                aria-selected={$activeView === tab.id}
+                aria-controls="view-panel"
+                title="{tab.label} ({i + 1})"
+                on:click={() => activeView.set(tab.id)}
+              ><span class="vt-ic">{tab.glyph}</span><span class="vt-label">{tab.label}</span></button>
+            {/each}
+          </div>
+        {#if OVERFLOW_VIEWS.length > 0}
+          <div class="view-more">
             <button
               type="button"
-              class="view-tab"
-              class:view-tab--active={$activeView === tab.id}
-              role="tab"
-              aria-selected={$activeView === tab.id}
-              aria-controls="view-panel"
-              title="{tab.label} ({i + 1})"
-              on:click={() => activeView.set(tab.id)}
-            ><span class="vt-ic">{tab.glyph}</span><span class="vt-label">{tab.label}</span></button>
-          {/each}
+              class="view-tab view-tab--more"
+              class:view-tab--active={overflowActive}
+              aria-haspopup="menu"
+              aria-expanded={overflowOpen}
+              aria-label="More lenses"
+              title="More lenses ({OVERFLOW_VIEWS.map((v) => v.label).join(', ')})"
+              on:click={() => (overflowOpen = !overflowOpen)}
+            ><span class="vt-ic">⋯</span></button>
+            {#if overflowOpen}
+              <div class="view-menu" role="menu" tabindex="-1">
+                {#each OVERFLOW_VIEWS as v, i}
+                  <button
+                    type="button"
+                    role="menuitem"
+                    class="view-menu-item"
+                    class:view-menu-item--active={$activeView === v.id}
+                    on:click={() => { activeView.set(v.id); closeOverflow(); }}
+                  ><span class="vt-ic">{v.glyph}</span>{v.label}<kbd>{VIEW_TABS.length + i + 1}</kbd></button>
+                {/each}
+              </div>
+            {/if}
+          </div>
+        {/if}
         </div>
       {/if}
 
@@ -262,6 +395,15 @@
           </span>
         {/if}
       </button>
+      {#if installPrompt && !installed}
+        <button
+          type="button"
+          class="theme-btn"
+          aria-label="Install WideScope as an app"
+          title="Install WideScope as an app"
+          on:click={installApp}
+        ><Icon name="expand" size={15} /></button>
+      {/if}
       <button type="button" class="theme-btn" aria-label="Toggle theme" on:click={() => theme.toggle()}><Icon name={themeIcon} size={15} /></button>
       <button
         type="button"
@@ -450,6 +592,98 @@
     border-radius: 9px;
     padding: 3px;
   }
+  .view-bar {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .view-more {
+    position: relative;
+    display: inline-flex;
+  }
+  .view-tab--more {
+    padding-inline: var(--space-2);
+  }
+  .view-menu {
+    position: absolute;
+    top: calc(100% + 6px);
+    right: 0;
+    z-index: 40;
+    display: flex;
+    flex-direction: column;
+    min-width: 190px;
+    padding: 4px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    background: var(--color-toolbar);
+    box-shadow: var(--shadow-popover, 0 18px 40px -18px rgba(2, 6, 18, 0.85));
+  }
+  .view-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.55rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--color-toolbar-text);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    cursor: pointer;
+    text-align: left;
+  }
+  .view-menu-item:hover,
+  .view-menu-item--active {
+    background: var(--color-badge-bg);
+    color: var(--color-sky);
+  }
+  .view-menu-item kbd {
+    margin-left: auto;
+    color: var(--color-text-faint);
+  }
+
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.15rem 0.55rem;
+    border: 1px solid var(--color-success);
+    border-radius: var(--radius-pill);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.1em;
+    color: var(--color-success);
+  }
+  .live-badge--connecting { border-color: var(--color-gold); color: var(--color-gold); }
+  .live-badge--off,
+  .live-badge--paused { border-color: var(--color-border); color: var(--color-text-muted); }
+  .live-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: live-pulse 1.6s ease-in-out infinite;
+  }
+  .live-badge--off .live-dot,
+  .live-badge--paused .live-dot { animation: none; }
+  @keyframes live-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.25; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .live-dot { animation: none; }
+  }
+  .live-pause {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+    background: none;
+    color: var(--color-text-muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    padding: 0.15rem 0.5rem;
+    cursor: pointer;
+  }
+
   .view-tab {
     display: inline-flex;
     align-items: center;

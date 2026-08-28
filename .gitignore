@@ -9,6 +9,8 @@ crates/widescope-core/pkg/
 ui/node_modules/
 ui/dist/
 ui/.svelte-kit/
+ui/test-results/
+ui/playwright-report/
 
 # macOS
 .DS_Store

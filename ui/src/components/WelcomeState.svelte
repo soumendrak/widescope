@@ -1,6 +1,7 @@
 <script lang="ts">
   import Icon from './ui/Icon.svelte';
   import Button from './ui/Button.svelte';
+  import { recentTraces, getRecentJson, clearRecent } from '../lib/recent';
 
   /**
    * First run, rendered *inside* the visualization stage rather than as a hero
@@ -10,6 +11,13 @@
   export let onLoadSample: () => void;
   export let onOpenFile: () => void;
   export let onPaste: () => void;
+  /** Reload a trace kept in IndexedDB from a previous session. */
+  export let onLoadText: (text: string) => void = () => {};
+
+  async function reloadRecent(id: number): Promise<void> {
+    const json = await getRecentJson(id);
+    if (json) onLoadText(json);
+  }
 </script>
 
 <div class="welcome">
@@ -29,9 +37,25 @@
       <span class="fmt"><b>OpenInference</b> spans</span>
     </div>
 
+    {#if $recentTraces.length > 0}
+      <div class="welcome-recent" aria-label="Recent traces">
+        <span class="recent-label">Recent</span>
+        {#each $recentTraces as r (r.id)}
+          <button
+            type="button"
+            class="recent-chip"
+            title={`Reload ${r.name} · ${(r.size / 1024 / 1024).toFixed(1)} MB`}
+            on:click={() => void reloadRecent(r.id)}
+          >{r.name}</button>
+        {/each}
+        <button type="button" class="recent-chip recent-chip--clear" title="Forget all recent traces" on:click={() => void clearRecent()}>Clear</button>
+      </div>
+    {/if}
+
     <p class="welcome-note">
       <Icon name="shield" size={12} /> no backend · no upload · no telemetry
       <span class="sep">·</span> drag a .json anywhere
+      <span class="sep">·</span> <a class="welcome-link" href="/docs/">no trace yet?</a>
     </p>
   </div>
 </div>
@@ -54,6 +78,45 @@
     gap: var(--space-3);
     text-align: center;
     max-width: 46ch;
+  }
+
+  .welcome-recent {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+  }
+  .recent-label {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--color-text-faint);
+  }
+  .recent-chip {
+    font-family: var(--font-mono);
+    font-size: var(--text-2xs);
+    color: var(--color-text-muted);
+    background: var(--color-bg-raised);
+    border: 1px solid var(--color-border-soft);
+    border-radius: var(--radius-pill);
+    padding: 0.2rem 0.7rem;
+    cursor: pointer;
+    max-width: 22ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .recent-chip:hover {
+    color: var(--color-sky);
+    border-color: var(--color-sky);
+  }
+  .recent-chip--clear {
+    color: var(--color-text-faint);
+  }
+  .welcome-link {
+    color: var(--color-accent);
   }
 
   .welcome-title {

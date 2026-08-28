@@ -1,8 +1,9 @@
 <script lang="ts">
   import { onMount, tick } from 'svelte';
   import type { TimelineBlock, TimelineLayout, TimelineRow } from '../lib/types';
-  import { focusedSpanId, hoveredSpanId, searchResults, selectedSpanId } from '../stores/selection';
+  import { focusedSpanId, hoveredSpanId, searchResults, selectedSpanId, filteredSpanIds } from '../stores/selection';
   import { SERVICE_COLORS } from '../lib/palette';
+  import { annotations } from '../stores/annotations';
 
   export let layout: TimelineLayout;
 
@@ -62,6 +63,8 @@
   }
   $: hasSearch = $searchResults.length > 0;
   $: searchResultSet = new Set($searchResults);
+  $: hasFilter = $filteredSpanIds.length > 0;
+  $: filterSet = new Set($filteredSpanIds);
 
   onMount(() => {
     if (!viewportEl) return;
@@ -282,12 +285,13 @@
               {@const isHovered = $hoveredSpanId === block.span_id}
               {@const isFocused = $focusedSpanId === block.span_id}
               {@const isSearchMatch = searchResultSet.has(block.span_id)}
+              {@const isDimmed = (hasSearch && !isSearchMatch) || (hasFilter && !filterSet.has(block.span_id))}
               {@const fill = colorMap.get(block.service_name) ?? '#64748b'}
               {@const x = blockX(block)}
               {@const width = blockWidth(block)}
               <g
                 class="span-block-group"
-                class:span-block-group--dim={hasSearch && !isSearchMatch}
+                class:span-block-group--dim={isDimmed}
                 role="button"
                 tabindex="0"
                 aria-label={blockLabel(block)}
@@ -309,6 +313,7 @@
                   class:span-block--hovered={isHovered}
                   class:span-block--focused={isFocused && !isSelected}
                   class:span-block--error={block.is_error}
+                  class:span-block--safety={block.safety_category}
                   style={`fill: ${fill};`}
                 />
                 {#if block.is_llm}
@@ -316,6 +321,11 @@
                 {/if}
                 {#if width >= 88}
                   <text x={x + (block.is_llm ? 18 : 8)} y={rowMeta.y + 18} class="span-label">{block.label}</text>
+                {/if}
+                {#if $annotations[block.span_id]}
+                  <circle cx={x + width - 3.5} cy={rowMeta.y + 5} r="3.5" class="span-note-dot">
+                    <title>Note: {$annotations[block.span_id]}</title>
+                  </circle>
                 {/if}
               </g>
             {/each}
@@ -462,11 +472,23 @@
     stroke-width: 2;
   }
 
+  .span-block--safety {
+    stroke: var(--color-danger, #f87171);
+    stroke-width: 2;
+    stroke-dasharray: 3 2;
+  }
+
   .span-label,
   .span-icon {
     fill: var(--color-code-text, rgba(255, 255, 255, 0.95));
     pointer-events: none;
     user-select: none;
+  }
+
+  .span-note-dot {
+    fill: var(--color-danger, #f87171);
+    stroke: rgba(2, 6, 18, 0.85);
+    stroke-width: 1;
   }
 
   .span-label {

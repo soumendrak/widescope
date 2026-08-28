@@ -2,7 +2,8 @@
   import { onMount } from 'svelte';
   import type { WaterfallLayout, WaterfallRow } from '../lib/types';
   import { showCriticalPath, criticalPathIds } from '../stores/criticalPath';
-  import { selectedSpanId, hoveredSpanId } from '../stores/selection';
+  import { selectedSpanId, hoveredSpanId, filteredSpanIds } from '../stores/selection';
+  import { annotations } from '../stores/annotations';
   import { SERVICE_COLORS } from '../lib/palette';
 
   export let layout: WaterfallLayout;
@@ -34,6 +35,10 @@
   // ── Derived view state (assigned in the reactive block below) ─────
   let visibleRows: WaterfallRow[] = [];
   let ticks: { px: number; label: string }[] = [];
+
+  // Active toolbar-filter mask — non-matching rows are dimmed.
+  $: hasFilter = $filteredSpanIds.length > 0;
+  $: filterSet = new Set($filteredSpanIds);
 
   export function focusView(): void {
     if (!rootEl) return;
@@ -248,6 +253,7 @@
         class:wf-row--selected={sel}
         class:wf-row--hovered={hov && !sel}
         class:wf-row--error={row.is_error}
+        class:wf-row--dim={hasFilter && !filterSet.has(row.span_id)}
         role="treeitem"
         aria-selected={sel}
         aria-level={row.depth + 1}
@@ -282,6 +288,14 @@
               {row.operation_name}
             </span>
 
+            {#if $annotations[row.span_id]}
+              <span class="wf-note" title={"Note: " + $annotations[row.span_id]} aria-label="Has a note">📝</span>
+            {/if}
+
+            {#if row.safety_category}
+              <span class="wf-safety" title="Safety signal: {row.safety_category.replace('_', ' ')}">🛡 {row.safety_category.replace('_', ' ')}</span>
+            {/if}
+
             <span class="wf-dur">{row.duration_display}</span>
           </div>
 
@@ -309,6 +323,7 @@
               style="left:{bl}px; width:{bw}px; background:{color};"
               class:wf-bar--error={row.is_error}
               class:wf-bar--critical={$showCriticalPath && $criticalPathIds.has(row.span_id)}
+              class:wf-bar--safety={row.safety_category}
               on:mousemove={(e) => onBarMouseMove(e, row)}
             >
               {#if bw > 48}
@@ -453,6 +468,10 @@
     background: rgba(255, 255, 255, 0.04);
   }
 
+  .wf-row--dim {
+    opacity: 0.3;
+  }
+
   .wf-row--selected {
     background: rgba(59, 130, 246, 0.15);
   }
@@ -595,6 +614,36 @@
 
   .wf-bar--error {
     box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, inset 0 0 0 1.5px rgba(239, 68, 68, 0.85);
+  }
+
+  .wf-bar--safety {
+    box-shadow: inset 0 0 0 1.5px rgba(248, 113, 113, 0.9);
+  }
+
+  /* Red-ringed note marker — spot a commented span without opening it. */
+  .wf-note {
+    flex: none;
+    font-size: 10px;
+    line-height: 1;
+    padding: 1px 3px;
+    border-radius: 999px;
+    border: 1px solid color-mix(in srgb, var(--color-danger, #f87171) 70%, transparent);
+    background: color-mix(in srgb, var(--color-danger, #f87171) 16%, transparent);
+    cursor: help;
+  }
+
+  .wf-safety {
+    flex: none;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    padding: 0.05rem 0.35rem;
+    border-radius: 999px;
+    color: var(--color-danger, #f87171);
+    border: 1px solid color-mix(in srgb, var(--color-danger, #f87171) 45%, transparent);
+    background: color-mix(in srgb, var(--color-danger, #f87171) 10%, transparent);
+    white-space: nowrap;
   }
 
   .wf-bar-label {

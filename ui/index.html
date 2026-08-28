@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<script type="module" src="/src/landing.js"></script>
+<script src="/redirect.js"></script>
 <title>WideScope — See inside every agent run</title>
 <meta name="description" content="WideScope is a zero-backend, browser-native trace viewer for LLM and AI agent pipelines. Flame graphs, timelines, token costs, and side-by-side diffs — parsed in Rust/WASM, entirely in your tab." />
 <meta property="og:title" content="WideScope — See inside every agent run" />
@@ -174,7 +174,7 @@ h2 .dim{color:var(--faint)}
    external script has added .js-motion to <html>, so a blocked script (the
    Cloudflare CSP incident) leaves every section readable instead of blank. */
 .reveal{opacity:1;transform:none}
-.js-motion .reveal{opacity:0;transform:translateY(26px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
+.js-motion .reveal{opacity:0;transform:perspective(900px) rotateX(9deg) translateY(26px);transform-origin:50% 0;transition:opacity .8s var(--ease),transform .8s var(--ease)}
 .js-motion .reveal.in{opacity:1;transform:none}
 .js-motion .reveal[data-rd="1"]{transition-delay:.08s}.js-motion .reveal[data-rd="2"]{transition-delay:.16s}
 .js-motion .reveal[data-rd="3"]{transition-delay:.24s}.js-motion .reveal[data-rd="4"]{transition-delay:.32s}
@@ -220,6 +220,15 @@ h2 .dim{color:var(--faint)}
   content:"";position:absolute;inset:0;border-radius:18px;pointer-events:none;
   background:linear-gradient(115deg,rgba(186,230,253,.07) 0%,transparent 28%);
 }
+/* ---------- 3D: the scope is a card in space (vars driven by landing.js) ---------- */
+.pinwrap{perspective:1400px}
+.scope{
+  transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+  transition:transform .45s var(--ease);
+  will-change:transform;
+}
+.scope-enter{animation:scopein 1.1s var(--ease) .5s backwards}
+@keyframes scopein{from{opacity:0;transform:rotateX(26deg) translateY(60px) scale(.95)}}
 .scope-bar{
   display:flex;align-items:center;gap:14px;padding:13px 18px;
   border-bottom:1px solid var(--line-soft);
@@ -322,6 +331,14 @@ kbd{
 }
 .chip b{color:var(--ice);font-weight:500}
 
+/* "also in the box" feature strip */
+.featlist{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:56px}
+.featlist .feat-k{
+  font-family:var(--font-mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--gold);margin-right:8px;white-space:nowrap;
+}
+.featlist .chip{white-space:normal}
+
 /* ============================================================
    SECTION 02 — INSPECT
    ============================================================ */
@@ -336,7 +353,7 @@ kbd{
   content:"";position:absolute;inset:0;opacity:0;transition:opacity .35s;
   background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(56,189,248,.12),transparent 65%);
 }
-.card:hover{transform:translateY(-4px);border-color:rgba(125,211,252,.28)}
+.card:hover{transform:perspective(750px) rotateX(var(--crx,0deg)) rotateY(var(--cry,0deg)) translateY(-4px);border-color:rgba(125,211,252,.28)}
 .card:hover::before{opacity:1}
 .card h3{font-size:17px;font-weight:650;letter-spacing:-.01em;margin-top:14px}
 .card p{font-size:13.5px;color:var(--muted);margin-top:7px;line-height:1.55}
@@ -475,7 +492,7 @@ kbd{
   border:1px solid var(--line-soft);border-radius:var(--r);padding:30px 24px;background:var(--panel);
   position:relative;overflow:hidden;transition:transform .35s var(--ease),border-color .35s;
 }
-.zero:hover{transform:translateY(-4px);border-color:rgba(125,211,252,.3)}
+.zero:hover{transform:perspective(750px) rotateX(var(--crx,0deg)) rotateY(var(--cry,0deg)) translateY(-4px);border-color:rgba(125,211,252,.3)}
 .zero .num{
   font-family:var(--font-mono);font-size:46px;font-weight:600;letter-spacing:-.03em;line-height:1;
   background:linear-gradient(180deg,#E0F2FE,#60A5FA);-webkit-background-clip:text;background-clip:text;color:transparent;
@@ -569,6 +586,61 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
   font-family:var(--font-mono);font-size:11.5px;line-height:1.75;
   color:var(--muted);white-space:pre;
 }
+/* ---------- scroll-to-top floater ---------- */
+.totop{
+  position:fixed;right:20px;bottom:20px;z-index:90;
+  width:46px;height:46px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-mono);font-size:20px;line-height:1;color:var(--text);
+  background:var(--grad-cta);border:1px solid rgba(186,230,253,.25);
+  box-shadow:0 10px 30px -10px rgba(37,99,235,.6),0 1px 0 rgba(255,255,255,.25) inset;
+  opacity:0;transform:translateY(14px) scale(.85);pointer-events:none;
+  transition:opacity .3s var(--ease),transform .3s var(--ease),box-shadow .25s;
+}
+.totop.show{opacity:1;transform:none;pointer-events:auto}
+.totop:hover{transform:translateY(-3px);box-shadow:0 16px 38px -10px rgba(37,99,235,.75),0 1px 0 rgba(255,255,255,.25) inset}
+@media (max-width:640px){.totop{right:14px;bottom:14px;width:42px;height:42px}}
+
+/* ============================================================
+   SCROLL-PINNED SCOPE  (tabs advance as you scroll)
+   ============================================================ */
+.pinwrap{position:relative}
+.scroll-cue{display:none}                 /* shown only when pinning is active */
+@media (min-width:721px) and (prefers-reduced-motion:no-preference){
+  .pinwrap{height:520vh}                 /* ponytail: 4 views × ~130vh of scroll, tune here */
+  .pinwrap .scope{position:sticky;top:96px;margin-top:0}
+  .scroll-cue{
+    display:flex;align-items:center;gap:8px;
+    position:absolute;left:50%;bottom:14px;transform:translateX(-50%);
+    font-family:var(--font-mono);font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+  }
+  .scroll-cue::after{content:"↓";animation:cuebob 1.8s var(--ease) infinite}
+}
+@keyframes cuebob{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+
+/* critical-path emphasis (waterfall) */
+.tspan.crit{box-shadow:0 0 0 1.5px var(--sky),0 1px 0 rgba(255,255,255,.22) inset,0 5px 18px -4px rgba(56,189,248,.5)}
+.tspan.hot.crit{box-shadow:0 0 0 1.5px var(--gold),0 1px 0 rgba(255,255,255,.35) inset,0 5px 18px -4px rgba(245,158,11,.55)}
+
+/* service graph */
+.sgraph{position:absolute;inset:22px}
+.sgraph svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.sgedge{stroke:rgba(125,211,252,.35);stroke-width:1.5;stroke-dasharray:5 6;vector-effect:non-scaling-stroke;
+  animation:dashmove 2.4s linear infinite}
+.sgedge.weak{stroke:rgba(125,211,252,.16)}
+.node{
+  position:absolute;transform:translate(-50%,-50%);
+  font-family:var(--font-mono);font-size:11.5px;letter-spacing:.02em;color:var(--ice);
+  background:linear-gradient(180deg,rgba(17,28,48,.97),rgba(9,15,27,.97));
+  border:1px solid var(--line);border-radius:10px;padding:9px 13px;white-space:nowrap;
+  box-shadow:0 8px 22px -10px rgba(2,6,18,.85);cursor:crosshair;
+  transition:border-color .2s,transform .2s;
+}
+.node small{display:block;color:var(--faint);font-size:9.5px;letter-spacing:.05em;margin-top:2px}
+.node.hot{border-color:rgba(252,211,77,.4);color:var(--gold)}
+.node.hot small{color:rgba(245,158,11,.7)}
+.lyr.act .node{animation:pop .5s var(--ease) backwards;animation-delay:var(--d,0s)}
+@keyframes pop{from{opacity:0;transform:translate(-50%,-50%) scale(.82)}to{opacity:1;transform:translate(-50%,-50%)}}
 
 /* ============================================================
    RESPONSIVE
@@ -602,6 +674,8 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
   .scope-foot .kbd-hint{display:none}
   .hero-cta .btn{width:100%;justify-content:center}
   .diff-total{margin-left:0;width:100%}
+  .node{font-size:9.5px;padding:6px 8px}
+  .node small{display:none}
 }
 
 /* ============================================================
@@ -613,6 +687,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
   .playhead{display:none}
   .marq-track{animation:none;flex-wrap:wrap}
   .stage,.reveal{opacity:1;transform:none}
+  .scope-enter{animation:none}
   .lyr .tspan{transform:none}
 }
 </style>
@@ -640,6 +715,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
       <a href="#compare">Compare</a>
       <a href="#local">Local-first</a>
       <a href="#quickstart">Quickstart</a>
+      <a href="/docs/">Get a trace</a>
       <a href="https://github.com/soumendrak/widescope" target="_blank" rel="noopener">GitHub</a>
     </nav>
     <button type="button" class="theme-toggle" id="themeToggle" aria-label="Toggle colour theme">
@@ -661,7 +737,8 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
       <p class="lede stage stage-3">
         WideScope turns raw <b>OTLP, Jaeger, and OpenInference JSON</b> into flame graphs, timelines,
         token costs, and side-by-side diffs — parsed by <b>Rust&nbsp;/&nbsp;WASM</b>, rendered at 60&nbsp;fps,
-        and never leaving your browser tab.
+        and never leaving your browser tab. Even sharing is serverless: <b>the whole trace travels
+        inside the link</b>.
       </p>
       <div class="hero-cta stage stage-4">
         <a class="btn btn-primary btn-lg magnet" href="/editor/?sample=1">
@@ -675,11 +752,12 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
         </a>
       </div>
       <div class="hero-meta stage stage-4">
-        <span>No backend</span><span>No upload</span><span>No telemetry</span><span>MIT licensed</span>
+        <span>No backend</span><span>No upload</span><span>No telemetry</span><span>Serverless sharing</span><span>Apache 2.0</span>
       </div>
 
-      <!-- live trace window -->
-      <div class="scope stage stage-5" role="group" aria-label="Animated demo of WideScope rendering a flame graph and timeline of an AI agent trace">
+      <!-- live trace window (pins while scrolling; tabs advance with scroll) -->
+      <div class="pinwrap">
+      <div class="scope scope-enter" role="group" aria-label="Animated demo of WideScope rendering a flame graph, timeline, waterfall and service graph of an AI agent trace">
         <div class="scope-bar">
           <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
           <div class="scope-file">⬡ <b>rag-agent.otlp.json</b> · 38 spans · 4 services</div>
@@ -688,6 +766,8 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
         <div class="tabs" role="tablist" aria-label="Trace views">
           <button class="tab on" data-view="flame" role="tab" aria-selected="true">▲ Flame <span class="hk">F</span></button>
           <button class="tab" data-view="timeline" role="tab" aria-selected="false">≡ Timeline <span class="hk">T</span></button>
+          <button class="tab" data-view="waterfall" role="tab" aria-selected="false">⌄ Waterfall <span class="hk">W</span></button>
+          <button class="tab" data-view="graph" role="tab" aria-selected="false">⬡ Graph <span class="hk">G</span></button>
         </div>
 
         <div class="viz" id="viz">
@@ -757,6 +837,49 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
               <div class="tspan" style="left:66.6%;width:19.6%;--d:.6s" data-n="http.post" data-ms="473 ms">http.post</div>
             </div>
           </div>
+
+          <!-- WATERFALL layer (cascade + critical path) -->
+          <div class="lyr off" data-lyr="waterfall">
+            <div class="row">
+              <span class="lane-label" style="top:-9px">critical path · 1,892 ms</span>
+              <div class="tspan crit" style="left:.5%;width:99%;--d:.05s" data-n="agent.run" data-ms="2,412 ms" data-x="root span">agent.run</div>
+            </div>
+            <div class="row">
+              <div class="tspan hot crit" style="left:8.2%;width:16%;--d:.16s" data-n="plan · llm" data-ms="388 ms" data-x="612 tokens">plan · llm</div>
+            </div>
+            <div class="row">
+              <div class="tspan crit" style="left:24.9%;width:26%;--d:.27s" data-n="retrieve" data-ms="628 ms" data-x="12 documents">retrieve</div>
+            </div>
+            <div class="row">
+              <div class="tspan dim" style="left:51.6%;width:8%;--d:.38s" data-n="rerank" data-ms="196 ms" data-x="off critical path">rerank</div>
+            </div>
+            <div class="row">
+              <div class="tspan hot crit" style="left:60.3%;width:32%;--d:.49s" data-n="generate" data-ms="771 ms" data-x="self 519 ms">generate</div>
+            </div>
+            <div class="row">
+              <div class="tspan crit" style="left:93%;width:6.5%;--d:.6s" data-n="stream" data-ms="158 ms" data-x="412 tokens · sse">stream</div>
+            </div>
+          </div>
+
+          <!-- SERVICE GRAPH layer (who calls whom) -->
+          <div class="lyr off" data-lyr="graph">
+            <div class="sgraph">
+              <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+                <line class="sgedge" x1="11" y1="50" x2="32" y2="16"/>
+                <line class="sgedge" x1="11" y1="50" x2="32" y2="82"/>
+                <line class="sgedge" x1="32" y1="82" x2="56" y2="82"/>
+                <line class="sgedge" x1="56" y1="82" x2="74" y2="50"/>
+                <line class="sgedge" x1="74" y1="50" x2="74" y2="16"/>
+                <line class="sgedge weak" x1="32" y1="16" x2="74" y2="16"/>
+              </svg>
+              <div class="node"      style="left:11%;top:50%;--d:.05s" data-n="gateway" data-ms="2,412 ms" data-x="entry · 1 call">gateway<small>1 call · 2,412 ms</small></div>
+              <div class="node hot"  style="left:32%;top:16%;--d:.18s" data-n="planner · llm" data-ms="388 ms" data-x="claude-sonnet-4-6">planner · llm<small>1 call · 388 ms</small></div>
+              <div class="node"      style="left:32%;top:82%;--d:.28s" data-n="retriever" data-ms="628 ms" data-x="12 docs">retriever<small>1 call · 628 ms</small></div>
+              <div class="node"      style="left:56%;top:82%;--d:.38s" data-n="vector.db" data-ms="302 ms" data-x="hnsw · ef=128">vector.db<small>3 calls · 302 ms</small></div>
+              <div class="node"      style="left:74%;top:50%;--d:.48s" data-n="reranker" data-ms="196 ms" data-x="batch=64">reranker<small>1 call · 196 ms</small></div>
+              <div class="node hot"  style="left:74%;top:16%;--d:.58s" data-n="generator · llm" data-ms="771 ms" data-x="streaming · sse">generator · llm<small>1 call · 771 ms</small></div>
+            </div>
+          </div>
         </div>
 
         <div class="scope-foot">
@@ -767,6 +890,8 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
           <span class="kbd-hint"><kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> navigate · <kbd>F</kbd> fit · <kbd>0</kbd> reset</span>
         </div>
       </div>
+      <div class="scroll-cue" aria-hidden="true">scroll to cycle views</div>
+      </div><!-- /pinwrap -->
 
       <!-- formats marquee -->
       <div class="marq stage stage-5" aria-label="Supported formats and ecosystems">
@@ -866,6 +991,20 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
           </div>
         </div>
       </div>
+
+      <div class="featlist reveal" data-rd="3" aria-label="More capabilities">
+        <span class="feat-k">also in the box ›</span>
+        <span class="chip">trace diff + <b>matrix view</b></span>
+        <span class="chip">cost &amp; token analytics</span>
+        <span class="chip">attribute search · <b>duration&gt;100ms</b></span>
+        <span class="chip">latency heatmap</span>
+        <span class="chip">span annotations</span>
+        <span class="chip">PNG / SVG export</span>
+        <span class="chip">multi-trace + zip loading</span>
+        <span class="chip">session grouping</span>
+        <span class="chip"><b>VS Code</b> extension</span>
+        <span class="chip">embed mode</span>
+      </div>
     </div>
   </section>
 
@@ -920,6 +1059,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
         </div>
       </div>
       <p class="diff-note reveal">also diffs tokens, cost, and span counts — open two traces, or one trace against yesterday's share link.</p>
+      <p class="diff-note reveal">going wider? drop in a whole batch — the <b style="color:var(--ice)">matrix view</b> ranks every run side by side, and <b style="color:var(--ice)">session grouping</b> folds related traces into one timeline. spot the slow outlier across 50 runs, not just two.</p>
     </div>
   </section>
 
@@ -1017,16 +1157,18 @@ OpenInference     spans[]</code></pre>
     <a class="brand" href="#top"><img src="/widescope-logo.svg" alt="" width="24" height="24" />WideScope</a>
     <nav aria-label="Footer">
       <a href="/editor/">Open the editor ↗</a>
+      <a href="/docs/">Get a trace file</a>
       <a href="https://github.com/soumendrak/widescope" target="_blank" rel="noopener">GitHub</a>
       <a href="https://github.com/soumendrak/widescope/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a>
       <a href="https://github.com/soumendrak/widescope/issues" target="_blank" rel="noopener">Issues</a>
     </nav>
-    <span class="made">built with <b>Rust 🦀 + WASM + Svelte 5</b> · MIT licensed · © <span id="yr">2026</span> soumendrak · trace_id: <b>w1d3sc0p3</b></span>
+    <span class="made">built with <b>Rust 🦀 + WASM + Svelte 5</b> · Apache 2.0 licensed · © <span id="yr">2026</span> soumendrak · trace_id: <b>w1d3sc0p3</b></span>
   </div>
+  <a href="#top" id="toTop" class="totop" aria-label="Scroll to top">↑</a>
 </footer>
 
 <div class="tip" id="tip" aria-hidden="true"></div>
 
-
+<script src="/landing.js"></script>
 </body>
 </html>

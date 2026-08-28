@@ -436,3 +436,86 @@ fn dfs(
 
     path_set.remove(span_id);
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::span::{SpanKind, SpanStatus};
+    use crate::models::trace::InputFormat;
+
+    fn span(id: &str, parent: Option<&str>, start: u64) -> Span {
+        Span {
+            trace_id: "t".into(),
+            span_id: id.into(),
+            parent_span_id: parent.map(String::from),
+            operation_name: id.into(),
+            service_name: "svc".into(),
+            span_kind: SpanKind::Internal,
+            start_time_ns: start,
+            end_time_ns: start + 10,
+            duration_ns: 10,
+            self_time_ns: 10,
+            status: SpanStatus::Ok,
+            attributes: HashMap::new(),
+            events: vec![],
+            llm: None,
+            safety: vec![],
+        }
+    }
+
+    #[test]
+    fn severs_rootless_cycle_without_hanging() {
+        // a <-> b mutual parents: no natural root. Must terminate and sever.
+        let trace = build_trace(
+            vec![span("a", Some("b"), 0), span("b", Some("a"), 1)],
+            InputFormat::Unknown,
+            vec![],
+        )
+        .unwrap();
+
+        assert_eq!(trace.span_count, 2);
+        assert!(
+            trace.warnings.iter().any(|w| w.code == "CYCLE_SEVERED"),
+            "expected a CYCLE_SEVERED warning"
+        );
+        assert!(!trace.root_span_ids.is_empty(), "severing must surface a root");
+    }
+
+    #[test]
+    fn clean_hierarchy_has_one_root_and_no_warnings() {
+        // root -> a -> b: a well-formed tree, no cycles.
+        let trace = build_trace(
+            vec![
+                span("root", None, 0),
+                span("a", Some("root"), 1),
+                span("b", Some("a"), 2),
+            ],
+            InputFormat::Unknown,
+            vec![],
+        )
+        .unwrap();
+        assert_eq!(trace.root_span_ids, vec!["root".to_string()]);
+        assert_eq!(
+            trace.children_index.get("root").map(Vec::as_slice),
+            Some(&["a".to_string()][..])
+        );
+        assert!(trace.warnings.iter().all(|w| w.code != "CYCLE_SEVERED"));
+    }
+
+    #[test]
+    fn deduplicates_span_ids_first_wins() {
+        let trace = build_trace(
+            vec![span("dup", None, 0), span("dup", None, 5), span("k", Some("dup"), 1)],
+            InputFormat::Unknown,
+            vec![],
+        )
+        .unwrap();
+        assert_eq!(trace.span_count, 2);
+        assert!(trace.warnings.iter().any(|w| w.code == "DUPLICATE_SPAN_ID"));
+    }
+
+    #[test]
+    fn empty_input_errors() {
+        assert!(build_trace(vec![], InputFormat::Unknown, vec![]).is_err());
+    }
+}

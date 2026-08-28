@@ -218,6 +218,34 @@ banking, IoT, CI/CD, FHIR, video CDN, mobile RUM, legal-doc RAG, an edge-case
 file, and a 2,000-span stress trace) driven through the whole core pipeline by
 `cargo run -p widescope-core --example check_fixtures`.
 
+## 5c. Merge with `main` — 2026-08-28
+
+The branch was cut from a tree ~40 commits behind `main`, which had meanwhile
+shipped four more lenses (Agent flow, Trends, Matrix, Dashboard), live SSE
+streaming, session grouping, recent traces in IndexedDB, span notes in share
+links, a PWA install button, ZIP upload, and a VS Code host bridge. Resolving
+that was integration, not conflict-picking:
+
+- **Views**: the tab bar keeps five lenses; the four later ones moved to a `⋯`
+  overflow menu, shortcuts 6-9, and the palette. `lib/views.ts` grew
+  `SECONDARY_VIEWS` and stays the single source for tabs, shortcuts and slide
+  direction.
+- **Toolbar**: live badge and pause, session-grouped trace switcher, install
+  button and notes-carrying share links were ported into `TopBar`; the recent-
+  trace chips found a better home in the first-run `WelcomeState`.
+- **Landing**: `main`'s newer scroll-pinned hero, 3D tilt and scroll-to-top were
+  kept, re-gated behind `.js-motion` so a blocked script still leaves the page
+  readable, and its script merged with the theme toggle this branch added.
+- **Service graph**: `main`'s redesign won outright; the contrast fix this
+  branch made to the old one was moot.
+
+Four a11y regressions the merge introduced were caught by the gate and fixed:
+an overflow button inside `role="tablist"`, `role="img"` on the service graph
+and agent flow SVGs (both have focusable children), and a decorative scroll cue
+below 4.5:1. Gate after the merge: **72/72**, plus the repo's own Playwright
+suite (4/4), vitest (30/30), `cargo test` (60), clippy clean, and 22/22
+fixtures through the core pipeline.
+
 ## 6. Guardrails
 
 **What not to do**
@@ -226,7 +254,10 @@ file, and a 2,000-span stress trace) driven through the whole core pipeline by
 - No component library dependency. The hand-rolled aesthetic is part of the brand; it needs consolidation, not replacement.
 - No backend, ever. Local-first is the moat.
 - Don't chase full mobile parity. A readable read-only mobile view (waterfall + inspector as a sheet) is enough.
-- Don't add a sixth view. Five lenses already compete; the conversation view should replace the weakest surface for LLM traces, not pile on.
+- Don't add a sixth **tab**. Five lenses already compete; the conversation view replaces the
+  weakest surface for LLM traces rather than piling on. Lenses that arrived later (Agent flow,
+  Trends, Matrix, Dashboard) live behind the `⋯` overflow beside the tabs, on shortcuts 6-9,
+  and in ⌘K — reachable without lengthening the strip.
 
 **Accessibility punch list**
 

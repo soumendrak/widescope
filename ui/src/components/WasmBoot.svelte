@@ -1,6 +1,8 @@
 <script lang="ts">
   /** Boot states for the WASM core: the splash while it loads, the dead end if it fails. */
   export let error: string | null = null;
+  /** A ?trace= URL is being fetched — same splash, honest label. */
+  export let fetching = false;
 </script>
 
 {#if error}
@@ -15,7 +17,7 @@
       <span class="splash-ring" aria-hidden="true"></span>
       <img class="splash-logo" src="/widescope-logo.svg" alt="" width="64" height="64" />
       <span class="splash-name">WideScope</span>
-      <span class="splash-loading">initializing wasm…</span>
+      <span class="splash-loading">{fetching ? 'fetching trace…' : 'initializing wasm…'}</span>
     </div>
   </div>
 {/if}

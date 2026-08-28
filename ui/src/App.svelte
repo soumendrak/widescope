@@ -1,13 +1,17 @@
 <script lang="ts">
   import { onDestroy, onMount, tick } from 'svelte';
   import { fly } from 'svelte/transition';
-  import { loadWasm, getInitWarnings, getSpanDetail } from './lib/wasm';
+  import { loadWasm, getInitWarnings, getSpanDetail, filterSpans } from './lib/wasm';
   import { installKeyboardRouter } from './lib/keyboard';
-  import { viewOrder, resolveView, isViewName } from './lib/views';
+  import { viewOrder, shortcutOrder, resolveView, isViewName } from './lib/views';
   import { openFilePicker, handleFile, handleRawInputAsync } from './lib/input';
   import { parsePermalink, decodeTrace } from './lib/permalink';
+  import { connectLive, disconnectLive } from './lib/live';
+  import { loadRecent } from './lib/recent';
   import { SAMPLE_TRACE } from './lib/sample';
   import { traceState } from './stores/trace';
+  import { traceList } from './stores/traceList';
+  import { annotations } from './stores/annotations';
   import { theme, resolveTheme } from './lib/theme';
   import { viewSlideIn, viewSlideOut } from './lib/animation';
 
@@ -25,6 +29,8 @@
 
   let wasmReady = false;
   let wasmError: string | null = null;
+  /** A ?trace= URL fetch is in flight — the stage shows a spinner meanwhile. */
+  let remoteTraceLoading = false;
   let editorValue = '';
   let editorMessage: string | null = null;
   let editorCollapsed = false;
@@ -44,6 +50,7 @@
 
   $: hasLlmSpans = ($traceState.summary?.llm_span_count ?? 0) > 0;
   $: VIEW_ORDER = viewOrder(hasLlmSpans);
+  $: SHORTCUT_ORDER = shortcutOrder(hasLlmSpans, $traceList.length);
 
   $: {
     const currentIdx = VIEW_ORDER.indexOf($activeView);
@@ -58,6 +65,8 @@
 
     const storedView = localStorage.getItem(STORAGE_KEY_VIEW);
     if (isViewName(storedView)) activeView.set(storedView);
+
+    void loadRecent();
 
     try {
       await loadWasm();
@@ -77,22 +86,59 @@
         editorMessage = 'Failed to load the shared trace from the link.';
       }
     } else if (permalink.traceUrl) {
+      remoteTraceLoading = true;
       try {
         await loadTraceFromUrl(permalink.traceUrl);
         permalinkLoaded = true;
       } catch {
         editorMessage = 'Failed to load trace from URL.';
+      } finally {
+        remoteTraceLoading = false;
       }
     }
 
     if (permalinkLoaded) {
+      if (permalink.notes) {
+        // Only import notes for spans that exist in the trace we just loaded, so
+        // a crafted or stale link can't pollute annotations on other traces that
+        // happen to share a span id.
+        const traceSpanIds = new Set(filterSpans({}));
+        annotations.setMany(
+          Object.fromEntries(
+            Object.entries(permalink.notes).filter(([id]) => traceSpanIds.has(id)),
+          ),
+        );
+      }
       if (permalink.view) activeView.set(permalink.view);
       if (permalink.spanId) applyPermalinkSpan(permalink.spanId);
     } else if (new URLSearchParams(window.location.search).get('sample') === '1') {
       // Landing-page "Try the sample trace" CTA deep link.
       loadSampleJson(false);
     }
+
+    // Host bridge: an embedding host (e.g. the VS Code extension) posts trace
+    // text in via postMessage instead of a URL, so big files dodge URL limits.
+    // Announce readiness so the host waits for the listener (WASM load is async).
+    window.addEventListener('message', hostMessageHandler);
+    if (window.parent !== window) window.parent.postMessage({ type: 'widescope:ready' }, '*');
+
+    // Live mode: stream traces from an SSE relay and auto-select each newest one.
+    const liveUrl = new URLSearchParams(window.location.search).get('live');
+    if (liveUrl) {
+      // Ephemeral stream — parse each frame, but never focus-steal or persist.
+      connectLive(liveUrl, (json) => { void loadEditorText(json, false, false); });
+    }
   });
+
+  function hostMessageHandler(event: MessageEvent): void {
+    // Only the embedding parent drives this bridge; ignore any other frame.
+    // (The host webview origin isn't statically known, so gate on source.)
+    if (event.source !== window.parent) return;
+    const data = event.data;
+    if (data && data.type === 'widescope:load' && typeof data.text === 'string') {
+      void loadEditorText(data.text);
+    }
+  }
 
   /** Pre-select a span from a share link, ignoring it if absent in the trace. */
   function applyPermalinkSpan(spanId: string): void {
@@ -105,7 +151,9 @@
   }
 
   onDestroy(() => {
+    disconnectLive();
     clearLiveParseTimer();
+    window.removeEventListener('message', hostMessageHandler);
   });
 
   function clearLiveParseTimer(): void {
@@ -114,7 +162,7 @@
     liveParseTimer = null;
   }
 
-  async function applyEditorValue(showLoading = false): Promise<boolean> {
+  async function applyEditorValue(showLoading = false, persist = false): Promise<boolean> {
     editorMessage = null;
     if (!editorValue.trim()) {
       selectedSpanId.set(null);
@@ -125,7 +173,7 @@
       traceState.reset();
       return false;
     }
-    return await handleRawInputAsync(editorValue, false, showLoading);
+    return await handleRawInputAsync(editorValue, false, showLoading, persist);
   }
 
   function scheduleLiveParse(): void {
@@ -147,10 +195,10 @@
     workspace?.focusActiveLens();
   }
 
-  async function loadEditorText(text: string, moveFocus = true): Promise<boolean> {
+  async function loadEditorText(text: string, moveFocus = true, persist = true): Promise<boolean> {
     editorValue = text;
     clearLiveParseTimer();
-    const parsed = await applyEditorValue(true);
+    const parsed = await applyEditorValue(true, persist);
     // ponytail: collapse only for load actions (sample/file/paste/link), never
     // mid-typing — live parse deliberately leaves the editor where it is.
     if (parsed) {
@@ -255,8 +303,8 @@
     focusSearch: () => (showPalette = true),
     submitEditor: () => void dismissEditor(),
     pasteFromClipboard: () => void pasteFromClipboard(),
-    selectView: (i) => activeView.set(VIEW_ORDER[i]),
-    viewCount: VIEW_ORDER.length,
+    selectView: (i) => activeView.set(SHORTCUT_ORDER[i]),
+    viewCount: SHORTCUT_ORDER.length,
     toggleFullscreen: () => fullscreen.update((v) => !v),
     exitFullscreen: () => fullscreen.set(false),
     isFullscreen: () => $fullscreen,
@@ -283,8 +331,8 @@
 </script>
 
 <div class="app" class:app--fullscreen={$fullscreen} data-theme={$theme}>
-  {#if wasmError || !wasmReady}
-    <WasmBoot error={wasmError} />
+  {#if wasmError || !wasmReady || remoteTraceLoading}
+    <WasmBoot error={wasmError} fetching={remoteTraceLoading} />
   {:else}
     <div class="layout">
       <a class="skip-link" href="#main">Skip to trace view</a>
@@ -306,6 +354,7 @@
           onLoadSample={loadSampleJson}
           onOpenFile={openEditorFilePicker}
           onPaste={pasteFromClipboard}
+          onLoadText={(text) => void loadEditorText(text)}
         />
 
         {#if !isEmbedded && !$fullscreen}

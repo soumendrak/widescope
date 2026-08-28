@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Get a trace file — WideScope</title>
+<meta name="description" content="How to produce an OTLP / Jaeger / OpenInference JSON trace file from the OpenAI SDK, Anthropic SDK, LangChain, or a generic OpenTelemetry collector — then drag it into WideScope." />
+<meta name="theme-color" content="#05080f" />
+<link rel="icon" type="image/svg+xml" href="/widescope-logo.svg" />
+<link rel="stylesheet" href="/fonts/fonts.css" />
+<style>
+:root{
+  --bg0:#05080F; --bg2:#0D1626;
+  --panel:rgba(13,22,38,.72);
+  --line:rgba(125,211,252,.12); --line-soft:rgba(125,211,252,.07);
+  --text:#E9EFF8; --muted:#9AA8BD; --faint:#5B6B84;
+  --blue:#3B82F6; --sky:#7DD3FC; --ice:#BAE6FD; --gold:#FCD34D; --green:#34D399;
+  --grad-cta:linear-gradient(135deg,#1D4ED8 0%,#3B82F6 55%,#38BDF8 100%);
+  --grad-span:linear-gradient(180deg,#7DD3FC 0%,#3B82F6 100%);
+  --font-display:"Bricolage Grotesque",system-ui,sans-serif;
+  --font-mono:"Spline Sans Mono",ui-monospace,monospace;
+  --maxw:940px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg0);color:var(--text);
+  font-family:var(--font-display);line-height:1.65;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+}
+::selection{background:var(--gold);color:#1a1203}
+a{color:var(--sky);text-decoration:none}
+a:hover{text-decoration:underline}
+:focus-visible{outline:2px solid var(--sky);outline-offset:3px;border-radius:4px}
+
+/* atmosphere, lifted from the landing page */
+.grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(125,211,252,.045) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(125,211,252,.045) 1px,transparent 1px);
+  background-size:56px 56px;
+  mask-image:radial-gradient(ellipse 90% 55% at 50% 0%,#000 0%,transparent 78%);}
+.glow{position:fixed;top:-280px;left:50%;transform:translateX(-50%);
+  width:1000px;height:620px;border-radius:50%;z-index:0;pointer-events:none;
+  background:radial-gradient(closest-side,rgba(29,78,216,.30),transparent 72%);filter:blur(30px);}
+
+header{position:sticky;top:0;z-index:80;
+  background:rgba(5,8,15,.78);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);}
+.nav{max-width:var(--maxw);margin:0 auto;padding:.85rem 1.25rem;
+  display:flex;align-items:center;gap:1rem;}
+.brand{display:flex;align-items:center;gap:.55rem;color:var(--text);font-weight:700;letter-spacing:-.01em}
+.brand img{border-radius:7px}
+.nav .spacer{flex:1}
+.btn{display:inline-flex;align-items:center;gap:.4rem;
+  padding:.55rem .95rem;border-radius:10px;font-family:var(--font-mono);
+  font-size:.8rem;font-weight:500;letter-spacing:.03em;color:#fff;
+  background:var(--grad-cta);box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 8px 22px -8px rgba(37,99,235,.55);}
+.btn:hover{text-decoration:none;transform:translateY(-1px)}
+
+main{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:2.6rem 1.25rem 5rem}
+.eyebrow{display:inline-block;font-family:var(--font-mono);font-size:.68rem;
+  letter-spacing:.14em;text-transform:uppercase;color:var(--sky);
+  background:rgba(59,130,246,.16);border:1px solid rgba(125,211,252,.24);
+  border-radius:999px;padding:.32rem .85rem;margin-bottom:1.1rem}
+h1{font-size:clamp(1.9rem,4vw,2.8rem);line-height:1.05;letter-spacing:-.03em;font-weight:750}
+h1 .lens{background:linear-gradient(92deg,#BAE6FD,#60A5FA 45%,#38BDF8);
+  -webkit-background-clip:text;background-clip:text;color:transparent;font-style:italic}
+.lede{color:var(--muted);font-size:1.05rem;max-width:64ch;margin:.9rem 0 0}
+h2{margin:3rem 0 .3rem;font-size:1.35rem;letter-spacing:-.02em;font-weight:700}
+h2 .num{font-family:var(--font-mono);font-size:.85rem;color:var(--sky);margin-right:.6rem}
+h3{margin:1.7rem 0 .3rem;font-size:1rem;font-family:var(--font-mono);color:var(--ice);font-weight:500}
+p{color:var(--muted);margin:.5rem 0}
+p b,li b{color:var(--text);font-weight:600}
+code{font-family:var(--font-mono);font-size:.85em;background:rgba(125,211,252,.08);
+  padding:.1rem .35rem;border-radius:5px;color:var(--ice)}
+pre{margin:.7rem 0;background:#070C16;border:1px solid var(--line);border-radius:12px;
+  padding:1rem 1.1rem;overflow-x:auto;box-shadow:0 20px 50px -30px rgba(2,6,18,.9)}
+pre code{background:none;padding:0;font-size:.8rem;line-height:1.6;color:#E9EFF8}
+.filename{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.06em;
+  text-transform:uppercase;color:var(--faint);margin:.9rem 0 -.2rem}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;
+  padding:1.4rem 1.5rem;margin:1.1rem 0}
+.formats{display:flex;flex-wrap:wrap;gap:.5rem;margin:1rem 0 0}
+.chip{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.04em;
+  padding:.32rem .75rem;border:1px solid var(--line-soft);border-radius:999px;
+  background:rgba(13,22,38,.6);color:var(--muted)}
+.chip b{color:var(--sky);font-weight:500}
+.note{border-left:3px solid var(--gold);padding:.5rem 0 .5rem 1rem;margin:1rem 0;
+  color:var(--muted);font-size:.92rem;background:rgba(252,211,77,.05);border-radius:0 8px 8px 0}
+.drop{margin-top:2.4rem;text-align:center;padding:2rem;border:1px dashed rgba(125,211,252,.3);border-radius:16px}
+.drop .btn{font-size:.9rem;padding:.7rem 1.3rem}
+footer{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;
+  padding:2rem 1.25rem 3rem;border-top:1px solid var(--line);
+  display:flex;gap:1.2rem;flex-wrap:wrap;color:var(--faint);font-size:.85rem}
+footer a{color:var(--muted)}
+ul{margin:.4rem 0 .4rem 1.2rem;color:var(--muted)}
+li{margin:.25rem 0}
+</style>
+</head>
+<body>
+<div class="grid" aria-hidden="true"></div>
+<div class="glow" aria-hidden="true"></div>
+
+<header>
+  <div class="nav">
+    <a class="brand" href="/"><img src="/widescope-logo.svg" alt="" width="26" height="26" />WideScope</a>
+    <span class="spacer"></span>
+    <a href="/">Home</a>
+    <a class="btn" href="/editor/">Open the editor ↗</a>
+  </div>
+</header>
+
+<main>
+  <div class="eyebrow">docs · trace.export</div>
+  <h1>How do I get a <span class="lens">trace file?</span></h1>
+  <p class="lede">
+    WideScope reads a JSON trace you already have. The friction is <b>producing one</b>.
+    Below are copy-paste recipes to export a trace from the common LLM stacks, then just
+    <b>drag the file into the editor</b> — it's parsed in your browser and never uploaded.
+  </p>
+  <div class="formats">
+    <span class="chip"><b>OTLP</b> resourceSpans</span>
+    <span class="chip"><b>Jaeger</b> data[].spans</span>
+    <span class="chip"><b>OpenInference</b> spans</span>
+  </div>
+
+  <div class="card">
+    <h3>The 3 shared lines every Python recipe uses</h3>
+    <p>Each SDK below reuses one tiny exporter that writes an OTLP-JSON file WideScope can open.
+      Drop this next to your script as <code>write_otlp.py</code>:</p>
+    <p class="filename">write_otlp.py</p>
+<pre><code>import json
+from google.protobuf.json_format import MessageToDict
+from opentelemetry.exporter.otlp.proto.common.trace_encoder import encode_spans
+from opentelemetry.sdk.trace.export import SpanExporter, SpanExportResult
+
+
+class OtlpJsonFileExporter(SpanExporter):
+    """Write all collected spans to a single OTLP-JSON file."""
+
+    def __init__(self, path: str = "trace.json") -> None:
+        self.path = path
+        self._spans: list = []
+
+    def export(self, spans) -> SpanExportResult:
+        self._spans.extend(spans)
+        payload = MessageToDict(encode_spans(self._spans))
+        with open(self.path, "w") as f:
+            json.dump(payload, f, indent=2)
+        return SpanExportResult.SUCCESS
+
+    def shutdown(self) -> None:
+        pass
+</code></pre>
+    <p>Wire it into a tracer once, before you call the model:</p>
+<pre><code>from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import SimpleSpanProcessor
+from write_otlp import OtlpJsonFileExporter
+
+provider = TracerProvider()
+provider.add_span_processor(SimpleSpanProcessor(OtlpJsonFileExporter("trace.json")))
+trace.set_tracer_provider(provider)
+</code></pre>
+    <p class="note">Every recipe below adds exactly <b>one</b> instrumentation line to this setup.
+      Install the shared bits with
+      <code>pip install opentelemetry-sdk opentelemetry-exporter-otlp-proto-common</code>.</p>
+  </div>
+
+  <h2><span class="num">01</span>OpenAI SDK</h2>
+  <p><code>pip install openinference-instrumentation-openai</code>, then instrument before your first request:</p>
+<pre><code>from openinference.instrumentation.openai import OpenAIInstrumentor
+OpenAIInstrumentor().instrument()
+
+# ... your normal OpenAI calls ...
+from openai import OpenAI
+OpenAI().chat.completions.create(
+    model="gpt-4o-mini",
+    messages=[{"role": "user", "content": "hello"}],
+)
+</code></pre>
+  <p>When the script exits, <code>trace.json</code> holds every prompt, completion, and token count. Drag it in.</p>
+
+  <h2><span class="num">02</span>Anthropic SDK</h2>
+  <p><code>pip install openinference-instrumentation-anthropic</code>:</p>
+<pre><code>from openinference.instrumentation.anthropic import AnthropicInstrumentor
+AnthropicInstrumentor().instrument()
+
+from anthropic import Anthropic
+Anthropic().messages.create(
+    model="claude-sonnet-5",
+    max_tokens=256,
+    messages=[{"role": "user", "content": "hello"}],
+)
+</code></pre>
+
+  <h2><span class="num">03</span>LangChain / LangGraph</h2>
+  <p><code>pip install openinference-instrumentation-langchain</code>. One instrumentor covers chains,
+    agents, and LangGraph nodes:</p>
+<pre><code>from openinference.instrumentation.langchain import LangChainInstrumentor
+LangChainInstrumentor().instrument()
+
+# ... build and .invoke() your chain / graph as usual ...
+</code></pre>
+  <p>Each chain step, tool call, and LLM span lands in <code>trace.json</code> as a nested waterfall.</p>
+
+  <h2><span class="num">04</span>Generic OpenTelemetry collector → JSON file</h2>
+  <p>Language-agnostic. If your app already exports OTLP over the wire, point it at a local
+    collector whose <b>file exporter</b> writes the trace to disk. No code changes.</p>
+  <p class="filename">otel-collector-config.yaml</p>
+<pre><code>receivers:
+  otlp:
+    protocols:
+      http:
+        endpoint: 0.0.0.0:4318
+
+exporters:
+  file:
+    path: ./trace.json
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      exporters: [file]
+</code></pre>
+  <p>Run the collector, then send your app's spans to it:</p>
+<pre><code>otelcol-contrib --config otel-collector-config.yaml
+
+# in your app's environment:
+export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
+</code></pre>
+  <p class="note">The file exporter writes <b>newline-delimited</b> OTLP JSON — one batch per line.
+    If your run produced several lines, drag a single line into WideScope (each line is a
+    complete <code>resourceSpans</code> document), or lower your batch settings so the whole
+    trace flushes at once.</p>
+
+  <div class="drop">
+    <p style="color:var(--text);font-size:1.05rem;margin-bottom:.9rem">Got a <code>trace.json</code>? Drop it in.</p>
+    <a class="btn" href="/editor/">Open the editor ↗</a>
+    <p style="font-size:.82rem;margin-top:.8rem">or <a href="/editor/?sample=1">try the built-in sample trace</a> first</p>
+  </div>
+</main>
+
+<footer>
+  <a href="/">← Back to home</a>
+  <a href="/editor/">Open the editor</a>
+  <a href="https://github.com/soumendrak/widescope" target="_blank" rel="noopener">GitHub</a>
+  <a href="https://github.com/soumendrak/widescope/issues" target="_blank" rel="noopener">Report an issue</a>
+</footer>
+</body>
+</html>

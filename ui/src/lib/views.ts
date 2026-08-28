@@ -4,6 +4,8 @@ export interface ViewTab {
   id: ViewName;
   label: string;
   glyph: string;
+  /** Only meaningful once more than one trace is loaded. */
+  multiTrace?: boolean;
 }
 
 /**
@@ -14,7 +16,7 @@ export interface ViewTab {
  *
  * Slot 3 swaps: a trace carrying LLM spans gets the Conversation transcript,
  * anything else keeps the Timeline. Five tabs either way — the plan's
- * guardrails forbid a sixth view.
+ * guardrails forbid a sixth view, so everything else lives in SECONDARY_VIEWS.
  *
  * Args:
  *   hasLlmSpans: Whether the loaded trace has any LLM spans.
@@ -34,9 +36,32 @@ export function viewTabs(hasLlmSpans: boolean): ViewTab[] {
   ];
 }
 
+/**
+ * The lenses that did not make the tab bar. Reachable from the overflow menu
+ * beside the tabs, from the 6-9 shortcuts, and from the command palette — a
+ * long tab strip was the thing the tab bar was capped to avoid, not these
+ * views themselves.
+ */
+export const SECONDARY_VIEWS: ViewTab[] = [
+  { id: 'agent', label: 'Agent flow', glyph: '⌥' },
+  { id: 'analytics', label: 'Trends', glyph: '▤' },
+  { id: 'matrix', label: 'Matrix', glyph: '⊞', multiTrace: true },
+  { id: 'dashboard', label: 'Dashboard', glyph: '▦', multiTrace: true },
+];
+
+/** Secondary lenses worth showing for the traces currently loaded. */
+export function secondaryViews(traceCount: number): ViewTab[] {
+  return SECONDARY_VIEWS.filter((v) => !v.multiTrace || traceCount > 1);
+}
+
 /** Just the ids, for shortcut indexing and slide-direction maths. */
 export function viewOrder(hasLlmSpans: boolean): ViewName[] {
   return viewTabs(hasLlmSpans).map((t) => t.id);
+}
+
+/** Tabs first, then the overflow lenses — the 1-9 shortcut order. */
+export function shortcutOrder(hasLlmSpans: boolean, traceCount = 1): ViewName[] {
+  return [...viewOrder(hasLlmSpans), ...secondaryViews(traceCount).map((v) => v.id)];
 }
 
 /**
@@ -54,6 +79,7 @@ export function viewOrder(hasLlmSpans: boolean): ViewName[] {
 export function resolveView(view: ViewName, hasLlmSpans: boolean): ViewName {
   const order = viewOrder(hasLlmSpans);
   if (order.includes(view)) return view;
+  if (SECONDARY_VIEWS.some((v) => v.id === view)) return view;
   if (view === 'conversation' || view === 'timeline') return order[2];
   return order[0];
 }
@@ -61,6 +87,7 @@ export function resolveView(view: ViewName, hasLlmSpans: boolean): ViewName {
 /** Every view id that exists, regardless of which occupies slot 3 right now. */
 const ALL_VIEWS: ReadonlyArray<ViewName> = [
   'waterfall', 'flame', 'timeline', 'conversation', 'graph', 'diff',
+  'agent', 'analytics', 'matrix', 'dashboard',
 ];
 
 /** Narrow an untrusted string (localStorage, share link) to a ViewName. */

@@ -1,10 +1,15 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import type { FlameGraphLayout, FlameNode } from '../lib/types';
-  import { selectedSpanId, hoveredSpanId, focusedSpanId, searchResults, sliceStartNs, sliceEndNs } from '../stores/selection';
+  import { selectedSpanId, hoveredSpanId, focusedSpanId, searchResults, filteredSpanIds, sliceStartNs, sliceEndNs } from '../stores/selection';
   import { showCriticalPath, criticalPath, criticalPathIds } from '../stores/criticalPath';
   import type { CriticalPath } from '../lib/types';
   import { SERVICE_COLORS } from '../lib/palette';
+  import { annotations } from '../stores/annotations';
+
+  // Span ids that currently have a note; kept live so the marker appears the
+  // moment a note is added and updates across every view.
+  let noteIds = new Set<string>();
 
   export let layout: FlameGraphLayout;
 
@@ -39,6 +44,9 @@
   let canvasW = 0;
   let canvasH = 0;
   let visualMaxDepth = 0;
+  // Active toolbar-filter mask — non-matching nodes are dimmed like search misses.
+  let renderHasFilter = false;
+  let renderFilterSet = new Set<string>();
 
   // Live-region for screen reader announcements
   let ariaLive = '';
@@ -202,6 +210,8 @@
     const activeSearchResults = $searchResults;
     const hasSearch = activeSearchResults.length > 0;
     const searchMatchSet = new Set(activeSearchResults);
+    renderHasFilter = $filteredSpanIds.length > 0;
+    renderFilterSet = new Set($filteredSpanIds);
     const palette = getCanvasPalette();
 
     const sStart = $sliceStartNs;
@@ -306,12 +316,13 @@
     const minW = 1;
     const rw = Math.max(pw, minW);
     const isSearchMatch = !hasSearch || searchMatchSet.has(node.span_id);
+    const isFilterMatch = !renderHasFilter || renderFilterSet.has(node.span_id);
 
     const baseColor = heatmapMode
       ? heatmapColor(node)
       : (colorMap.get(node.color_key) ?? '#64748b');
     ctx!.save();
-    if (hasSearch && !isSearchMatch) {
+    if ((hasSearch && !isSearchMatch) || (renderHasFilter && !isFilterMatch)) {
       ctx!.globalAlpha = 0.22;
     }
     ctx!.fillStyle = baseColor;
@@ -352,6 +363,12 @@
       ctx!.strokeRect(px + 1, py + 1, rw - 2, ROW_HEIGHT - 3);
     }
 
+    if (node.safety_category) {
+      ctx!.strokeStyle = '#f87171';
+      ctx!.lineWidth = 2;
+      ctx!.strokeRect(px + 1, py + 1, rw - 2, ROW_HEIGHT - 3);
+    }
+
     if (node.is_llm && pw > 14) {
       ctx!.font = '10px sans-serif';
       ctx!.fillStyle = palette.codeText;
@@ -366,6 +383,19 @@
       ctx!.clip();
       ctx!.fillText(node.label, px + (node.is_llm ? 14 : 4), py + ROW_HEIGHT - 7);
       ctx!.restore();
+    }
+
+    // Red note marker — a filled dot in the top-right corner, always full
+    // opacity so it stays visible even on dimmed/filtered spans.
+    if (noteIds.has(node.span_id)) {
+      ctx!.globalAlpha = 1;
+      ctx!.beginPath();
+      ctx!.arc(px + rw - 4.5, py + 4.5, 3, 0, Math.PI * 2);
+      ctx!.fillStyle = '#f87171';
+      ctx!.fill();
+      ctx!.lineWidth = 1;
+      ctx!.strokeStyle = 'rgba(2, 6, 18, 0.85)';
+      ctx!.stroke();
     }
     ctx!.restore();
   }
@@ -385,7 +415,8 @@
     if (node.span_id === sel || node.span_id === hov || node.span_id === foc) return true;
     if (hasSearch && searchMatchSet.has(node.span_id)) return true;
     if ($showCriticalPath && $criticalPathIds.has(node.span_id)) return true;
-    if (node.is_error || node.is_llm) return true;
+    if (node.is_error || node.is_llm || node.safety_category) return true;
+    if (noteIds.has(node.span_id)) return true;
 
     return !(node.width < TINY_SPAN_TOTAL_RATIO && pw < TINY_SPAN_PIXEL_WIDTH);
   }
@@ -707,12 +738,19 @@
     scheduleRender();
   });
   const unsubSearch = searchResults.subscribe(() => scheduleRender());
+  const unsubFilter = filteredSpanIds.subscribe(() => scheduleRender());
+  const unsubNotes = annotations.subscribe((a) => {
+    noteIds = new Set(Object.keys(a));
+    scheduleRender();
+  });
 
   onDestroy(() => {
     unsubSel();
     unsubHov();
     unsubFoc();
     unsubSearch();
+    unsubFilter();
+    unsubNotes();
     cancelAnimationFrame(animFrameId);
   });
 

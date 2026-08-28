@@ -129,6 +129,7 @@ fn parse_single_span(raw: &Value) -> Result<Span, String> {
         attributes,
         events,
         llm: None,
+        safety: Vec::new(),
     })
 }
 

@@ -17,7 +17,17 @@ export interface InitResult {
   warnings: ParseWarning[];
 }
 
-export type ViewName = 'flame' | 'timeline' | 'conversation' | 'waterfall' | 'graph' | 'diff';
+export type ViewName =
+  | 'waterfall'
+  | 'flame'
+  | 'timeline'
+  | 'conversation'
+  | 'graph'
+  | 'diff'
+  | 'agent'
+  | 'analytics'
+  | 'matrix'
+  | 'dashboard';
 
 export interface TraceSummary {
   trace_id: string;
@@ -43,6 +53,15 @@ export interface FlameGraphLayout {
   trace_duration_display: string;
 }
 
+export type SafetyCategory = 'pii' | 'jailbreak' | 'refusal' | 'content_policy';
+export type SafetySeverity = 'low' | 'medium' | 'high';
+
+export interface SafetySignal {
+  category: SafetyCategory;
+  severity: SafetySeverity;
+  detail: string;
+}
+
 export interface FlameNode {
   span_id: string;
   label: string;
@@ -52,6 +71,7 @@ export interface FlameNode {
   color_key: string;
   is_error: boolean;
   is_llm: boolean;
+  safety_category: SafetyCategory | null;
   duration_ns: number;
   self_time_ns: number;
   duration_display: string;
@@ -74,6 +94,7 @@ export interface TimelineBlock {
   row_index: number;
   is_error: boolean;
   is_llm: boolean;
+  safety_category: SafetyCategory | null;
   duration_ns: number;
   duration_display: string;
 }
@@ -102,6 +123,7 @@ export interface SpanDetail {
   attributes: [string, string][];
   events: EventDetail[];
   llm: LlmDetail | null;
+  safety: SafetySignal[];
   children_ids: string[];
 }
 
@@ -123,6 +145,7 @@ export interface WaterfallRow {
   color_key: string;
   is_error: boolean;
   is_llm: boolean;
+  safety_category: SafetyCategory | null;
   has_children: boolean;
   duration_ns: number;
   duration_display: string;
@@ -158,6 +181,33 @@ export interface GraphEdge {
   total_duration_display: string;
 }
 
+export interface AgentFlowNode {
+  span_id: string;
+  label: string;
+  kind: 'agent' | 'tool' | 'chain' | 'retrieval' | 'llm';
+  tool_name: string | null;
+  status: string;
+  duration_ns: number;
+  duration_display: string;
+  layer: number;
+  order: number;
+  iteration: number | null;
+  arguments: string | null;
+  result: string | null;
+  detail: string | null;
+}
+
+export interface AgentFlowEdge {
+  source: string;
+  target: string;
+  kind: 'spawn' | 'sequence';
+}
+
+export interface AgentFlow {
+  nodes: AgentFlowNode[];
+  edges: AgentFlowEdge[];
+}
+
 export interface ServiceGraph {
   nodes: GraphNode[];
   edges: GraphEdge[];
@@ -172,6 +222,16 @@ export interface ComparisonSummary {
   error_count: number;
   llm_span_count: number;
   trace_id: string;
+}
+
+export interface ComparisonMatrix {
+  traces: { name: string; trace_id: string }[];
+  rows: {
+    label: string;
+    lower_is_better: boolean | null;
+    values: number[];
+    display: string[];
+  }[];
 }
 
 export interface CriticalPath {
@@ -198,6 +258,91 @@ export interface CostBreakdown {
   total_output_tokens: number;
 }
 
+export interface TokenGroup {
+  name: string;
+  input_tokens: number;
+  output_tokens: number;
+  total_tokens: number;
+  cost_usd: number;
+  span_count: number;
+}
+
+export interface TraceTokens {
+  name: string;
+  trace_id: string;
+  input_tokens: number;
+  output_tokens: number;
+  total_tokens: number;
+  cost_usd: number;
+  llm_span_count: number;
+}
+
+export interface TokenTrends {
+  per_model: TokenGroup[];
+  per_service: TokenGroup[];
+  per_trace: TraceTokens[];
+  total_input_tokens: number;
+  total_output_tokens: number;
+  total_tokens: number;
+  total_cost_usd: number;
+  trace_count: number;
+}
+
+export interface DashboardRow {
+  name: string;
+  trace_id: string;
+  detected_format: string;
+  span_count: number;
+  service_count: number;
+  error_count: number;
+  llm_span_count: number;
+  total_duration_ns: number;
+  total_duration_display: string;
+  latency_p95_display: string;
+  cost_usd: number;
+  root_service: string | null;
+  has_errors: boolean;
+}
+
+export interface ServiceFrequency {
+  name: string;
+  trace_count: number;
+}
+
+export interface Dashboard {
+  rows: DashboardRow[];
+  trace_count: number;
+  total_spans: number;
+  total_errors: number;
+  total_llm_spans: number;
+  total_cost_usd: number;
+  avg_duration_ns: number;
+  avg_duration_display: string;
+  top_services: ServiceFrequency[];
+}
+
+export interface SessionGroup {
+  /** null when no session attribute was found (standalone trace). */
+  session_id: string | null;
+  /** Indices into the trace list (positions in the UI dropdown order). */
+  trace_indices: number[];
+  trace_names: string[];
+  trace_count: number;
+  span_count: number;
+  llm_span_count: number;
+  error_count: number;
+  total_cost_usd: number;
+  total_duration_ns: number;
+  total_duration_display: string;
+}
+
+export interface SessionGroups {
+  groups: SessionGroup[];
+  /** Number of multi-trace sessions; 0 means the UI keeps a flat list. */
+  session_count: number;
+  standalone_count: number;
+}
+
 export interface LlmDetail {
   operation_type: string;
   model_name: string | null;
@@ -211,10 +356,18 @@ export interface LlmDetail {
   output_messages: { role: string; content: string | null }[];
   tool_calls: { name: string; arguments: string | null; result: string | null }[];
   retrieved_documents: RetrievedDocument[];
+  eval_scores: EvalScore[];
 }
 
 export interface RetrievedDocument {
   id: string | null;
   score: number | null;
   content_snippet: string | null;
+}
+
+export interface EvalScore {
+  name: string;
+  value: number;
+  threshold: number | null;
+  passed: boolean | null;
 }

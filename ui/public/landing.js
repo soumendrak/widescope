@@ -1,22 +1,4 @@
 /*
- * Landing-page behaviour. Lives in its own file, never inline: a
- * script-blocking CSP silently killed the inline version in Cloudflare
- * production, and every section was invisible because the reveal animation
- * had not run. Content is now visible by default (see `.reveal` in the page
- * CSS) and this file only *adds* motion — if it never loads, the page still
- * reads correctly.
- */
-// Legacy share links pointed at the site root (/?trace=…, /#trace=…, ?embed=1).
-// The viewer now lives at /editor/ — forward any trace-bearing URL there intact.
-(function () {
-  var s = location.search, h = location.hash;
-  if (/[?&](trace|view|span|embed|sample)=/.test(s) || /[#&](trace|view|span)=/.test(h)) {
-    location.replace('/editor/' + s + h);
-  }
-})();
-
-
-/*
  * Theme. Shares the editor's storage key so crossing / -> /editor/ keeps the
  * same look; the dark-default resolution matches lib/theme.ts.
  */
@@ -46,9 +28,13 @@ document.documentElement.classList.add('js-motion');
   "use strict";
   const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ----- header state ----- */
+  /* ----- header state + scroll-to-top floater ----- */
   const hdr = document.getElementById("hdr");
-  const onScrollHdr = () => hdr.classList.toggle("scrolled", scrollY > 24);
+  const toTop = document.getElementById("toTop");
+  const onScrollHdr = () => {
+    hdr.classList.toggle("scrolled", scrollY > 24);
+    toTop.classList.toggle("show", scrollY > innerHeight * 0.6);
+  };
   addEventListener("scroll", onScrollHdr, {passive:true}); onScrollHdr();
 
   /* ----- scroll ruler: the page is a 2,400 ms trace ----- */
@@ -94,17 +80,48 @@ document.documentElement.classList.add('js-motion');
     iio.observe(insp);
   }
 
-  /* ----- hero tabs: flame <-> timeline (replays build animation) ----- */
+  /* ----- hero tabs: flame / timeline / waterfall / graph -----
+     pinned scope advances views with scroll; clicking a tab scrolls to it. */
   const tabs = document.querySelectorAll(".tab");
   const lyrs = document.querySelectorAll(".lyr");
-  tabs.forEach(tab => tab.addEventListener("click", () => {
-    tabs.forEach(t => { t.classList.toggle("on", t === tab); t.setAttribute("aria-selected", t === tab); });
+  const pin = document.querySelector(".pinwrap");
+  const views = Array.from(tabs).map(t => t.dataset.view);
+  let current = null;
+  function setView(view){
+    if(view === current) return;
+    current = view;
+    tabs.forEach(t => { const on = t.dataset.view === view; t.classList.toggle("on", on); t.setAttribute("aria-selected", on); });
     lyrs.forEach(l => {
-      const on = l.dataset.lyr === tab.dataset.view;
+      const on = l.dataset.lyr === view;
       l.classList.toggle("off", !on);
       l.classList.remove("act");
       if(on){ void l.offsetWidth; l.classList.add("act"); } // reflow → replay cascade
     });
+  }
+  setView("flame");
+
+  // pinning only kicks in on wider, motion-OK viewports (matches CSS)
+  const pinned = () => pin && pin.offsetHeight > innerHeight * 1.5 && !reduced;
+
+  let viewRAF = null;
+  const onScrollViews = () => {
+    if(viewRAF || !pinned()) return;
+    viewRAF = requestAnimationFrame(() => {
+      viewRAF = null;
+      const span = pin.offsetHeight - innerHeight;       // scrollable distance while pinned
+      const p = Math.min(1, Math.max(0, -pin.getBoundingClientRect().top / span));
+      setView(views[Math.min(views.length - 1, Math.floor(p * views.length))]);
+    });
+  };
+  addEventListener("scroll", onScrollViews, {passive:true}); onScrollViews();
+
+  tabs.forEach((tab, i) => tab.addEventListener("click", () => {
+    if(pinned()){
+      const span = pin.offsetHeight - innerHeight;
+      scrollTo({ top: pin.offsetTop + (i + 0.5) / views.length * span, behavior: reduced ? "auto" : "smooth" });
+    } else {
+      setView(tab.dataset.view);
+    }
   }));
 
   /* ----- span tooltip ----- */
@@ -175,15 +192,48 @@ document.documentElement.classList.add('js-motion');
     });
   }
 
-  /* ----- cursor glow on cards ----- */
+  /* ----- cursor glow + 3D tilt on cards ----- */
+  const tilt3d = matchMedia("(pointer:fine)").matches && !reduced;
   document.querySelectorAll(".card, .zero").forEach(c => {
     c.addEventListener("mousemove", e => {
       const r = c.getBoundingClientRect();
-      c.style.setProperty("--mx", (e.clientX - r.left) + "px");
-      c.style.setProperty("--my", (e.clientY - r.top) + "px");
+      const x = e.clientX - r.left, y = e.clientY - r.top;
+      c.style.setProperty("--mx", x + "px");
+      c.style.setProperty("--my", y + "px");
+      if(tilt3d){
+        c.style.setProperty("--cry", ((x / r.width - .5) * 7).toFixed(2) + "deg");
+        c.style.setProperty("--crx", ((.5 - y / r.height) * 6).toFixed(2) + "deg");
+      }
+    });
+    c.addEventListener("mouseleave", () => {
+      c.style.setProperty("--crx", "0deg");
+      c.style.setProperty("--cry", "0deg");
     });
   });
 
+  /* ----- 3D tilt on the hero scope: flattens as it centers, steers with the pointer ----- */
+  const scope3d = document.querySelector(".scope");
+  if(scope3d && tilt3d){
+    let px = 0, py = 0, raf3d = null;
+    const apply3d = () => {
+      raf3d = null;
+      const r = scope3d.getBoundingClientRect();
+      const c = (r.top + r.height / 2 - innerHeight / 2) / innerHeight; // 0 = vertically centered
+      const sx = Math.max(-4, Math.min(12, c * 16));
+      scope3d.style.setProperty("--rx", (sx + py).toFixed(2) + "deg");
+      scope3d.style.setProperty("--ry", px.toFixed(2) + "deg");
+    };
+    const queue3d = () => { if(!raf3d) raf3d = requestAnimationFrame(apply3d); };
+    addEventListener("scroll", queue3d, {passive:true});
+    scope3d.addEventListener("mousemove", e => {
+      const r = scope3d.getBoundingClientRect();
+      px = ((e.clientX - r.left) / r.width - .5) * 6;
+      py = (.5 - (e.clientY - r.top) / r.height) * 5;
+      queue3d();
+    });
+    scope3d.addEventListener("mouseleave", () => { px = 0; py = 0; queue3d(); });
+    apply3d();
+  }
+
   document.getElementById("yr").textContent = new Date().getFullYear();
 })();
-

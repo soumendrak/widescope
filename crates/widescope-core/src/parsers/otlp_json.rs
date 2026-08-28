@@ -177,6 +177,7 @@ fn parse_single_span(raw: &Value, service_name: &str) -> Result<Span, String> {
         attributes,
         events,
         llm: None,
+        safety: Vec::new(),
     })
 }
 
@@ -345,4 +346,49 @@ fn parse_events(events: &[Value]) -> Vec<SpanEvent> {
             })
         })
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_sample_pipeline_fixture() {
+        let path = concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../test-fixtures/otlp/sample_llm_pipeline.json"
+        );
+        let raw = std::fs::read_to_string(path).expect("fixture file should exist");
+        let value: Value = serde_json::from_str(&raw).expect("fixture should be valid JSON");
+
+        let result = parse_otlp_with_warnings(&value).expect("should parse sample pipeline");
+
+        assert_eq!(result.spans.len(), 7);
+
+        let services: std::collections::HashSet<_> =
+            result.spans.iter().map(|s| s.service_name.as_str()).collect();
+        assert_eq!(services.len(), 3, "gateway, rag-retriever, llm-service");
+
+        // The `chat` LLM span carries gen_ai token usage (raw attrs; resolution
+        // into Span.llm happens later in the pipeline).
+        let chat = result
+            .spans
+            .iter()
+            .find(|s| s.operation_name == "chat")
+            .expect("chat span present");
+        assert!(matches!(
+            chat.attributes.get("gen_ai.usage.input_tokens"),
+            Some(AttributeValue::Int(_))
+        ));
+
+        // Exactly one root (POST /api/chat has no in-trace parent).
+        let roots = result.spans.iter().filter(|s| s.parent_span_id.is_none()).count();
+        assert_eq!(roots, 1);
+    }
+
+    #[test]
+    fn rejects_non_otlp_shape() {
+        let value = serde_json::json!({"not": "otlp"});
+        assert!(parse_otlp(&value).unwrap_or_default().is_empty());
+    }
 }

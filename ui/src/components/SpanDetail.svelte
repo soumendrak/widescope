@@ -7,9 +7,12 @@
   import type { SpanDetail, LlmDetail } from '../lib/types';
   import RetrievedDocumentsPanel from './RetrievedDocumentsPanel.svelte';
   import Icon from './ui/Icon.svelte';
+  import EvalPanel from './EvalPanel.svelte';
+  import LlmChatReplay from './LlmChatReplay.svelte';
 
   let detail: SpanDetail | null = null;
   let loading = false;
+  let llmView: 'chat' | 'raw' = 'chat';
   let expandedAttrs = false;
   let expandedEvents = false;
   let sidebar: HTMLElement;
@@ -205,32 +208,42 @@
           {#if llm.temperature !== null}
             <div class="kv-inline"><span>Temp</span><span>{llm.temperature}</span></div>
           {/if}
-          {#if llm.input_messages.length > 0}
-            <div class="msg-group">
-              <div class="msg-label">Prompt</div>
-              {#each llm.input_messages as m}
-                <div class="message"><span class="role">{m.role}</span><span class="content">{m.content ?? ''}</span></div>
-              {/each}
+          {#if llm.input_messages.length > 0 || llm.output_messages.length > 0 || llm.tool_calls.length > 0}
+            <div class="llm-view-toggle" role="tablist" aria-label="LLM message view">
+              <button type="button" role="tab" class:active={llmView === 'chat'} aria-selected={llmView === 'chat'} on:click={() => (llmView = 'chat')}>Chat</button>
+              <button type="button" role="tab" class:active={llmView === 'raw'} aria-selected={llmView === 'raw'} on:click={() => (llmView = 'raw')}>Raw</button>
             </div>
-          {/if}
-          {#if llm.output_messages.length > 0}
-            <div class="msg-group">
-              <div class="msg-label">Completion</div>
-              {#each llm.output_messages as m}
-                <div class="message"><span class="role">{m.role}</span><span class="content">{m.content ?? ''}</span></div>
-              {/each}
-            </div>
-          {/if}
-          {#if llm.tool_calls.length > 0}
-            <div class="msg-group">
-              <div class="msg-label">Tool calls ({llm.tool_calls.length})</div>
-              {#each llm.tool_calls as tc}
-                <div class="tool-call">
-                  <div class="tool-name">{tc.name}</div>
-                  {#if tc.arguments}<div class="tool-args">{tc.arguments}</div>{/if}
+            {#if llmView === 'chat'}
+              <LlmChatReplay {llm} />
+            {:else}
+              {#if llm.input_messages.length > 0}
+                <div class="msg-group">
+                  <div class="msg-label">Prompt</div>
+                  {#each llm.input_messages as m}
+                    <div class="message"><span class="role">{m.role}</span><span class="content">{m.content ?? ''}</span></div>
+                  {/each}
                 </div>
-              {/each}
-            </div>
+              {/if}
+              {#if llm.output_messages.length > 0}
+                <div class="msg-group">
+                  <div class="msg-label">Completion</div>
+                  {#each llm.output_messages as m}
+                    <div class="message"><span class="role">{m.role}</span><span class="content">{m.content ?? ''}</span></div>
+                  {/each}
+                </div>
+              {/if}
+              {#if llm.tool_calls.length > 0}
+                <div class="msg-group">
+                  <div class="msg-label">Tool calls ({llm.tool_calls.length})</div>
+                  {#each llm.tool_calls as tc}
+                    <div class="tool-call">
+                      <div class="tool-name">{tc.name}</div>
+                      {#if tc.arguments}<div class="tool-args">{tc.arguments}</div>{/if}
+                    </div>
+                  {/each}
+                </div>
+              {/if}
+            {/if}
           {/if}
           {#if llm.retrieved_documents.length > 0}
             <div class="msg-group">
@@ -238,12 +251,35 @@
               <RetrievedDocumentsPanel documents={llm.retrieved_documents} />
             </div>
           {/if}
+          {#if llm.eval_scores.length > 0}
+            <div class="msg-group">
+              <div class="msg-label">Evaluation scores ({llm.eval_scores.length})</div>
+              <EvalPanel scores={llm.eval_scores} />
+            </div>
+          {/if}
+        </div>
+      {/if}
+
+      <!-- Safety signals -->
+      {#if detail.safety.length > 0}
+        <div class="section safety-section">
+          <div class="section-title"><span class="safety-sq" aria-hidden="true"></span> Safety · {detail.safety.length} signal{detail.safety.length === 1 ? '' : 's'}</div>
+          {#each detail.safety as sig}
+            <div class="safety-row safety-row--{sig.severity}">
+              <span class="safety-cat">{sig.category.replace('_', ' ')}</span>
+              <span class="safety-sev">{sig.severity}</span>
+              <span class="safety-detail">{sig.detail}</span>
+            </div>
+          {/each}
         </div>
       {/if}
 
       <!-- Annotations -->
       <div class="section annotation-section">
-        <div class="section-title"><Icon name="note" size={11} /> Note</div>
+        <div class="section-title">
+          <Icon name="note" size={11} /> Note
+          {#if noteText.trim()}<span class="note-dot" title="This span has a note" aria-hidden="true"></span>{/if}
+        </div>
         <textarea
           class="annotation-input"
           placeholder="Add a note for this span…"
@@ -633,6 +669,35 @@
     letter-spacing: 0.06em;
   }
 
+  .llm-view-toggle {
+    display: inline-flex;
+    gap: 2px;
+    padding: 2px;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--color-border-soft, rgba(125, 211, 252, 0.07));
+    border-radius: 7px;
+    background: color-mix(in srgb, var(--color-canvas-bg, #070c16) 60%, transparent);
+  }
+
+  .llm-view-toggle button {
+    background: none;
+    border: 0;
+    border-radius: 5px;
+    padding: 0.2rem 0.7rem;
+    cursor: pointer;
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted, #9aa8bd);
+    transition: background 0.15s var(--ease-spring, ease), color 0.15s var(--ease-spring, ease);
+  }
+
+  .llm-view-toggle button.active {
+    background: var(--color-llm-badge-bg, rgba(245, 158, 11, 0.16));
+    color: var(--color-gold, #fcd34d);
+  }
+
   .token-row {
     display: flex;
     gap: 0.5rem;
@@ -780,7 +845,75 @@
     white-space: pre-wrap;
   }
 
+  /* Safety — red, distinct from LLM amber */
+  .safety-section {
+    background: color-mix(in srgb, var(--color-danger, #f87171) 7%, transparent);
+    border-left: 2px solid color-mix(in srgb, var(--color-danger, #f87171) 55%, transparent);
+  }
+
+  .safety-section .section-title { color: var(--color-danger, #f87171); }
+
+  .safety-sq {
+    width: 12px;
+    height: 7px;
+    border-radius: 2px;
+    background: var(--color-danger, #f87171);
+    flex: none;
+  }
+
+  .safety-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 0.3rem 0;
+    border-bottom: 1px dashed var(--color-border-soft, rgba(125, 211, 252, 0.07));
+  }
+
+  .safety-row:last-child { border-bottom: none; }
+
+  .safety-cat {
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-danger, #f87171);
+  }
+
+  .safety-sev {
+    font-family: var(--font-mono);
+    font-size: 0.58rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    border: 1px solid currentColor;
+    color: var(--color-text-muted, #94a3b8);
+  }
+
+  .safety-row--high .safety-sev { color: var(--color-danger, #f87171); }
+  .safety-row--medium .safety-sev { color: var(--color-amber, #f59e0b); }
+  .safety-row--low .safety-sev { color: var(--color-text-muted, #94a3b8); }
+
+  .safety-detail {
+    flex-basis: 100%;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-code-muted, #b9c5d8);
+    word-break: break-word;
+  }
+
   .annotation-section { background: var(--color-panel-highlight, rgba(255, 255, 255, 0.04)); }
+
+  .note-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--color-danger, #f87171);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger, #f87171) 22%, transparent);
+    flex: none;
+  }
 
   .annotation-input {
     width: 100%;

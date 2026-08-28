@@ -25,7 +25,11 @@ const VIEW_NAMES: ReadonlyArray<ViewName> = [
   'conversation',
   'waterfall',
   'graph',
+  'agent',
   'diff',
+  'analytics',
+  'matrix',
+  'dashboard',
 ];
 
 /**
@@ -37,20 +41,37 @@ export const MAX_SHARE_DATA_CHARS = 32_000;
 export interface PermalinkState {
   /** base64url gzip blob from `#trace=` — still encoded; decode with decodeTrace. */
   traceData: string | null;
-  /** Remote trace URL from `?trace=` in the query string. */
+  /** Remote trace URL from `?trace=`, or one built from `?trace_id=&source=&url=`. */
   traceUrl: string | null;
   /** Initial view, if a valid one was supplied. */
   view: ViewName | null;
   /** Span id to pre-select. */
   spanId: string | null;
+  /** Span notes carried with the trace (span id → text), or null. */
+  notes: Record<string, string> | null;
+}
+
+/**
+ * Build the fetch URL for a trace held by an OpenTelemetry backend.
+ *
+ * Jaeger and Tempo both serve a single trace at `GET {base}/api/traces/{id}` —
+ * Jaeger replies with Jaeger JSON and Tempo with OTLP JSON, both of which
+ * WideScope already parses, so no backend-specific decoding is needed.
+ *
+ * ponytail: Axiom skipped — it needs an API token + dataset query, which can't
+ * ride in a shareable URL. Add a connector when someone actually asks for it.
+ */
+function backendTraceUrl(source: string, base: string, traceId: string): string | null {
+  if (source !== 'jaeger' && source !== 'tempo') return null;
+  return `${base.replace(/\/+$/, '')}/api/traces/${encodeURIComponent(traceId)}`;
 }
 
 export interface ShareUrlResult {
   /** The shareable URL. Still returned when `tooLarge` so the caller can decide. */
   url: string;
-  /** Length of the encoded trace blob, in characters. */
+  /** Combined length of the embedded payload (trace blob + notes), in characters. */
   dataChars: number;
-  /** True when the blob exceeds {@link MAX_SHARE_DATA_CHARS}. */
+  /** True when the payload exceeds {@link MAX_SHARE_DATA_CHARS}. */
   tooLarge: boolean;
 }
 
@@ -134,6 +155,23 @@ export async function decodeTrace(encoded: string): Promise<string> {
   return decompressShare(bytes);
 }
 
+/** Decode a `notes=` param (base64url JSON) into a span-id → text map, or null. */
+function decodeNotes(value: string | null): Record<string, string> | null {
+  if (!value) return null;
+  try {
+    const json = new TextDecoder().decode(base64UrlToBytes(value));
+    const parsed = JSON.parse(json) as unknown;
+    if (!parsed || typeof parsed !== 'object') return null;
+    const result: Record<string, string> = {};
+    for (const [id, text] of Object.entries(parsed as Record<string, unknown>)) {
+      if (typeof text === 'string' && text.trim()) result[id] = text;
+    }
+    return Object.keys(result).length ? result : null;
+  } catch {
+    return null;
+  }
+}
+
 function coerceView(value: string | null): ViewName | null {
   return value !== null && VIEW_NAMES.includes(value as ViewName)
     ? (value as ViewName)
@@ -155,11 +193,18 @@ export function parsePermalink(href: string = window.location.href): PermalinkSt
   const query = url.searchParams;
   const pick = (key: string): string | null => hash.get(key) ?? query.get(key);
 
+  const traceId = query.get('trace_id');
+  const source = query.get('source');
+  const collector = query.get('url') ?? query.get('collector');
+  const byId =
+    traceId && source && collector ? backendTraceUrl(source, collector, traceId) : null;
+
   return {
     traceData: hash.get('trace'),
-    traceUrl: query.get('trace'),
+    traceUrl: query.get('trace') ?? byId,
     view: coerceView(pick('view')),
     spanId: pick('span'),
+    notes: decodeNotes(hash.get('notes')),
   };
 }
 
@@ -173,6 +218,7 @@ function defaultBaseUrl(): string {
  * @param opts.json    Raw trace JSON to embed.
  * @param opts.view    View mode to restore.
  * @param opts.spanId  Span to pre-select, or null.
+ * @param opts.notes   Span notes to carry (span id → text); empty ones are dropped.
  * @param opts.baseUrl Base URL to build on; defaults to the current location.
  * @returns The URL plus a `tooLarge` flag the caller should check before sharing.
  */
@@ -180,6 +226,7 @@ export async function buildShareUrl(opts: {
   json: string;
   view: ViewName;
   spanId: string | null;
+  notes?: Record<string, string>;
   baseUrl?: string;
 }): Promise<ShareUrlResult> {
   const data = await encodeTrace(opts.json);
@@ -189,10 +236,21 @@ export async function buildShareUrl(opts: {
   if (opts.spanId) {
     params.set('span', opts.spanId);
   }
+  const notes = opts.notes
+    ? Object.fromEntries(Object.entries(opts.notes).filter(([, t]) => t.trim()))
+    : {};
+  let notesEncoded = '';
+  if (Object.keys(notes).length > 0) {
+    notesEncoded = bytesToBase64Url(new TextEncoder().encode(JSON.stringify(notes)));
+    params.set('notes', notesEncoded);
+  }
   const base = opts.baseUrl ?? defaultBaseUrl();
+  // Guard on the full embedded payload (trace + notes): a small trace with
+  // large notes can still blow past browser/chat URL limits.
+  const dataChars = data.length + notesEncoded.length;
   return {
     url: `${base}#${params.toString()}`,
-    dataChars: data.length,
-    tooLarge: data.length > MAX_SHARE_DATA_CHARS,
+    dataChars,
+    tooLarge: dataChars > MAX_SHARE_DATA_CHARS,
   };
 }

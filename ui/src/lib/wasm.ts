@@ -1,15 +1,20 @@
 import init, * as widescopeCore from '../../../crates/widescope-core/pkg/widescope_core';
 import { BUNDLED_CONVENTIONS, BUNDLED_PRICING } from './conventions-bundle';
 import type {
+  AgentFlow,
+  ComparisonMatrix,
   ComparisonSummary,
   CostBreakdown,
   CriticalPath,
+  Dashboard,
   FlameGraphLayout,
   InitResult,
   ParseWarning,
   ServiceGraph,
+  SessionGroups,
   SpanDetail,
   TimelineLayout,
+  TokenTrends,
   TraceSummary,
   WasmError,
   WaterfallLayout,
@@ -83,6 +88,7 @@ export interface SpanFilters {
   service?: string;
   kind?: string;
   llm_only?: boolean;
+  safety_only?: boolean;
 }
 
 export function filterSpans(filters: SpanFilters): string[] {
@@ -91,6 +97,12 @@ export function filterSpans(filters: SpanFilters): string[] {
     return [];
   }
   return JSON.parse(filterFn(JSON.stringify(filters))) as string[];
+}
+
+export function getAgentFlow(): AgentFlow {
+  const fn = (widescopeCore as { compute_agent_flow_layout?: () => string }).compute_agent_flow_layout;
+  if (!fn) return { nodes: [], edges: [] };
+  return JSON.parse(fn()) as AgentFlow;
 }
 
 export function getServiceGraph(): ServiceGraph {
@@ -103,6 +115,12 @@ export function parseComparisonTrace(raw: string): ComparisonSummary {
   const fn = (widescopeCore as { parse_comparison_trace?: (v: string) => string }).parse_comparison_trace;
   if (!fn) throw new Error('parse_comparison_trace not available');
   return JSON.parse(fn(raw)) as ComparisonSummary;
+}
+
+export function computeComparisonMatrix(entries: { name: string; json: string }[]): ComparisonMatrix {
+  const fn = (widescopeCore as { compute_comparison_matrix?: (v: string) => string }).compute_comparison_matrix;
+  if (!fn) throw new Error('compute_comparison_matrix not available');
+  return JSON.parse(fn(JSON.stringify(entries))) as ComparisonMatrix;
 }
 
 export function getComparisonFlamegraph(): FlameGraphLayout {
@@ -126,6 +144,36 @@ export function getCostBreakdown(): CostBreakdown | null {
   const fn = (widescopeCore as { get_cost_breakdown?: () => string }).get_cost_breakdown;
   if (!fn) return null;
   return JSON.parse(fn()) as CostBreakdown;
+}
+
+/** Aggregate token usage across the raw trace payloads the UI holds in its list. */
+export function computeTokenTrends(
+  traces: { name: string; json: string }[],
+): TokenTrends | null {
+  const fn = (widescopeCore as { compute_token_trends?: (s: string) => string })
+    .compute_token_trends;
+  if (!fn) return null;
+  return JSON.parse(fn(JSON.stringify(traces))) as TokenTrends;
+}
+
+/** Compute an at-a-glance dashboard across the raw trace payloads in the UI's list. */
+export function computeDashboard(
+  traces: { name: string; json: string }[],
+): Dashboard | null {
+  const fn = (widescopeCore as { compute_dashboard?: (s: string) => string })
+    .compute_dashboard;
+  if (!fn) return null;
+  return JSON.parse(fn(JSON.stringify(traces))) as Dashboard;
+}
+
+/** Group the UI's raw trace payloads by session id with aggregated metrics. */
+export function computeSessionGroups(
+  traces: { name: string; json: string }[],
+): SessionGroups | null {
+  const fn = (widescopeCore as { compute_session_groups?: (s: string) => string })
+    .compute_session_groups;
+  if (!fn) return null;
+  return JSON.parse(fn(JSON.stringify(traces))) as SessionGroups;
 }
 
 /** Whether the WASM share-link compressor is available (i.e. WASM is loaded). */

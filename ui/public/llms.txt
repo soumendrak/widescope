@@ -8,6 +8,7 @@
 
 - [WideScope](https://widescope.soumendrak.com) — Landing page with product overview.
 - [WideScope editor](https://widescope.soumendrak.com/editor/) — The trace viewer. Drag-and-drop trace JSON, inspect spans, timelines, flame graphs, LLM calls, and costs.
+- [Get a trace file](https://widescope.soumendrak.com/docs/) — Copy-paste recipes to export an OTLP/Jaeger/OpenInference JSON trace from the OpenAI SDK, Anthropic SDK, LangChain/LangGraph, or a generic OpenTelemetry collector.
 
 ## Features
 
@@ -28,7 +29,7 @@
 
 ## Source code
 
-- [soumendrak/widescope](https://github.com/soumendrak/widescope) — Full source code (MIT license)
+- [soumendrak/widescope](https://github.com/soumendrak/widescope) — Full source code (Apache 2.0 license)
 - [soumendrak/widescope/releases](https://github.com/soumendrak/widescope/releases) — Releases and changelog
 - [soumendrak/widescope/issues](https://github.com/soumendrak/widescope/issues) — Bug reports and feature requests
 

@@ -12,6 +12,7 @@ export const filterStatus = writable<string>('');
 export const filterService = writable<string>('');
 export const filterKind = writable<string>('');
 export const filterLlmOnly = writable<boolean>(false);
+export const filterSafetyOnly = writable<boolean>(false);
 export const sliceStartNs = writable<number | null>(null);
 export const sliceEndNs = writable<number | null>(null);
 export const fullscreen = writable<boolean>(false);
