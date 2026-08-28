@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Icon from './ui/Icon.svelte';
   import { traceState } from '../stores/trace';
   import { comparisonState } from '../stores/comparison';
   import { handleFile } from '../lib/input';
@@ -122,7 +123,7 @@
         </tr>
       </tbody>
     </table>
-    <button class="diff-clear" on:click={() => comparisonState.clear()}>✕ Remove comparison</button>
+    <button class="diff-clear" on:click={() => comparisonState.clear()}><Icon name="close" size={12} /> Remove comparison</button>
   </div>
 {/if}
 

@@ -94,14 +94,14 @@
   }
 
   function edgeOpacity(calls: number, maxCalls: number): number {
-    return 0.15 + (calls / Math.max(1, maxCalls)) * 0.5;
+    return 0.4 + (calls / Math.max(1, maxCalls)) * 0.45;
   }
 </script>
 
 {#if graph.nodes.length === 0}
   <div class="empty">No service relationships to display</div>
 {:else}
-  <svg bind:this={svg} class="graph-svg" width={width} height={height} role="img" aria-label="Service dependency graph">
+  <svg bind:this={svg} class="graph-svg" width={width} height={height} role="group" aria-label="Service dependency graph">
     {#each edges as edge (edge.source + edge.target)}
       <line
         x1={edge.x1} y1={edge.y1} x2={edge.x2} y2={edge.y2}
@@ -124,7 +124,13 @@
     {/each}
 
     {#each nodes as node, i (node.service)}
-      <g class="node-group" role="button" tabindex="0" aria-label="{node.service} — {node.span_count} spans">
+      <g
+        class="node-group"
+        role="button"
+        tabindex="0"
+        aria-label="{node.service} — {node.span_count} spans, {node.error_count} errors"
+        on:keydown={(e) => { if (e.key === 'Enter' || e.key === ' ') e.preventDefault(); }}
+      >
         <circle
           cx={node.x} cy={node.y} r={node.r}
           class="node"
@@ -151,13 +157,15 @@
   }
 
   .edge {
-    stroke: var(--color-border, #334155);
+    /* Themed, not --color-border: that token is a hairline tuned for panel
+       edges and disappears against the light canvas. */
+    stroke: var(--color-text-faint, #5b6b84);
   }
 
   .edge-label {
     fill: var(--color-text-muted, #64748b);
     pointer-events: none;
-    font-family: monospace;
+    font-family: var(--font-mono, monospace);
   }
 
   .node {
@@ -172,14 +180,19 @@
 
   .node-error {
     fill: none;
-    stroke: #ef4444;
+    stroke: var(--color-danger, #ef4444);
     stroke-width: 2;
     stroke-dasharray: 3 2;
     pointer-events: none;
   }
 
   .node-label {
+    /* Halo keeps the label legible on every service colour (amber, lime,
+       yellow) in both themes without per-node contrast maths. */
     fill: #fff;
+    stroke: rgba(3, 7, 18, 0.66);
+    stroke-width: 2.5px;
+    paint-order: stroke fill;
     font-size: 9.5px;
     font-weight: 500;
     font-family: var(--font-mono);

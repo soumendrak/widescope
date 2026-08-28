@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { WaterfallLayout, WaterfallRow } from '../lib/types';
+  import { showCriticalPath, criticalPathIds } from '../stores/criticalPath';
   import { selectedSpanId, hoveredSpanId } from '../stores/selection';
   import { SERVICE_COLORS } from '../lib/palette';
 
@@ -9,6 +10,11 @@
   const ROW_HEIGHT = 28;
   const LABEL_WIDTH = 320;
   const INDENT_PX = 16;
+  // ponytail: the label column is a fixed 320px, so past ~14 levels the indent
+  // pushed the name out of the cell entirely (a 26-level CI/CD trace rendered
+  // rows with nothing but a duration). Flatten past this depth; the caret and
+  // the parent chain still convey nesting.
+  const MAX_INDENT_LEVELS = 10;
   const MIN_BAR_PX = 2;
 
   // ── Color map ────────────────────────────────────────────────────
@@ -79,9 +85,19 @@
     }
   }
 
+  /** Space must activate a row wherever Enter does. */
+  function onRowKeyDown(row: WaterfallRow) {
+    return (e: KeyboardEvent) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onRowClick(row);
+      }
+    };
+  }
+
   // ── Icon helpers ──────────────────────────────────────────────────
   function getKindIcon(row: WaterfallRow): string {
-    if (row.is_llm) return '⚡';
+    if (row.is_llm) return '\u26A1\uFE0E';
     switch (row.span_kind) {
       case 'Client':   return '↔';
       case 'Server':   return '⇥';
@@ -206,13 +222,20 @@
         <span class="wf-tick" style="left:{tick.px}px">{tick.label}</span>
       {/each}
       <div class="wf-zoom-controls">
+        <button
+          class="wf-ctrl-btn"
+          class:wf-ctrl-btn--active={$showCriticalPath}
+          title="Highlight the critical path — the chain of spans setting total duration"
+          aria-pressed={$showCriticalPath}
+          on:click={() => showCriticalPath.update((v) => !v)}
+        >Critical</button>
         <button class="wf-ctrl-btn" title="Reset zoom" on:click={resetZoom}>Reset</button>
       </div>
     </div>
   </div>
 
   <!-- ── Body ───────────────────────────────────────────────────── -->
-  <div class="wf-body">
+  <div class="wf-body" role="tree" aria-label="Span tree">
     {#each visibleRows as row (row.span_id)}
       {@const sel = $selectedSpanId === row.span_id}
       {@const hov = $hoveredSpanId === row.span_id}
@@ -225,16 +248,18 @@
         class:wf-row--selected={sel}
         class:wf-row--hovered={hov && !sel}
         class:wf-row--error={row.is_error}
-        role="row"
+        role="treeitem"
         aria-selected={sel}
+        aria-level={row.depth + 1}
+        aria-expanded={row.has_children ? !collapsed.has(row.span_id) : undefined}
         on:click={() => onRowClick(row)}
-        on:keydown={(e) => e.key === 'Enter' && onRowClick(row)}
+        on:keydown={onRowKeyDown(row)}
         tabindex="0"
       >
         <!-- Label cell (fixed width, may grow taller for LLM meta) -->
         <div
           class="wf-label"
-          style="padding-left: {row.depth * INDENT_PX + 8}px;"
+          style="padding-left: {Math.min(row.depth, MAX_INDENT_LEVELS) * INDENT_PX + 8}px;"
         >
           <div class="wf-label-main">
             {#if row.has_children}
@@ -283,6 +308,7 @@
               role="presentation"
               style="left:{bl}px; width:{bw}px; background:{color};"
               class:wf-bar--error={row.is_error}
+              class:wf-bar--critical={$showCriticalPath && $criticalPathIds.has(row.span_id)}
               on:mousemove={(e) => onBarMouseMove(e, row)}
             >
               {#if bw > 48}
@@ -629,5 +655,21 @@
     color: var(--color-danger, #f87171);
     font-size: 10.5px;
     font-family: var(--font-mono);
+  }
+
+  /*
+   * Critical path, on by default (Jaeger PR #1582): the chain that actually
+   * sets total duration is the reason most people open a trace, so it is
+   * highlighted rather than hidden behind a toggle. Non-critical bars dim
+   * instead of critical ones glowing, so the path reads at a glance.
+   */
+  .wf-bar--critical {
+    outline: 1px solid var(--color-gold);
+    outline-offset: 1px;
+  }
+
+  .wf-ctrl-btn--active {
+    border-color: var(--color-gold);
+    color: var(--color-gold);
   }
 </style>

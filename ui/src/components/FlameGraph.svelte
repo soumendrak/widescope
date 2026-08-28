@@ -2,7 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   import type { FlameGraphLayout, FlameNode } from '../lib/types';
   import { selectedSpanId, hoveredSpanId, focusedSpanId, searchResults, sliceStartNs, sliceEndNs } from '../stores/selection';
-  import { getCriticalPath } from '../lib/wasm';
+  import { showCriticalPath, criticalPath, criticalPathIds } from '../stores/criticalPath';
   import type { CriticalPath } from '../lib/types';
   import { SERVICE_COLORS } from '../lib/palette';
 
@@ -21,9 +21,6 @@
   let ctx: CanvasRenderingContext2D | null = null;
   let animFrameId = 0;
   let heatmapMode = false;
-  let showCriticalPath = false;
-  let criticalPath: CriticalPath | null = null;
-  let criticalPathSet = new Set<string>();
   let sliceEnabled = false;
   let draggingSlice = ''; // 'start' | 'end' | ''
 
@@ -66,7 +63,7 @@
   export function focusView(): void {
     if (!container) return;
     container.scrollIntoView({ block: 'nearest' });
-    container.focus();
+    canvas?.focus();
   }
 
   function themeColor(name: string, fallback: string): string {
@@ -349,7 +346,7 @@
       ctx!.setLineDash([]);
     }
 
-    if (showCriticalPath && criticalPathSet.has(node.span_id)) {
+    if ($showCriticalPath && $criticalPathIds.has(node.span_id)) {
       ctx!.strokeStyle = '#fbbf24';
       ctx!.lineWidth = 2;
       ctx!.strokeRect(px + 1, py + 1, rw - 2, ROW_HEIGHT - 3);
@@ -358,7 +355,7 @@
     if (node.is_llm && pw > 14) {
       ctx!.font = '10px sans-serif';
       ctx!.fillStyle = palette.codeText;
-      ctx!.fillText('⚡', px + 2, py + ROW_HEIGHT - 7);
+      ctx!.fillText('\u26A1\uFE0E', px + 2, py + ROW_HEIGHT - 7);
     }
 
     if (pw > MIN_LABEL_PX) {
@@ -387,7 +384,7 @@
     if (px + pw < 0 || px > canvasW) return false;
     if (node.span_id === sel || node.span_id === hov || node.span_id === foc) return true;
     if (hasSearch && searchMatchSet.has(node.span_id)) return true;
-    if (showCriticalPath && criticalPathSet.has(node.span_id)) return true;
+    if ($showCriticalPath && $criticalPathIds.has(node.span_id)) return true;
     if (node.is_error || node.is_llm) return true;
 
     return !(node.width < TINY_SPAN_TOTAL_RATIO && pw < TINY_SPAN_PIXEL_WIDTH);
@@ -608,14 +605,7 @@
   }
 
   function toggleCriticalPath(): void {
-    showCriticalPath = !showCriticalPath;
-    if (showCriticalPath) {
-      criticalPath = getCriticalPath();
-      criticalPathSet = new Set(criticalPath?.span_ids ?? []);
-    } else {
-      criticalPathSet = new Set();
-    }
-    scheduleRender();
+    showCriticalPath.update((v) => !v);
   }
 
   function heatmapColor(node: FlameNode): string {
@@ -736,17 +726,13 @@
   }
 </script>
 
-<div
-  class="flame-wrapper"
-  bind:this={container}
-  tabindex="0"
-  role="tree"
-  aria-label="Flame graph — use arrow keys to navigate"
-  on:keydown={onKeyDown}
->
+<div class="flame-wrapper" bind:this={container}>
   <canvas
     bind:this={canvas}
     class="flame-canvas"
+    tabindex="0"
+    aria-label="Flame graph — use arrow keys to navigate spans"
+    on:keydown={onKeyDown}
     style="height: {canvasH}px;"
     on:mousemove={onMouseMove}
     on:mousedown={onMouseDown}
@@ -763,7 +749,7 @@
       if (n) zoomToSpan(n); else resetZoom();
     }}>Fit</button>
     <button class="ctrl-btn" class:ctrl-btn--active={heatmapMode} title="Toggle latency heatmap" on:click={toggleHeatmap}>Heatmap</button>
-    <button class="ctrl-btn" class:ctrl-btn--active={showCriticalPath} title="Show critical path" on:click={toggleCriticalPath}>Critical</button>
+    <button class="ctrl-btn" class:ctrl-btn--active={$showCriticalPath} title="Show critical path" on:click={toggleCriticalPath}>Critical</button>
     <button class="ctrl-btn" title="Slice to selected span" on:click={sliceToSpan}>Slice</button>
     {#if $sliceStartNs !== null && $sliceEndNs !== null}
       <button class="ctrl-btn" title="Clear time slice" on:click={clearSlice}>✕</button>
@@ -772,6 +758,24 @@
   </div>
   <!-- Screen reader live region -->
   <div class="sr-only" aria-live="polite" aria-atomic="true">{ariaLive}</div>
+
+  <!--
+    Text equivalent of the canvas. Same spans, same order, real focusable
+    treeitems — the only way this view is reachable without sight.
+  -->
+  <ul class="sr-only" role="tree" aria-label="Spans in the flame graph">
+    {#each layout.nodes as node (node.span_id)}
+      <li
+        role="treeitem"
+        aria-level={node.depth + 1}
+        aria-selected={$selectedSpanId === node.span_id}
+      >
+        <button type="button" on:click={() => selectedSpanId.set(node.span_id)}>
+          {node.label} — {node.duration_display}{node.is_error ? ', error' : ''}{node.is_llm ? ', LLM span' : ''}
+        </button>
+      </li>
+    {/each}
+  </ul>
 </div>
 
 <style>
@@ -784,7 +788,7 @@
     min-height: 0;
   }
 
-  .flame-wrapper:focus-visible {
+  .flame-canvas:focus-visible {
     outline: 2px solid var(--color-accent, #3b82f6);
     outline-offset: -2px;
   }

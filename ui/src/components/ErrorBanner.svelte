@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Icon from './ui/Icon.svelte';
   import type { ParseWarning, WasmError } from '../lib/types';
 
   export let error: WasmError | null = null;
@@ -23,7 +24,7 @@
 
 {#if error}
   <div class="banner error" role="alert">
-    <span class="icon">✕</span>
+    <span class="icon"><Icon name="error" size={15} /></span>
     <div class="content">
       <strong>{formatCode(error.code)}:</strong> {error.message}
       {#if error.code === 'INVALID_JSON' && error.context}
@@ -39,7 +40,7 @@
 
 {#if showWarnings}
   <div class="banner warning" role="status">
-    <span class="icon">⚠</span>
+    <span class="icon"><Icon name="warning" size={15} /></span>
     <div class="content">
       {#if collapsed}
         <strong>{visibleWarnings.length} warnings during trace load</strong>
@@ -59,7 +60,7 @@
         {/if}
       {/if}
     </div>
-    <button class="dismiss" on:click={dismiss} aria-label="Dismiss warnings">✕</button>
+    <button class="dismiss" on:click={dismiss} aria-label="Dismiss warnings"><Icon name="close" size={13} /></button>
   </div>
 {/if}
 

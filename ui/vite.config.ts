@@ -39,6 +39,10 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,wasm,html,json,png,svg,ico,woff2}'],
+        // Multi-page site — disable the blanket NavigationRoute fallback to
+        // index.html so /editor/ loads editor/index.html. Cloudflare Pages
+        // handles SPA fallback via not_found_handling.
+        navigateFallback: null,
         runtimeCaching: [
           {
             urlPattern: /^https:\/\/.*\/conventions\/.*\.json/,

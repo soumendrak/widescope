@@ -1,3 +1,4 @@
+import { refreshCriticalPath } from '../stores/criticalPath';
 import { traceState } from '../stores/trace';
 import { focusedSpanId, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from '../stores/selection';
 import { traceList } from '../stores/traceList';
@@ -121,6 +122,7 @@ export function handleRawInput(text: string, isSample: boolean, showLoading = tr
     const waterfallLayout = getWaterfallLayout();
     const serviceGraph = getServiceGraph();
     traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, isSample);
+    refreshCriticalPath();
 
     // Add to trace list for multi-trace switching
     const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
@@ -181,6 +183,7 @@ export async function handleRawInputAsync(text: string, isSample: boolean, showL
     const serviceGraph = getServiceGraph();
 
     traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, isSample);
+    refreshCriticalPath();
 
     const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
     traceList.add(name, text);
@@ -191,22 +194,4 @@ export async function handleRawInputAsync(text: string, isSample: boolean, showL
     traceState.setError(wasmError);
     return false;
   }
-}
-
-export function setupGlobalPasteListener(
-  onPaste: (text: string) => void
-): () => void {
-  const handler = (e: KeyboardEvent) => {
-    const active = document.activeElement;
-    const isInput =
-      active instanceof HTMLInputElement ||
-      active instanceof HTMLTextAreaElement;
-    if ((e.ctrlKey || e.metaKey) && e.key === 'v' && !isInput) {
-      navigator.clipboard.readText().then((text) => {
-        if (text.trim()) onPaste(text);
-      }).catch(() => {/* clipboard read rejected */});
-    }
-  };
-  document.addEventListener('keydown', handler);
-  return () => document.removeEventListener('keydown', handler);
 }

@@ -22,6 +22,7 @@ import { compressShare, decompressShare, isShareCompressionReady } from './wasm'
 const VIEW_NAMES: ReadonlyArray<ViewName> = [
   'flame',
   'timeline',
+  'conversation',
   'waterfall',
   'graph',
   'diff',

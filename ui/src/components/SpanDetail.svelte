@@ -1,13 +1,12 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { fly } from 'svelte/transition';
   import { selectedSpanId } from '../stores/selection';
   import { traceState } from '../stores/trace';
   import { getSpanDetail } from '../lib/wasm';
   import { annotations } from '../stores/annotations';
   import type { SpanDetail, LlmDetail } from '../lib/types';
-  import { flyRightConfig } from '../lib/animation';
   import RetrievedDocumentsPanel from './RetrievedDocumentsPanel.svelte';
+  import Icon from './ui/Icon.svelte';
 
   let detail: SpanDetail | null = null;
   let loading = false;
@@ -111,8 +110,7 @@
 
 <svelte:window on:pointermove={onPointerMove} on:pointerup={endResize} on:pointercancel={endResize} on:pointerdown={onWindowPointerDown} />
 
-{#if $selectedSpanId}
-<aside class="sidebar" class:sidebar--resizing={isResizing} bind:this={sidebar} style={`width: ${sidebarWidth}px;`} transition:fly={flyRightConfig()}>
+<aside class="sidebar" class:sidebar--resizing={isResizing} bind:this={sidebar} style={`width: ${sidebarWidth}px;`}>
   <div
     class="sidebar-resize-handle"
     role="separator"
@@ -128,7 +126,12 @@
         </span>
       {/if}
     </div>
-    {#if loading}
+    {#if !$selectedSpanId}
+      <div class="sidebar-hint">
+        <div class="sidebar-hint-title">No span selected</div>
+        <div class="sidebar-hint-sub">Pick a span in the view to inspect its timing, attributes, LLM payload, and events.</div>
+      </div>
+    {:else if loading}
       <div class="loading">Loading…</div>
     {:else if detail}
       <!-- Header -->
@@ -240,7 +243,7 @@
 
       <!-- Annotations -->
       <div class="section annotation-section">
-        <div class="section-title">📝 Note</div>
+        <div class="section-title"><Icon name="note" size={11} /> Note</div>
         <textarea
           class="annotation-input"
           placeholder="Add a note for this span…"
@@ -266,7 +269,7 @@
                 {#each detail.attributes as [k, v]}
                   <tr>
                     <td class="attr-key">{k}</td>
-                    <td class="attr-val">{v}</td>
+                    <td class="attr-val"><div class="attr-val-box">{v}</div></td>
                   </tr>
                 {/each}
               </tbody>
@@ -323,27 +326,43 @@
       </div>
     {/if}
 </aside>
-{/if}
 
 <style>
   .sidebar {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
+    position: relative;
+    flex: 0 0 auto;
     width: 420px;
     min-width: 320px;
     max-width: calc(100% - 24px);
     overflow-y: auto;
-    background: color-mix(in srgb, var(--color-sidebar, #0a111e) 94%, transparent);
-    backdrop-filter: blur(12px);
+    background: var(--color-sidebar, #0a111e);
     color: var(--color-sidebar-text, #e9eff8);
     border-left: 1px solid var(--color-border, rgba(125, 211, 252, 0.13));
     font-size: 0.85rem;
     display: flex;
     flex-direction: column;
-    box-shadow: -28px 0 60px rgba(2, 6, 18, 0.55);
     z-index: 2;
+  }
+
+  .sidebar-hint {
+    margin: auto;
+    padding: 1.5rem;
+    text-align: center;
+    color: var(--color-text-muted, #9aa8bd);
+  }
+
+  .sidebar-hint-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-sidebar-text, #e9eff8);
+    margin-bottom: 0.35rem;
+  }
+
+  .sidebar-hint-sub {
+    font-size: 0.78rem;
+    line-height: 1.5;
+    max-width: 26ch;
+    margin: 0 auto;
   }
 
   .sidebar--resizing {
@@ -557,6 +576,13 @@
   .attr-table td:first-child { width: 45%; }
   .attr-key { font-size: 0.72rem !important; }
   .attr-val { color: var(--color-code-muted, #b9c5d8); }
+  .attr-val-box {
+    /* A single attribute can carry a 200 KB payload; scroll it in place
+       instead of turning the inspector into a wall of text. */
+    max-height: 14em;
+    overflow: auto;
+    overflow-wrap: anywhere;
+  }
 
   /* LLM — hot amber, matching the landing hot-span treatment */
   .llm-section {
@@ -838,5 +864,19 @@
     background: var(--color-badge-bg, rgba(59, 130, 246, 0.16));
     border-color: color-mix(in srgb, var(--color-sky, #7dd3fc) 40%, transparent);
     transform: translateX(2px);
+  }
+
+  @media (max-width: 820px) {
+    .sidebar {
+      width: 100% !important;
+      min-width: 0;
+      max-width: none;
+      max-height: 45%;
+      border-left: none;
+      border-top: 1px solid var(--color-border);
+    }
+
+    /* Vertical drag makes no sense once the rail is stacked. */
+    .sidebar-resize-handle { display: none; }
   }
 </style>
