@@ -264,3 +264,43 @@ mod tests {
         assert!(docs.is_empty());
     }
 }
+
+/// Document key parsing and snippet trimming.
+#[cfg(test)]
+mod key_tests {
+    use super::*;
+
+    #[test]
+    fn document_keys_yield_an_index_and_a_field() {
+        assert_eq!(
+            parse_doc_key("retrieval.documents.0.document.content"),
+            Some((0, "document.content".to_string()))
+        );
+        assert_eq!(
+            parse_doc_key("retrieval.documents.12.score"),
+            Some((12, "score".to_string()))
+        );
+        assert_eq!(parse_doc_key("retrieval.documents.notanindex.score"), None);
+        assert_eq!(parse_doc_key("retrieval.documents.0"), None);
+        assert_eq!(parse_doc_key("retrieval.documents.0."), None);
+        assert_eq!(parse_doc_key("something.else.0.score"), None);
+    }
+
+    #[test]
+    fn scores_coerce_from_numbers_and_numeric_text() {
+        assert_eq!(coerce_to_float(&AttributeValue::Float(0.9)), Some(0.9));
+        assert_eq!(coerce_to_float(&AttributeValue::Int(1)), Some(1.0));
+        assert_eq!(coerce_to_float(&AttributeValue::String("0.5".into())), Some(0.5));
+        assert_eq!(coerce_to_float(&AttributeValue::String("high".into())), None);
+        assert_eq!(coerce_to_float(&AttributeValue::Bool(true)), None);
+    }
+
+    #[test]
+    fn snippets_are_trimmed_on_character_boundaries() {
+        assert_eq!(truncate_snippet("short", 10), "short");
+        assert_eq!(truncate_snippet("exactly-10", 10), "exactly-10");
+        assert_eq!(truncate_snippet("abcdefghijk", 10), "abcdefghij…");
+        // Multi-byte characters must not be split mid-codepoint.
+        assert_eq!(truncate_snippet("日本語テキスト", 3), "日本語…");
+    }
+}

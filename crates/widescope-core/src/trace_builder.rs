@@ -519,3 +519,113 @@ mod tests {
         assert!(build_trace(vec![], InputFormat::Unknown, vec![]).is_err());
     }
 }
+
+/// The paths that only a damaged export reaches: several trace ids in one
+/// payload, parent cycles, and the large-trace guard.
+#[cfg(test)]
+mod resilience_tests {
+    use super::*;
+    use crate::models::span::{SpanKind, SpanStatus};
+    use crate::models::trace::InputFormat;
+    use std::collections::HashMap as Map;
+
+    fn span_in(trace_id: &str, id: &str, parent: Option<&str>) -> Span {
+        Span {
+            trace_id: trace_id.into(),
+            span_id: id.into(),
+            parent_span_id: parent.map(String::from),
+            operation_name: id.into(),
+            service_name: "svc".into(),
+            span_kind: SpanKind::Internal,
+            start_time_ns: 0,
+            end_time_ns: 10,
+            duration_ns: 10,
+            self_time_ns: 10,
+            status: SpanStatus::Ok,
+            attributes: Map::new(),
+            events: vec![],
+            llm: None,
+            safety: vec![],
+        }
+    }
+
+    fn build(spans: Vec<Span>) -> Trace {
+        build_trace(spans, InputFormat::Unknown, vec![]).unwrap()
+    }
+
+    #[test]
+    fn the_most_populated_trace_id_wins_and_the_rest_are_reported() {
+        let trace = build(vec![
+            span_in("big", "a", None),
+            span_in("big", "b", Some("a")),
+            span_in("small", "c", None),
+        ]);
+        assert_eq!(trace.trace_id, "big");
+        assert_eq!(trace.spans.len(), 2);
+
+        let discarded: Vec<_> = trace
+            .warnings
+            .iter()
+            .filter(|w| w.code == "TRACE_ID_DISCARDED")
+            .collect();
+        assert_eq!(discarded.len(), 1);
+        assert!(discarded[0].message.contains("small"));
+    }
+
+    #[test]
+    fn a_parent_cycle_is_severed_with_a_warning() {
+        // a -> b -> a: without severing, layout recursion never terminates.
+        let trace = build(vec![
+            span_in("t", "a", Some("b")),
+            span_in("t", "b", Some("a")),
+        ]);
+        assert!(trace.warnings.iter().any(|w| w.code == "CYCLE_SEVERED"));
+        assert_eq!(trace.spans.len(), 2);
+        assert_eq!(trace.root_span_ids.len(), 1);
+    }
+
+    #[test]
+    fn a_span_that_parents_itself_is_severed_too() {
+        let trace = build(vec![span_in("t", "a", Some("a"))]);
+        assert_eq!(trace.spans.len(), 1);
+        assert_eq!(trace.root_span_ids, vec!["a".to_string()]);
+    }
+
+    #[test]
+    fn a_three_span_cycle_still_terminates() {
+        let trace = build(vec![
+            span_in("t", "a", Some("c")),
+            span_in("t", "b", Some("a")),
+            span_in("t", "c", Some("b")),
+        ]);
+        assert!(trace.warnings.iter().any(|w| w.code == "CYCLE_SEVERED"));
+        assert_eq!(trace.spans.len(), 3);
+    }
+
+    #[test]
+    fn an_oversized_trace_warns_that_rendering_will_be_slow() {
+        let spans: Vec<Span> = (0..10_001)
+            .map(|i| span_in("t", &format!("s{i}"), if i == 0 { None } else { Some("s0") }))
+            .collect();
+        let trace = build(spans);
+        let warning = trace
+            .warnings
+            .iter()
+            .find(|w| w.code == "LARGE_TRACE")
+            .expect("a 10k-span trace should warn");
+        assert!(warning.message.contains("10001"));
+    }
+
+    #[test]
+    fn an_empty_span_list_is_an_error_not_an_empty_trace() {
+        assert!(build_trace(vec![], InputFormat::Unknown, vec![]).is_err());
+    }
+
+    #[test]
+    fn parse_warnings_are_carried_through_to_the_trace() {
+        let carried = vec![ParseWarning::new("UPSTREAM", "from the parser")];
+        let trace = build_trace(vec![span_in("t", "a", None)], InputFormat::Unknown, carried).unwrap();
+        assert!(trace.warnings.iter().any(|w| w.code == "UPSTREAM"));
+    }
+}
+

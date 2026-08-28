@@ -79,3 +79,28 @@ impl ParseWarning {
         self
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn input_formats_have_stable_wire_names() {
+        assert_eq!(InputFormat::OtlpJson.as_str(), "OtlpJson");
+        assert_eq!(InputFormat::JaegerJson.as_str(), "JaegerJson");
+        assert_eq!(InputFormat::OpenInferenceJson.as_str(), "OpenInferenceJson");
+        assert_eq!(InputFormat::Unknown.as_str(), "Unknown");
+    }
+
+    #[test]
+    fn a_warning_carries_its_code_count_and_context() {
+        let warning = ParseWarning::new("CODE", "message")
+            .with_count(3)
+            .with_context(serde_json::json!({ "span_id": "abc" }));
+        assert_eq!(warning.code, "CODE");
+        assert_eq!(warning.message, "message");
+        assert_eq!(warning.count, 3);
+        assert_eq!(warning.context.unwrap()["span_id"], "abc");
+    }
+}
+

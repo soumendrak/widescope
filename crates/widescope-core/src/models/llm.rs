@@ -93,3 +93,37 @@ pub struct RetrievedDocument {
     pub score: Option<f64>,
     pub content_snippet: Option<String>,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn operation_types_round_trip_through_their_wire_names() {
+        let pairs = [
+            ("chat", LlmOperationType::ChatCompletion, "ChatCompletion"),
+            ("chat_completion", LlmOperationType::ChatCompletion, "ChatCompletion"),
+            ("text_completion", LlmOperationType::TextCompletion, "TextCompletion"),
+            ("embeddings", LlmOperationType::Embedding, "Embedding"),
+            ("embedding", LlmOperationType::Embedding, "Embedding"),
+            ("rerank", LlmOperationType::Rerank, "Rerank"),
+            ("tool_call", LlmOperationType::ToolCall, "ToolCall"),
+            ("agent", LlmOperationType::AgentStep, "AgentStep"),
+            ("chain", LlmOperationType::ChainStep, "ChainStep"),
+            ("retrieval", LlmOperationType::Retrieval, "Retrieval"),
+        ];
+        for (input, expected, name) in pairs {
+            let parsed = LlmOperationType::from_str(input);
+            assert_eq!(parsed.as_str(), expected.as_str(), "parsing {input}");
+            assert_eq!(parsed.as_str(), name);
+        }
+    }
+
+    #[test]
+    fn an_unrecognized_operation_keeps_its_original_name() {
+        let parsed = LlmOperationType::from_str("guardrail");
+        assert_eq!(parsed.as_str(), "guardrail");
+        assert!(matches!(parsed, LlmOperationType::Unknown(_)));
+    }
+}
+

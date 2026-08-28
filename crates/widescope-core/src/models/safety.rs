@@ -35,3 +35,17 @@ pub enum SafetySeverity {
     Medium,
     High,
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn categories_have_stable_wire_names() {
+        assert_eq!(SafetyCategory::Pii.as_str(), "pii");
+        assert_eq!(SafetyCategory::Jailbreak.as_str(), "jailbreak");
+        assert_eq!(SafetyCategory::Refusal.as_str(), "refusal");
+        assert_eq!(SafetyCategory::ContentPolicy.as_str(), "content_policy");
+    }
+}
+
