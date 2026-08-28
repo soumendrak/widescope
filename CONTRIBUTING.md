@@ -352,10 +352,22 @@ just coverage-ui     # UI (vitest + v8), fails under the configured thresholds
   Error paths through the WASM boundary *are* covered: `ApiError` is a plain
   `WideError` off-wasm (see the top of `lib.rs`), so `cargo test` drives both
   arms of every exported function. Keep that property when you add one.
-- **UI**: thresholds live in the vitest config. Components are tested through
-  `@testing-library/svelte` — assert what a user sees, not internal state. What
-  is excluded (canvas paint loops, animation frames, the entry bootstrap) is
-  listed in the config with a reason on each line.
+- **UI**: thresholds live in `ui/vite.config.ts` and are ratchets — each one is
+  what the suite reaches today, so a drop fails the build. The bar is highest
+  where the logic is: `src/stores/**` 82%, `src/components/ui/**` 88%,
+  `src/lib/**` 60%, with a 28% global floor.
+
+  The large visualization components (waterfall, timeline, service graph, span
+  inspector, dashboards) are deliberately *not* driven through jsdom: their
+  behaviour is canvas painting and measured layout, so a jsdom assertion would
+  be testing the stub rather than the view. They are covered by the browser gate
+  in §5 and by `ui/e2e/` (Playwright) instead. Raising the global floor means
+  writing those browser assertions, not mocking a 2D context.
+
+  Components that *are* unit-tested use `@testing-library/svelte` — assert what
+  a user sees and can do, never internal state. Suites that instantiate the real
+  WASM module need `// @vitest-environment node` at the top of the file (jsdom
+  rewrites `import.meta.url`, which breaks `fileURLToPath`).
 
 If a change genuinely cannot be covered, say why in the PR rather than lowering
 a threshold.

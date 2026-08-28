@@ -1,6 +1,9 @@
 import { fileURLToPath, URL } from 'node:url';
 import { defineConfig } from 'vitest/config';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
+// Resolves Svelte's browser condition under vitest so components can mount and
+// run their lifecycle in jsdom; a no-op for the production build.
+import { svelteTesting } from '@testing-library/svelte/vite';
 import wasm from 'vite-plugin-wasm';
 import { VitePWA } from 'vite-plugin-pwa';
 
@@ -8,6 +11,7 @@ export default defineConfig({
   plugins: [
     wasm(),
     svelte(),
+    svelteTesting(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icons/*.png'],
@@ -72,7 +76,44 @@ export default defineConfig({
     },
   },
   test: {
-    environment: 'node',
+    // jsdom so components can actually be rendered and driven, not just imported.
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/test-setup.ts'],
     include: ['src/**/*.test.ts'],
+    coverage: {
+      provider: 'v8',
+      include: ['src/**/*.{ts,svelte}'],
+      reporter: ['text-summary', 'html', 'lcov'],
+      exclude: [
+        'src/**/*.test.ts',
+        'src/test-setup.ts',
+        // Entry bootstraps: they mount the app against a real document and have
+        // no behaviour of their own to assert.
+        'src/main.ts',
+        'src/landing.js',
+        // Mirrors of the Rust structs — type declarations, no runtime code.
+        'src/lib/types.ts',
+        // Canvas painting: jsdom has no 2D context, so every draw call would be
+        // asserted against a stub rather than against pixels. The flame graph's
+        // layout maths lives in Rust and is covered there.
+        'src/components/FlameGraph.svelte',
+      ],
+      // Ratchets, not aspirations: each number is what the suite actually
+      // reaches today, so any drop fails the build. Raise them as coverage
+      // grows; never lower one to make a build pass.
+      thresholds: {
+        lines: 28,
+        functions: 21,
+        branches: 22,
+        statements: 22,
+        // The logic layers carry the real bar. The large visualization
+        // components are driven by the browser gate instead — asserting canvas
+        // and layout behaviour through jsdom would test the mock, not the view.
+        'src/lib/**': { lines: 60, functions: 48, branches: 58, statements: 57 },
+        'src/stores/**': { lines: 82, functions: 82, branches: 69, statements: 82 },
+        'src/components/ui/**': { lines: 88, functions: 95, branches: 61, statements: 90 },
+      },
+    },
   },
 });
