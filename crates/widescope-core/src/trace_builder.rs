@@ -478,7 +478,10 @@ mod tests {
             trace.warnings.iter().any(|w| w.code == "CYCLE_SEVERED"),
             "expected a CYCLE_SEVERED warning"
         );
-        assert!(!trace.root_span_ids.is_empty(), "severing must surface a root");
+        assert!(
+            !trace.root_span_ids.is_empty(),
+            "severing must surface a root"
+        );
     }
 
     #[test]
@@ -505,7 +508,11 @@ mod tests {
     #[test]
     fn deduplicates_span_ids_first_wins() {
         let trace = build_trace(
-            vec![span("dup", None, 0), span("dup", None, 5), span("k", Some("dup"), 1)],
+            vec![
+                span("dup", None, 0),
+                span("dup", None, 5),
+                span("k", Some("dup"), 1),
+            ],
             InputFormat::Unknown,
             vec![],
         )
@@ -605,7 +612,13 @@ mod resilience_tests {
     #[test]
     fn an_oversized_trace_warns_that_rendering_will_be_slow() {
         let spans: Vec<Span> = (0..10_001)
-            .map(|i| span_in("t", &format!("s{i}"), if i == 0 { None } else { Some("s0") }))
+            .map(|i| {
+                span_in(
+                    "t",
+                    &format!("s{i}"),
+                    if i == 0 { None } else { Some("s0") },
+                )
+            })
             .collect();
         let trace = build(spans);
         let warning = trace
@@ -624,8 +637,8 @@ mod resilience_tests {
     #[test]
     fn parse_warnings_are_carried_through_to_the_trace() {
         let carried = vec![ParseWarning::new("UPSTREAM", "from the parser")];
-        let trace = build_trace(vec![span_in("t", "a", None)], InputFormat::Unknown, carried).unwrap();
+        let trace =
+            build_trace(vec![span_in("t", "a", None)], InputFormat::Unknown, carried).unwrap();
         assert!(trace.warnings.iter().any(|w| w.code == "UPSTREAM"));
     }
 }
-

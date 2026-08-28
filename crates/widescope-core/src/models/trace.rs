@@ -103,4 +103,3 @@ mod tests {
         assert_eq!(warning.context.unwrap()["span_id"], "abc");
     }
 }
-

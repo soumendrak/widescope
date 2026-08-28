@@ -32,7 +32,10 @@ enum Command {
         format: Format,
     },
     /// Diff two traces and report metric regressions.
-    Compare { baseline: PathBuf, candidate: PathBuf },
+    Compare {
+        baseline: PathBuf,
+        candidate: PathBuf,
+    },
     /// Check a trace against budgets; non-zero exit on breach.
     /// Budgets: duration=30s, errors=0, cost=0.50 (repeatable).
     Check {
@@ -70,7 +73,10 @@ fn run(cmd: Command) -> Result<ExitCode, String> {
             }
             Ok(ExitCode::SUCCESS)
         }
-        Command::Compare { baseline, candidate } => {
+        Command::Compare {
+            baseline,
+            candidate,
+        } => {
             let base = parse(&baseline)?;
             let cand = parse(&candidate)?;
             print!("{}", format_comparison(&base, &cand));
@@ -93,8 +99,8 @@ fn init_core() -> Result<(), String> {
 }
 
 fn parse(path: &PathBuf) -> Result<Value, String> {
-    let raw = std::fs::read_to_string(path)
-        .map_err(|e| format!("reading {}: {e}", path.display()))?;
+    let raw =
+        std::fs::read_to_string(path).map_err(|e| format!("reading {}: {e}", path.display()))?;
     let json = core::parse_trace(&raw).map_err(|e| e.to_string())?;
     serde_json::from_str(&json).map_err(|e| e.to_string())
 }
@@ -168,7 +174,11 @@ fn check_budgets(s: &Value, budgets: &[String]) -> Result<ExitCode, String> {
         println!("[{mark}] {key}: {actual}{unit} <= {limit}{unit}");
         failed |= !ok;
     }
-    Ok(if failed { ExitCode::FAILURE } else { ExitCode::SUCCESS })
+    Ok(if failed {
+        ExitCode::FAILURE
+    } else {
+        ExitCode::SUCCESS
+    })
 }
 
 fn num(v: &Value, key: &str) -> f64 {
@@ -234,7 +244,8 @@ mod cli_tests {
     fn temp_file(name: &str, contents: &str) -> PathBuf {
         let path = std::env::temp_dir().join(format!("widescope-cli-{name}"));
         let mut file = std::fs::File::create(&path).expect("temp file");
-        file.write_all(contents.as_bytes()).expect("write temp file");
+        file.write_all(contents.as_bytes())
+            .expect("write temp file");
         path
     }
 
@@ -260,8 +271,16 @@ mod cli_tests {
         let summary = parse(&fixture(OTLP)).unwrap();
         let text = format_summary(&summary);
         for expected in [
-            "Trace ID:", "Format:", "Spans:", "Services:", "LLM spans:",
-            "Errors:", "Duration:", "Latency p50:", "Latency p95:", "Root:",
+            "Trace ID:",
+            "Format:",
+            "Spans:",
+            "Services:",
+            "LLM spans:",
+            "Errors:",
+            "Duration:",
+            "Latency p50:",
+            "Latency p95:",
+            "Root:",
         ] {
             assert!(text.contains(expected), "missing {expected} in:\n{text}");
         }
@@ -305,7 +324,10 @@ mod cli_tests {
         assert!(table.contains("+50.0%"), "{table}");
         assert!(table.contains("-50.0%"), "{table}");
         // A zero baseline reports 0% rather than infinity or NaN.
-        let table = format_comparison(&serde_json::json!({}), &serde_json::json!({"span_count": 9}));
+        let table = format_comparison(
+            &serde_json::json!({}),
+            &serde_json::json!({"span_count": 9}),
+        );
         assert!(table.contains("+0.0%"), "{table}");
     }
 
@@ -313,11 +335,7 @@ mod cli_tests {
     fn check_passes_when_every_budget_holds() {
         let code = run(Command::Check {
             trace: fixture(OTLP),
-            budgets: vec![
-                "duration=30s".into(),
-                "errors=0".into(),
-                "spans=100".into(),
-            ],
+            budgets: vec!["duration=30s".into(), "errors=0".into(), "spans=100".into()],
         })
         .expect("check should run");
         assert!(is_success(code));
@@ -373,7 +391,11 @@ mod cli_tests {
         let _ = std::fs::remove_file(path);
 
         let path = temp_file("unknown-format.json", r#"{"hello":"world"}"#);
-        assert!(run(Command::Analyze { trace: path.clone(), format: Format::Text }).is_err());
+        assert!(run(Command::Analyze {
+            trace: path.clone(),
+            format: Format::Text
+        })
+        .is_err());
         let _ = std::fs::remove_file(path);
     }
 
@@ -400,4 +422,3 @@ mod cli_tests {
         assert!(parse_duration_ns("").is_err());
     }
 }
-

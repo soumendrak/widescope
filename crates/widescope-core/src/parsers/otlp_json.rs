@@ -372,8 +372,11 @@ mod tests {
 
         assert_eq!(result.spans.len(), 7);
 
-        let services: std::collections::HashSet<_> =
-            result.spans.iter().map(|s| s.service_name.as_str()).collect();
+        let services: std::collections::HashSet<_> = result
+            .spans
+            .iter()
+            .map(|s| s.service_name.as_str())
+            .collect();
         assert_eq!(services.len(), 3, "gateway, rag-retriever, llm-service");
 
         // The `chat` LLM span carries gen_ai token usage (raw attrs; resolution
@@ -389,7 +392,11 @@ mod tests {
         ));
 
         // Exactly one root (POST /api/chat has no in-trace parent).
-        let roots = result.spans.iter().filter(|s| s.parent_span_id.is_none()).count();
+        let roots = result
+            .spans
+            .iter()
+            .filter(|s| s.parent_span_id.is_none())
+            .count();
         assert_eq!(roots, 1);
     }
 
@@ -450,7 +457,8 @@ mod value_tests {
 
     #[test]
     fn arrays_collapse_to_the_narrowest_matching_type() {
-        let int_arr = parse_any_value(&json!({"arrayValue": {"values": [{"intValue": 1}, {"intValue": 2}]}}));
+        let int_arr =
+            parse_any_value(&json!({"arrayValue": {"values": [{"intValue": 1}, {"intValue": 2}]}}));
         assert_eq!(int_arr, Some(AttributeValue::IntArray(vec![1, 2])));
 
         // A mixed int/double array widens to floats rather than losing the decimals.
@@ -464,7 +472,10 @@ mod value_tests {
         );
         assert_eq!(
             str_arr,
-            Some(AttributeValue::StringArray(vec!["a".into(), "false".into()]))
+            Some(AttributeValue::StringArray(vec![
+                "a".into(),
+                "false".into()
+            ]))
         );
 
         assert_eq!(
@@ -489,18 +500,33 @@ mod value_tests {
 
     #[test]
     fn timestamps_accept_both_json_encodings() {
-        assert_eq!(parse_nano_ts(&json!("1700000000000000000")), Some(1_700_000_000_000_000_000));
-        assert_eq!(parse_nano_ts(&json!(1_700_000_000_000_000_000u64)), Some(1_700_000_000_000_000_000));
+        assert_eq!(
+            parse_nano_ts(&json!("1700000000000000000")),
+            Some(1_700_000_000_000_000_000)
+        );
+        assert_eq!(
+            parse_nano_ts(&json!(1_700_000_000_000_000_000u64)),
+            Some(1_700_000_000_000_000_000)
+        );
         assert_eq!(parse_nano_ts(&json!("nope")), None);
         assert_eq!(parse_nano_ts(&json!(null)), None);
     }
 
     #[test]
     fn status_maps_every_code() {
-        assert_eq!(parse_status(&json!({"status": {"code": 0}})).as_str(), "Unset");
+        assert_eq!(
+            parse_status(&json!({"status": {"code": 0}})).as_str(),
+            "Unset"
+        );
         assert_eq!(parse_status(&json!({"status": {"code": 1}})).as_str(), "Ok");
-        assert_eq!(parse_status(&json!({"status": {"code": 2}})).as_str(), "Error");
-        assert_eq!(parse_status(&json!({"status": {"code": 99}})).as_str(), "Unset");
+        assert_eq!(
+            parse_status(&json!({"status": {"code": 2}})).as_str(),
+            "Error"
+        );
+        assert_eq!(
+            parse_status(&json!({"status": {"code": 99}})).as_str(),
+            "Unset"
+        );
         assert_eq!(parse_status(&json!({})).as_str(), "Unset");
         // Proto3 JSON may spell the code out.
         assert_eq!(
@@ -589,7 +615,10 @@ mod value_tests {
 
         raw["parentSpanId"] = json!("fedcba9876543210");
         assert_eq!(
-            parse_single_span(&raw, "svc").unwrap().parent_span_id.as_deref(),
+            parse_single_span(&raw, "svc")
+                .unwrap()
+                .parent_span_id
+                .as_deref(),
             Some("fedcba9876543210")
         );
     }
@@ -611,7 +640,9 @@ mod value_tests {
     #[test]
     fn a_document_with_no_usable_span_is_an_error() {
         let doc = json!({"resourceSpans": [{"scopeSpans": [{"spans": [{"name": "junk"}]}]}]});
-        let err = parse_otlp_with_warnings(&doc).err().expect("no usable span");
+        let err = parse_otlp_with_warnings(&doc)
+            .err()
+            .expect("no usable span");
         assert!(matches!(err, WideError::NoValidSpans { .. }));
     }
 
@@ -619,7 +650,9 @@ mod value_tests {
     fn missing_scope_spans_and_empty_documents_are_tolerated() {
         assert!(parse_otlp_with_warnings(&json!({"resourceSpans": []})).is_err());
         assert!(parse_otlp_with_warnings(&json!({"resourceSpans": [{}]})).is_err());
-        assert!(parse_otlp_with_warnings(&json!({"resourceSpans": [{"scopeSpans": [{}]}]})).is_err());
+        assert!(
+            parse_otlp_with_warnings(&json!({"resourceSpans": [{"scopeSpans": [{}]}]})).is_err()
+        );
     }
 
     #[test]
@@ -628,4 +661,3 @@ mod value_tests {
         assert_eq!(parse_otlp(&doc).unwrap().len(), 1);
     }
 }
-

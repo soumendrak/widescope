@@ -48,4 +48,3 @@ mod tests {
         assert_eq!(SafetyCategory::ContentPolicy.as_str(), "content_policy");
     }
 }
-

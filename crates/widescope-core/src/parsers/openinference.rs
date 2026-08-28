@@ -568,10 +568,7 @@ mod oi_tests {
 
     #[test]
     fn iso_timestamps_convert_to_epoch_nanoseconds() {
-        assert_eq!(
-            parse_iso_8601_ns("1970-01-01T00:00:00Z"),
-            Some(0)
-        );
+        assert_eq!(parse_iso_8601_ns("1970-01-01T00:00:00Z"), Some(0));
         assert_eq!(
             parse_iso_8601_ns("2024-04-07T17:13:20.850000Z"),
             Some(1_712_510_000_850_000_000)
@@ -591,13 +588,13 @@ mod oi_tests {
     fn malformed_timestamps_are_rejected_rather_than_guessed() {
         for bad in [
             "not a timestamp",
-            "2024-04-07 17:13:20Z",   // no T
-            "2024-04-07T17:13:20",    // no Z
-            "20xx-04-07T17:13:20Z",   // year not a number
-            "2024-04T17:13:20Z",      // no day
-            "2024-04-07T17:13Z",      // no seconds
+            "2024-04-07 17:13:20Z", // no T
+            "2024-04-07T17:13:20",  // no Z
+            "20xx-04-07T17:13:20Z", // year not a number
+            "2024-04T17:13:20Z",    // no day
+            "2024-04-07T17:13Z",    // no seconds
             "2024-04-07T17:13:20.abcZ",
-            "1969-01-01T00:00:00Z",   // before the epoch
+            "1969-01-01T00:00:00Z", // before the epoch
         ] {
             assert_eq!(parse_iso_8601_ns(bad), None, "{bad} should not parse");
         }
@@ -607,7 +604,10 @@ mod oi_tests {
     fn days_since_epoch_handles_leap_years_and_rejects_impossible_dates() {
         assert_eq!(days_since_epoch(1970, 1, 1), Some(0));
         assert_eq!(days_since_epoch(1970, 12, 31), Some(364));
-        assert_eq!(days_since_epoch(2024, 3, 1), days_since_epoch(2024, 2, 29).map(|d| d + 1));
+        assert_eq!(
+            days_since_epoch(2024, 3, 1),
+            days_since_epoch(2024, 2, 29).map(|d| d + 1)
+        );
         assert_eq!(days_since_epoch(2024, 13, 1), None);
         assert_eq!(days_since_epoch(2024, 0, 1), None);
     }
@@ -629,9 +629,18 @@ mod oi_tests {
             json_value_to_attr_value(&json!("text")),
             Some(AttributeValue::String("text".into()))
         );
-        assert_eq!(json_value_to_attr_value(&json!(7)), Some(AttributeValue::Int(7)));
-        assert_eq!(json_value_to_attr_value(&json!(1.5)), Some(AttributeValue::Float(1.5)));
-        assert_eq!(json_value_to_attr_value(&json!(true)), Some(AttributeValue::Bool(true)));
+        assert_eq!(
+            json_value_to_attr_value(&json!(7)),
+            Some(AttributeValue::Int(7))
+        );
+        assert_eq!(
+            json_value_to_attr_value(&json!(1.5)),
+            Some(AttributeValue::Float(1.5))
+        );
+        assert_eq!(
+            json_value_to_attr_value(&json!(true)),
+            Some(AttributeValue::Bool(true))
+        );
         assert_eq!(json_value_to_attr_value(&json!(null)), None);
         assert_eq!(
             json_value_to_attr_value(&json!(["a", "b"])),
@@ -673,7 +682,11 @@ mod oi_tests {
             ("AGENT", "Internal"),
             ("SOMETHING_NEW", "Internal"),
         ] {
-            assert_eq!(oi_span_kind_to_span_kind(kind).as_str(), expected, "kind {kind}");
+            assert_eq!(
+                oi_span_kind_to_span_kind(kind).as_str(),
+                expected,
+                "kind {kind}"
+            );
         }
     }
 
@@ -719,7 +732,10 @@ mod oi_tests {
         for missing in ["context", "start_time_unix_nano", "end_time_unix_nano"] {
             let mut raw = span_json();
             raw.as_object_mut().unwrap().remove(missing);
-            assert!(parse_single_span(&raw).is_err(), "{missing} should be required");
+            assert!(
+                parse_single_span(&raw).is_err(),
+                "{missing} should be required"
+            );
         }
         let mut no_span_id = span_json();
         no_span_id["context"] = json!({"trace_id": "t1"});
@@ -728,7 +744,10 @@ mod oi_tests {
 
     #[test]
     fn a_parent_id_is_optional() {
-        assert_eq!(parse_single_span(&span_json()).unwrap().parent_span_id, None);
+        assert_eq!(
+            parse_single_span(&span_json()).unwrap().parent_span_id,
+            None
+        );
         let mut raw = span_json();
         raw["parent_id"] = json!("parent");
         assert_eq!(
@@ -755,4 +774,3 @@ mod oi_tests {
         assert!(parse_openinference_with_warnings(&json!({})).is_err());
     }
 }
-

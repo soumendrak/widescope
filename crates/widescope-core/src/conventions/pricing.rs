@@ -354,12 +354,18 @@ mod name_tests {
 
     #[test]
     fn one_numeric_or_version_suffix_is_peeled_at_a_time() {
-        assert_eq!(strip_one_numeric_suffix("gpt-4o-2024"), Some("gpt-4o".into()));
+        assert_eq!(
+            strip_one_numeric_suffix("gpt-4o-2024"),
+            Some("gpt-4o".into())
+        );
         assert_eq!(
             strip_one_numeric_suffix("gpt-4o-2024-07-18"),
             Some("gpt-4o-2024-07".into())
         );
-        assert_eq!(strip_one_numeric_suffix("claude-3-5-sonnet-v2"), Some("claude-3-5-sonnet".into()));
+        assert_eq!(
+            strip_one_numeric_suffix("claude-3-5-sonnet-v2"),
+            Some("claude-3-5-sonnet".into())
+        );
         assert_eq!(strip_one_numeric_suffix("gpt-4o-mini"), None);
         assert_eq!(strip_one_numeric_suffix("gpt4o"), None);
         assert_eq!(strip_one_numeric_suffix("gpt-4o-"), None);

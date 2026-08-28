@@ -69,7 +69,8 @@ mod tests {
 
     const OTLP: &str = include_str!("../../../../test-fixtures/otlp/sample_llm_pipeline.json");
     const JAEGER: &str = include_str!("../../../../test-fixtures/jaeger/sample_llm_pipeline.json");
-    const OI: &str = include_str!("../../../../test-fixtures/openinference/sample_llm_pipeline.json");
+    const OI: &str =
+        include_str!("../../../../test-fixtures/openinference/sample_llm_pipeline.json");
 
     fn detect(raw: &str) -> InputFormat {
         detect_format(&serde_json::from_str(raw).unwrap()).unwrap()

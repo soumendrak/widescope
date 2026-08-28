@@ -290,8 +290,14 @@ mod key_tests {
     fn scores_coerce_from_numbers_and_numeric_text() {
         assert_eq!(coerce_to_float(&AttributeValue::Float(0.9)), Some(0.9));
         assert_eq!(coerce_to_float(&AttributeValue::Int(1)), Some(1.0));
-        assert_eq!(coerce_to_float(&AttributeValue::String("0.5".into())), Some(0.5));
-        assert_eq!(coerce_to_float(&AttributeValue::String("high".into())), None);
+        assert_eq!(
+            coerce_to_float(&AttributeValue::String("0.5".into())),
+            Some(0.5)
+        );
+        assert_eq!(
+            coerce_to_float(&AttributeValue::String("high".into())),
+            None
+        );
         assert_eq!(coerce_to_float(&AttributeValue::Bool(true)), None);
     }
 

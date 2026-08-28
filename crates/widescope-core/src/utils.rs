@@ -59,10 +59,7 @@ mod tests {
 
     #[test]
     fn formats_epoch_ns_as_utc_wall_clock() {
-        assert_eq!(
-            format_timestamp_display(0),
-            "1970-01-01 00:00:00.000 UTC"
-        );
+        assert_eq!(format_timestamp_display(0), "1970-01-01 00:00:00.000 UTC");
         // 2024-04-12T05:20:00.160Z — a leap year, past the Feb/Mar boundary.
         assert_eq!(
             format_timestamp_display(1_712_899_200_160_000_000),

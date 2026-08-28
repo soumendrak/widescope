@@ -490,13 +490,22 @@ mod tag_tests {
             parse_tag_value(&tag("string", json!(5))),
             Some(AttributeValue::String("5".into()))
         );
-        assert_eq!(parse_tag_value(&tag("bool", json!(true))), Some(AttributeValue::Bool(true)));
+        assert_eq!(
+            parse_tag_value(&tag("bool", json!(true))),
+            Some(AttributeValue::Bool(true))
+        );
         assert_eq!(
             parse_tag_value(&tag("boolean", json!("false"))),
             Some(AttributeValue::Bool(false))
         );
-        assert_eq!(parse_tag_value(&tag("int64", json!(-3))), Some(AttributeValue::Int(-3)));
-        assert_eq!(parse_tag_value(&tag("int", json!("42"))), Some(AttributeValue::Int(42)));
+        assert_eq!(
+            parse_tag_value(&tag("int64", json!(-3))),
+            Some(AttributeValue::Int(-3))
+        );
+        assert_eq!(
+            parse_tag_value(&tag("int", json!("42"))),
+            Some(AttributeValue::Int(42))
+        );
         assert_eq!(
             parse_tag_value(&tag("float64", json!(1.25))),
             Some(AttributeValue::Float(1.25))
@@ -517,12 +526,24 @@ mod tag_tests {
             parse_tag_value(&tag("mystery", json!("text"))),
             Some(AttributeValue::String("text".into()))
         );
-        assert_eq!(parse_tag_value(&tag("", json!(true))), Some(AttributeValue::Bool(true)));
-        assert_eq!(parse_tag_value(&tag("", json!(9))), Some(AttributeValue::Int(9)));
-        assert_eq!(parse_tag_value(&tag("", json!(9.5))), Some(AttributeValue::Float(9.5)));
+        assert_eq!(
+            parse_tag_value(&tag("", json!(true))),
+            Some(AttributeValue::Bool(true))
+        );
+        assert_eq!(
+            parse_tag_value(&tag("", json!(9))),
+            Some(AttributeValue::Int(9))
+        );
+        assert_eq!(
+            parse_tag_value(&tag("", json!(9.5))),
+            Some(AttributeValue::Float(9.5))
+        );
         assert_eq!(parse_tag_value(&tag("", json!(null))), None);
         // No `value` key at all.
-        assert_eq!(parse_tag_value(&json!({"key": "k", "type": "string"})), None);
+        assert_eq!(
+            parse_tag_value(&json!({"key": "k", "type": "string"})),
+            None
+        );
     }
 
     #[test]
@@ -554,7 +575,10 @@ mod tag_tests {
         assert_eq!(kind("producer"), "Producer");
         assert_eq!(kind("consumer"), "Consumer");
         assert_eq!(kind("nonsense"), "Internal");
-        assert_eq!(span_kind_from_attributes(&HashMap::new()).as_str(), "Internal");
+        assert_eq!(
+            span_kind_from_attributes(&HashMap::new()).as_str(),
+            "Internal"
+        );
 
         let errored = parse_tags(
             json!([
@@ -590,8 +614,12 @@ mod tag_tests {
         ]});
         assert_eq!(parse_parent_span_id(&child_of).as_deref(), Some("parent"));
 
-        let follows_only = json!({"references": [{"refType": "FOLLOWS_FROM", "spanID": "follows"}]});
-        assert_eq!(parse_parent_span_id(&follows_only).as_deref(), Some("follows"));
+        let follows_only =
+            json!({"references": [{"refType": "FOLLOWS_FROM", "spanID": "follows"}]});
+        assert_eq!(
+            parse_parent_span_id(&follows_only).as_deref(),
+            Some("follows")
+        );
 
         assert_eq!(parse_parent_span_id(&json!({"references": []})), None);
         assert_eq!(parse_parent_span_id(&json!({})), None);
@@ -633,7 +661,10 @@ mod tag_tests {
         assert_eq!(services.get("p1").map(String::as_str), Some("api"));
         assert_eq!(services.get("p2").map(String::as_str), Some("db"));
         // A process with no serviceName still gets an entry, marked unknown.
-        assert_eq!(services.get("p3").map(String::as_str), Some("unknown_service"));
+        assert_eq!(
+            services.get("p3").map(String::as_str),
+            Some("unknown_service")
+        );
         assert!(parse_process_services(&json!({})).is_empty());
     }
 
@@ -688,4 +719,3 @@ mod tag_tests {
         assert_eq!(spans[0].duration_ns, 25_000);
     }
 }
-

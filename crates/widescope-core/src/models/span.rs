@@ -224,7 +224,10 @@ mod tests {
             ),
             (AttributeValue::IntArray(vec![1, 2]), "[1, 2]"),
             (AttributeValue::FloatArray(vec![1.5, 2.5]), "[1.5, 2.5]"),
-            (AttributeValue::BoolArray(vec![true, false]), "[true, false]"),
+            (
+                AttributeValue::BoolArray(vec![true, false]),
+                "[true, false]",
+            ),
         ];
         for (value, expected) in cases {
             assert_eq!(value.as_display_string(), expected);
@@ -262,9 +265,10 @@ mod tests {
         assert!(!SpanStatus::Ok.is_error());
         assert_eq!(SpanStatus::Ok.error_message(), None);
 
-        let err = SpanStatus::Error { message: "bad".into() };
+        let err = SpanStatus::Error {
+            message: "bad".into(),
+        };
         assert!(err.is_error());
         assert_eq!(err.error_message(), Some("bad"));
     }
 }
-

@@ -102,8 +102,16 @@ mod tests {
     fn operation_types_round_trip_through_their_wire_names() {
         let pairs = [
             ("chat", LlmOperationType::ChatCompletion, "ChatCompletion"),
-            ("chat_completion", LlmOperationType::ChatCompletion, "ChatCompletion"),
-            ("text_completion", LlmOperationType::TextCompletion, "TextCompletion"),
+            (
+                "chat_completion",
+                LlmOperationType::ChatCompletion,
+                "ChatCompletion",
+            ),
+            (
+                "text_completion",
+                LlmOperationType::TextCompletion,
+                "TextCompletion",
+            ),
             ("embeddings", LlmOperationType::Embedding, "Embedding"),
             ("embedding", LlmOperationType::Embedding, "Embedding"),
             ("rerank", LlmOperationType::Rerank, "Rerank"),
@@ -126,4 +134,3 @@ mod tests {
         assert!(matches!(parsed, LlmOperationType::Unknown(_)));
     }
 }
-

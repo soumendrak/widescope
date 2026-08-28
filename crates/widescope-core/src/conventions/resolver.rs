@@ -231,7 +231,10 @@ mod mapping_tests {
     fn bundled() -> Vec<Convention> {
         let merged = format!("[{OTEL},{OI},{LANGCHAIN}]");
         let result = load_conventions(&merged);
-        assert!(result.warnings.is_empty(), "bundled conventions must load cleanly");
+        assert!(
+            result.warnings.is_empty(),
+            "bundled conventions must load cleanly"
+        );
         result.conventions
     }
 
@@ -358,18 +361,12 @@ mod mapping_tests {
             SpanEvent {
                 name: "gen_ai.content.prompt".into(),
                 timestamp_ns: 1,
-                attributes: HashMap::from([(
-                    "gen_ai.prompt".to_string(),
-                    text("hello"),
-                )]),
+                attributes: HashMap::from([("gen_ai.prompt".to_string(), text("hello"))]),
             },
             SpanEvent {
                 name: "gen_ai.content.completion".into(),
                 timestamp_ns: 2,
-                attributes: HashMap::from([(
-                    "gen_ai.completion".to_string(),
-                    text("hi back"),
-                )]),
+                attributes: HashMap::from([("gen_ai.completion".to_string(), text("hi back"))]),
             },
         ];
         let llm = resolve_llm_attributes(&span, &bundled()).unwrap();
@@ -379,4 +376,3 @@ mod mapping_tests {
         assert_eq!(llm.output_messages[0].content.as_deref(), Some("hi back"));
     }
 }
-

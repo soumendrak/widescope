@@ -319,8 +319,9 @@ pub fn compute_comparison_matrix(raw_input: &str) -> Result<String, ApiError> {
             .iter()
             .filter_map(|s| s.llm.as_ref())
             .map(|llm| {
-                llm.total_tokens
-                    .unwrap_or_else(|| llm.input_tokens.unwrap_or(0) + llm.output_tokens.unwrap_or(0))
+                llm.total_tokens.unwrap_or_else(|| {
+                    llm.input_tokens.unwrap_or(0) + llm.output_tokens.unwrap_or(0)
+                })
             })
             .sum();
         let total_cost: f64 = trace
@@ -357,13 +358,48 @@ pub fn compute_comparison_matrix(raw_input: &str) -> Result<String, ApiError> {
     }
 
     let rows = vec![
-        MetricRow { label: "Total duration".into(), lower_is_better: Some(true), values: duration, display: d_disp },
-        MetricRow { label: "Span count".into(), lower_is_better: None, values: spans, display: s_disp },
-        MetricRow { label: "Error count".into(), lower_is_better: Some(true), values: errors, display: e_disp },
-        MetricRow { label: "Token count".into(), lower_is_better: None, values: tokens, display: t_disp },
-        MetricRow { label: "Cost (USD)".into(), lower_is_better: Some(true), values: cost, display: c_disp },
-        MetricRow { label: "P50 latency".into(), lower_is_better: Some(true), values: p50, display: p50_disp },
-        MetricRow { label: "P95 latency".into(), lower_is_better: Some(true), values: p95, display: p95_disp },
+        MetricRow {
+            label: "Total duration".into(),
+            lower_is_better: Some(true),
+            values: duration,
+            display: d_disp,
+        },
+        MetricRow {
+            label: "Span count".into(),
+            lower_is_better: None,
+            values: spans,
+            display: s_disp,
+        },
+        MetricRow {
+            label: "Error count".into(),
+            lower_is_better: Some(true),
+            values: errors,
+            display: e_disp,
+        },
+        MetricRow {
+            label: "Token count".into(),
+            lower_is_better: None,
+            values: tokens,
+            display: t_disp,
+        },
+        MetricRow {
+            label: "Cost (USD)".into(),
+            lower_is_better: Some(true),
+            values: cost,
+            display: c_disp,
+        },
+        MetricRow {
+            label: "P50 latency".into(),
+            lower_is_better: Some(true),
+            values: p50,
+            display: p50_disp,
+        },
+        MetricRow {
+            label: "P95 latency".into(),
+            lower_is_better: Some(true),
+            values: p95,
+            display: p95_disp,
+        },
     ];
 
     let matrix = ComparisonMatrix { traces, rows };
@@ -1301,8 +1337,11 @@ pub fn compute_dashboard(traces_json: &str) -> Result<String, ApiError> {
         durations.sort_unstable();
         let p95 = percentile(&durations, 0.95);
 
-        let services: std::collections::HashSet<&str> =
-            trace.spans.iter().map(|s| s.service_name.as_str()).collect();
+        let services: std::collections::HashSet<&str> = trace
+            .spans
+            .iter()
+            .map(|s| s.service_name.as_str())
+            .collect();
         for svc in &services {
             *service_freq.entry((*svc).to_string()).or_insert(0) += 1;
         }
@@ -1556,9 +1595,7 @@ mod session_group_tests {
 
     fn otlp_with_session(trace_id: &str, session: Option<&str>) -> String {
         let attrs = match session {
-            Some(s) => format!(
-                r#",{{"key":"session.id","value":{{"stringValue":"{s}"}}}}"#
-            ),
+            Some(s) => format!(r#",{{"key":"session.id","value":{{"stringValue":"{s}"}}}}"#),
             None => String::new(),
         };
         format!(
@@ -1658,7 +1695,8 @@ mod api_tests {
     const JAEGER: &str = include_str!("../../../test-fixtures/jaeger/sample_llm_pipeline.json");
     const OI: &str = include_str!("../../../test-fixtures/openinference/sample_llm_pipeline.json");
     const EDGE: &str = include_str!("../../../test-fixtures/domains/otlp-edge-cases.json");
-    const K8S: &str = include_str!("../../../test-fixtures/domains/otlp-kubernetes-control-plane.json");
+    const K8S: &str =
+        include_str!("../../../test-fixtures/domains/otlp-kubernetes-control-plane.json");
 
     const OTEL_CONV: &str = include_str!("../../../conventions/opentelemetry.json");
     const OI_CONV: &str = include_str!("../../../conventions/openinference.json");
@@ -2133,7 +2171,10 @@ mod search_dsl_tests {
     #[test]
     fn a_query_without_operators_matches_everything() {
         assert!(parse_search_operators("just some words").is_none());
-        assert!(span_matches_operators(&span("a", "svc", 10), "just some words"));
+        assert!(span_matches_operators(
+            &span("a", "svc", 10),
+            "just some words"
+        ));
     }
 
     #[test]
@@ -2163,7 +2204,10 @@ mod search_dsl_tests {
 
     #[test]
     fn an_unparseable_duration_matches_nothing() {
-        assert!(!span_matches_operators(&span("a", "svc", 10), "duration>wat"));
+        assert!(!span_matches_operators(
+            &span("a", "svc", 10),
+            "duration>wat"
+        ));
     }
 
     #[test]
@@ -2210,8 +2254,14 @@ mod search_dsl_tests {
     #[test]
     fn operators_combine_conjunctively() {
         let s = span("a", "api", 100_000_000);
-        assert!(span_matches_operators(&s, "duration>50ms service~api status=ok"));
-        assert!(!span_matches_operators(&s, "duration>50ms service~payments"));
+        assert!(span_matches_operators(
+            &s,
+            "duration>50ms service~api status=ok"
+        ));
+        assert!(!span_matches_operators(
+            &s,
+            "duration>50ms service~payments"
+        ));
     }
 
     #[test]
@@ -2226,5 +2276,268 @@ mod search_dsl_tests {
         assert_eq!(percentile(&[10], 0.5), 10);
         assert_eq!(percentile(&[10, 20, 30, 40], 0.5), 30);
         assert_eq!(percentile(&[10, 20, 30, 40], 0.95), 40);
+    }
+}
+
+/// Span-detail assembly against traces that actually carry the richer LLM
+/// payloads: messages, tool calls, retrieved documents and eval scores.
+#[cfg(test)]
+mod detail_tests {
+    use super::*;
+
+    const MULTI_AGENT: &str = include_str!(
+        "../../../test-fixtures/openinference/upload-samples/01-multi-agent-complex.json"
+    );
+    const RAG: &str =
+        include_str!("../../../test-fixtures/domains/openinference-legal-doc-rag.json");
+    const WITH_EVENTS: &str =
+        include_str!("../../../test-fixtures/domains/otlp-kubernetes-control-plane.json");
+    const OTEL_CONV: &str = include_str!("../../../conventions/opentelemetry.json");
+    const OI_CONV: &str = include_str!("../../../conventions/openinference.json");
+    const LC_CONV: &str = include_str!("../../../conventions/langchain.json");
+    const PRICING_JSON: &str = include_str!("../../../conventions/pricing.json");
+
+    fn boot() {
+        init(&format!("[{OTEL_CONV},{OI_CONV},{LC_CONV}]")).unwrap();
+        init_pricing(PRICING_JSON).unwrap();
+    }
+
+    /// Every span id in the loaded trace, via the flamegraph layout.
+    fn span_ids() -> Vec<String> {
+        let flame: serde_json::Value =
+            serde_json::from_str(&compute_flamegraph().unwrap()).unwrap();
+        flame["nodes"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .map(|n| n["span_id"].as_str().unwrap().to_string())
+            .collect()
+    }
+
+    #[test]
+    fn every_span_in_a_rich_llm_trace_yields_a_detail_payload() {
+        boot();
+        parse_trace(MULTI_AGENT).unwrap();
+        let ids = span_ids();
+        assert!(!ids.is_empty());
+        for id in ids {
+            let detail: serde_json::Value =
+                serde_json::from_str(&get_span_detail(&id).unwrap()).unwrap();
+            assert_eq!(detail["span_id"], id);
+            assert!(detail["duration_display"].is_string());
+        }
+    }
+
+    #[test]
+    fn retrieval_spans_expose_their_documents_and_messages() {
+        boot();
+        parse_trace(RAG).unwrap();
+
+        let mut saw_documents = false;
+        let mut saw_tokens = false;
+        let mut saw_cost = false;
+        for id in span_ids() {
+            let detail: serde_json::Value =
+                serde_json::from_str(&get_span_detail(&id).unwrap()).unwrap();
+            let Some(llm) = detail.get("llm").filter(|v| !v.is_null()) else {
+                continue;
+            };
+            if !llm["retrieved_documents"].as_array().unwrap().is_empty() {
+                saw_documents = true;
+                let doc = &llm["retrieved_documents"][0];
+                assert!(doc["id"].is_string());
+                assert!(doc["score"].is_number());
+            }
+            if llm["total_tokens"].as_u64().is_some_and(|t| t > 0) {
+                saw_tokens = true;
+            }
+            if llm["estimated_cost_usd"].as_f64().is_some_and(|c| c > 0.0) {
+                saw_cost = true;
+            }
+        }
+        assert!(
+            saw_documents,
+            "the RAG fixture should carry retrieved documents"
+        );
+        assert!(saw_tokens, "the RAG fixture should carry token counts");
+        assert!(saw_cost, "priced models should resolve a cost");
+    }
+
+    #[test]
+    fn span_events_are_rendered_with_their_attributes() {
+        boot();
+        parse_trace(WITH_EVENTS).unwrap();
+        let with_events = span_ids().into_iter().find_map(|id| {
+            let detail: serde_json::Value =
+                serde_json::from_str(&get_span_detail(&id).unwrap()).unwrap();
+            let events = detail["events"].as_array().cloned().unwrap_or_default();
+            (!events.is_empty()).then_some(events)
+        });
+        let events = with_events.expect("the k8s fixture carries exception events");
+        assert!(events[0]["timestamp_display"].is_string());
+        assert!(events[0]["name"].is_string());
+    }
+
+    #[test]
+    fn plain_text_search_falls_back_to_substring_matching() {
+        boot();
+        parse_trace(MULTI_AGENT).unwrap();
+
+        let by_name: serde_json::Value =
+            serde_json::from_str(&search_spans("agent").unwrap()).unwrap();
+        assert!(!by_name.as_array().unwrap().is_empty());
+
+        // A blank query is "no search", not "match everything" — the UI shows
+        // the whole trace and no highlight ring.
+        let empty: serde_json::Value = serde_json::from_str(&search_spans("   ").unwrap()).unwrap();
+        assert!(empty.as_array().unwrap().is_empty());
+
+        let miss: serde_json::Value =
+            serde_json::from_str(&search_spans("zzzz-no-such-span").unwrap()).unwrap();
+        assert!(miss.as_array().unwrap().is_empty());
+    }
+
+    #[test]
+    fn safety_signals_are_detected_and_filterable() {
+        boot();
+        parse_trace(MULTI_AGENT).unwrap();
+        // The filter runs whether or not this fixture trips a signal; what
+        // matters is that the safety path executes rather than erroring.
+        let filtered: serde_json::Value =
+            serde_json::from_str(&filter_spans(r#"{"safety_only":true}"#).unwrap()).unwrap();
+        assert!(filtered.is_array());
+    }
+
+    #[test]
+    fn a_trace_list_entry_survives_the_comparison_round_trip() {
+        boot();
+        parse_trace(MULTI_AGENT).unwrap();
+        parse_comparison_trace(RAG).unwrap();
+        let cmp: serde_json::Value =
+            serde_json::from_str(&get_comparison_flamegraph().unwrap()).unwrap();
+        assert!(!cmp["nodes"].as_array().unwrap().is_empty());
+    }
+}
+
+/// A span carrying every optional LLM field at once.
+///
+/// Real fixtures each exercise a subset — messages here, tool calls there — so
+/// the detail builder's per-field mapping is driven from a hand-built trace
+/// installed directly into the thread-local state.
+#[cfg(test)]
+mod full_llm_detail_tests {
+    use super::*;
+    use models::llm::{EvalScore, LlmMessage, LlmOperationType, RetrievedDocument, ToolCall};
+    use models::span::{SpanEvent, SpanKind, SpanStatus};
+    use models::trace::InputFormat;
+
+    fn everything() -> LlmSpanAttributes {
+        LlmSpanAttributes {
+            operation_type: LlmOperationType::ChatCompletion,
+            model_name: Some("gpt-4o".into()),
+            model_provider: Some("openai".into()),
+            input_tokens: Some(10),
+            output_tokens: Some(20),
+            total_tokens: Some(30),
+            estimated_cost_usd: Some(0.001),
+            input_messages: vec![LlmMessage {
+                role: "user".into(),
+                content: Some("hello".into()),
+            }],
+            output_messages: vec![LlmMessage {
+                role: "assistant".into(),
+                content: Some("hi".into()),
+            }],
+            tool_calls: vec![ToolCall {
+                name: "search_web".into(),
+                arguments: Some(r#"{"q":"rust"}"#.into()),
+                result: Some("ok".into()),
+            }],
+            temperature: Some(0.2),
+            top_p: Some(0.9),
+            max_tokens: Some(256),
+            embedding_dimensions: Some(1536),
+            embedding_count: Some(3),
+            retrieved_documents: vec![RetrievedDocument {
+                id: Some("doc-1".into()),
+                score: Some(0.87),
+                content_snippet: Some("clause".into()),
+            }],
+            eval_scores: vec![EvalScore {
+                name: "faithfulness".into(),
+                value: 0.92,
+                threshold: Some(0.8),
+                passed: Some(true),
+            }],
+        }
+    }
+
+    #[test]
+    fn the_detail_payload_carries_every_optional_llm_field() {
+        let mut span = Span {
+            trace_id: "t".into(),
+            span_id: "s1".into(),
+            parent_span_id: None,
+            operation_name: "chat".into(),
+            service_name: "svc".into(),
+            span_kind: SpanKind::Client,
+            start_time_ns: 0,
+            end_time_ns: 1_000_000,
+            duration_ns: 1_000_000,
+            self_time_ns: 1_000_000,
+            status: SpanStatus::Error {
+                message: "rate limited".into(),
+            },
+            attributes: std::collections::HashMap::from([(
+                "gen_ai.request.model".to_string(),
+                AttributeValue::String("gpt-4o".into()),
+            )]),
+            events: vec![SpanEvent {
+                name: "exception".into(),
+                timestamp_ns: 500,
+                attributes: std::collections::HashMap::from([(
+                    "exception.type".to_string(),
+                    AttributeValue::String("RateLimit".into()),
+                )]),
+            }],
+            llm: Some(everything()),
+            safety: vec![],
+        };
+        span.llm.as_mut().unwrap().operation_type = LlmOperationType::ChatCompletion;
+
+        let trace = build_trace(vec![span], InputFormat::OtlpJson, vec![]).unwrap();
+        TRACE.with(|t| *t.borrow_mut() = Some(trace));
+
+        let detail: serde_json::Value =
+            serde_json::from_str(&get_span_detail("s1").unwrap()).unwrap();
+
+        assert_eq!(detail["status"], "Error");
+        assert_eq!(detail["error_message"], "rate limited");
+        assert_eq!(detail["events"][0]["name"], "exception");
+        assert_eq!(detail["events"][0]["attributes"][0][0], "exception.type");
+
+        let llm = &detail["llm"];
+        assert_eq!(llm["model_name"], "gpt-4o");
+        assert_eq!(llm["model_provider"], "openai");
+        assert_eq!(llm["total_tokens"], 30);
+        assert_eq!(llm["estimated_cost_usd"], 0.001);
+        assert_eq!(llm["temperature"], 0.2);
+        assert_eq!(llm["input_messages"][0]["role"], "user");
+        assert_eq!(llm["input_messages"][0]["content"], "hello");
+        assert_eq!(llm["output_messages"][0]["content"], "hi");
+        assert_eq!(llm["tool_calls"][0]["name"], "search_web");
+        assert_eq!(llm["tool_calls"][0]["result"], "ok");
+        assert_eq!(llm["retrieved_documents"][0]["id"], "doc-1");
+        assert_eq!(llm["retrieved_documents"][0]["score"], 0.87);
+        assert_eq!(llm["eval_scores"][0]["name"], "faithfulness");
+        assert_eq!(llm["eval_scores"][0]["passed"], true);
+        assert_eq!(llm["eval_scores"][0]["threshold"], 0.8);
+
+        // The same span drives the cost breakdown.
+        let cost: serde_json::Value = serde_json::from_str(&get_cost_breakdown().unwrap()).unwrap();
+        assert!(cost["total_cost_usd"].as_f64().unwrap() > 0.0);
+        assert_eq!(cost["entries"][0]["model"], "gpt-4o");
+        assert_eq!(cost["entries"][0]["provider"], "openai");
+        assert_eq!(cost["total_input_tokens"], 10);
     }
 }

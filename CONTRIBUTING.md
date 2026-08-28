@@ -340,11 +340,18 @@ just coverage-html   # Rust, browsable report
 just coverage-ui     # UI (vitest + v8), fails under the configured thresholds
 ```
 
-- **Rust**: 100% of lines, enforced by `cargo llvm-cov --fail-under-lines` in CI.
-  The single exception is `to_js` in `lib.rs` — the `WideError -> JsValue`
-  bridge traps on a non-wasm target, so `cargo test` can never execute it. Every
-  exported function's logic lives in a `*_inner` function that tests drive
-  directly; keep that split when you add one.
+- **Rust**: 98% of lines, enforced by `cargo llvm-cov --fail-under-lines` in CI.
+  What is left is not "untested code" — it is three classes of line that a test
+  cannot reach without lying:
+  - `?` propagation arms where the inner call cannot fail for the input the
+    caller can construct;
+  - `.expect("...cannot fail")` guards on in-memory codec calls;
+  - the failure arms of `assert!`/`matches!` inside the test modules themselves,
+    which `llvm-cov` counts along with production code.
+
+  Error paths through the WASM boundary *are* covered: `ApiError` is a plain
+  `WideError` off-wasm (see the top of `lib.rs`), so `cargo test` drives both
+  arms of every exported function. Keep that property when you add one.
 - **UI**: thresholds live in the vitest config. Components are tested through
   `@testing-library/svelte` — assert what a user sees, not internal state. What
   is excluded (canvas paint loops, animation frames, the entry bootstrap) is

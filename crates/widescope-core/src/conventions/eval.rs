@@ -240,7 +240,10 @@ mod key_tests {
         assert_eq!(parse_eval_key("unrelated.attribute"), None);
         // An empty metric name before a known suffix keeps the whole rest, so
         // the score still shows up rather than vanishing.
-        assert_eq!(parse_eval_key("eval..score"), Some((".score".to_string(), None)));
+        assert_eq!(
+            parse_eval_key("eval..score"),
+            Some((".score".to_string(), None))
+        );
     }
 
     #[test]
@@ -253,7 +256,10 @@ mod key_tests {
             coerce_to_float(&AttributeValue::String(" 0.25 ".into())),
             Some(0.25)
         );
-        assert_eq!(coerce_to_float(&AttributeValue::String("high".into())), None);
+        assert_eq!(
+            coerce_to_float(&AttributeValue::String("high".into())),
+            None
+        );
         assert_eq!(coerce_to_float(&AttributeValue::IntArray(vec![1])), None);
     }
 
@@ -273,7 +279,10 @@ mod key_tests {
                 "{falsy}"
             );
         }
-        assert_eq!(coerce_to_bool(&AttributeValue::String("maybe".into())), None);
+        assert_eq!(
+            coerce_to_bool(&AttributeValue::String("maybe".into())),
+            None
+        );
         assert_eq!(coerce_to_bool(&AttributeValue::Bool(true)), Some(true));
         assert_eq!(coerce_to_bool(&AttributeValue::Int(0)), Some(false));
         assert_eq!(coerce_to_bool(&AttributeValue::Int(7)), Some(true));
