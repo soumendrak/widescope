@@ -70,8 +70,11 @@ pub fn compute_agent_flow(trace: &Trace) -> AgentFlow {
     flow_spans.sort_by_key(|(id, _)| trace.get_span(id).map(|s| s.start_time_ns).unwrap_or(0));
 
     let is_flow: HashMap<&str, &str> = flow_spans.iter().copied().collect();
-    let order_of: HashMap<&str, usize> =
-        flow_spans.iter().enumerate().map(|(i, (id, _))| (*id, i)).collect();
+    let order_of: HashMap<&str, usize> = flow_spans
+        .iter()
+        .enumerate()
+        .map(|(i, (id, _))| (*id, i))
+        .collect();
 
     // Nearest flow-node ancestor, walking up the parent chain.
     let flow_parent = |span_id: &str| -> Option<String> {
@@ -110,7 +113,9 @@ pub fn compute_agent_flow(trace: &Trace) -> AgentFlow {
         };
         let llm = span.llm.as_ref();
         let first_tool = llm.and_then(|l| l.tool_calls.first());
-        let tool_name = first_tool.map(|t| t.name.clone()).filter(|_| *kind == "tool");
+        let tool_name = first_tool
+            .map(|t| t.name.clone())
+            .filter(|_| *kind == "tool");
         let arguments = first_tool.and_then(|t| t.arguments.clone());
         let result = first_tool.and_then(|t| t.result.clone());
         // The agent's "thought" — the model's first output message, if any.
@@ -121,7 +126,9 @@ pub fn compute_agent_flow(trace: &Trace) -> AgentFlow {
         let parent = flow_parent(span_id);
 
         // Iteration grouping keyed by parent + a stable name.
-        let group_name = tool_name.clone().unwrap_or_else(|| span.operation_name.clone());
+        let group_name = tool_name
+            .clone()
+            .unwrap_or_else(|| span.operation_name.clone());
         let parent_key = parent.clone().unwrap_or_default();
         let counter = iter_counter.entry((parent_key, group_name)).or_insert(0);
         let iteration = Some(*counter);
@@ -129,7 +136,9 @@ pub fn compute_agent_flow(trace: &Trace) -> AgentFlow {
 
         nodes.push(AgentFlowNode {
             span_id: span_id.to_string(),
-            label: tool_name.clone().unwrap_or_else(|| span.operation_name.clone()),
+            label: tool_name
+                .clone()
+                .unwrap_or_else(|| span.operation_name.clone()),
             kind: kind.to_string(),
             tool_name,
             status: span.status.as_str().to_string(),
@@ -206,7 +215,12 @@ mod tests {
         }
     }
 
-    fn span(id: &str, parent: Option<&str>, start: u64, llm_attr: Option<LlmSpanAttributes>) -> Span {
+    fn span(
+        id: &str,
+        parent: Option<&str>,
+        start: u64,
+        llm_attr: Option<LlmSpanAttributes>,
+    ) -> Span {
         Span {
             trace_id: "t".into(),
             span_id: id.into(),
@@ -236,8 +250,18 @@ mod tests {
         // agent -> tool(search) x2 (loop) + a non-agentic span (ignored).
         let spans = vec![
             span("a", None, 0, Some(llm(LlmOperationType::AgentStep, None))),
-            span("t1", Some("a"), 1, Some(llm(LlmOperationType::ToolCall, Some("search")))),
-            span("t2", Some("a"), 2, Some(llm(LlmOperationType::ToolCall, Some("search")))),
+            span(
+                "t1",
+                Some("a"),
+                1,
+                Some(llm(LlmOperationType::ToolCall, Some("search"))),
+            ),
+            span(
+                "t2",
+                Some("a"),
+                2,
+                Some(llm(LlmOperationType::ToolCall, Some("search"))),
+            ),
             span("plain", Some("a"), 3, None),
         ];
         let flow = compute_agent_flow(&build(spans));
@@ -250,7 +274,11 @@ mod tests {
         let t2 = flow.nodes.iter().find(|n| n.span_id == "t2").unwrap();
         assert_eq!(t2.layer, 1, "tool is one layer below its agent");
         assert_eq!(t2.iteration, Some(1), "second search call is iteration 1");
-        assert_eq!(t2.arguments.as_deref(), Some("{\"q\":\"search\"}"), "tool args inline");
+        assert_eq!(
+            t2.arguments.as_deref(),
+            Some("{\"q\":\"search\"}"),
+            "tool args inline"
+        );
         assert_eq!(t2.result.as_deref(), Some("ok"), "tool result inline");
 
         // spawn edges a->t1, a->t2 ; sequence edge t1->t2.

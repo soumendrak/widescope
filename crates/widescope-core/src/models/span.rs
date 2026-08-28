@@ -98,7 +98,9 @@ impl SpanStatus {
     }
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+// PartialEq so tests can assert a decoded attribute equals what the export
+// carried, rather than comparing display strings.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AttributeValue {
     String(String),
@@ -165,4 +167,108 @@ pub struct SpanEvent {
     pub name: String,
     pub timestamp_ns: Timestamp,
     pub attributes: HashMap<String, AttributeValue>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use crate::models::safety::{SafetyCategory, SafetySeverity};
+
+    fn signal(category: SafetyCategory, severity: SafetySeverity) -> SafetySignal {
+        SafetySignal {
+            category,
+            severity,
+            detail: String::new(),
+        }
+    }
+
+    #[test]
+    fn the_worst_safety_signal_wins_the_badge() {
+        let mut span = Span {
+            trace_id: "t".into(),
+            span_id: "s".into(),
+            parent_span_id: None,
+            operation_name: "op".into(),
+            service_name: "svc".into(),
+            span_kind: SpanKind::Internal,
+            start_time_ns: 0,
+            end_time_ns: 1,
+            duration_ns: 1,
+            self_time_ns: 1,
+            status: SpanStatus::Unset,
+            attributes: HashMap::new(),
+            events: vec![],
+            llm: None,
+            safety: vec![],
+        };
+        assert_eq!(span.top_safety_category(), None);
+
+        span.safety = vec![
+            signal(SafetyCategory::Refusal, SafetySeverity::Low),
+            signal(SafetyCategory::Jailbreak, SafetySeverity::High),
+        ];
+        assert_eq!(span.top_safety_category().as_deref(), Some("jailbreak"));
+    }
+
+    #[test]
+    fn every_attribute_value_has_a_display_form() {
+        let cases: Vec<(AttributeValue, &str)> = vec![
+            (AttributeValue::String("hi".into()), "hi"),
+            (AttributeValue::Int(-2), "-2"),
+            (AttributeValue::Float(1.5), "1.5"),
+            (AttributeValue::Bool(true), "true"),
+            (
+                AttributeValue::StringArray(vec!["a".into(), "b".into()]),
+                "[a, b]",
+            ),
+            (AttributeValue::IntArray(vec![1, 2]), "[1, 2]"),
+            (AttributeValue::FloatArray(vec![1.5, 2.5]), "[1.5, 2.5]"),
+            (
+                AttributeValue::BoolArray(vec![true, false]),
+                "[true, false]",
+            ),
+        ];
+        for (value, expected) in cases {
+            assert_eq!(value.as_display_string(), expected);
+        }
+    }
+
+    #[test]
+    fn typed_accessors_only_answer_for_their_own_variant() {
+        assert_eq!(AttributeValue::String("x".into()).as_str(), Some("x"));
+        assert_eq!(AttributeValue::Int(1).as_str(), None);
+
+        assert_eq!(AttributeValue::Int(3).as_int(), Some(3));
+        assert_eq!(AttributeValue::Float(3.0).as_int(), None);
+
+        // Floats accept ints, because token counts arrive as either.
+        assert_eq!(AttributeValue::Float(2.5).as_float(), Some(2.5));
+        assert_eq!(AttributeValue::Int(2).as_float(), Some(2.0));
+        assert_eq!(AttributeValue::Bool(true).as_float(), None);
+    }
+
+    #[test]
+    fn span_kinds_and_statuses_have_stable_names() {
+        for (kind, name) in [
+            (SpanKind::Internal, "Internal"),
+            (SpanKind::Server, "Server"),
+            (SpanKind::Client, "Client"),
+            (SpanKind::Producer, "Producer"),
+            (SpanKind::Consumer, "Consumer"),
+        ] {
+            assert_eq!(kind.as_str(), name);
+        }
+
+        assert_eq!(SpanStatus::Unset.as_str(), "Unset");
+        assert_eq!(SpanStatus::Ok.as_str(), "Ok");
+        assert!(!SpanStatus::Ok.is_error());
+        assert_eq!(SpanStatus::Ok.error_message(), None);
+
+        let err = SpanStatus::Error {
+            message: "bad".into(),
+        };
+        assert!(err.is_error());
+        assert_eq!(err.error_message(), Some("bad"));
+    }
 }

@@ -339,3 +339,35 @@ mod tests {
         );
     }
 }
+
+/// Model-name normalization: pricing tables list canonical names, traces carry
+/// dated and versioned variants.
+#[cfg(test)]
+mod name_tests {
+    use super::*;
+
+    #[test]
+    fn normalization_strips_the_vendor_path_and_case() {
+        assert_eq!(normalize("  models/Gemini-1.5-Pro "), "gemini-1.5-pro");
+        assert_eq!(normalize("GPT-4o"), "gpt-4o");
+    }
+
+    #[test]
+    fn one_numeric_or_version_suffix_is_peeled_at_a_time() {
+        assert_eq!(
+            strip_one_numeric_suffix("gpt-4o-2024"),
+            Some("gpt-4o".into())
+        );
+        assert_eq!(
+            strip_one_numeric_suffix("gpt-4o-2024-07-18"),
+            Some("gpt-4o-2024-07".into())
+        );
+        assert_eq!(
+            strip_one_numeric_suffix("claude-3-5-sonnet-v2"),
+            Some("claude-3-5-sonnet".into())
+        );
+        assert_eq!(strip_one_numeric_suffix("gpt-4o-mini"), None);
+        assert_eq!(strip_one_numeric_suffix("gpt4o"), None);
+        assert_eq!(strip_one_numeric_suffix("gpt-4o-"), None);
+    }
+}

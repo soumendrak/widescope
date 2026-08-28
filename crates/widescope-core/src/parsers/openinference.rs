@@ -520,7 +520,7 @@ mod tests {
                     "attributes": {
                         "str_val": "hello",
                         "int_val": 42,
-                        "float_val": 3.14,
+                        "float_val": 1.25,
                         "bool_val": true,
                         "str_array": ["a", "b", "c"],
                         "int_array": [1, 2, 3],
@@ -556,5 +556,221 @@ mod tests {
         );
         // null_val should be skipped
         assert!(!attrs.contains_key("null_val"));
+    }
+}
+
+/// OpenInference's own encodings: ISO-8601 timestamps, untyped JSON attribute
+/// values, and the span-kind vocabulary.
+#[cfg(test)]
+mod oi_tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn iso_timestamps_convert_to_epoch_nanoseconds() {
+        assert_eq!(parse_iso_8601_ns("1970-01-01T00:00:00Z"), Some(0));
+        assert_eq!(
+            parse_iso_8601_ns("2024-04-07T17:13:20.850000Z"),
+            Some(1_712_510_000_850_000_000)
+        );
+        // Nine or more fractional digits are truncated, fewer are scaled up.
+        assert_eq!(
+            parse_iso_8601_ns("2024-04-07T17:13:20.123456789123Z"),
+            Some(1_712_510_000_123_456_789)
+        );
+        assert_eq!(
+            parse_iso_8601_ns("2024-04-07T17:13:20.5Z"),
+            Some(1_712_510_000_500_000_000)
+        );
+    }
+
+    #[test]
+    fn malformed_timestamps_are_rejected_rather_than_guessed() {
+        for bad in [
+            "not a timestamp",
+            "2024-04-07 17:13:20Z", // no T
+            "2024-04-07T17:13:20",  // no Z
+            "20xx-04-07T17:13:20Z", // year not a number
+            "2024-04T17:13:20Z",    // no day
+            "2024-04-07T17:13Z",    // no seconds
+            "2024-04-07T17:13:20.abcZ",
+            "1969-01-01T00:00:00Z", // before the epoch
+        ] {
+            assert_eq!(parse_iso_8601_ns(bad), None, "{bad} should not parse");
+        }
+    }
+
+    #[test]
+    fn days_since_epoch_handles_leap_years_and_rejects_impossible_dates() {
+        assert_eq!(days_since_epoch(1970, 1, 1), Some(0));
+        assert_eq!(days_since_epoch(1970, 12, 31), Some(364));
+        assert_eq!(
+            days_since_epoch(2024, 3, 1),
+            days_since_epoch(2024, 2, 29).map(|d| d + 1)
+        );
+        assert_eq!(days_since_epoch(2024, 13, 1), None);
+        assert_eq!(days_since_epoch(2024, 0, 1), None);
+    }
+
+    #[test]
+    fn nano_timestamps_accept_every_numeric_encoding() {
+        // Span times are epoch nanos; only event timestamps are ISO text.
+        assert_eq!(parse_nano_ts(&json!(5u64)), Some(5));
+        assert_eq!(parse_nano_ts(&json!("6")), Some(6));
+        assert_eq!(parse_nano_ts(&json!(7.9)), Some(7));
+        assert_eq!(parse_nano_ts(&json!(-1)), None);
+        assert_eq!(parse_nano_ts(&json!(null)), None);
+        assert_eq!(parse_nano_ts(&json!("1970-01-01T00:00:01Z")), None);
+    }
+
+    #[test]
+    fn untyped_json_attribute_values_map_onto_the_typed_enum() {
+        assert_eq!(
+            json_value_to_attr_value(&json!("text")),
+            Some(AttributeValue::String("text".into()))
+        );
+        assert_eq!(
+            json_value_to_attr_value(&json!(7)),
+            Some(AttributeValue::Int(7))
+        );
+        assert_eq!(
+            json_value_to_attr_value(&json!(1.5)),
+            Some(AttributeValue::Float(1.5))
+        );
+        assert_eq!(
+            json_value_to_attr_value(&json!(true)),
+            Some(AttributeValue::Bool(true))
+        );
+        assert_eq!(json_value_to_attr_value(&json!(null)), None);
+        assert_eq!(
+            json_value_to_attr_value(&json!(["a", "b"])),
+            Some(AttributeValue::StringArray(vec!["a".into(), "b".into()]))
+        );
+        assert_eq!(
+            json_value_to_attr_value(&json!([1, 2])),
+            Some(AttributeValue::IntArray(vec![1, 2]))
+        );
+        assert_eq!(
+            json_value_to_attr_value(&json!([1.5, 2.5])),
+            Some(AttributeValue::FloatArray(vec![1.5, 2.5]))
+        );
+        assert_eq!(
+            json_value_to_attr_value(&json!([true, false])),
+            Some(AttributeValue::BoolArray(vec![true, false]))
+        );
+        assert_eq!(
+            json_value_to_attr_value(&json!([])),
+            Some(AttributeValue::StringArray(vec![]))
+        );
+        // A nested object has no typed equivalent, so it travels as JSON text.
+        assert!(matches!(
+            json_value_to_attr_value(&json!({"a": 1})),
+            Some(AttributeValue::String(_))
+        ));
+    }
+
+    #[test]
+    fn span_kinds_cover_the_openinference_vocabulary() {
+        // Only the kinds that cross a process boundary are Client.
+        for (kind, expected) in [
+            ("LLM", "Client"),
+            ("llm", "Client"),
+            ("TOOL", "Client"),
+            ("RETRIEVER", "Client"),
+            ("CHAIN", "Internal"),
+            ("EMBEDDING", "Internal"),
+            ("AGENT", "Internal"),
+            ("SOMETHING_NEW", "Internal"),
+        ] {
+            assert_eq!(
+                oi_span_kind_to_span_kind(kind).as_str(),
+                expected,
+                "kind {kind}"
+            );
+        }
+    }
+
+    #[test]
+    fn status_reads_the_status_code_and_message() {
+        assert_eq!(parse_oi_status(&json!({})).as_str(), "Unset");
+        assert_eq!(
+            parse_oi_status(&json!({"status_code": "OK"})).as_str(),
+            "Ok"
+        );
+        let errored = parse_oi_status(&json!({"status_code": "ERROR", "status_message": "boom"}));
+        assert!(errored.is_error());
+        assert_eq!(errored.error_message(), Some("boom"));
+    }
+
+    #[test]
+    fn attributes_and_events_tolerate_missing_sections() {
+        assert!(parse_oi_attributes(None).is_empty());
+        assert!(parse_oi_attributes(Some(&json!("not an object"))).is_empty());
+        assert!(parse_oi_events(None).is_empty());
+        assert!(parse_oi_events(Some(&json!("not an array"))).is_empty());
+
+        let events = parse_oi_events(Some(&json!([
+            {"name": "retry", "timestamp": "1970-01-01T00:00:01Z", "attributes": {"attempt": 2}},
+            {"timestamp": "1970-01-01T00:00:01Z"}
+        ])));
+        assert_eq!(events[0].name, "retry");
+        assert_eq!(events[0].timestamp_ns, 1_000_000_000);
+        assert_eq!(events[0].attributes.len(), 1);
+    }
+
+    fn span_json() -> serde_json::Value {
+        json!({
+            "context": {"trace_id": "t1", "span_id": "s1"},
+            "name": "op",
+            "start_time_unix_nano": 0,
+            "end_time_unix_nano": 1_000_000_000u64,
+        })
+    }
+
+    #[test]
+    fn a_span_missing_its_context_or_times_is_reported() {
+        for missing in ["context", "start_time_unix_nano", "end_time_unix_nano"] {
+            let mut raw = span_json();
+            raw.as_object_mut().unwrap().remove(missing);
+            assert!(
+                parse_single_span(&raw).is_err(),
+                "{missing} should be required"
+            );
+        }
+        let mut no_span_id = span_json();
+        no_span_id["context"] = json!({"trace_id": "t1"});
+        assert!(parse_single_span(&no_span_id).is_err());
+    }
+
+    #[test]
+    fn a_parent_id_is_optional() {
+        assert_eq!(
+            parse_single_span(&span_json()).unwrap().parent_span_id,
+            None
+        );
+        let mut raw = span_json();
+        raw["parent_id"] = json!("parent");
+        assert_eq!(
+            parse_single_span(&raw).unwrap().parent_span_id.as_deref(),
+            Some("parent")
+        );
+    }
+
+    #[test]
+    fn skipped_spans_are_counted_in_one_warning() {
+        let doc = json!({"spans": [
+            span_json(),
+            {"context": {"trace_id": "t"}, "name": "no span id"},
+        ]});
+        let result = parse_openinference_with_warnings(&doc).unwrap();
+        assert_eq!(result.spans.len(), 1);
+        assert_eq!(result.warnings[0].code, "SPAN_MISSING_REQUIRED");
+        assert_eq!(result.warnings[0].count, 1);
+    }
+
+    #[test]
+    fn a_document_with_nothing_usable_is_an_error() {
+        assert!(parse_openinference_with_warnings(&json!({"spans": []})).is_err());
+        assert!(parse_openinference_with_warnings(&json!({})).is_err());
     }
 }

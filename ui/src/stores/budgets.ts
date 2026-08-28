@@ -161,7 +161,10 @@ function observeField(field: BudgetField, summary: TraceSummary, totalCostUsd: n
  * back into nanoseconds. Used because TraceSummary only ships the p95 as a
  * formatted string today; once we expose raw p95 ns, this can be removed.
  */
-function parseLatencyDisplayNs(display: string): number | null {
+function parseLatencyDisplayNs(display: string | undefined): number | null {
+  // A summary from an older share link may not carry the field at all; a
+  // budget check must not take the whole view down over it.
+  if (!display) return null;
   const m = display.match(/^([0-9]*\.?[0-9]+)\s*(ns|µs|us|ms|s|m)$/i);
   if (!m) return null;
   const value = parseFloat(m[1]);

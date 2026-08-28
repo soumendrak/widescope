@@ -1,3 +1,6 @@
+// @vitest-environment node
+// This suite instantiates the real WASM module from disk, which needs Node's
+// file URLs — jsdom rewrites import.meta.url to http: and fileURLToPath throws.
 import { describe, it, expect, beforeAll } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
