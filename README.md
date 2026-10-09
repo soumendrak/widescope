@@ -41,7 +41,7 @@ A browser-based, zero-backend trace viewer for OpenTelemetry- and Jaeger-style t
 
 1. Open [widescope.soumendrak.com](https://widescope.soumendrak.com) and hit **Open WideScope** (or go straight to [/editor/](https://widescope.soumendrak.com/editor/))
 2. Click **Load sample trace** (or **Sample** in the editor drawer)
-3. Explore the flame graph, timeline, and span details
+3. Explore the waterfall, flame graph, conversation, and span details
 4. Or drag in your own OTLP / Jaeger / OpenInference trace JSON
 
 Sample trace files are available in [`test-fixtures/`](test-fixtures/) if you want to test locally.
@@ -52,7 +52,7 @@ Sample trace files are available in [`test-fixtures/`](test-fixtures/) if you wa
 
 ### 🔬 See the whole run
 
-- **Four synchronized views** — canvas flame graph, service-lane timeline, waterfall with critical-path highlighting, and a service dependency graph.
+- **Four synchronized views** — canvas flame graph, service-lane timeline (non-LLM traces; LLM traces get a Conversation view in its place), waterfall with critical-path highlighting, and a service dependency graph.
 - **Fast navigation** — span search, attribute queries with operators (`duration>100ms`, `status=error`), filters by service / status / kind / LLM-only, keyboard traversal, zoom, pan, fit/reset, and trace slicing.
 - **Scales to large traces** — virtualized timeline rows, level-of-detail collapsing in the flame graph, and progressive loading of multi-MB files behind a phase-by-phase progress bar.
 
