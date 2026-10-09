@@ -81,7 +81,7 @@ WideScope can produce a link that reopens the exact trace, view, and selected sp
 
 - **Self-contained link** — click **🔗 Share** in the toolbar. The trace is DEFLATE-compressed — seeded with a dictionary built from representative traces and embedded in the WASM binary, so small traces compress especially well — and packed into the URL `#fragment`, which browsers never send to a server, so the data stays private. Best for small and medium traces; large traces are flagged with a one-click **Download trace** fallback. To rebuild the dictionary after adding fixtures, run `just train-share-dict` (see the recipe's notes on the format-tag bump).
 - **Hosted trace** — open `https://widescope.soumendrak.com/editor/?trace=<url>` to fetch a trace JSON from any HTTPS URL (CI artifact, gist, object storage).
-- **Deep links** — both forms accept `view=<flame|timeline|conversation|waterfall|graph|agent|diff|analytics|matrix|dashboard>` and `span=<id>` to restore the view mode and pre-select a span.
+- **Deep links** — both forms accept `view=<flame|timeline|conversation|waterfall|graph|agent|diff|analytics|matrix|dashboard>` and `span=<id>` to restore the view mode and pre-select a span. `matrix` and `dashboard` are multi-trace views: they only apply when more than one trace is loaded, and the **⋯** menu only offers them then. A link opens a single trace, so `view=matrix` shows a "Load 2+ traces" prompt and `view=dashboard` summarizes just that one trace.
 - **Legacy links** — share links minted before the viewer moved to `/editor/` (e.g. `/?trace=…` or `/#trace=…`) are redirected there by the landing page, so old links keep working.
 
 ## Requirements
