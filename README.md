@@ -19,6 +19,7 @@
 <p align="center">
   <code>OTLP JSON</code>
   <code>Jaeger JSON</code>
+  <code>OpenInference JSON</code>
   <code>Flame graph</code>
   <code>Timeline</code>
   <code>LLM-aware</code>
@@ -80,7 +81,7 @@ WideScope can produce a link that reopens the exact trace, view, and selected sp
 
 - **Self-contained link** — click **🔗 Share** in the toolbar. The trace is DEFLATE-compressed — seeded with a dictionary built from representative traces and embedded in the WASM binary, so small traces compress especially well — and packed into the URL `#fragment`, which browsers never send to a server, so the data stays private. Best for small and medium traces; large traces are flagged with a one-click **Download trace** fallback. To rebuild the dictionary after adding fixtures, run `just train-share-dict` (see the recipe's notes on the format-tag bump).
 - **Hosted trace** — open `https://widescope.soumendrak.com/editor/?trace=<url>` to fetch a trace JSON from any HTTPS URL (CI artifact, gist, object storage).
-- **Deep links** — both forms accept `view=<flame|timeline|waterfall|graph|diff>` and `span=<id>` to restore the view mode and pre-select a span.
+- **Deep links** — both forms accept `view=<flame|timeline|conversation|waterfall|graph|agent|diff|analytics|matrix|dashboard>` and `span=<id>` to restore the view mode and pre-select a span.
 - **Legacy links** — share links minted before the viewer moved to `/editor/` (e.g. `/?trace=…` or `/#trace=…`) are redirected there by the landing page, so old links keep working.
 
 ## Requirements
@@ -90,7 +91,7 @@ WideScope can produce a link that reopens the exact trace, view, and selected sp
 | Rust (via rustup) | stable | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
 | wasm32 target | — | `rustup target add wasm32-unknown-unknown` |
 | wasm-pack | 0.14+ | `cargo install wasm-pack` |
-| Node.js | 22.13+ or 24+ | <https://nodejs.org> |
+| Node.js | 22.13+ (22.x) or 24+ | <https://nodejs.org> |
 | just | 1.0+ | `brew install just` / `cargo install just` |
 | binaryen (`wasm-opt`) | optional, recommended | `brew install binaryen` / `apt install binaryen` |
 
@@ -164,6 +165,7 @@ widescope/
 ├── Cargo.toml                       # workspace root
 ├── rust-toolchain.toml              # stable toolchain + wasm target
 ├── crates/
+│   ├── widescope-cli/               # headless CLI (analyze, compare, check)
 │   └── widescope-core/              # Rust WASM library
 │       ├── src/
 │       │   ├── lib.rs               # wasm-bindgen exports and trace lifecycle
