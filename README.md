@@ -12,7 +12,7 @@
   <img src="https://img.shields.io/github/actions/workflow/status/soumendrak/widescope/ci.yml?branch=main&label=CI" alt="CI status" />
   <img src="https://img.shields.io/badge/Rust-WASM-0F172A?logo=rust&logoColor=white" alt="Rust and WASM" />
   <img src="https://img.shields.io/badge/UI-Svelte%205-FF3E00?logo=svelte&logoColor=white" alt="Svelte 5" />
-  <img src="https://img.shields.io/badge/hosting-Cloudflare%20Pages-F38020?logo=cloudflare&logoColor=white" alt="Cloudflare Pages" />
+  <img src="https://img.shields.io/badge/hosting-Cloudflare-F38020?logo=cloudflare&logoColor=white" alt="Cloudflare" />
   <img src="https://img.shields.io/badge/license-Apache--2.0-22C55E" alt="Apache 2.0 license" />
 </p>
 
@@ -136,19 +136,19 @@ just clean         # remove Rust, WASM package, UI dist, and node_modules artifa
 GitHub Actions only runs checks; it does not deploy. `wrangler.jsonc` describes the site for Cloudflare: static assets served from `ui/dist/`, plus a custom build command that installs the toolchain and runs `make build`.
 
 - **From your machine:** `npx wrangler deploy` runs that build command and publishes `ui/dist/`.
-- **From Git:** Cloudflare's Git builds do not run the `wrangler.jsonc` build command, so set the project's build command to `make build` in the Cloudflare dashboard (the build needs Rust with the `wasm32-unknown-unknown` target, `wasm-pack`, and Node.js); the site is served from `ui/dist/`.
+- **From Git:** Cloudflare's Git builds do not run the `wrangler.jsonc` build command, and `make build` on its own fails there: the build image has no Rust or `wasm-pack`, nothing runs `npm ci` for `ui/`, and the repo has no root `package.json`. In the Cloudflare dashboard, set the build command to the `build.command` string from [`wrangler.jsonc`](wrangler.jsonc) (it installs the `ui/` dependencies, Rust with the `wasm32-unknown-unknown` target, and `wasm-pack`, then runs `make build`), and set the deploy command to `npx wrangler deploy`.
 
 Set a custom domain in Cloudflare if you want the repo website field to use your own domain.
 
-Recommended repo website value after setup:
+Recommended repo website value after setup: your custom domain, or
 
 ```text
-https://widescope.pages.dev
+https://widescope.<your-subdomain>.workers.dev
 ```
 
 ## Usage
 
-1. Open `http://localhost:5173` in development, or deploy `ui/dist/` to Cloudflare Pages or any static host. The marketing landing page is served at `/`; the trace viewer lives at `/editor/`.
+1. Open `http://localhost:5173` in development, or deploy `ui/dist/` to Cloudflare or any static host. The marketing landing page is served at `/`; the trace viewer lives at `/editor/`.
 2. Load trace JSON by pasting into the editor, clicking **Open file**, dragging in a `.json` or `.zip` file, or using **Load sample trace**.
 3. Use **Sample**, **Paste**, **Clear**, and **Format** in the editor drawer as needed. Parsing is live as you type; `Cmd/Ctrl + Enter` collapses the editor.
 4. Switch views from the tabs in the top bar (**Waterfall**, **Flame**, **Timeline** or **Conversation** for LLM traces, **Graph**, **Diff**), with more lenses under **⋯**.
