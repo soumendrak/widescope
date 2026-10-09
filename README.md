@@ -90,7 +90,7 @@ WideScope can produce a link that reopens the exact trace, view, and selected sp
 | Rust (via rustup) | stable | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
 | wasm32 target | — | `rustup target add wasm32-unknown-unknown` |
 | wasm-pack | 0.14+ | `cargo install wasm-pack` |
-| Node.js | 20.19+ or 22.12+ | <https://nodejs.org> |
+| Node.js | 22.13+ or 24+ | <https://nodejs.org> |
 | just | 1.0+ | `brew install just` / `cargo install just` |
 | binaryen (`wasm-opt`) | optional, recommended | `brew install binaryen` / `apt install binaryen` |
 
@@ -131,13 +131,14 @@ just clean         # remove Rust, WASM package, UI dist, and node_modules artifa
 - **`just build` produces the deployable static assets** in `ui/dist/`.
 - **`wasm-opt` is optional** — the build still succeeds without it, but the generated `.wasm` will be larger.
 
-## Deployment on Cloudflare Pages
+## Deployment on Cloudflare
 
-Cloudflare builds and deploys the site itself, using the build command in `wrangler.jsonc` (it installs the toolchain, runs `make build`, and serves `ui/dist/`). GitHub Actions only runs checks; it does not deploy.
+GitHub Actions only runs checks; it does not deploy. `wrangler.jsonc` describes the site for Cloudflare: static assets served from `ui/dist/`, plus a custom build command that installs the toolchain and runs `make build`.
 
-1. Connect this repository to a Cloudflare project named `widescope`.
-2. Push to `main`; Cloudflare runs the `wrangler.jsonc` build and publishes `ui/dist/`.
-3. Set a custom domain in Cloudflare if you want the repo website field to use your own domain.
+- **From your machine:** `npx wrangler deploy` runs that build command and publishes `ui/dist/`.
+- **From Git:** Cloudflare's Git builds do not run the `wrangler.jsonc` build command, so set the project's build command to `make build` in the Cloudflare dashboard (the build needs Rust with the `wasm32-unknown-unknown` target, `wasm-pack`, and Node.js); the site is served from `ui/dist/`.
+
+Set a custom domain in Cloudflare if you want the repo website field to use your own domain.
 
 Recommended repo website value after setup:
 
@@ -149,7 +150,7 @@ https://widescope.pages.dev
 
 1. Open `http://localhost:5173` in development, or deploy `ui/dist/` to Cloudflare Pages or any static host. The marketing landing page is served at `/`; the trace viewer lives at `/editor/`.
 2. Load trace JSON by pasting into the editor, clicking **Open file**, dragging in a `.json` or `.zip` file, or using **Load sample trace**.
-3. Use **Sample**, **Paste**, **Clear**, and **Format** in the editor drawer as needed. Parsing is live as you type; `Cmd/Ctrl + Enter` collapses the editor and jumps to the trace.
+3. Use **Sample**, **Paste**, **Clear**, and **Format** in the editor drawer as needed. Parsing is live as you type; `Cmd/Ctrl + Enter` collapses the editor.
 4. Switch views from the tabs in the top bar (**Waterfall**, **Flame**, **Timeline** or **Conversation** for LLM traces, **Graph**, **Diff**), with more lenses under **⋯**.
 5. Search spans from the toolbar to highlight matches and jump between them.
 6. Click any span to inspect details in the resizable right sidebar.
