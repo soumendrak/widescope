@@ -137,7 +137,13 @@ just clean         # remove Rust, WASM package, UI dist, and node_modules artifa
 GitHub Actions only runs checks; it does not deploy. `wrangler.jsonc` describes the site for Cloudflare: static assets served from `ui/dist/`, plus a custom build command that installs the toolchain and runs `make build`.
 
 - **From your machine:** `npx wrangler deploy` runs that build command and publishes `ui/dist/`.
-- **From Git:** Cloudflare's Git builds do not run the `wrangler.jsonc` build command, and `make build` on its own fails there: the build image has no Rust or `wasm-pack`, nothing runs `npm ci` for `ui/`, and the repo has no root `package.json`. In the Cloudflare dashboard, set the build command to the `build.command` string from [`wrangler.jsonc`](wrangler.jsonc) (it installs the `ui/` dependencies, Rust with the `wasm32-unknown-unknown` target, and `wasm-pack`, then runs `make build`), and set the deploy command to `npx wrangler deploy`.
+- **From Git:** Cloudflare's Git builds do not run the `wrangler.jsonc` build command, and `make build` on its own fails there: the build image has no Rust or `wasm-pack`, nothing runs `npm ci` for `ui/`, and the repo has no root `package.json`. In the Cloudflare dashboard, set the build command to the command below, which installs the `ui/` dependencies, Rust with the `wasm32-unknown-unknown` target, and `wasm-pack`, then runs `make build`. Set the deploy command to `npx wrangler deploy`.
+
+  ```bash
+  npm ci --prefix ui && if ! command -v cargo >/dev/null 2>&1; then curl https://sh.rustup.rs -sSf | sh -s -- -y; fi && if [ -f "$HOME/.cargo/env" ]; then . "$HOME/.cargo/env"; fi && if command -v rustup >/dev/null 2>&1; then rustup target add wasm32-unknown-unknown; fi && if ! command -v wasm-pack >/dev/null 2>&1; then cargo install wasm-pack --locked; fi && make build
+  ```
+
+  This is `build.command` from [`wrangler.jsonc`](wrangler.jsonc) with the JSON escaping removed (`\"` becomes `"`); pasting the escaped string breaks the `[ -f "$HOME/.cargo/env" ]` check. Keep the two in sync when either changes.
 
 Set a custom domain in Cloudflare if you want the repo website field to use your own domain.
 
