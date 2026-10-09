@@ -40,7 +40,7 @@ A browser-based, zero-backend trace viewer for OpenTelemetry- and Jaeger-style t
 ## Quick Demo
 
 1. Open [widescope.soumendrak.com](https://widescope.soumendrak.com) and hit **Open WideScope** (or go straight to [/editor/](https://widescope.soumendrak.com/editor/))
-2. Click **Load sample JSON** in the editor toolbar
+2. Click **Load sample trace** (or **Sample** in the editor drawer)
 3. Explore the flame graph, timeline, and span details
 4. Or drag in your own OTLP / Jaeger / OpenInference trace JSON
 
@@ -53,14 +53,14 @@ Sample trace files are available in [`test-fixtures/`](test-fixtures/) if you wa
 ### 🔬 See the whole run
 
 - **Four synchronized views** — canvas flame graph, service-lane timeline, waterfall with critical-path highlighting, and a service dependency graph.
-- **Fast navigation** — span search, attribute queries with operators (`duration>100ms`, `status=error`), filters by service / status / kind / duration, keyboard traversal, zoom, pan, fit/reset, and trace slicing.
+- **Fast navigation** — span search, attribute queries with operators (`duration>100ms`, `status=error`), filters by service / status / kind / LLM-only, keyboard traversal, zoom, pan, fit/reset, and trace slicing.
 - **Scales to large traces** — virtualized timeline rows, level-of-detail collapsing in the flame graph, and progressive loading of multi-MB files behind a phase-by-phase progress bar.
 
 ### 🤖 Built for LLM pipelines
 
 - **LLM-aware inspection** — resolves OTel GenAI, OpenInference, and LangChain-style attributes into model, token, prompt/completion, and tool-call detail views.
-- **Cost & token analytics** — per-span cost estimates, token budgets, critical path, a stats dashboard (latency, error rate, counts), and a latency heatmap.
-- **Trace diff** — load two runs side by side and see per-stage deltas; the matrix view ranks a whole batch of runs, and session grouping folds related traces into one timeline.
+- **Cost & token analytics** — per-span cost estimates, performance budgets (duration, P95 latency, cost, error and span counts), critical path, a multi-trace stats dashboard (latency, errors, counts), and a latency heatmap mode in the flame graph.
+- **Trace diff** — load two runs side by side and see per-stage deltas; the matrix view compares a batch of runs metric by metric against a baseline, and session grouping groups related traces in the trace switcher.
 
 ### 🔒 Private by architecture
 
@@ -90,7 +90,7 @@ WideScope can produce a link that reopens the exact trace, view, and selected sp
 | Rust (via rustup) | stable | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
 | wasm32 target | — | `rustup target add wasm32-unknown-unknown` |
 | wasm-pack | 0.14+ | `cargo install wasm-pack` |
-| Node.js | 18+ | <https://nodejs.org> |
+| Node.js | 20.19+ or 22.12+ | <https://nodejs.org> |
 | just | 1.0+ | `brew install just` / `cargo install just` |
 | binaryen (`wasm-opt`) | optional, recommended | `brew install binaryen` / `apt install binaryen` |
 
@@ -133,12 +133,11 @@ just clean         # remove Rust, WASM package, UI dist, and node_modules artifa
 
 ## Deployment on Cloudflare Pages
 
-This repo is set up to publish the static `ui/dist/` bundle to **Cloudflare Pages** from GitHub Actions.
+Cloudflare builds and deploys the site itself, using the build command in `wrangler.jsonc` (it installs the toolchain, runs `make build`, and serves `ui/dist/`). GitHub Actions only runs checks; it does not deploy.
 
-1. Create a Cloudflare Pages project named `widescope`.
-2. Add the GitHub repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
-3. Push to `main` to trigger the deploy workflow.
-4. Set a custom domain in Cloudflare Pages if you want the repo website field to use your own domain.
+1. Connect this repository to a Cloudflare project named `widescope`.
+2. Push to `main`; Cloudflare runs the `wrangler.jsonc` build and publishes `ui/dist/`.
+3. Set a custom domain in Cloudflare if you want the repo website field to use your own domain.
 
 Recommended repo website value after setup:
 
@@ -149,9 +148,9 @@ https://widescope.pages.dev
 ## Usage
 
 1. Open `http://localhost:5173` in development, or deploy `ui/dist/` to Cloudflare Pages or any static host. The marketing landing page is served at `/`; the trace viewer lives at `/editor/`.
-2. Load trace JSON by pasting into the editor, clicking **Open file**, dragging in a `.json` file, or using **Load sample JSON**.
-3. Use **Format**, **Paste JSON**, **Submit JSON**, and **Clear JSON** in the editor toolbar as needed.
-4. Switch between **Flame** and **Timeline** from the top toolbar.
+2. Load trace JSON by pasting into the editor, clicking **Open file**, dragging in a `.json` or `.zip` file, or using **Load sample trace**.
+3. Use **Sample**, **Paste**, **Clear**, and **Format** in the editor drawer as needed. Parsing is live as you type; `Cmd/Ctrl + Enter` collapses the editor and jumps to the trace.
+4. Switch views from the tabs in the top bar (**Waterfall**, **Flame**, **Timeline** or **Conversation** for LLM traces, **Graph**, **Diff**), with more lenses under **⋯**.
 5. Search spans from the toolbar to highlight matches and jump between them.
 6. Click any span to inspect details in the resizable right sidebar.
 7. In the flame graph, use **Cmd/Ctrl + scroll** to zoom, drag to pan, double-click to zoom to a span, and use `↑↓←→`, `Enter`, `Esc`, `F`, and `0` for keyboard navigation.
@@ -168,7 +167,7 @@ widescope/
 │       ├── src/
 │       │   ├── lib.rs               # wasm-bindgen exports and trace lifecycle
 │       │   ├── models/              # span, trace, llm, and layout types
-│       │   ├── parsers/             # OTLP JSON and Jaeger JSON parsers
+│       │   ├── parsers/             # OTLP, Jaeger, and OpenInference JSON parsers
 │       │   ├── conventions/         # convention registry + attribute resolver
 │       │   ├── layout/              # flamegraph and timeline layout algorithms
 │       │   ├── trace_builder.rs     # trace assembly, warnings, self-time, cycles
