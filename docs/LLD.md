@@ -1752,7 +1752,7 @@ Natively accessible:
 | Component | Rationale for deferral | Status |
 |---|---|---|
 | Timeline view | Second visualization mode — not needed to prove core value | Shipped: `compute_timeline` WASM export and `Timeline.svelte` (replaced by the Conversation view for traces with LLM spans) |
-| Search (`search_spans`) | Under-specified; better to add once core UX is validated | Shipped: `search_spans` WASM export, used by `CommandPalette.svelte` |
+| Search (`search_spans`) | Under-specified; better to add once core UX is validated | Shipped: `search_spans` WASM export, used by the top-bar search (`ui/src/components/TopBar.svelte`, `applySearch`) and `CommandPalette.svelte` |
 | JsonPasteModal | File upload and drag-drop cover the primary input path | Shipped as the editor drawer instead of a modal: `EditorDrawer.svelte` textarea with a **Paste** button |
 | Theme toggle | Cosmetic; can ship with a single theme initially | Shipped: `lib/theme.ts` store and the toggle in `TopBar.svelte` |
 | LLM Panel (v1) | Conventions resolver lands in MVP, but the dedicated LLM panel UI is v1 | Shipped: LLM section in `SpanDetail.svelte` with `LlmChatReplay.svelte` |
