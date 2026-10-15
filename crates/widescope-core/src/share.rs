@@ -199,3 +199,68 @@ mod tests {
         assert!(decompress_share(&blob).is_err());
     }
 }
+
+/// The failure modes a share link hits in the wild: truncation, tampering, and
+/// payloads big enough to make the codec grow its buffer.
+#[cfg(test)]
+mod codec_edge_tests {
+    use super::*;
+
+    #[test]
+    fn a_payload_larger_than_the_initial_buffer_still_round_trips() {
+        // Forces both the compress and decompress loops to reserve more room.
+        let json = format!(
+            r#"{{"spans":[{}]}}"#,
+            "\"x\",".repeat(200_000).trim_end_matches(',')
+        );
+        let blob = compress_share(&json);
+        assert_eq!(decompress_share(&blob).unwrap(), json);
+    }
+
+    #[test]
+    fn a_truncated_frame_is_rejected_rather_than_returning_a_partial_trace() {
+        let blob = compress_share(r#"{"resourceSpans":[]}"#);
+        let truncated = &blob[..blob.len() / 2];
+        let err = decompress_share(truncated).unwrap_err();
+        assert!(matches!(err, WideError::InvalidShareLink { .. }));
+    }
+
+    #[test]
+    fn a_tampered_frame_is_rejected() {
+        let mut blob = compress_share(r#"{"resourceSpans":[]}"#);
+        let last = blob.len() - 1;
+        blob[last] ^= 0xff;
+        blob[last / 2] ^= 0xff;
+        assert!(decompress_share(&blob).is_err());
+    }
+
+    #[test]
+    fn non_utf8_output_is_reported_as_such() {
+        // Compress raw bytes that are valid DEFLATE input but not valid UTF-8,
+        // by hand-building a frame the same way compress_share does.
+        use flate2::{Compress, Compression, FlushCompress, Status};
+        let payload: Vec<u8> = vec![0xff, 0xfe, 0xfd];
+        let mut compress = Compress::new_with_window_bits(Compression::best(), false, WINDOW_BITS);
+        compress.set_dictionary(SHARE_DICT).unwrap();
+        let mut frame = vec![TAG_DEFLATE_DICT_V1];
+        loop {
+            if frame.len() == frame.capacity() {
+                frame.reserve(64);
+            }
+            let consumed = compress.total_in() as usize;
+            let status = compress
+                .compress_vec(&payload[consumed..], &mut frame, FlushCompress::Finish)
+                .unwrap();
+            if status == Status::StreamEnd {
+                break;
+            }
+        }
+        let err = decompress_share(&frame).unwrap_err();
+        match err {
+            WideError::InvalidShareLink { message } => {
+                assert!(message.contains("UTF-8"), "{message}");
+            }
+            other => panic!("expected InvalidShareLink, got {other:?}"),
+        }
+    }
+}

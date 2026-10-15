@@ -1,0 +1,4413 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "playback-api"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "0cf1954e227645ae",
+              "name": "playback.session",
+              "kind": 2,
+              "startTimeUnixNano": "1713000000005000000",
+              "endTimeUnixNano": "1713000230876366295",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "session.id",
+                  "value": {
+                    "stringValue": "sess_2ac5d499"
+                  }
+                },
+                {
+                  "key": "player.name",
+                  "value": {
+                    "stringValue": "widescope-player"
+                  }
+                },
+                {
+                  "key": "player.version",
+                  "value": {
+                    "stringValue": "9.4.1"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "cf18d55c3e2b3c05",
+              "name": "manifest.request",
+              "kind": 3,
+              "startTimeUnixNano": "1713000000005000000",
+              "endTimeUnixNano": "1713000000082121112",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "manifest.type",
+                  "value": {
+                    "stringValue": "hls"
+                  }
+                },
+                {
+                  "key": "manifest.url",
+                  "value": {
+                    "stringValue": "https://cdn.example.com/stream/master.m3u8"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "cdn-edge"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "bd1c7624f30492f3",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000000084121112",
+              "endTimeUnixNano": "1713000002431672884",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "4ebab2de81170439",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000002431672884",
+              "endTimeUnixNano": "1713000004934020920",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "e2beee3253cd6ca2",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000004934020920",
+              "endTimeUnixNano": "1713000006991649145",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "2"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "38e14f46a1c1bdf6",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000006991649145",
+              "endTimeUnixNano": "1713000010344861049",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000007997612716",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "194"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000008705227137",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "2232"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "28c29ed68512da95",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000010344861049",
+              "endTimeUnixNano": "1713000012053839258",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "4"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "2500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "5dbc0624aa04e4fa",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000012053839258",
+              "endTimeUnixNano": "1713000015275915491",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "5"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000013020462128",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "104"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000013799445415",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "1576"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "4e3166d5c6b660bb",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000015275915491",
+              "endTimeUnixNano": "1713000019134224854",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "6"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000016433408300",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "128"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000017161066740",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "1010"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "dbbda35edb55dc9d",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000019134224854",
+              "endTimeUnixNano": "1713000021774218567",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "7"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "320d3f3e19d67ec3",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000021774218567",
+              "endTimeUnixNano": "1713000025289067973",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "8"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "2500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "edc0b79889d70d10",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000025289067973",
+              "endTimeUnixNano": "1713000028773446015",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "9"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000026334381386",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "132"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000026987738476",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "2957"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "d7c6c1d4c5ca5d73",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000028773446015",
+              "endTimeUnixNano": "1713000031703914630",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "10"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "85a6220d0402c04e",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000031703914630",
+              "endTimeUnixNano": "1713000035164617865",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "11"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "967c81824033e334",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000035164617865",
+              "endTimeUnixNano": "1713000038909390966",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "12"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "6c3f0d2f26dcae55",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000038909390966",
+              "endTimeUnixNano": "1713000042520949999",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "13"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "bf058360046b360a",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000042520949999",
+              "endTimeUnixNano": "1713000044877976129",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "14"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000043228057838",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "177"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000043386467770",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "1018"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "b9efdc68568c3956",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000044877976129",
+              "endTimeUnixNano": "1713000048761049531",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "15"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "2500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "8a3cd6bb2e518d9b",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000048761049531",
+              "endTimeUnixNano": "1713000051320392835",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "16"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "5b726bb4a30a0a6e",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000051320392835",
+              "endTimeUnixNano": "1713000053893859836",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "17"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "3e5ac70900e94c11",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000053893859836",
+              "endTimeUnixNano": "1713000056446952951",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "18"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "d98abc2af1c9ef3b",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000056446952951",
+              "endTimeUnixNano": "1713000060021578495",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "19"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "43ad7526b0181319",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000060021578495",
+              "endTimeUnixNano": "1713000063585219820",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "20"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000061090670893",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "156"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000061421201175",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "2054"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "34a4de37ff8af728",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000063585219820",
+              "endTimeUnixNano": "1713000066543852830",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "21"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "7622f1606ec6f3a6",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000066543852830",
+              "endTimeUnixNano": "1713000070132708072",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "22"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "e4347bce6c628d59",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000070132708072",
+              "endTimeUnixNano": "1713000072412271646",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "23"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "370e580feb832bd6",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000072412271646",
+              "endTimeUnixNano": "1713000076102762237",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "24"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "8b31cd696c58fd31",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000076102762237",
+              "endTimeUnixNano": "1713000077735654917",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "25"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "872387ccc378f656",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000077735654917",
+              "endTimeUnixNano": "1713000081473301069",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "26"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "f975a255ae40fda0",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000081473301069",
+              "endTimeUnixNano": "1713000083208907486",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "27"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "0bf0f7f310975433",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000083208907486",
+              "endTimeUnixNano": "1713000086609559367",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "28"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "8f8be0b9af3804d7",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000086609559367",
+              "endTimeUnixNano": "1713000089946596877",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "29"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "db626c38e58bacd8",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000089946596877",
+              "endTimeUnixNano": "1713000092057516389",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "30"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "eb930f4e4959f929",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000092057516389",
+              "endTimeUnixNano": "1713000093864919548",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "31"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000092599737337",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "72"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000092728404503",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "2929"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "b0184b942846d297",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000093864919548",
+              "endTimeUnixNano": "1713000095377645166",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "32"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "2500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000094318737233",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "63"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000095071791568",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "2082"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "8995da4684d69929",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000095377645166",
+              "endTimeUnixNano": "1713000097122991908",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "33"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "d34eabebdedde00d",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000097122991908",
+              "endTimeUnixNano": "1713000099562906768",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "34"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000097854966366",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "77"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000098053376280",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "1493"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "a13164f474990f63",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000099562906768",
+              "endTimeUnixNano": "1713000102476515268",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "35"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000100436989318",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "30"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000100644104778",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "2629"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "ec139cf578e3d405",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000102476515268",
+              "endTimeUnixNano": "1713000105160871276",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "36"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000103281822070",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "61"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000103903041013",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "1199"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "3fb8cc3edd409e3c",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000105160871276",
+              "endTimeUnixNano": "1713000107385961748",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "37"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000105828398418",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "165"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000106140331517",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "2320"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "e805b6bc254bae48",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000107385961748",
+              "endTimeUnixNano": "1713000110055729517",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "38"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "fcf584abc2105733",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000110055729517",
+              "endTimeUnixNano": "1713000111726254791",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "39"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "735cd218312eb05a",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000111726254791",
+              "endTimeUnixNano": "1713000113805091217",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "40"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000112349905719",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "34"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000112764562461",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "2850"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "9765d62036140bd2",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000113805091217",
+              "endTimeUnixNano": "1713000116532848765",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "41"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "fbb42edc224933f7",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000116532848765",
+              "endTimeUnixNano": "1713000118551535715",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "42"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000117138454850",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "5"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000117616831466",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "1417"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "59279c13f801ad86",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000118551535715",
+              "endTimeUnixNano": "1713000120946298702",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "43"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "a17f21b2d2f48131",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000120946298702",
+              "endTimeUnixNano": "1713000124488204648",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "44"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "70106c0f1cc4dd43",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000124488204648",
+              "endTimeUnixNano": "1713000126746750527",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "45"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "177207d1071214e5",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000126746750527",
+              "endTimeUnixNano": "1713000129104564620",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "46"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "94cf32286fb7e9b9",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000129104564620",
+              "endTimeUnixNano": "1713000132830626371",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "47"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "31bdf82647963b41",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000132830626371",
+              "endTimeUnixNano": "1713000135684174307",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "48"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "30f188c9218cf0cc",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000135684174307",
+              "endTimeUnixNano": "1713000138318581771",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "49"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "191b0a860add13c9",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000138318581771",
+              "endTimeUnixNano": "1713000141468396008",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "50"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "85ce74088279ac18",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000141468396008",
+              "endTimeUnixNano": "1713000144766446497",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "51"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "28a2e5888f475417",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000144766446497",
+              "endTimeUnixNano": "1713000147287973718",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "52"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "2500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "miss"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000145522904663",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "175"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000145649855908",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "2575"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "1880b17b32e3276a",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000147287973718",
+              "endTimeUnixNano": "1713000150581367960",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "53"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "940abadbf905b194",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000150581367960",
+              "endTimeUnixNano": "1713000153147556286",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "54"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "b6c14c227d31fea8",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000153147556286",
+              "endTimeUnixNano": "1713000156667641820",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "55"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "b7ea37edb2b2bf7e",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000156667641820",
+              "endTimeUnixNano": "1713000158989353078",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "56"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "d489aa32dd4f65e0",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000158989353078",
+              "endTimeUnixNano": "1713000161101712903",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "57"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "2500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "f341d0524cdb4c79",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000161101712903",
+              "endTimeUnixNano": "1713000164380167589",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "58"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000162085249309",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "86"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000162813447734",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "2922"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "beded9f45240beca",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000164380167589",
+              "endTimeUnixNano": "1713000165993261835",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "59"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "9fa1d9aca5416d8a",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000165993261835",
+              "endTimeUnixNano": "1713000167735508340",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "60"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000166515935787",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "30"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000166815289457",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "1679"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "9837843650160f0b",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000167735508340",
+              "endTimeUnixNano": "1713000171448881248",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "61"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "e933edf82483b272",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000171448881248",
+              "endTimeUnixNano": "1713000174251115986",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "62"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "2a1d3a61074c768f",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000174251115986",
+              "endTimeUnixNano": "1713000177327675841",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "63"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "260d2f651d8c7bf5",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000177327675841",
+              "endTimeUnixNano": "1713000179324108262",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "64"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "cbf93739dea7d35e",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000179324108262",
+              "endTimeUnixNano": "1713000182049663201",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "65"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "4ffd70986d1a8adc",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000182049663201",
+              "endTimeUnixNano": "1713000184544886476",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "66"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "2500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sin1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "f7a19ed7563a400c",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000184544886476",
+              "endTimeUnixNano": "1713000186181469891",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "67"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000185035861500",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "90"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000185629172864",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "2764"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "65c795bad670103c",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000186181469891",
+              "endTimeUnixNano": "1713000188586714270",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "68"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "c69ad098e638fc9d",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000188586714270",
+              "endTimeUnixNano": "1713000191926397765",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "69"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "2500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000189588619318",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "143"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000190365439749",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "1640"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "7c0fcb3e70c7ebf3",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000191926397765",
+              "endTimeUnixNano": "1713000194759407524",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "70"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "356f724cf71f8d9a",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000194759407524",
+              "endTimeUnixNano": "1713000198698951093",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "71"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "086ffa7aef23d2c4",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000198698951093",
+              "endTimeUnixNano": "1713000201695776319",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "72"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "31df5f4dc093d98a",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000201695776319",
+              "endTimeUnixNano": "1713000204289779469",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "73"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "6b8fe6a45f0ad54f",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000204289779469",
+              "endTimeUnixNano": "1713000207097907570",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "74"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "iad1"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000205132217899",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "79"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000205916101193",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "1268"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "1e52b7b0689d9bc8",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000207097907570",
+              "endTimeUnixNano": "1713000209425495396",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "75"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "685834ca8f650762",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000209425495396",
+              "endTimeUnixNano": "1713000211306549904",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "76"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "0a214edfa937cccf",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000211306549904",
+              "endTimeUnixNano": "1713000213995209905",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "77"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "6584def83db50beb",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000213995209905",
+              "endTimeUnixNano": "1713000217703423927",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "78"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "06eb609a3b80818f",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000217703423927",
+              "endTimeUnixNano": "1713000219650937927",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "79"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "0fef5f31b04542d3",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000219650937927",
+              "endTimeUnixNano": "1713000221294005428",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "80"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000220143858177",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "15"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000220690092886",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "1787"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "0aa5b0cd1264825e",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000221294005428",
+              "endTimeUnixNano": "1713000223279461374",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "81"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "2500"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [
+                {
+                  "name": "buffering.start",
+                  "timeUnixNano": "1713000221889642212",
+                  "attributes": [
+                    {
+                      "key": "buffer.level_ms",
+                      "value": {
+                        "intValue": "176"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "name": "buffering.end",
+                  "timeUnixNano": "1713000222415612530",
+                  "attributes": [
+                    {
+                      "key": "buffer.refill_ms",
+                      "value": {
+                        "intValue": "2570"
+                      }
+                    }
+                  ]
+                }
+              ],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "098b3ae2e232525a",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000223279461374",
+              "endTimeUnixNano": "1713000226884771446",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "82"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "sjc2"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "be2796491c9584ad",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000226884771446",
+              "endTimeUnixNano": "1713000228928586076",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "83"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "98e82fbbbe51c46d",
+              "name": "cdn.edge.fetch_segment",
+              "kind": 3,
+              "startTimeUnixNano": "1713000228928586076",
+              "endTimeUnixNano": "1713000230871366295",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "84"
+                  }
+                },
+                {
+                  "key": "segment.bitrate_kbps",
+                  "value": {
+                    "intValue": "8000"
+                  }
+                },
+                {
+                  "key": "cdn.pop",
+                  "value": {
+                    "stringValue": "fra3"
+                  }
+                },
+                {
+                  "key": "cdn.cache_status",
+                  "value": {
+                    "stringValue": "hit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "origin-shield"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "bb225e8f8e43f1b9",
+              "name": "origin.shield.fetch",
+              "kind": 3,
+              "startTimeUnixNano": "1713000000086121112",
+              "endTimeUnixNano": "1713000000192144576",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "origin.region",
+                  "value": {
+                    "stringValue": "us-east-1"
+                  }
+                },
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "0"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "bd1c7624f30492f3"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "66382ddaa661ff18",
+              "name": "origin.shield.fetch",
+              "kind": 3,
+              "startTimeUnixNano": "1713000051322392835",
+              "endTimeUnixNano": "1713000051449511012",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "origin.region",
+                  "value": {
+                    "stringValue": "us-east-1"
+                  }
+                },
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "17"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "5b726bb4a30a0a6e"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "91c4c0ee12183a39",
+              "name": "origin.shield.fetch",
+              "kind": 3,
+              "startTimeUnixNano": "1713000097124991908",
+              "endTimeUnixNano": "1713000097283645818",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "origin.region",
+                  "value": {
+                    "stringValue": "us-east-1"
+                  }
+                },
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "34"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "d34eabebdedde00d"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "039a85ee0e0e1bf6",
+              "name": "origin.shield.fetch",
+              "kind": 3,
+              "startTimeUnixNano": "1713000141470396008",
+              "endTimeUnixNano": "1713000141682447907",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "origin.region",
+                  "value": {
+                    "stringValue": "us-east-1"
+                  }
+                },
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "51"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "85ce74088279ac18"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "7183cc48222d0043",
+              "name": "origin.shield.fetch",
+              "kind": 3,
+              "startTimeUnixNano": "1713000186183469891",
+              "endTimeUnixNano": "1713000186238318763",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "origin.region",
+                  "value": {
+                    "stringValue": "us-east-1"
+                  }
+                },
+                {
+                  "key": "segment.index",
+                  "value": {
+                    "intValue": "68"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "65c795bad670103c"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "transcode-worker"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "82686e8135f4eabc",
+              "name": "transcode.ladder",
+              "kind": 1,
+              "startTimeUnixNano": "1713000000083917761",
+              "endTimeUnixNano": "1713000000146690571",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transcode.rendition_count",
+                  "value": {
+                    "intValue": "6"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "a3b05dfaa35b95e5",
+              "name": "transcode.render_rendition",
+              "kind": 1,
+              "startTimeUnixNano": "1713000000087412636",
+              "endTimeUnixNano": "1713000000142476381",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "rendition.bitrate_kbps",
+                  "value": {
+                    "intValue": "240"
+                  }
+                },
+                {
+                  "key": "rendition.codec",
+                  "value": {
+                    "stringValue": "h264"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "82686e8135f4eabc"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "edcf78bafc9173dd",
+              "name": "transcode.render_rendition",
+              "kind": 1,
+              "startTimeUnixNano": "1713000000087881338",
+              "endTimeUnixNano": "1713000000119831774",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "rendition.bitrate_kbps",
+                  "value": {
+                    "intValue": "480"
+                  }
+                },
+                {
+                  "key": "rendition.codec",
+                  "value": {
+                    "stringValue": "h264"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "82686e8135f4eabc"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "c0559644a1294bec",
+              "name": "transcode.render_rendition",
+              "kind": 1,
+              "startTimeUnixNano": "1713000000087991474",
+              "endTimeUnixNano": "1713000000145690571",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "rendition.bitrate_kbps",
+                  "value": {
+                    "intValue": "800"
+                  }
+                },
+                {
+                  "key": "rendition.codec",
+                  "value": {
+                    "stringValue": "h264"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "82686e8135f4eabc"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "465992576d274b0f",
+              "name": "transcode.render_rendition",
+              "kind": 1,
+              "startTimeUnixNano": "1713000000084947822",
+              "endTimeUnixNano": "1713000000094989982",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "rendition.bitrate_kbps",
+                  "value": {
+                    "intValue": "1200"
+                  }
+                },
+                {
+                  "key": "rendition.codec",
+                  "value": {
+                    "stringValue": "h264"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "82686e8135f4eabc"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "c6fce73c4a4ca9dc",
+              "name": "transcode.render_rendition",
+              "kind": 1,
+              "startTimeUnixNano": "1713000000084917761",
+              "endTimeUnixNano": "1713000000099913435",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "rendition.bitrate_kbps",
+                  "value": {
+                    "intValue": "2500"
+                  }
+                },
+                {
+                  "key": "rendition.codec",
+                  "value": {
+                    "stringValue": "h264"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "82686e8135f4eabc"
+            },
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "0757bba0c274f616",
+              "name": "transcode.render_rendition",
+              "kind": 1,
+              "startTimeUnixNano": "1713000000086791688",
+              "endTimeUnixNano": "1713000000114135047",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "rendition.bitrate_kbps",
+                  "value": {
+                    "intValue": "4500"
+                  }
+                },
+                {
+                  "key": "rendition.codec",
+                  "value": {
+                    "stringValue": "h264"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "82686e8135f4eabc"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "drm-license-service"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "326096617821f11a290b9c6acb43ad34",
+              "spanId": "a4ce0fcd19d83ebf",
+              "name": "drm.license_request",
+              "kind": 3,
+              "startTimeUnixNano": "1713000000085121112",
+              "endTimeUnixNano": "1713000000123237387",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "drm.system",
+                  "value": {
+                    "stringValue": "widevine"
+                  }
+                },
+                {
+                  "key": "drm.key_id",
+                  "value": {
+                    "stringValue": "ab35dc240a86ed1e913feb1b8da90859"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0cf1954e227645ae"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -12,13 +12,14 @@
   <img src="https://img.shields.io/github/actions/workflow/status/soumendrak/widescope/ci.yml?branch=main&label=CI" alt="CI status" />
   <img src="https://img.shields.io/badge/Rust-WASM-0F172A?logo=rust&logoColor=white" alt="Rust and WASM" />
   <img src="https://img.shields.io/badge/UI-Svelte%205-FF3E00?logo=svelte&logoColor=white" alt="Svelte 5" />
-  <img src="https://img.shields.io/badge/hosting-Cloudflare%20Pages-F38020?logo=cloudflare&logoColor=white" alt="Cloudflare Pages" />
+  <img src="https://img.shields.io/badge/hosting-Cloudflare-F38020?logo=cloudflare&logoColor=white" alt="Cloudflare" />
   <img src="https://img.shields.io/badge/license-Apache--2.0-22C55E" alt="Apache 2.0 license" />
 </p>
 
 <p align="center">
   <code>OTLP JSON</code>
   <code>Jaeger JSON</code>
+  <code>OpenInference JSON</code>
   <code>Flame graph</code>
   <code>Timeline</code>
   <code>LLM-aware</code>
@@ -40,8 +41,8 @@ A browser-based, zero-backend trace viewer for OpenTelemetry- and Jaeger-style t
 ## Quick Demo
 
 1. Open [widescope.soumendrak.com](https://widescope.soumendrak.com) and hit **Open WideScope** (or go straight to [/editor/](https://widescope.soumendrak.com/editor/))
-2. Click **Load sample JSON** in the editor toolbar
-3. Explore the flame graph, timeline, and span details
+2. Click **Load sample trace** (or **Sample** in the editor drawer)
+3. Explore the waterfall, flame graph, conversation, and span details
 4. Or drag in your own OTLP / Jaeger / OpenInference trace JSON
 
 Sample trace files are available in [`test-fixtures/`](test-fixtures/) if you want to test locally.
@@ -52,15 +53,15 @@ Sample trace files are available in [`test-fixtures/`](test-fixtures/) if you wa
 
 ### 🔬 See the whole run
 
-- **Four synchronized views** — canvas flame graph, service-lane timeline, waterfall with critical-path highlighting, and a service dependency graph.
-- **Fast navigation** — span search, attribute queries with operators (`duration>100ms`, `status=error`), filters by service / status / kind / duration, keyboard traversal, zoom, pan, fit/reset, and trace slicing.
+- **Four synchronized views** — canvas flame graph, service-lane timeline (non-LLM traces; LLM traces get a Conversation view in its place), waterfall with critical-path highlighting, and a service dependency graph.
+- **Fast navigation** — span search, attribute queries with operators (`duration>100ms`, `status=error`), filters by service / status / kind / LLM-only, keyboard traversal, zoom, pan, fit/reset, and trace slicing.
 - **Scales to large traces** — virtualized timeline rows, level-of-detail collapsing in the flame graph, and progressive loading of multi-MB files behind a phase-by-phase progress bar.
 
 ### 🤖 Built for LLM pipelines
 
 - **LLM-aware inspection** — resolves OTel GenAI, OpenInference, and LangChain-style attributes into model, token, prompt/completion, and tool-call detail views.
-- **Cost & token analytics** — per-span cost estimates, token budgets, critical path, a stats dashboard (latency, error rate, counts), and a latency heatmap.
-- **Trace diff** — load two runs side by side and see per-stage deltas; the matrix view ranks a whole batch of runs, and session grouping folds related traces into one timeline.
+- **Cost & token analytics** — per-span cost estimates, performance budgets (duration, P95 latency, cost, error and span counts), critical path, a multi-trace stats dashboard (latency, errors, counts), and a latency heatmap mode in the flame graph.
+- **Trace diff** — load two runs side by side and see per-stage deltas; the matrix view compares a batch of runs metric by metric against a baseline, and session grouping groups related traces in the trace switcher.
 
 ### 🔒 Private by architecture
 
@@ -80,7 +81,7 @@ WideScope can produce a link that reopens the exact trace, view, and selected sp
 
 - **Self-contained link** — click **🔗 Share** in the toolbar. The trace is DEFLATE-compressed — seeded with a dictionary built from representative traces and embedded in the WASM binary, so small traces compress especially well — and packed into the URL `#fragment`, which browsers never send to a server, so the data stays private. Best for small and medium traces; large traces are flagged with a one-click **Download trace** fallback. To rebuild the dictionary after adding fixtures, run `just train-share-dict` (see the recipe's notes on the format-tag bump).
 - **Hosted trace** — open `https://widescope.soumendrak.com/editor/?trace=<url>` to fetch a trace JSON from any HTTPS URL (CI artifact, gist, object storage).
-- **Deep links** — both forms accept `view=<flame|timeline|waterfall|graph|diff>` and `span=<id>` to restore the view mode and pre-select a span.
+- **Deep links** — both forms accept `view=<flame|timeline|conversation|waterfall|graph|agent|diff|analytics|matrix|dashboard>` and `span=<id>` to restore the view mode and pre-select a span. `matrix` and `dashboard` are multi-trace views: they only apply when more than one trace is loaded, and the **⋯** menu only offers them then. A link opens a single trace, so `view=matrix` shows a "Load 2+ traces" prompt and `view=dashboard` summarizes just that one trace.
 - **Legacy links** — share links minted before the viewer moved to `/editor/` (e.g. `/?trace=…` or `/#trace=…`) are redirected there by the landing page, so old links keep working.
 
 ## Requirements
@@ -90,7 +91,7 @@ WideScope can produce a link that reopens the exact trace, view, and selected sp
 | Rust (via rustup) | stable | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
 | wasm32 target | — | `rustup target add wasm32-unknown-unknown` |
 | wasm-pack | 0.14+ | `cargo install wasm-pack` |
-| Node.js | 18+ | <https://nodejs.org> |
+| Node.js | 22.13+ (22.x) or 24+ | <https://nodejs.org> |
 | just | 1.0+ | `brew install just` / `cargo install just` |
 | binaryen (`wasm-opt`) | optional, recommended | `brew install binaryen` / `apt install binaryen` |
 
@@ -131,27 +132,33 @@ just clean         # remove Rust, WASM package, UI dist, and node_modules artifa
 - **`just build` produces the deployable static assets** in `ui/dist/`.
 - **`wasm-opt` is optional** — the build still succeeds without it, but the generated `.wasm` will be larger.
 
-## Deployment on Cloudflare Pages
+## Deployment on Cloudflare
 
-This repo is set up to publish the static `ui/dist/` bundle to **Cloudflare Pages** from GitHub Actions.
+GitHub Actions only runs checks; it does not deploy. `wrangler.jsonc` describes the site for Cloudflare: static assets served from `ui/dist/`, plus a custom build command that installs the toolchain and runs `make build`.
 
-1. Create a Cloudflare Pages project named `widescope`.
-2. Add the GitHub repository secrets `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
-3. Push to `main` to trigger the deploy workflow.
-4. Set a custom domain in Cloudflare Pages if you want the repo website field to use your own domain.
+- **From your machine:** `npx wrangler deploy` runs that build command and publishes `ui/dist/`.
+- **From Git:** Cloudflare's Git builds do not run the `wrangler.jsonc` build command, and `make build` on its own fails there: the build image has no Rust or `wasm-pack`, nothing runs `npm ci` for `ui/`, and the repo has no root `package.json`. In the Cloudflare dashboard, set the build command to the command below, which installs the `ui/` dependencies, Rust with the `wasm32-unknown-unknown` target, and `wasm-pack`, then runs `make build`. Set the deploy command to `npx wrangler deploy`.
 
-Recommended repo website value after setup:
+  ```bash
+  npm ci --prefix ui && if ! command -v cargo >/dev/null 2>&1; then curl https://sh.rustup.rs -sSf | sh -s -- -y; fi && if [ -f "$HOME/.cargo/env" ]; then . "$HOME/.cargo/env"; fi && if command -v rustup >/dev/null 2>&1; then rustup target add wasm32-unknown-unknown; fi && if ! command -v wasm-pack >/dev/null 2>&1; then cargo install wasm-pack --locked; fi && make build
+  ```
+
+  This is `build.command` from [`wrangler.jsonc`](wrangler.jsonc) with the JSON escaping removed (`\"` becomes `"`); pasting the escaped string breaks the `[ -f "$HOME/.cargo/env" ]` check. Keep the two in sync when either changes.
+
+Set a custom domain in Cloudflare if you want the repo website field to use your own domain.
+
+Recommended repo website value after setup: your custom domain, or
 
 ```text
-https://widescope.pages.dev
+https://widescope.<your-subdomain>.workers.dev
 ```
 
 ## Usage
 
-1. Open `http://localhost:5173` in development, or deploy `ui/dist/` to Cloudflare Pages or any static host. The marketing landing page is served at `/`; the trace viewer lives at `/editor/`.
-2. Load trace JSON by pasting into the editor, clicking **Open file**, dragging in a `.json` file, or using **Load sample JSON**.
-3. Use **Format**, **Paste JSON**, **Submit JSON**, and **Clear JSON** in the editor toolbar as needed.
-4. Switch between **Flame** and **Timeline** from the top toolbar.
+1. Open `http://localhost:5173` in development, or deploy `ui/dist/` to Cloudflare or any static host. The marketing landing page is served at `/`; the trace viewer lives at `/editor/`.
+2. Load trace JSON by pasting into the editor, clicking **Open file**, dragging in a `.json` or `.zip` file, or using **Load sample trace**.
+3. Use **Sample**, **Paste**, **Clear**, and **Format** in the editor drawer as needed. Parsing is live as you type; `Cmd/Ctrl + Enter` collapses the editor.
+4. Switch views from the tabs in the top bar (**Waterfall**, **Flame**, **Timeline** or **Conversation** for LLM traces, **Graph**, **Diff**), with more lenses under **⋯**.
 5. Search spans from the toolbar to highlight matches and jump between them.
 6. Click any span to inspect details in the resizable right sidebar.
 7. In the flame graph, use **Cmd/Ctrl + scroll** to zoom, drag to pan, double-click to zoom to a span, and use `↑↓←→`, `Enter`, `Esc`, `F`, and `0` for keyboard navigation.
@@ -164,11 +171,12 @@ widescope/
 ├── Cargo.toml                       # workspace root
 ├── rust-toolchain.toml              # stable toolchain + wasm target
 ├── crates/
+│   ├── widescope-cli/               # headless CLI (analyze, compare, check)
 │   └── widescope-core/              # Rust WASM library
 │       ├── src/
 │       │   ├── lib.rs               # wasm-bindgen exports and trace lifecycle
 │       │   ├── models/              # span, trace, llm, and layout types
-│       │   ├── parsers/             # OTLP JSON and Jaeger JSON parsers
+│       │   ├── parsers/             # OTLP, Jaeger, and OpenInference JSON parsers
 │       │   ├── conventions/         # convention registry + attribute resolver
 │       │   ├── layout/              # flamegraph and timeline layout algorithms
 │       │   ├── trace_builder.rs     # trace assembly, warnings, self-time, cycles

@@ -10,6 +10,9 @@
     type BudgetOperator,
     type BudgetViolation,
   } from '../stores/budgets';
+  import Dialog from './ui/Dialog.svelte';
+  import Button from './ui/Button.svelte';
+  import Icon from './ui/Icon.svelte';
 
   export let open = false;
   export let violations: BudgetViolation[] = [];
@@ -32,14 +35,6 @@
     dispatch('close');
   }
 
-  function onBackdropPointerDown(e: PointerEvent) {
-    if (e.target === e.currentTarget) close();
-  }
-
-  function onKeydown(e: KeyboardEvent) {
-    if (e.key === 'Escape') close();
-  }
-
   function addBudget() {
     if (!Number.isFinite(newValue)) return;
     const raw = displayToRawValue(newField, newValue);
@@ -52,25 +47,7 @@
   }
 </script>
 
-<svelte:window on:keydown={onKeydown} />
-
-{#if open}
-  <div
-    class="backdrop"
-    role="presentation"
-    on:pointerdown={onBackdropPointerDown}
-  >
-    <div
-      class="dialog"
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="budgets-title"
-    >
-      <header class="dialog-header">
-        <h2 id="budgets-title">Performance budgets</h2>
-        <button type="button" class="icon-btn" aria-label="Close" on:click={close}>✕</button>
-      </header>
-
+<Dialog {open} title="Performance budgets" on:close={close}>
       <p class="hint">
         Budgets are stored locally in your browser and applied to whichever trace is loaded.
         Violations are flagged in the toolbar.
@@ -95,7 +72,7 @@
           class="value-input"
         />
         <span class="unit">{fieldUnit(newField) || '—'}</span>
-        <button type="button" class="add-btn" on:click={addBudget}>Add</button>
+        <Button variant="primary" size="sm" on:click={addBudget}>Add</Button>
       </section>
 
       <section class="list">
@@ -113,68 +90,21 @@
                   <span class="violated-tag">VIOLATED</span>
                 {/if}
               </div>
-              <button type="button" class="icon-btn" aria-label="Remove budget" on:click={() => budgets.remove(b.id)}>✕</button>
+              <Button variant="ghost" size="sm" icon aria-label="Remove budget" on:click={() => budgets.remove(b.id)}>
+                <Icon name="close" size={13} />
+              </Button>
             </div>
           {/each}
         {/if}
       </section>
-    </div>
-  </div>
-{/if}
+</Dialog>
 
 <style>
-  .backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, 0.55);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1rem;
-    z-index: 100;
-  }
 
-  .dialog {
-    background: var(--color-bg, #0f172a);
-    color: var(--color-text, #e2e8f0);
-    border: 1px solid var(--color-border, #334155);
-    border-radius: 10px;
-    width: 100%;
-    max-width: 560px;
-    max-height: calc(100vh - 4rem);
-    overflow-y: auto;
-    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35);
-  }
 
-  .dialog-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.85rem 1rem;
-    border-bottom: 1px solid var(--color-border, #334155);
-  }
 
-  .dialog-header h2 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 700;
-  }
 
-  .icon-btn {
-    background: transparent;
-    border: 0;
-    color: var(--color-text-muted, #94a3b8);
-    cursor: pointer;
-    font-size: 1rem;
-    line-height: 1;
-    padding: 0.25rem 0.4rem;
-    border-radius: 4px;
-  }
 
-  .icon-btn:hover {
-    background: var(--color-panel-subtle, rgba(255, 255, 255, 0.06));
-    color: var(--color-text, #e2e8f0);
-  }
 
   .hint {
     margin: 0.85rem 1rem;
@@ -217,20 +147,7 @@
     min-width: 2.5rem;
   }
 
-  .add-btn {
-    background: var(--color-accent, #3b82f6);
-    border: 0;
-    color: white;
-    padding: 0.32rem 0.7rem;
-    border-radius: 5px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    cursor: pointer;
-  }
 
-  .add-btn:hover {
-    background: var(--color-accent-hover, #2563eb);
-  }
 
   .list {
     padding: 0.5rem 1rem 1rem;

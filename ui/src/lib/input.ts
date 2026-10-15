@@ -1,3 +1,4 @@
+import { refreshCriticalPath } from '../stores/criticalPath';
 import { traceState } from '../stores/trace';
 import { focusedSpanId, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from '../stores/selection';
 import { traceList } from '../stores/traceList';
@@ -37,7 +38,11 @@ export async function readFileText(file: File): Promise<string | null> {
 }
 
 async function inflateRaw(data: Uint8Array): Promise<Uint8Array> {
-  const stream = new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw')));
+  // Node's typed-array generics don't line up with DOM BlobPart once
+  // `types: ["node"]` is on; this is a plain Uint8Array at runtime.
+  const stream = new Response(
+    new Blob([data as unknown as BlobPart]).stream().pipeThrough(new DecompressionStream('deflate-raw')),
+  );
   return new Uint8Array(await stream.arrayBuffer());
 }
 
@@ -137,6 +142,7 @@ export function handleRawInput(text: string, isSample: boolean, showLoading = tr
     const serviceGraph = getServiceGraph();
     const agentFlow = getAgentFlow();
     traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, agentFlow, isSample);
+    refreshCriticalPath();
 
     // Add to trace list for multi-trace switching
     const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
@@ -199,6 +205,7 @@ export async function handleRawInputAsync(text: string, isSample: boolean, showL
     const agentFlow = getAgentFlow();
 
     traceState.setLoaded(summary, flameLayout, timelineLayout, waterfallLayout, serviceGraph, agentFlow, isSample);
+    refreshCriticalPath();
 
     const name = summary.root_operation ?? summary.root_service ?? summary.trace_id;
     traceList.add(name, text);
@@ -210,22 +217,4 @@ export async function handleRawInputAsync(text: string, isSample: boolean, showL
     traceState.setError(wasmError);
     return false;
   }
-}
-
-export function setupGlobalPasteListener(
-  onPaste: (text: string) => void
-): () => void {
-  const handler = (e: KeyboardEvent) => {
-    const active = document.activeElement;
-    const isInput =
-      active instanceof HTMLInputElement ||
-      active instanceof HTMLTextAreaElement;
-    if ((e.ctrlKey || e.metaKey) && e.key === 'v' && !isInput) {
-      navigator.clipboard.readText().then((text) => {
-        if (text.trim()) onPaste(text);
-      }).catch(() => {/* clipboard read rejected */});
-    }
-  };
-  document.addEventListener('keydown', handler);
-  return () => document.removeEventListener('keydown', handler);
 }

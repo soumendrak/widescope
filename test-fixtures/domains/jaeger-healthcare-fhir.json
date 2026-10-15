@@ -1,0 +1,2576 @@
+{
+  "data": [
+    {
+      "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+      "processes": {
+        "gw": {
+          "serviceName": "fhir-gateway"
+        },
+        "auth": {
+          "serviceName": "auth-service"
+        },
+        "ehr": {
+          "serviceName": "ehr-adapter"
+        },
+        "hl7": {
+          "serviceName": "hl7-transformer"
+        },
+        "audit": {
+          "serviceName": "audit-log"
+        }
+      },
+      "spans": [
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "3583ac4a5af2a0ec",
+          "operationName": "GET /fhir/Patient/{id}",
+          "references": [],
+          "startTime": 1712900000000000,
+          "duration": 92600,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "GET"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/fhir/Patient/{id}"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0000"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "7070397d7214bf96",
+          "operationName": "auth.validate_token",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "3583ac4a5af2a0ec"
+            }
+          ],
+          "startTime": 1712900000001000,
+          "duration": 7605,
+          "processID": "auth",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "auth.scope",
+              "type": "string",
+              "value": "patient/*.read"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "4c617ea48a1d907a",
+          "operationName": "patient.lookup",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "3583ac4a5af2a0ec"
+            }
+          ],
+          "startTime": 1712900000009605,
+          "duration": 54716,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0000"
+            },
+            {
+              "key": "patient.name",
+              "type": "string",
+              "value": "María José Fernández"
+            },
+            {
+              "key": "patient.clinical_note",
+              "type": "string",
+              "value": "🩺 Routine check-up completed ✅"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "a76177ca5e02f261",
+          "operationName": "patient.consent_check",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "3583ac4a5af2a0ec"
+            }
+          ],
+          "startTime": 1712900000064821,
+          "duration": 5939,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "consent.status",
+              "type": "string",
+              "value": "granted"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "46425672de9567d5",
+          "operationName": "hl7.transform",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "3583ac4a5af2a0ec"
+            }
+          ],
+          "startTime": 1712900000071760,
+          "duration": 10357,
+          "processID": "hl7",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "hl7.version",
+              "type": "string",
+              "value": "2.5.1"
+            },
+            {
+              "key": "hl7.message_type",
+              "type": "string",
+              "value": "ADT^A01"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "799e68f2bcc5fedd",
+          "operationName": "audit.log_access",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "3583ac4a5af2a0ec"
+            }
+          ],
+          "startTime": 1712900000082617,
+          "duration": 3364,
+          "processID": "audit",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0000"
+            },
+            {
+              "key": "audit.reason",
+              "type": "string",
+              "value": "treatment"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "4f0cd29458ce9e9c",
+          "operationName": "fhir.bundle_response",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "3583ac4a5af2a0ec"
+            }
+          ],
+          "startTime": 1712900000086481,
+          "duration": 4119,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "fhir.resource_type",
+              "type": "string",
+              "value": "Bundle"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "f64600bfcdcbcf92",
+          "operationName": "GET /fhir/Patient/{id}",
+          "references": [],
+          "startTime": 1712900000159449,
+          "duration": 70261,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "GET"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/fhir/Patient/{id}"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0001"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "d13c56d8bfb1cd77",
+          "operationName": "auth.validate_token",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "f64600bfcdcbcf92"
+            }
+          ],
+          "startTime": 1712900000160449,
+          "duration": 5179,
+          "processID": "auth",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "auth.scope",
+              "type": "string",
+              "value": "patient/*.read"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "f1b048e4875032cc",
+          "operationName": "patient.lookup",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "f64600bfcdcbcf92"
+            }
+          ],
+          "startTime": 1712900000166628,
+          "duration": 15473,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0001"
+            },
+            {
+              "key": "patient.name",
+              "type": "string",
+              "value": "田中 太郎"
+            },
+            {
+              "key": "patient.clinical_note",
+              "type": "string",
+              "value": "健康状態は良好です 😊"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "26d5d89c9d23b486",
+          "operationName": "patient.consent_check",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "f64600bfcdcbcf92"
+            }
+          ],
+          "startTime": 1712900000182601,
+          "duration": 7450,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "consent.status",
+              "type": "string",
+              "value": "granted"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "c905f032dd9d55b5",
+          "operationName": "hl7.transform",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "f64600bfcdcbcf92"
+            }
+          ],
+          "startTime": 1712900000191051,
+          "duration": 27085,
+          "processID": "hl7",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "hl7.version",
+              "type": "string",
+              "value": "2.5.1"
+            },
+            {
+              "key": "hl7.message_type",
+              "type": "string",
+              "value": "ADT^A01"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "46f53e6561568de3",
+          "operationName": "audit.log_access",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "f64600bfcdcbcf92"
+            }
+          ],
+          "startTime": 1712900000218636,
+          "duration": 5232,
+          "processID": "audit",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0001"
+            },
+            {
+              "key": "audit.reason",
+              "type": "string",
+              "value": "treatment"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "5292c382a07ff301",
+          "operationName": "fhir.bundle_response",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "f64600bfcdcbcf92"
+            }
+          ],
+          "startTime": 1712900000224368,
+          "duration": 3342,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "fhir.resource_type",
+              "type": "string",
+              "value": "Bundle"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "60c8ffadabaa7bcc",
+          "operationName": "GET /fhir/Patient/{id}",
+          "references": [],
+          "startTime": 1712900000256056,
+          "duration": 113324,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "GET"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/fhir/Patient/{id}"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0002"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "1ba30ec40387befd",
+          "operationName": "auth.validate_token",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "60c8ffadabaa7bcc"
+            }
+          ],
+          "startTime": 1712900000257056,
+          "duration": 7257,
+          "processID": "auth",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "auth.scope",
+              "type": "string",
+              "value": "patient/*.read"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "60a0b1ae7fc2bdf3",
+          "operationName": "patient.lookup",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "60c8ffadabaa7bcc"
+            }
+          ],
+          "startTime": 1712900000265313,
+          "duration": 58499,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0002"
+            },
+            {
+              "key": "patient.name",
+              "type": "string",
+              "value": "محمد الأحمد"
+            },
+            {
+              "key": "patient.clinical_note",
+              "type": "string",
+              "value": "مريض يعاني من ارتفاع ضغط الدم"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "c96414f29e5e3f77",
+          "operationName": "patient.consent_check",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "60c8ffadabaa7bcc"
+            }
+          ],
+          "startTime": 1712900000324312,
+          "duration": 6928,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "consent.status",
+              "type": "string",
+              "value": "granted"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "6523d05ac878f34f",
+          "operationName": "hl7.transform",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "60c8ffadabaa7bcc"
+            }
+          ],
+          "startTime": 1712900000332240,
+          "duration": 27358,
+          "processID": "hl7",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "hl7.version",
+              "type": "string",
+              "value": "2.5.1"
+            },
+            {
+              "key": "hl7.message_type",
+              "type": "string",
+              "value": "ADT^A01"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "2a72accd77839232",
+          "operationName": "audit.log_access",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "60c8ffadabaa7bcc"
+            }
+          ],
+          "startTime": 1712900000360098,
+          "duration": 2909,
+          "processID": "audit",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0002"
+            },
+            {
+              "key": "audit.reason",
+              "type": "string",
+              "value": "treatment"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "a63b4ac0916cdab4",
+          "operationName": "fhir.bundle_response",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "60c8ffadabaa7bcc"
+            }
+          ],
+          "startTime": 1712900000363507,
+          "duration": 3873,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "fhir.resource_type",
+              "type": "string",
+              "value": "Bundle"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "0ea497fe4941a938",
+          "operationName": "GET /fhir/Patient/{id}",
+          "references": [],
+          "startTime": 1712900000415287,
+          "duration": 99110,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "GET"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/fhir/Patient/{id}"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0003"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "f6f9c1a46715fc95",
+          "operationName": "auth.validate_token",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "0ea497fe4941a938"
+            }
+          ],
+          "startTime": 1712900000416287,
+          "duration": 3520,
+          "processID": "auth",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "auth.scope",
+              "type": "string",
+              "value": "patient/*.read"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "0cadfbcc2996c34a",
+          "operationName": "patient.lookup",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "0ea497fe4941a938"
+            }
+          ],
+          "startTime": 1712900000420807,
+          "duration": 50226,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0003"
+            },
+            {
+              "key": "patient.name",
+              "type": "string",
+              "value": "François Müller"
+            },
+            {
+              "key": "patient.clinical_note",
+              "type": "string",
+              "value": "⚠️ Allergic to penicillin!"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "19e54ef946660b34",
+          "operationName": "patient.consent_check",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "0ea497fe4941a938"
+            }
+          ],
+          "startTime": 1712900000471533,
+          "duration": 3514,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "consent.status",
+              "type": "string",
+              "value": "granted"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "cd513bf513ad4c71",
+          "operationName": "hl7.transform",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "0ea497fe4941a938"
+            }
+          ],
+          "startTime": 1712900000476047,
+          "duration": 21281,
+          "processID": "hl7",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "hl7.version",
+              "type": "string",
+              "value": "2.5.1"
+            },
+            {
+              "key": "hl7.message_type",
+              "type": "string",
+              "value": "ADT^A01"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "37cf95c2ec8eb033",
+          "operationName": "audit.log_access",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "0ea497fe4941a938"
+            }
+          ],
+          "startTime": 1712900000497828,
+          "duration": 5329,
+          "processID": "audit",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0003"
+            },
+            {
+              "key": "audit.reason",
+              "type": "string",
+              "value": "treatment"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "23f70f835cfd943a",
+          "operationName": "fhir.bundle_response",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "0ea497fe4941a938"
+            }
+          ],
+          "startTime": 1712900000503657,
+          "duration": 8740,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "fhir.resource_type",
+              "type": "string",
+              "value": "Bundle"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "cf2363550ea31465",
+          "operationName": "GET /fhir/Patient/{id}",
+          "references": [],
+          "startTime": 1712900000535691,
+          "duration": 68891,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "GET"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/fhir/Patient/{id}"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0004"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "281239b5d07919e4",
+          "operationName": "auth.validate_token",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "cf2363550ea31465"
+            }
+          ],
+          "startTime": 1712900000536691,
+          "duration": 5122,
+          "processID": "auth",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "auth.scope",
+              "type": "string",
+              "value": "patient/*.read"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "fab63171649646b8",
+          "operationName": "patient.lookup",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "cf2363550ea31465"
+            }
+          ],
+          "startTime": 1712900000542813,
+          "duration": 15622,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0004"
+            },
+            {
+              "key": "patient.name",
+              "type": "string",
+              "value": "Søren Åkesson"
+            },
+            {
+              "key": "patient.clinical_note",
+              "type": "string",
+              "value": "Follow-up scheduled in 2 weeks 📅"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "4d288c5ce28d4628",
+          "operationName": "patient.consent_check",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "cf2363550ea31465"
+            }
+          ],
+          "startTime": 1712900000558935,
+          "duration": 7625,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "consent.status",
+              "type": "string",
+              "value": "granted"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "6b5d4adc072833d2",
+          "operationName": "hl7.transform",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "cf2363550ea31465"
+            }
+          ],
+          "startTime": 1712900000567560,
+          "duration": 24828,
+          "processID": "hl7",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "hl7.version",
+              "type": "string",
+              "value": "2.5.1"
+            },
+            {
+              "key": "hl7.message_type",
+              "type": "string",
+              "value": "ADT^A01"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "a2ba847803c7c335",
+          "operationName": "audit.log_access",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "cf2363550ea31465"
+            }
+          ],
+          "startTime": 1712900000592888,
+          "duration": 4921,
+          "processID": "audit",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0004"
+            },
+            {
+              "key": "audit.reason",
+              "type": "string",
+              "value": "treatment"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "9f3b98315ac5bcf4",
+          "operationName": "fhir.bundle_response",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "cf2363550ea31465"
+            }
+          ],
+          "startTime": 1712900000598309,
+          "duration": 4273,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "fhir.resource_type",
+              "type": "string",
+              "value": "Bundle"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "44c81b7de5ebe98d",
+          "operationName": "GET /fhir/Patient/{id}",
+          "references": [],
+          "startTime": 1712900000667676,
+          "duration": 90711,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "GET"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/fhir/Patient/{id}"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0005"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "7929da222725129f",
+          "operationName": "auth.validate_token",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "44c81b7de5ebe98d"
+            }
+          ],
+          "startTime": 1712900000668676,
+          "duration": 3890,
+          "processID": "auth",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "auth.scope",
+              "type": "string",
+              "value": "patient/*.read"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "0d4ff3c060db71e5",
+          "operationName": "patient.lookup",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "44c81b7de5ebe98d"
+            }
+          ],
+          "startTime": 1712900000673566,
+          "duration": 43742,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0005"
+            },
+            {
+              "key": "patient.name",
+              "type": "string",
+              "value": "最上 陽菜"
+            },
+            {
+              "key": "patient.clinical_note",
+              "type": "string",
+              "value": "術後経過は順調 👍"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "752b4b1dfc5b3a73",
+          "operationName": "patient.consent_check",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "44c81b7de5ebe98d"
+            }
+          ],
+          "startTime": 1712900000717808,
+          "duration": 7376,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "consent.status",
+              "type": "string",
+              "value": "granted"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "99f9860c691ef1b0",
+          "operationName": "hl7.transform",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "44c81b7de5ebe98d"
+            }
+          ],
+          "startTime": 1712900000726184,
+          "duration": 22396,
+          "processID": "hl7",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "hl7.version",
+              "type": "string",
+              "value": "2.5.1"
+            },
+            {
+              "key": "hl7.message_type",
+              "type": "string",
+              "value": "ADT^A01"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "ea9b30b5cb03df62",
+          "operationName": "audit.log_access",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "44c81b7de5ebe98d"
+            }
+          ],
+          "startTime": 1712900000749080,
+          "duration": 2662,
+          "processID": "audit",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0005"
+            },
+            {
+              "key": "audit.reason",
+              "type": "string",
+              "value": "treatment"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "4d3f0487fcb9bd58",
+          "operationName": "fhir.bundle_response",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "44c81b7de5ebe98d"
+            }
+          ],
+          "startTime": 1712900000752242,
+          "duration": 4145,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "fhir.resource_type",
+              "type": "string",
+              "value": "Bundle"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "d0b636914cda156f",
+          "operationName": "GET /fhir/Patient/{id}",
+          "references": [],
+          "startTime": 1712900000801569,
+          "duration": 106546,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "GET"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/fhir/Patient/{id}"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0006"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "83dff4acc433044b",
+          "operationName": "auth.validate_token",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "d0b636914cda156f"
+            }
+          ],
+          "startTime": 1712900000802569,
+          "duration": 3793,
+          "processID": "auth",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "auth.scope",
+              "type": "string",
+              "value": "patient/*.read"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "071ad0df99f2d745",
+          "operationName": "patient.lookup",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "d0b636914cda156f"
+            }
+          ],
+          "startTime": 1712900000807362,
+          "duration": 58840,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0006"
+            },
+            {
+              "key": "patient.name",
+              "type": "string",
+              "value": "فاطمة الزهراء"
+            },
+            {
+              "key": "patient.clinical_note",
+              "type": "string",
+              "value": "تحتاج إلى مراجعة دورية"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "78387d6f3564734c",
+          "operationName": "patient.consent_check",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "d0b636914cda156f"
+            }
+          ],
+          "startTime": 1712900000866702,
+          "duration": 2111,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "consent.status",
+              "type": "string",
+              "value": "granted"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "1864d0621cd977ad",
+          "operationName": "hl7.transform",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "d0b636914cda156f"
+            }
+          ],
+          "startTime": 1712900000869813,
+          "duration": 26080,
+          "processID": "hl7",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "hl7.version",
+              "type": "string",
+              "value": "2.5.1"
+            },
+            {
+              "key": "hl7.message_type",
+              "type": "string",
+              "value": "ADT^A01"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "f1d1938b8bd7a151",
+          "operationName": "audit.log_access",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "d0b636914cda156f"
+            }
+          ],
+          "startTime": 1712900000896393,
+          "duration": 5155,
+          "processID": "audit",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0006"
+            },
+            {
+              "key": "audit.reason",
+              "type": "string",
+              "value": "treatment"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "01a69f83d58fba93",
+          "operationName": "fhir.bundle_response",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "d0b636914cda156f"
+            }
+          ],
+          "startTime": 1712900000902048,
+          "duration": 4067,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "fhir.resource_type",
+              "type": "string",
+              "value": "Bundle"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "bbb786c2343166e3",
+          "operationName": "GET /fhir/Patient/{id}",
+          "references": [],
+          "startTime": 1712900000949821,
+          "duration": 93631,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "GET"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/fhir/Patient/{id}"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0007"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "2a9f64146d8bbe3d",
+          "operationName": "auth.validate_token",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "bbb786c2343166e3"
+            }
+          ],
+          "startTime": 1712900000950821,
+          "duration": 4215,
+          "processID": "auth",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "auth.scope",
+              "type": "string",
+              "value": "patient/*.read"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "2fd05849116cf25e",
+          "operationName": "patient.lookup",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "bbb786c2343166e3"
+            }
+          ],
+          "startTime": 1712900000956036,
+          "duration": 46392,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0007"
+            },
+            {
+              "key": "patient.name",
+              "type": "string",
+              "value": "Renée Côté"
+            },
+            {
+              "key": "patient.clinical_note",
+              "type": "string",
+              "value": "Vaccination up to date ✔️"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "ccc8650560e89798",
+          "operationName": "patient.consent_check",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "bbb786c2343166e3"
+            }
+          ],
+          "startTime": 1712900001002928,
+          "duration": 2767,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "consent.status",
+              "type": "string",
+              "value": "granted"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "3571791484817630",
+          "operationName": "hl7.transform",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "bbb786c2343166e3"
+            }
+          ],
+          "startTime": 1712900001006695,
+          "duration": 24251,
+          "processID": "hl7",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "hl7.version",
+              "type": "string",
+              "value": "2.5.1"
+            },
+            {
+              "key": "hl7.message_type",
+              "type": "string",
+              "value": "ADT^A01"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "bba284d9a10b7858",
+          "operationName": "audit.log_access",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "bbb786c2343166e3"
+            }
+          ],
+          "startTime": 1712900001031446,
+          "duration": 2743,
+          "processID": "audit",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0007"
+            },
+            {
+              "key": "audit.reason",
+              "type": "string",
+              "value": "treatment"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "03c86e7a86c4e7db",
+          "operationName": "fhir.bundle_response",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "bbb786c2343166e3"
+            }
+          ],
+          "startTime": 1712900001034689,
+          "duration": 6763,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "fhir.resource_type",
+              "type": "string",
+              "value": "Bundle"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "56f590955c6242d7",
+          "operationName": "GET /fhir/Patient/{id}",
+          "references": [],
+          "startTime": 1712900001075577,
+          "duration": 74711,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "GET"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/fhir/Patient/{id}"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0008"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "ec3403cc03014728",
+          "operationName": "auth.validate_token",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "56f590955c6242d7"
+            }
+          ],
+          "startTime": 1712900001076577,
+          "duration": 3740,
+          "processID": "auth",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "auth.scope",
+              "type": "string",
+              "value": "patient/*.read"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "4003a264fe59af47",
+          "operationName": "patient.lookup",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "56f590955c6242d7"
+            }
+          ],
+          "startTime": 1712900001081317,
+          "duration": 36171,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0008"
+            },
+            {
+              "key": "patient.name",
+              "type": "string",
+              "value": "Björk Guðmundsdóttir"
+            },
+            {
+              "key": "patient.clinical_note",
+              "type": "string",
+              "value": "Referred to cardiology 🫀"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "18301393d40707dc",
+          "operationName": "patient.consent_check",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "56f590955c6242d7"
+            }
+          ],
+          "startTime": 1712900001117988,
+          "duration": 3044,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "consent.status",
+              "type": "string",
+              "value": "granted"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "4b97c3f53739b2a3",
+          "operationName": "hl7.transform",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "56f590955c6242d7"
+            }
+          ],
+          "startTime": 1712900001122032,
+          "duration": 13959,
+          "processID": "hl7",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "hl7.version",
+              "type": "string",
+              "value": "2.5.1"
+            },
+            {
+              "key": "hl7.message_type",
+              "type": "string",
+              "value": "ADT^A01"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "b2145da5d499b38f",
+          "operationName": "audit.log_access",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "56f590955c6242d7"
+            }
+          ],
+          "startTime": 1712900001136491,
+          "duration": 5143,
+          "processID": "audit",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0008"
+            },
+            {
+              "key": "audit.reason",
+              "type": "string",
+              "value": "treatment"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "b82044a4cef23d84",
+          "operationName": "fhir.bundle_response",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "56f590955c6242d7"
+            }
+          ],
+          "startTime": 1712900001142134,
+          "duration": 6154,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "fhir.resource_type",
+              "type": "string",
+              "value": "Bundle"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "afdfda47cdff7c2d",
+          "operationName": "GET /fhir/Patient/{id}",
+          "references": [],
+          "startTime": 1712900001193396,
+          "duration": 76991,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "server"
+            },
+            {
+              "key": "http.method",
+              "type": "string",
+              "value": "GET"
+            },
+            {
+              "key": "http.route",
+              "type": "string",
+              "value": "/fhir/Patient/{id}"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0009"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "727b060bf431bb49",
+          "operationName": "auth.validate_token",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "afdfda47cdff7c2d"
+            }
+          ],
+          "startTime": 1712900001194396,
+          "duration": 7941,
+          "processID": "auth",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "auth.scope",
+              "type": "string",
+              "value": "patient/*.read"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "e4d7671434c0db13",
+          "operationName": "patient.lookup",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "afdfda47cdff7c2d"
+            }
+          ],
+          "startTime": 1712900001203337,
+          "duration": 36985,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "client"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0009"
+            },
+            {
+              "key": "patient.name",
+              "type": "string",
+              "value": "이 서연"
+            },
+            {
+              "key": "patient.clinical_note",
+              "type": "string",
+              "value": "정기 검진 예약됨"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "2f504b42720d45f4",
+          "operationName": "patient.consent_check",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "afdfda47cdff7c2d"
+            }
+          ],
+          "startTime": 1712900001240822,
+          "duration": 2229,
+          "processID": "ehr",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "consent.status",
+              "type": "string",
+              "value": "granted"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "9fdae093411550cd",
+          "operationName": "hl7.transform",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "afdfda47cdff7c2d"
+            }
+          ],
+          "startTime": 1712900001244051,
+          "duration": 15848,
+          "processID": "hl7",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "hl7.version",
+              "type": "string",
+              "value": "2.5.1"
+            },
+            {
+              "key": "hl7.message_type",
+              "type": "string",
+              "value": "ADT^A01"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "e897d582c46c17c5",
+          "operationName": "audit.log_access",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "afdfda47cdff7c2d"
+            }
+          ],
+          "startTime": 1712900001260399,
+          "duration": 3155,
+          "processID": "audit",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "patient.id",
+              "type": "string",
+              "value": "synthetic-patient-0009"
+            },
+            {
+              "key": "audit.reason",
+              "type": "string",
+              "value": "treatment"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        },
+        {
+          "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+          "spanID": "2efacc51bd68332b",
+          "operationName": "fhir.bundle_response",
+          "references": [
+            {
+              "refType": "CHILD_OF",
+              "traceID": "d3aa66cd3763ba50ca0c6e728b126d9f",
+              "spanID": "afdfda47cdff7c2d"
+            }
+          ],
+          "startTime": 1712900001264054,
+          "duration": 4333,
+          "processID": "gw",
+          "tags": [
+            {
+              "key": "span.kind",
+              "type": "string",
+              "value": "internal"
+            },
+            {
+              "key": "fhir.resource_type",
+              "type": "string",
+              "value": "Bundle"
+            },
+            {
+              "key": "otel.status_code",
+              "type": "string",
+              "value": "OK"
+            }
+          ],
+          "logs": []
+        }
+      ]
+    }
+  ]
+}

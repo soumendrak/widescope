@@ -1,0 +1,3129 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "channel-gateway"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "b64de62343cbda47",
+              "name": "wire.transfer.execute",
+              "kind": 2,
+              "startTimeUnixNano": "1712600000000000000",
+              "endTimeUnixNano": "1712600002885212697",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_b94c44205e"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 182825.46
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "USD"
+                  }
+                },
+                {
+                  "key": "account.from",
+                  "value": {
+                    "stringValue": "****2690"
+                  }
+                },
+                {
+                  "key": "account.to.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **50"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "282feb1f5b583370",
+              "name": "notify.customer",
+              "kind": 1,
+              "startTimeUnixNano": "1712600002844035920",
+              "endTimeUnixNano": "1712600002883212697",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_b94c44205e"
+                  }
+                },
+                {
+                  "key": "notify.channel",
+                  "value": {
+                    "stringValue": "push"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b64de62343cbda47"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "798acaae87264343",
+              "name": "wire.transfer.execute",
+              "kind": 2,
+              "startTimeUnixNano": "1712600003150331344",
+              "endTimeUnixNano": "1712600006163817585",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_be234c21d4"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 230357.96
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "GBP"
+                  }
+                },
+                {
+                  "key": "account.from",
+                  "value": {
+                    "stringValue": "****7767"
+                  }
+                },
+                {
+                  "key": "account.to.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **99"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "28c4d670cbffbac8",
+              "name": "notify.customer",
+              "kind": 1,
+              "startTimeUnixNano": "1712600006147092468",
+              "endTimeUnixNano": "1712600006161817585",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_be234c21d4"
+                  }
+                },
+                {
+                  "key": "notify.channel",
+                  "value": {
+                    "stringValue": "sms"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "798acaae87264343"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "a73f4a27ba52ae08",
+              "name": "wire.transfer.execute",
+              "kind": 2,
+              "startTimeUnixNano": "1712600007036281055",
+              "endTimeUnixNano": "1712600009720853857",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_5c99450c15"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 162470.48
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "USD"
+                  }
+                },
+                {
+                  "key": "account.from",
+                  "value": {
+                    "stringValue": "****6846"
+                  }
+                },
+                {
+                  "key": "account.to.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **38"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "c5bcb5e18ee87814",
+              "name": "notify.customer",
+              "kind": 1,
+              "startTimeUnixNano": "1712600009690306522",
+              "endTimeUnixNano": "1712600009718853857",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_5c99450c15"
+                  }
+                },
+                {
+                  "key": "notify.channel",
+                  "value": {
+                    "stringValue": "push"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "a73f4a27ba52ae08"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "749ea8d26e6dfb15",
+              "name": "wire.transfer.execute",
+              "kind": 2,
+              "startTimeUnixNano": "1712600009948001630",
+              "endTimeUnixNano": "1712600012148764874",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_f8b0a998f3"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 222448.77
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "EUR"
+                  }
+                },
+                {
+                  "key": "account.from",
+                  "value": {
+                    "stringValue": "****4892"
+                  }
+                },
+                {
+                  "key": "account.to.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **16"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "ca40f98dcc16a7fb",
+              "name": "notify.customer",
+              "kind": 1,
+              "startTimeUnixNano": "1712600012107805039",
+              "endTimeUnixNano": "1712600012146764874",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_f8b0a998f3"
+                  }
+                },
+                {
+                  "key": "notify.channel",
+                  "value": {
+                    "stringValue": "email"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "749ea8d26e6dfb15"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "952199ead4afb65c",
+              "name": "wire.transfer.execute",
+              "kind": 2,
+              "startTimeUnixNano": "1712600012722412696",
+              "endTimeUnixNano": "1712600014503931359",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_60077b943c"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 182799.44
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "USD"
+                  }
+                },
+                {
+                  "key": "account.from",
+                  "value": {
+                    "stringValue": "****6279"
+                  }
+                },
+                {
+                  "key": "account.to.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **77"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "45abe82ba53cce8c",
+              "name": "notify.customer",
+              "kind": 1,
+              "startTimeUnixNano": "1712600014477010159",
+              "endTimeUnixNano": "1712600014501931359",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_60077b943c"
+                  }
+                },
+                {
+                  "key": "notify.channel",
+                  "value": {
+                    "stringValue": "email"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "952199ead4afb65c"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "be3370ab9b315f4d",
+              "name": "wire.transfer.execute",
+              "kind": 2,
+              "startTimeUnixNano": "1712600014986339120",
+              "endTimeUnixNano": "1712600017540983670",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_96eab17eaf"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 9440.07
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "GBP"
+                  }
+                },
+                {
+                  "key": "account.from",
+                  "value": {
+                    "stringValue": "****1002"
+                  }
+                },
+                {
+                  "key": "account.to.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **21"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "ccda1086e7b669e5",
+              "name": "notify.customer",
+              "kind": 1,
+              "startTimeUnixNano": "1712600017514379529",
+              "endTimeUnixNano": "1712600017538983670",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_96eab17eaf"
+                  }
+                },
+                {
+                  "key": "notify.channel",
+                  "value": {
+                    "stringValue": "sms"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "be3370ab9b315f4d"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "0ea122158278dcec",
+              "name": "wire.transfer.execute",
+              "kind": 2,
+              "startTimeUnixNano": "1712600017875742342",
+              "endTimeUnixNano": "1712600019801746079",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_0266d36d24"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 128716.73
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "USD"
+                  }
+                },
+                {
+                  "key": "account.from",
+                  "value": {
+                    "stringValue": "****3742"
+                  }
+                },
+                {
+                  "key": "account.to.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **78"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "8b4afeeb9f352846",
+              "name": "notify.customer",
+              "kind": 1,
+              "startTimeUnixNano": "1712600019774254926",
+              "endTimeUnixNano": "1712600019799746079",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_0266d36d24"
+                  }
+                },
+                {
+                  "key": "notify.channel",
+                  "value": {
+                    "stringValue": "push"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0ea122158278dcec"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "b37da3fff65d0714",
+              "name": "wire.transfer.execute",
+              "kind": 2,
+              "startTimeUnixNano": "1712600020342549173",
+              "endTimeUnixNano": "1712600023017787362",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_4e57286455"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 120786.47
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "GBP"
+                  }
+                },
+                {
+                  "key": "account.from",
+                  "value": {
+                    "stringValue": "****1108"
+                  }
+                },
+                {
+                  "key": "account.to.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **74"
+                  }
+                }
+              ],
+              "events": []
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "8c6df5bf89bc437e",
+              "name": "notify.customer",
+              "kind": 1,
+              "startTimeUnixNano": "1712600022997954137",
+              "endTimeUnixNano": "1712600023015787362",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_4e57286455"
+                  }
+                },
+                {
+                  "key": "notify.channel",
+                  "value": {
+                    "stringValue": "email"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b37da3fff65d0714"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "fraud-scoring"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "82790966c917fc37",
+              "name": "fraud.score_transaction",
+              "kind": 3,
+              "startTimeUnixNano": "1712600000002000000",
+              "endTimeUnixNano": "1712600000035963412",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_b94c44205e"
+                  }
+                },
+                {
+                  "key": "fraud.score",
+                  "value": {
+                    "doubleValue": 0.058
+                  }
+                },
+                {
+                  "key": "fraud.model_version",
+                  "value": {
+                    "stringValue": "fraud-v3.2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b64de62343cbda47"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "5eead3b6e9e83259",
+              "name": "fraud.score_transaction",
+              "kind": 3,
+              "startTimeUnixNano": "1712600003152331344",
+              "endTimeUnixNano": "1712600003198514773",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_be234c21d4"
+                  }
+                },
+                {
+                  "key": "fraud.score",
+                  "value": {
+                    "doubleValue": 0.333
+                  }
+                },
+                {
+                  "key": "fraud.model_version",
+                  "value": {
+                    "stringValue": "fraud-v3.2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "798acaae87264343"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "672b8301ced5dfcb",
+              "name": "fraud.score_transaction",
+              "kind": 3,
+              "startTimeUnixNano": "1712600007038281055",
+              "endTimeUnixNano": "1712600007135982218",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_5c99450c15"
+                  }
+                },
+                {
+                  "key": "fraud.score",
+                  "value": {
+                    "doubleValue": 0.241
+                  }
+                },
+                {
+                  "key": "fraud.model_version",
+                  "value": {
+                    "stringValue": "fraud-v3.2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "a73f4a27ba52ae08"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "29c40566171e1b68",
+              "name": "fraud.score_transaction",
+              "kind": 3,
+              "startTimeUnixNano": "1712600009950001630",
+              "endTimeUnixNano": "1712600010025659967",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_f8b0a998f3"
+                  }
+                },
+                {
+                  "key": "fraud.score",
+                  "value": {
+                    "doubleValue": 0.14
+                  }
+                },
+                {
+                  "key": "fraud.model_version",
+                  "value": {
+                    "stringValue": "fraud-v3.2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "749ea8d26e6dfb15"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "07746053b1c81130",
+              "name": "fraud.score_transaction",
+              "kind": 3,
+              "startTimeUnixNano": "1712600012724412696",
+              "endTimeUnixNano": "1712600012816503915",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_60077b943c"
+                  }
+                },
+                {
+                  "key": "fraud.score",
+                  "value": {
+                    "doubleValue": 0.232
+                  }
+                },
+                {
+                  "key": "fraud.model_version",
+                  "value": {
+                    "stringValue": "fraud-v3.2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "952199ead4afb65c"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "38663c6e6a3d13ee",
+              "name": "fraud.score_transaction",
+              "kind": 3,
+              "startTimeUnixNano": "1712600014988339120",
+              "endTimeUnixNano": "1712600015106849919",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_96eab17eaf"
+                  }
+                },
+                {
+                  "key": "fraud.score",
+                  "value": {
+                    "doubleValue": 0.111
+                  }
+                },
+                {
+                  "key": "fraud.model_version",
+                  "value": {
+                    "stringValue": "fraud-v3.2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "be3370ab9b315f4d"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "da0c30212b39929e",
+              "name": "fraud.score_transaction",
+              "kind": 3,
+              "startTimeUnixNano": "1712600017877742342",
+              "endTimeUnixNano": "1712600017931433461",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_0266d36d24"
+                  }
+                },
+                {
+                  "key": "fraud.score",
+                  "value": {
+                    "doubleValue": 0.13
+                  }
+                },
+                {
+                  "key": "fraud.model_version",
+                  "value": {
+                    "stringValue": "fraud-v3.2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0ea122158278dcec"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "54141585c0926eff",
+              "name": "fraud.score_transaction",
+              "kind": 3,
+              "startTimeUnixNano": "1712600020344549173",
+              "endTimeUnixNano": "1712600020445029006",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_4e57286455"
+                  }
+                },
+                {
+                  "key": "fraud.score",
+                  "value": {
+                    "doubleValue": 0.148
+                  }
+                },
+                {
+                  "key": "fraud.model_version",
+                  "value": {
+                    "stringValue": "fraud-v3.2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b37da3fff65d0714"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "compliance-aml"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "f20ba4cdb5f20208",
+              "name": "compliance.aml_check",
+              "kind": 3,
+              "startTimeUnixNano": "1712600000036963412",
+              "endTimeUnixNano": "1712600000216402686",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_b94c44205e"
+                  }
+                },
+                {
+                  "key": "aml.rule_set",
+                  "value": {
+                    "stringValue": "ofac-2024"
+                  }
+                },
+                {
+                  "key": "aml.sanctions_list_checked",
+                  "value": {
+                    "boolValue": true
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b64de62343cbda47"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "0405fb85b4830ad8",
+              "name": "audit.record_transaction",
+              "kind": 1,
+              "startTimeUnixNano": "1712600002823618144",
+              "endTimeUnixNano": "1712600002843035920",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_b94c44205e"
+                  }
+                },
+                {
+                  "key": "audit.retention_years",
+                  "value": {
+                    "intValue": "7"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b64de62343cbda47"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "16a427bc19850ce7",
+              "name": "compliance.aml_check",
+              "kind": 3,
+              "startTimeUnixNano": "1712600003199514773",
+              "endTimeUnixNano": "1712600003297346408",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_be234c21d4"
+                  }
+                },
+                {
+                  "key": "aml.rule_set",
+                  "value": {
+                    "stringValue": "ofac-2024"
+                  }
+                },
+                {
+                  "key": "aml.sanctions_list_checked",
+                  "value": {
+                    "boolValue": true
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "798acaae87264343"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "d5b6588e4179fdf1",
+              "name": "audit.record_transaction",
+              "kind": 1,
+              "startTimeUnixNano": "1712600006139045693",
+              "endTimeUnixNano": "1712600006146092468",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_be234c21d4"
+                  }
+                },
+                {
+                  "key": "audit.retention_years",
+                  "value": {
+                    "intValue": "7"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "798acaae87264343"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "c3f75e2190a832a5",
+              "name": "compliance.aml_check",
+              "kind": 3,
+              "startTimeUnixNano": "1712600007136982218",
+              "endTimeUnixNano": "1712600007287102487",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_5c99450c15"
+                  }
+                },
+                {
+                  "key": "aml.rule_set",
+                  "value": {
+                    "stringValue": "ofac-2024"
+                  }
+                },
+                {
+                  "key": "aml.sanctions_list_checked",
+                  "value": {
+                    "boolValue": true
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "a73f4a27ba52ae08"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "f6306592f39cff82",
+              "name": "audit.record_transaction",
+              "kind": 1,
+              "startTimeUnixNano": "1712600009678261913",
+              "endTimeUnixNano": "1712600009689306522",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_5c99450c15"
+                  }
+                },
+                {
+                  "key": "audit.retention_years",
+                  "value": {
+                    "intValue": "7"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "a73f4a27ba52ae08"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "bec307bfe5fbb582",
+              "name": "compliance.aml_check",
+              "kind": 3,
+              "startTimeUnixNano": "1712600010026659967",
+              "endTimeUnixNano": "1712600010203472854",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_f8b0a998f3"
+                  }
+                },
+                {
+                  "key": "aml.rule_set",
+                  "value": {
+                    "stringValue": "ofac-2024"
+                  }
+                },
+                {
+                  "key": "aml.sanctions_list_checked",
+                  "value": {
+                    "boolValue": true
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "749ea8d26e6dfb15"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "b993f2a8a8896471",
+              "name": "audit.record_transaction",
+              "kind": 1,
+              "startTimeUnixNano": "1712600012095754137",
+              "endTimeUnixNano": "1712600012106805039",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_f8b0a998f3"
+                  }
+                },
+                {
+                  "key": "audit.retention_years",
+                  "value": {
+                    "intValue": "7"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "749ea8d26e6dfb15"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "13dec38f4609d384",
+              "name": "compliance.aml_check",
+              "kind": 3,
+              "startTimeUnixNano": "1712600012817503915",
+              "endTimeUnixNano": "1712600012939240667",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_60077b943c"
+                  }
+                },
+                {
+                  "key": "aml.rule_set",
+                  "value": {
+                    "stringValue": "ofac-2024"
+                  }
+                },
+                {
+                  "key": "aml.sanctions_list_checked",
+                  "value": {
+                    "boolValue": true
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "952199ead4afb65c"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "e98e13519bad3310",
+              "name": "audit.record_transaction",
+              "kind": 1,
+              "startTimeUnixNano": "1712600014469229556",
+              "endTimeUnixNano": "1712600014476010159",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_60077b943c"
+                  }
+                },
+                {
+                  "key": "audit.retention_years",
+                  "value": {
+                    "intValue": "7"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "952199ead4afb65c"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "4f01df5543cacd78",
+              "name": "compliance.aml_check",
+              "kind": 3,
+              "startTimeUnixNano": "1712600015107849919",
+              "endTimeUnixNano": "1712600015169020268",
+              "status": {
+                "code": 2,
+                "message": "AML watchlist match requires manual review"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_96eab17eaf"
+                  }
+                },
+                {
+                  "key": "aml.rule_set",
+                  "value": {
+                    "stringValue": "ofac-2024"
+                  }
+                },
+                {
+                  "key": "aml.sanctions_list_checked",
+                  "value": {
+                    "boolValue": true
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "be3370ab9b315f4d"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "59841961be37c791",
+              "name": "audit.record_transaction",
+              "kind": 1,
+              "startTimeUnixNano": "1712600017500748495",
+              "endTimeUnixNano": "1712600017513379529",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_96eab17eaf"
+                  }
+                },
+                {
+                  "key": "audit.retention_years",
+                  "value": {
+                    "intValue": "7"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "be3370ab9b315f4d"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "cc0f574c949b0431",
+              "name": "compliance.aml_check",
+              "kind": 3,
+              "startTimeUnixNano": "1712600017932433461",
+              "endTimeUnixNano": "1712600018115383836",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_0266d36d24"
+                  }
+                },
+                {
+                  "key": "aml.rule_set",
+                  "value": {
+                    "stringValue": "ofac-2024"
+                  }
+                },
+                {
+                  "key": "aml.sanctions_list_checked",
+                  "value": {
+                    "boolValue": true
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0ea122158278dcec"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "6afea94bad50a77d",
+              "name": "audit.record_transaction",
+              "kind": 1,
+              "startTimeUnixNano": "1712600019754646290",
+              "endTimeUnixNano": "1712600019773254926",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_0266d36d24"
+                  }
+                },
+                {
+                  "key": "audit.retention_years",
+                  "value": {
+                    "intValue": "7"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0ea122158278dcec"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "57d4585ae27cc430",
+              "name": "compliance.aml_check",
+              "kind": 3,
+              "startTimeUnixNano": "1712600020446029006",
+              "endTimeUnixNano": "1712600020638415783",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_4e57286455"
+                  }
+                },
+                {
+                  "key": "aml.rule_set",
+                  "value": {
+                    "stringValue": "ofac-2024"
+                  }
+                },
+                {
+                  "key": "aml.sanctions_list_checked",
+                  "value": {
+                    "boolValue": true
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b37da3fff65d0714"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "0030c6adb34d88db",
+              "name": "audit.record_transaction",
+              "kind": 1,
+              "startTimeUnixNano": "1712600022983330536",
+              "endTimeUnixNano": "1712600022996954137",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_4e57286455"
+                  }
+                },
+                {
+                  "key": "audit.retention_years",
+                  "value": {
+                    "intValue": "7"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b37da3fff65d0714"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "ledger-service"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "611c9ddc24829264",
+              "name": "ledger.debit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600000217402686",
+              "endTimeUnixNano": "1712600000252075773",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_b94c44205e"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 182825.46
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "USD"
+                  }
+                },
+                {
+                  "key": "account.number",
+                  "value": {
+                    "stringValue": "****2690"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "debit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b64de62343cbda47"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "ac29d7172d3e1953",
+              "name": "ledger.credit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600000253075773",
+              "endTimeUnixNano": "1712600000301381648",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_b94c44205e"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 182825.46
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "USD"
+                  }
+                },
+                {
+                  "key": "account.number.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **50"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "credit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b64de62343cbda47"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "3e34301746cb2820",
+              "name": "ledger.debit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600003298346408",
+              "endTimeUnixNano": "1712600003331487619",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_be234c21d4"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 230357.96
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "GBP"
+                  }
+                },
+                {
+                  "key": "account.number",
+                  "value": {
+                    "stringValue": "****7767"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "debit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "798acaae87264343"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "26e42a31e15dcf0c",
+              "name": "ledger.credit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600003332487619",
+              "endTimeUnixNano": "1712600003406233506",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_be234c21d4"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 230357.96
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "GBP"
+                  }
+                },
+                {
+                  "key": "account.number.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **99"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "credit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "798acaae87264343"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "c522af0d5d513a66",
+              "name": "ledger.debit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600007288102487",
+              "endTimeUnixNano": "1712600007313244926",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_5c99450c15"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 162470.48
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "USD"
+                  }
+                },
+                {
+                  "key": "account.number",
+                  "value": {
+                    "stringValue": "****6846"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "debit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "a73f4a27ba52ae08"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "d899731cf41b0d29",
+              "name": "ledger.credit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600007314244926",
+              "endTimeUnixNano": "1712600007354872409",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_5c99450c15"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 162470.48
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "USD"
+                  }
+                },
+                {
+                  "key": "account.number.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **38"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "credit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "a73f4a27ba52ae08"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "90c1567768d00f45",
+              "name": "ledger.debit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600010204472854",
+              "endTimeUnixNano": "1712600010274911176",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_f8b0a998f3"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 222448.77
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "EUR"
+                  }
+                },
+                {
+                  "key": "account.number",
+                  "value": {
+                    "stringValue": "****4892"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "debit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "749ea8d26e6dfb15"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "07898dcbe86e9c30",
+              "name": "ledger.credit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600010275911176",
+              "endTimeUnixNano": "1712600010348500863",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_f8b0a998f3"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 222448.77
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "EUR"
+                  }
+                },
+                {
+                  "key": "account.number.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **16"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "credit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "749ea8d26e6dfb15"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "d33933f6686bd951",
+              "name": "ledger.debit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600012940240667",
+              "endTimeUnixNano": "1712600012985545056",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_60077b943c"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 182799.44
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "USD"
+                  }
+                },
+                {
+                  "key": "account.number",
+                  "value": {
+                    "stringValue": "****6279"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "debit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "952199ead4afb65c"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "f6fa70023f422387",
+              "name": "ledger.credit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600012986545056",
+              "endTimeUnixNano": "1712600013059712489",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_60077b943c"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 182799.44
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "USD"
+                  }
+                },
+                {
+                  "key": "account.number.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **77"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "credit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "952199ead4afb65c"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "ca9e44d9a6669b45",
+              "name": "ledger.debit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600015170020268",
+              "endTimeUnixNano": "1712600015247768783",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_96eab17eaf"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 9440.07
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "GBP"
+                  }
+                },
+                {
+                  "key": "account.number",
+                  "value": {
+                    "stringValue": "****1002"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "debit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "be3370ab9b315f4d"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "a3bfd9d030c41168",
+              "name": "ledger.credit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600015248768783",
+              "endTimeUnixNano": "1712600015312873552",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_96eab17eaf"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 9440.07
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "GBP"
+                  }
+                },
+                {
+                  "key": "account.number.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **21"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "credit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "be3370ab9b315f4d"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "0c296b6d45578635",
+              "name": "ledger.debit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600018116383836",
+              "endTimeUnixNano": "1712600018140971579",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_0266d36d24"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 128716.73
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "USD"
+                  }
+                },
+                {
+                  "key": "account.number",
+                  "value": {
+                    "stringValue": "****3742"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "debit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0ea122158278dcec"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "1e292836fab47392",
+              "name": "ledger.credit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600018141971579",
+              "endTimeUnixNano": "1712600018166495576",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_0266d36d24"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 128716.73
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "USD"
+                  }
+                },
+                {
+                  "key": "account.number.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **78"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "credit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0ea122158278dcec"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "6d435f132f40ddb1",
+              "name": "ledger.debit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600020639415783",
+              "endTimeUnixNano": "1712600020665432500",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_4e57286455"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 120786.47
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "GBP"
+                  }
+                },
+                {
+                  "key": "account.number",
+                  "value": {
+                    "stringValue": "****1108"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "debit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b37da3fff65d0714"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "d7fcb3d48f729d86",
+              "name": "ledger.credit",
+              "kind": 3,
+              "startTimeUnixNano": "1712600020666432500",
+              "endTimeUnixNano": "1712600020716933113",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_4e57286455"
+                  }
+                },
+                {
+                  "key": "transaction.amount",
+                  "value": {
+                    "doubleValue": 120786.47
+                  }
+                },
+                {
+                  "key": "transaction.currency",
+                  "value": {
+                    "stringValue": "GBP"
+                  }
+                },
+                {
+                  "key": "account.number.iban_masked",
+                  "value": {
+                    "stringValue": "DE89 3704 **** **** **74"
+                  }
+                },
+                {
+                  "key": "ledger.entry_type",
+                  "value": {
+                    "stringValue": "credit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b37da3fff65d0714"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "swift-gateway"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "451d7a7da82b3157",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600000303381648",
+              "endTimeUnixNano": "1712600000771467280",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_b94c44205e"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b64de62343cbda47"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "c2e99a2e0b6997eb",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600001112768686",
+              "endTimeUnixNano": "1712600001999758391",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_b94c44205e"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "2"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b64de62343cbda47"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "6740d07b0a0c9367",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600002277265671",
+              "endTimeUnixNano": "1712600002822618144",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_b94c44205e"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b64de62343cbda47"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "1fb75377817cb557",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600003408233506",
+              "endTimeUnixNano": "1712600004153210303",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_be234c21d4"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "798acaae87264343"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "b0b46f95f121770f",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600004430966156",
+              "endTimeUnixNano": "1712600005195313314",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_be234c21d4"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "2"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "798acaae87264343"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "64a5a10443b2bc3a",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600005295518363",
+              "endTimeUnixNano": "1712600006138045693",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_be234c21d4"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "798acaae87264343"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "71cdf7f92c143e55",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600007356872409",
+              "endTimeUnixNano": "1712600007935886713",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_5c99450c15"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "a73f4a27ba52ae08"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "41d2d648a22cca8e",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600008327536177",
+              "endTimeUnixNano": "1712600009093458682",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_5c99450c15"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "2"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "a73f4a27ba52ae08"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "d3d443339bd8cff1",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600009468607255",
+              "endTimeUnixNano": "1712600009677261913",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_5c99450c15"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "a73f4a27ba52ae08"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "3f485a27b79dab89",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600010350500863",
+              "endTimeUnixNano": "1712600010677295963",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_f8b0a998f3"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "749ea8d26e6dfb15"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "12f63c9d1446ade4",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600010916424151",
+              "endTimeUnixNano": "1712600011198871181",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_f8b0a998f3"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "2"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "749ea8d26e6dfb15"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "2fa5a10e8655f24d",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600011393786218",
+              "endTimeUnixNano": "1712600012094754137",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_f8b0a998f3"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "749ea8d26e6dfb15"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "4153dfe5cb04ff3d",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600013061712489",
+              "endTimeUnixNano": "1712600013378457599",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_60077b943c"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "952199ead4afb65c"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "a07a3d7fbc4105ff",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600013610663963",
+              "endTimeUnixNano": "1712600013854999196",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_60077b943c"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "2"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "952199ead4afb65c"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "fa7a817cc72eee2f",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600014215823886",
+              "endTimeUnixNano": "1712600014468229556",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_60077b943c"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "952199ead4afb65c"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "1d884580ae414a19",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600015314873552",
+              "endTimeUnixNano": "1712600015598421220",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_96eab17eaf"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "be3370ab9b315f4d"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "b2a7525dc2b76aab",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600015845586502",
+              "endTimeUnixNano": "1712600016446460395",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_96eab17eaf"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "2"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "be3370ab9b315f4d"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "f03be771ac3c890b",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600016634532702",
+              "endTimeUnixNano": "1712600017499748495",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_96eab17eaf"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "be3370ab9b315f4d"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "0c618f4bc794e2cb",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600018168495576",
+              "endTimeUnixNano": "1712600018381536782",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_0266d36d24"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0ea122158278dcec"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "54e554fb17f728b7",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600018632186963",
+              "endTimeUnixNano": "1712600019296061906",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_0266d36d24"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "2"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0ea122158278dcec"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "bcfe11a3885ccb28",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600019408904438",
+              "endTimeUnixNano": "1712600019753646290",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_0266d36d24"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "0ea122158278dcec"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "15c024fd2287b21c",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600020718933113",
+              "endTimeUnixNano": "1712600021469189899",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_4e57286455"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b37da3fff65d0714"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "915fe06961751b70",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600021848395396",
+              "endTimeUnixNano": "1712600022328846797",
+              "status": {
+                "code": 2,
+                "message": "SWIFT network gateway timeout"
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_4e57286455"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "2"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b37da3fff65d0714"
+            },
+            {
+              "traceId": "82b82b51c97d2306f247e00a3d4f27c2",
+              "spanId": "8cbcc60229bb876e",
+              "name": "swift.send_mt103",
+              "kind": 3,
+              "startTimeUnixNano": "1712600022721540567",
+              "endTimeUnixNano": "1712600022982330536",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "transaction.id",
+                  "value": {
+                    "stringValue": "txn_4e57286455"
+                  }
+                },
+                {
+                  "key": "swift.message_type",
+                  "value": {
+                    "stringValue": "MT103"
+                  }
+                },
+                {
+                  "key": "retry.attempt",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "retry.max_attempts",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b37da3fff65d0714"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

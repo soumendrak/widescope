@@ -215,3 +215,77 @@ mod tests {
         assert!(discover_eval_scores(&a).is_empty());
     }
 }
+
+/// Key shapes and value encodings for evaluation scores.
+#[cfg(test)]
+mod key_tests {
+    use super::*;
+
+    #[test]
+    fn a_metric_name_may_contain_dots_but_a_known_suffix_still_splits() {
+        assert_eq!(
+            parse_eval_key("eval.faithfulness.v2.score"),
+            Some(("faithfulness.v2".to_string(), Some("score".to_string())))
+        );
+        assert_eq!(
+            parse_eval_key("eval.correctness"),
+            Some(("correctness".to_string(), None))
+        );
+        // A trailing dot segment that is not a known field stays in the name.
+        assert_eq!(
+            parse_eval_key("eval.answer.relevancy"),
+            Some(("answer.relevancy".to_string(), None))
+        );
+        assert_eq!(parse_eval_key("eval."), None);
+        assert_eq!(parse_eval_key("unrelated.attribute"), None);
+        // An empty metric name before a known suffix keeps the whole rest, so
+        // the score still shows up rather than vanishing.
+        assert_eq!(
+            parse_eval_key("eval..score"),
+            Some((".score".to_string(), None))
+        );
+    }
+
+    #[test]
+    fn score_values_coerce_from_every_encoding_an_exporter_uses() {
+        assert_eq!(coerce_to_float(&AttributeValue::Float(0.5)), Some(0.5));
+        assert_eq!(coerce_to_float(&AttributeValue::Int(1)), Some(1.0));
+        assert_eq!(coerce_to_float(&AttributeValue::Bool(true)), Some(1.0));
+        assert_eq!(coerce_to_float(&AttributeValue::Bool(false)), Some(0.0));
+        assert_eq!(
+            coerce_to_float(&AttributeValue::String(" 0.25 ".into())),
+            Some(0.25)
+        );
+        assert_eq!(
+            coerce_to_float(&AttributeValue::String("high".into())),
+            None
+        );
+        assert_eq!(coerce_to_float(&AttributeValue::IntArray(vec![1])), None);
+    }
+
+    #[test]
+    fn pass_fail_flags_accept_the_usual_spellings() {
+        for truthy in ["true", "PASS", "passed", "yes", "1"] {
+            assert_eq!(
+                coerce_to_bool(&AttributeValue::String(truthy.into())),
+                Some(true),
+                "{truthy}"
+            );
+        }
+        for falsy in ["false", "fail", "FAILED", "no", "0"] {
+            assert_eq!(
+                coerce_to_bool(&AttributeValue::String(falsy.into())),
+                Some(false),
+                "{falsy}"
+            );
+        }
+        assert_eq!(
+            coerce_to_bool(&AttributeValue::String("maybe".into())),
+            None
+        );
+        assert_eq!(coerce_to_bool(&AttributeValue::Bool(true)), Some(true));
+        assert_eq!(coerce_to_bool(&AttributeValue::Int(0)), Some(false));
+        assert_eq!(coerce_to_bool(&AttributeValue::Int(7)), Some(true));
+        assert_eq!(coerce_to_bool(&AttributeValue::Float(1.0)), None);
+    }
+}

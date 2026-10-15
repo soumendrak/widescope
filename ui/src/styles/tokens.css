@@ -1,0 +1,196 @@
+/* ============================================================================
+   WideScope design tokens — the single source of truth for both entry points.
+
+   Imported by the editor (src/main.ts) and linked by the landing (index.html),
+   so the two pages cannot drift apart: there is one brand blue, one surface
+   ramp, one type scale. Adding a colour anywhere else is the bug this file
+   exists to prevent.
+
+   Dark is the base palette on bare :root; light is an override under
+   [data-theme='light']. The landing sets no data-theme and so renders dark.
+   ========================================================================= */
+
+:root {
+  /* --- type ------------------------------------------------------------- */
+  --font-display: 'Bricolage Grotesque', system-ui, -apple-system, sans-serif;
+  --font-mono: 'Spline Sans Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --text-2xs: 0.68rem;
+  --text-xs: 0.72rem;
+  --text-sm: 0.8rem;
+  --text-base: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.15rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 2rem;
+
+  /* --- space (4px base) -------------------------------------------------- */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+
+  /* --- radius ------------------------------------------------------------ */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  /* --- motion ------------------------------------------------------------ */
+  --ease-spring: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+
+  /* --- layout ------------------------------------------------------------ */
+  --page-max: 1180px;
+
+  /* --- colour: dark (base) ----------------------------------------------- */
+  color-scheme: dark;
+  --color-bg: #05080f;
+  --color-bg-raised: #0a101c;
+  --color-surface: #0d1626;
+  --color-toolbar: #070c16;
+  --color-toolbar-text: #e9eff8;
+  --color-toolbar-muted: #8b9cb5;
+  --color-border: rgba(125, 211, 252, 0.13);
+  --color-border-soft: rgba(125, 211, 252, 0.07);
+  --color-text: #e9eff8;
+  --color-text-muted: #9aa8bd;
+  --color-text-faint: #5b6b84;
+  --color-accent: #3b82f6;
+  --color-accent-hover: #2563eb;
+  --color-accent-deep: #1d4ed8;
+  --color-sky: #7dd3fc;
+  --color-ice: #bae6fd;
+  --color-gold: #fcd34d;
+  --color-amber: #f59e0b;
+  --color-canvas-bg: #070c16;
+  --color-sidebar: #0a111e;
+  --color-sidebar-text: #e9eff8;
+  --color-panel: rgba(13, 22, 38, 0.72);
+  --color-panel-highlight: rgba(125, 211, 252, 0.05);
+  --color-panel-subtle: rgba(125, 211, 252, 0.06);
+  --color-badge-bg: rgba(59, 130, 246, 0.16);
+  --color-badge-text: #7dd3fc;
+  --color-llm-panel-bg: rgba(245, 158, 11, 0.06);
+  --color-llm-badge-bg: rgba(245, 158, 11, 0.16);
+  --color-llm-badge-text: #fcd34d;
+  --color-link: #7dd3fc;
+  --color-danger: #f87171;
+  --color-success: #34d399;
+  --color-code-text: #e9eff8;
+  --color-code-muted: #b9c5d8;
+  --color-error-bg: rgba(69, 10, 10, 0.65);
+  --color-error-text: #fca5a5;
+  --color-error-border: rgba(153, 27, 27, 0.8);
+  --color-warning-bg: rgba(69, 26, 3, 0.6);
+  --color-warning-text: #fcd34d;
+  --color-warning-border: rgba(146, 64, 14, 0.8);
+  --focus-color: #7dd3fc;
+  --color-selection-bg: #fcd34d;
+  --color-selection-text: #1a1203;
+  --grad-cta: linear-gradient(135deg, #1d4ed8 0%, #3b82f6 55%, #38bdf8 100%);
+  --grad-span: linear-gradient(180deg, #7dd3fc 0%, #3b82f6 100%);
+  --grad-hot: linear-gradient(180deg, #fcd34d 0%, #f59e0b 100%);
+  --shadow-panel: 0 24px 70px -28px rgba(2, 6, 18, 0.9);
+  --shadow-cta: 0 1px 0 rgba(255, 255, 255, 0.28) inset,
+    0 10px 32px -8px rgba(37, 99, 235, 0.55);
+  --atmo-grid: rgba(125, 211, 252, 0.04);
+  --atmo-glow: rgba(29, 78, 216, 0.22);
+}
+
+/* Explicit dark selector so the app's data-theme="dark" is a no-op re-assert
+   rather than a second palette that can drift from :root. */
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  color-scheme: light;
+  --color-bg: #eef3fa;
+  --color-bg-raised: #f7fafe;
+  --color-surface: #ffffff;
+  --color-toolbar: #fbfdff;
+  --color-toolbar-text: #0b1b33;
+  --color-toolbar-muted: #5a6b85;
+  --color-border: rgba(13, 49, 105, 0.14);
+  --color-border-soft: rgba(13, 49, 105, 0.08);
+  --color-text: #0b1b33;
+  --color-text-muted: #51627d;
+  --color-text-faint: #8294ad;
+  --color-accent: #2563eb;
+  --color-accent-hover: #1d4ed8;
+  --color-accent-deep: #1e40af;
+  --color-sky: #0284c7;
+  --color-ice: #075985;
+  --color-gold: #b45309;
+  --color-amber: #d97706;
+  --color-canvas-bg: #f5f8fd;
+  --color-sidebar: #ffffff;
+  --color-sidebar-text: #0b1b33;
+  --color-panel: rgba(255, 255, 255, 0.82);
+  --color-panel-highlight: rgba(13, 49, 105, 0.035);
+  --color-panel-subtle: rgba(13, 49, 105, 0.05);
+  --color-badge-bg: rgba(37, 99, 235, 0.1);
+  --color-badge-text: #1d4ed8;
+  --color-llm-panel-bg: rgba(245, 158, 11, 0.08);
+  --color-llm-badge-bg: rgba(245, 158, 11, 0.16);
+  --color-llm-badge-text: #92400e;
+  --color-link: #1d4ed8;
+  --color-danger: #dc2626;
+  --color-success: #047857;
+  --color-code-text: #0b1b33;
+  --color-code-muted: #33425c;
+  --color-error-bg: #fee2e2;
+  --color-error-text: #991b1b;
+  --color-error-border: #fca5a5;
+  --color-warning-bg: #fef3c7;
+  --color-warning-text: #92400e;
+  --color-warning-border: #fcd34d;
+  --focus-color: #2563eb;
+  --grad-span: linear-gradient(180deg, #38bdf8 0%, #2563eb 100%);
+  --grad-hot: linear-gradient(180deg, #fbbf24 0%, #d97706 100%);
+  --shadow-panel: 0 20px 50px -24px rgba(13, 49, 105, 0.18);
+  --shadow-cta: 0 1px 0 rgba(255, 255, 255, 0.3) inset,
+    0 10px 28px -8px rgba(37, 99, 235, 0.45);
+  --atmo-grid: rgba(13, 49, 105, 0.045);
+  --atmo-glow: rgba(59, 130, 246, 0.1);
+}
+
+/* ---------------------------------------------------------------------------
+   Landing aliases. The landing's CSS was written against short names; rather
+   than rewrite 1,100 lines it did not need rewritten (Phase 4 does that), the
+   short names now resolve to the canonical tokens above. Same values, one
+   source. Delete these when the landing is rebuilt.
+   ------------------------------------------------------------------------ */
+:root {
+  --bg0: var(--color-bg);
+  --bg1: var(--color-bg-raised);
+  --bg2: var(--color-surface);
+  --panel: var(--color-panel);
+  --line: var(--color-border);
+  --line-soft: var(--color-border-soft);
+  --text: var(--color-text);
+  --muted: var(--color-text-muted);
+  --faint: var(--color-text-faint);
+  --blue: var(--color-accent);
+  --blue-deep: var(--color-accent-deep);
+  --sky: var(--color-sky);
+  --ice: var(--color-ice);
+  --amber: var(--color-amber);
+  --gold: var(--color-gold);
+  --green: var(--color-success);
+  --red: var(--color-danger);
+  --r: var(--radius-lg);
+  --maxw: var(--page-max);
+  --ease: var(--ease-out);
+}

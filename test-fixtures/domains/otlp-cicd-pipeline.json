@@ -1,0 +1,1422 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "ci-orchestrator"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "b7620d00a6273551",
+              "name": "ci.pipeline.run",
+              "kind": 2,
+              "startTimeUnixNano": "1712800000000000000",
+              "endTimeUnixNano": "1712801132140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "ci.pipeline",
+                  "value": {
+                    "stringValue": "widescope-release"
+                  }
+                },
+                {
+                  "key": "ci.trigger",
+                  "value": {
+                    "stringValue": "push"
+                  }
+                },
+                {
+                  "key": "vcs.ref",
+                  "value": {
+                    "stringValue": "refs/heads/main"
+                  }
+                }
+              ],
+              "events": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "git-checkout-agent"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "e33313536b59ef34",
+              "name": "checkout",
+              "kind": 1,
+              "startTimeUnixNano": "1712800001000000000",
+              "endTimeUnixNano": "1712800005140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "0"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b7620d00a6273551"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "ba436ed07fa9528b",
+              "name": "checkout.negotiate_pack.depth1",
+              "kind": 1,
+              "startTimeUnixNano": "1712800001080000000",
+              "endTimeUnixNano": "1712800005060000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "1"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "e33313536b59ef34"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "db74d74dddeb0e40",
+              "name": "checkout.fetch_objects.depth2",
+              "kind": 1,
+              "startTimeUnixNano": "1712800001160000000",
+              "endTimeUnixNano": "1712800004980000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "ba436ed07fa9528b"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "22aac5d1c1419dc9",
+              "name": "checkout.index_pack.depth3",
+              "kind": 1,
+              "startTimeUnixNano": "1712800001240000000",
+              "endTimeUnixNano": "1712800004900000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "db74d74dddeb0e40"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "ab084ce6ebc6921a",
+              "name": "checkout.verify_connectivity.depth4",
+              "kind": 1,
+              "startTimeUnixNano": "1712800001320000000",
+              "endTimeUnixNano": "1712800004820000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "4"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "22aac5d1c1419dc9"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "c49629a500879d31",
+              "name": "checkout.unpack_objects.depth5",
+              "kind": 1,
+              "startTimeUnixNano": "1712800001400000000",
+              "endTimeUnixNano": "1712800004740000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "5"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "ab084ce6ebc6921a"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "b8b313e90ea77b99",
+              "name": "checkout.update_ref.depth6",
+              "kind": 1,
+              "startTimeUnixNano": "1712800001480000000",
+              "endTimeUnixNano": "1712800004660000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "6"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "c49629a500879d31"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "4c73a6be34dd221d",
+              "name": "checkout.write_tree.depth7",
+              "kind": 1,
+              "startTimeUnixNano": "1712800001560000000",
+              "endTimeUnixNano": "1712800004580000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "7"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b8b313e90ea77b99"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "4f6e2bcc8fdefd54",
+              "name": "checkout.checkout_index.depth8",
+              "kind": 1,
+              "startTimeUnixNano": "1712800001640000000",
+              "endTimeUnixNano": "1712800004500000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "8"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4c73a6be34dd221d"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "4fe436ef15b3d33b",
+              "name": "checkout.update_submodule.depth9",
+              "kind": 1,
+              "startTimeUnixNano": "1712800001720000000",
+              "endTimeUnixNano": "1712800004420000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "9"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4f6e2bcc8fdefd54"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "9143b9b99f044d19",
+              "name": "checkout.run_hooks.depth10",
+              "kind": 1,
+              "startTimeUnixNano": "1712800001800000000",
+              "endTimeUnixNano": "1712800004340000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "10"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4fe436ef15b3d33b"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "965f03b21df9eacf",
+              "name": "checkout.gc_prune.depth11",
+              "kind": 1,
+              "startTimeUnixNano": "1712800001880000000",
+              "endTimeUnixNano": "1712800004260000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "11"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "9143b9b99f044d19"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "44eee4a2dc7ca1e8",
+              "name": "checkout.resolve_ref.depth12",
+              "kind": 1,
+              "startTimeUnixNano": "1712800001960000000",
+              "endTimeUnixNano": "1712800004180000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "12"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "965f03b21df9eacf"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "250932616f035086",
+              "name": "checkout.negotiate_pack.depth13",
+              "kind": 1,
+              "startTimeUnixNano": "1712800002040000000",
+              "endTimeUnixNano": "1712800004100000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "13"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "44eee4a2dc7ca1e8"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "7e2ac1f0ad5d0ac8",
+              "name": "checkout.fetch_objects.depth14",
+              "kind": 1,
+              "startTimeUnixNano": "1712800002120000000",
+              "endTimeUnixNano": "1712800004020000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "14"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "250932616f035086"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "23359458249d51a5",
+              "name": "checkout.index_pack.depth15",
+              "kind": 1,
+              "startTimeUnixNano": "1712800002200000000",
+              "endTimeUnixNano": "1712800003940000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "15"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7e2ac1f0ad5d0ac8"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "019c3a4da8c31677",
+              "name": "checkout.verify_connectivity.depth16",
+              "kind": 1,
+              "startTimeUnixNano": "1712800002280000000",
+              "endTimeUnixNano": "1712800003860000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "16"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "23359458249d51a5"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "fc381aed2f0d7083",
+              "name": "checkout.unpack_objects.depth17",
+              "kind": 1,
+              "startTimeUnixNano": "1712800002360000000",
+              "endTimeUnixNano": "1712800003780000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "17"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "019c3a4da8c31677"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "749de264b57de10e",
+              "name": "checkout.update_ref.depth18",
+              "kind": 1,
+              "startTimeUnixNano": "1712800002440000000",
+              "endTimeUnixNano": "1712800003700000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "18"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "fc381aed2f0d7083"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "9501f88cb6915292",
+              "name": "checkout.write_tree.depth19",
+              "kind": 1,
+              "startTimeUnixNano": "1712800002520000000",
+              "endTimeUnixNano": "1712800003620000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "19"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "749de264b57de10e"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "c348d6aa8e87aa6e",
+              "name": "checkout.checkout_index.depth20",
+              "kind": 1,
+              "startTimeUnixNano": "1712800002600000000",
+              "endTimeUnixNano": "1712800003540000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "20"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "9501f88cb6915292"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "a040f005dfc220e3",
+              "name": "checkout.update_submodule.depth21",
+              "kind": 1,
+              "startTimeUnixNano": "1712800002680000000",
+              "endTimeUnixNano": "1712800003460000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "21"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "c348d6aa8e87aa6e"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "bcbc503eb6e0708b",
+              "name": "checkout.run_hooks.depth22",
+              "kind": 1,
+              "startTimeUnixNano": "1712800002760000000",
+              "endTimeUnixNano": "1712800003380000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "22"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "a040f005dfc220e3"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "62977fb18f606c38",
+              "name": "checkout.gc_prune.depth23",
+              "kind": 1,
+              "startTimeUnixNano": "1712800002840000000",
+              "endTimeUnixNano": "1712800003300000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "23"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "bcbc503eb6e0708b"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "f5652424878608e0",
+              "name": "checkout.resolve_ref.depth24",
+              "kind": 1,
+              "startTimeUnixNano": "1712800002920000000",
+              "endTimeUnixNano": "1712800003220000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "24"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "62977fb18f606c38"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "build-runner"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "d1add83efb1718de",
+              "name": "dependency.resolve",
+              "kind": 1,
+              "startTimeUnixNano": "1712800007140000000",
+              "endTimeUnixNano": "1712800127140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "deps.package_manager",
+                  "value": {
+                    "stringValue": "cargo"
+                  }
+                },
+                {
+                  "key": "deps.count",
+                  "value": {
+                    "intValue": "214"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b7620d00a6273551"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "a0c6a207d2765a92",
+              "name": "compile",
+              "kind": 1,
+              "startTimeUnixNano": "1712800129140000000",
+              "endTimeUnixNano": "1712800429140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "0"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b7620d00a6273551"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "30fd0a873f7a1a72",
+              "name": "compile.parse",
+              "kind": 1,
+              "startTimeUnixNano": "1712800159140000000",
+              "endTimeUnixNano": "1712800539140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "1"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "a0c6a207d2765a92"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "e3e3211ca241e19d",
+              "name": "compile.typecheck",
+              "kind": 1,
+              "startTimeUnixNano": "1712800189140000000",
+              "endTimeUnixNano": "1712800509140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "30fd0a873f7a1a72"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "23119cc3d70eced3",
+              "name": "compile.borrowck",
+              "kind": 1,
+              "startTimeUnixNano": "1712800219140000000",
+              "endTimeUnixNano": "1712800479140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "e3e3211ca241e19d"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "a0ea63302648bdfe",
+              "name": "compile.codegen",
+              "kind": 1,
+              "startTimeUnixNano": "1712800249140000000",
+              "endTimeUnixNano": "1712800449140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "4"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "23119cc3d70eced3"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "5741149db944f9a9",
+              "name": "compile.optimize",
+              "kind": 1,
+              "startTimeUnixNano": "1712800279140000000",
+              "endTimeUnixNano": "1712800419140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "5"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "a0ea63302648bdfe"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "b04171db6662a6fe",
+              "name": "compile.lint",
+              "kind": 1,
+              "startTimeUnixNano": "1712800309140000000",
+              "endTimeUnixNano": "1712800389140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "6"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "5741149db944f9a9"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "aa9da53e1f7077e6",
+              "name": "compile.link",
+              "kind": 1,
+              "startTimeUnixNano": "1712800339140000000",
+              "endTimeUnixNano": "1712800359140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "7"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b04171db6662a6fe"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "test-runner"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "7fac6c50b02b0349",
+              "name": "test.shard.0",
+              "kind": 1,
+              "startTimeUnixNano": "1712800432140000000",
+              "endTimeUnixNano": "1712800672140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.shard_index",
+                  "value": {
+                    "intValue": "0"
+                  }
+                },
+                {
+                  "key": "test.shard_count",
+                  "value": {
+                    "intValue": "5"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b7620d00a6273551"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "e6b106695785a756",
+              "name": "test.case.unit_suite",
+              "kind": 1,
+              "startTimeUnixNano": "1712800434140000000",
+              "endTimeUnixNano": "1712800524140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.suite",
+                  "value": {
+                    "stringValue": "unit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7fac6c50b02b0349"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "058304c3a69e7bb5",
+              "name": "test.case.integration_suite",
+              "kind": 1,
+              "startTimeUnixNano": "1712800525140000000",
+              "endTimeUnixNano": "1712800625140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.suite",
+                  "value": {
+                    "stringValue": "integration"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "7fac6c50b02b0349"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "d234466cbad71694",
+              "name": "test.shard.1",
+              "kind": 1,
+              "startTimeUnixNano": "1712800432140000000",
+              "endTimeUnixNano": "1712800672140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.shard_index",
+                  "value": {
+                    "intValue": "1"
+                  }
+                },
+                {
+                  "key": "test.shard_count",
+                  "value": {
+                    "intValue": "5"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b7620d00a6273551"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "a7184f62f25cbfe5",
+              "name": "test.case.unit_suite",
+              "kind": 1,
+              "startTimeUnixNano": "1712800434140000000",
+              "endTimeUnixNano": "1712800524140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.suite",
+                  "value": {
+                    "stringValue": "unit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "d234466cbad71694"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "abfff8c1676e7c69",
+              "name": "test.case.integration_suite",
+              "kind": 1,
+              "startTimeUnixNano": "1712800525140000000",
+              "endTimeUnixNano": "1712800625140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.suite",
+                  "value": {
+                    "stringValue": "integration"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "d234466cbad71694"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "dc5b82429eb71ead",
+              "name": "test.shard.2",
+              "kind": 1,
+              "startTimeUnixNano": "1712800432140000000",
+              "endTimeUnixNano": "1712800672140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.shard_index",
+                  "value": {
+                    "intValue": "2"
+                  }
+                },
+                {
+                  "key": "test.shard_count",
+                  "value": {
+                    "intValue": "5"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b7620d00a6273551"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "eeddbfa8c05e782b",
+              "name": "test.case.unit_suite",
+              "kind": 1,
+              "startTimeUnixNano": "1712800434140000000",
+              "endTimeUnixNano": "1712800524140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.suite",
+                  "value": {
+                    "stringValue": "unit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "dc5b82429eb71ead"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "29287332b16a6a89",
+              "name": "test.case.integration_suite",
+              "kind": 1,
+              "startTimeUnixNano": "1712800525140000000",
+              "endTimeUnixNano": "1712800625140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.suite",
+                  "value": {
+                    "stringValue": "integration"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "dc5b82429eb71ead"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "8648099bcc0f4c77",
+              "name": "test.shard.3",
+              "kind": 1,
+              "startTimeUnixNano": "1712800432140000000",
+              "endTimeUnixNano": "1712800672140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.shard_index",
+                  "value": {
+                    "intValue": "3"
+                  }
+                },
+                {
+                  "key": "test.shard_count",
+                  "value": {
+                    "intValue": "5"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b7620d00a6273551"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "6f7eea2a6dd6ee0b",
+              "name": "test.case.unit_suite",
+              "kind": 1,
+              "startTimeUnixNano": "1712800434140000000",
+              "endTimeUnixNano": "1712800524140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.suite",
+                  "value": {
+                    "stringValue": "unit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "8648099bcc0f4c77"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "4490fba7ddc9a014",
+              "name": "test.case.integration_suite",
+              "kind": 1,
+              "startTimeUnixNano": "1712800525140000000",
+              "endTimeUnixNano": "1712800625140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.suite",
+                  "value": {
+                    "stringValue": "integration"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "8648099bcc0f4c77"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "4acc6c2c6f3ae925",
+              "name": "test.shard.4",
+              "kind": 1,
+              "startTimeUnixNano": "1712800432140000000",
+              "endTimeUnixNano": "1712800672140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.shard_index",
+                  "value": {
+                    "intValue": "4"
+                  }
+                },
+                {
+                  "key": "test.shard_count",
+                  "value": {
+                    "intValue": "5"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b7620d00a6273551"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "351f0562c96792e1",
+              "name": "test.case.unit_suite",
+              "kind": 1,
+              "startTimeUnixNano": "1712800434140000000",
+              "endTimeUnixNano": "1712800524140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.suite",
+                  "value": {
+                    "stringValue": "unit"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4acc6c2c6f3ae925"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "b05adc534df2c646",
+              "name": "test.case.integration_suite",
+              "kind": 1,
+              "startTimeUnixNano": "1712800525140000000",
+              "endTimeUnixNano": "1712800625140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "test.suite",
+                  "value": {
+                    "stringValue": "integration"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "4acc6c2c6f3ae925"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "artifact-registry"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "9df596e8604e2c7a",
+              "name": "docker.build",
+              "kind": 1,
+              "startTimeUnixNano": "1712800675140000000",
+              "endTimeUnixNano": "1712801035140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "0"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b7620d00a6273551"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "fee129eb9c5d75de",
+              "name": "docker.build.base_layer",
+              "kind": 1,
+              "startTimeUnixNano": "1712800735140000000",
+              "endTimeUnixNano": "1712801245140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "1"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "9df596e8604e2c7a"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "c53c1758926fd3b2",
+              "name": "docker.build.deps_layer",
+              "kind": 1,
+              "startTimeUnixNano": "1712800795140000000",
+              "endTimeUnixNano": "1712801185140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "2"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "fee129eb9c5d75de"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "3ade5861e02ecac6",
+              "name": "docker.build.app_layer",
+              "kind": 1,
+              "startTimeUnixNano": "1712800855140000000",
+              "endTimeUnixNano": "1712801125140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "3"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "c53c1758926fd3b2"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "c10834aefe227e4f",
+              "name": "docker.build.security_scan",
+              "kind": 1,
+              "startTimeUnixNano": "1712800915140000000",
+              "endTimeUnixNano": "1712801065140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "4"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "3ade5861e02ecac6"
+            },
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "85503593c52084eb",
+              "name": "docker.build.push",
+              "kind": 1,
+              "startTimeUnixNano": "1712800975140000000",
+              "endTimeUnixNano": "1712801005140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "pipeline.chain_depth",
+                  "value": {
+                    "intValue": "5"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "c10834aefe227e4f"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "deploy-controller"
+            }
+          },
+          {
+            "key": "service.version",
+            "value": {
+              "stringValue": "1.0.0"
+            }
+          }
+        ]
+      },
+      "scopeSpans": [
+        {
+          "scope": {
+            "name": "widescope-fixture-tracer",
+            "version": "1.0.0"
+          },
+          "spans": [
+            {
+              "traceId": "f3df97610b8b5512ad3737f8ab18431e",
+              "spanId": "5616e13c9e101c67",
+              "name": "deploy",
+              "kind": 1,
+              "startTimeUnixNano": "1712801037140000000",
+              "endTimeUnixNano": "1712801127140000000",
+              "status": {
+                "code": 1
+              },
+              "attributes": [
+                {
+                  "key": "deploy.target",
+                  "value": {
+                    "stringValue": "production"
+                  }
+                },
+                {
+                  "key": "deploy.strategy",
+                  "value": {
+                    "stringValue": "rolling"
+                  }
+                }
+              ],
+              "events": [],
+              "parentSpanId": "b7620d00a6273551"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

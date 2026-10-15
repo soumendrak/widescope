@@ -152,7 +152,7 @@
       {width}
       {height}
       viewBox="0 0 {width} {height}"
-      role="img"
+      role="group"
       aria-label="Service dependency graph"
     >
       <defs>

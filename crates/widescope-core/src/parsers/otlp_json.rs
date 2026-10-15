@@ -137,13 +137,10 @@ fn parse_single_span(raw: &Value, service_name: &str) -> Result<Span, String> {
         .and_then(parse_nano_ts)
         .ok_or_else(|| format!("span {}: missing endTimeUnixNano", span_id))?;
 
-    let (start_time_ns, end_time_ns) = if start_time_ns <= end_time_ns {
-        (start_time_ns, end_time_ns)
-    } else {
-        (end_time_ns, start_time_ns)
-    };
-
-    let duration_ns = end_time_ns - start_time_ns;
+    // Inverted clocks are left as parsed: trace_builder normalises them and is
+    // the only place that can warn about it. Swapping here made that warning
+    // unreachable, so a trace with broken timestamps looked clean.
+    let duration_ns = end_time_ns.saturating_sub(start_time_ns);
 
     let status = parse_status(raw);
 
@@ -195,11 +192,18 @@ fn parse_nano_ts(v: &Value) -> Option<u64> {
 }
 
 fn parse_status(raw: &Value) -> SpanStatus {
-    let code = raw
-        .get("status")
-        .and_then(|s| s.get("code"))
-        .and_then(|c| c.as_u64())
-        .unwrap_or(0);
+    let raw_code = raw.get("status").and_then(|s| s.get("code"));
+    // Proto3 JSON allows an enum to travel as its number or its name, and real
+    // exporters use both. Reading only the number silently downgraded every
+    // errored span to Unset.
+    let code = match raw_code {
+        Some(Value::String(name)) => match name.as_str() {
+            "STATUS_CODE_OK" => 1,
+            "STATUS_CODE_ERROR" => 2,
+            _ => 0,
+        },
+        other => other.and_then(|c| c.as_u64()).unwrap_or(0),
+    };
 
     match code {
         1 => SpanStatus::Ok,
@@ -368,8 +372,11 @@ mod tests {
 
         assert_eq!(result.spans.len(), 7);
 
-        let services: std::collections::HashSet<_> =
-            result.spans.iter().map(|s| s.service_name.as_str()).collect();
+        let services: std::collections::HashSet<_> = result
+            .spans
+            .iter()
+            .map(|s| s.service_name.as_str())
+            .collect();
         assert_eq!(services.len(), 3, "gateway, rag-retriever, llm-service");
 
         // The `chat` LLM span carries gen_ai token usage (raw attrs; resolution
@@ -385,7 +392,11 @@ mod tests {
         ));
 
         // Exactly one root (POST /api/chat has no in-trace parent).
-        let roots = result.spans.iter().filter(|s| s.parent_span_id.is_none()).count();
+        let roots = result
+            .spans
+            .iter()
+            .filter(|s| s.parent_span_id.is_none())
+            .count();
         assert_eq!(roots, 1);
     }
 
@@ -393,5 +404,260 @@ mod tests {
     fn rejects_non_otlp_shape() {
         let value = serde_json::json!({"not": "otlp"});
         assert!(parse_otlp(&value).unwrap_or_default().is_empty());
+    }
+}
+
+/// Attribute, timestamp and status decoding, plus the skip/reject paths.
+///
+/// OTLP's `anyValue` union is where malformed exports hurt most: a wrong arm
+/// here silently drops a field rather than failing, so every arm gets a case.
+#[cfg(test)]
+mod value_tests {
+    use super::*;
+    use serde_json::json;
+
+    fn attrs(list: serde_json::Value) -> HashMap<String, AttributeValue> {
+        parse_attributes(list.as_array().unwrap())
+    }
+
+    #[test]
+    fn every_any_value_arm_decodes() {
+        assert_eq!(
+            parse_any_value(&json!({"stringValue": "hi"})),
+            Some(AttributeValue::String("hi".into()))
+        );
+        assert_eq!(
+            parse_any_value(&json!({"intValue": 7})),
+            Some(AttributeValue::Int(7))
+        );
+        // Proto3 JSON encodes 64-bit ints as strings.
+        assert_eq!(
+            parse_any_value(&json!({"intValue": "9007199254740993"})),
+            Some(AttributeValue::Int(9007199254740993))
+        );
+        assert_eq!(
+            parse_any_value(&json!({"doubleValue": 1.5})),
+            Some(AttributeValue::Float(1.5))
+        );
+        assert_eq!(
+            parse_any_value(&json!({"boolValue": true})),
+            Some(AttributeValue::Bool(true))
+        );
+        assert_eq!(
+            parse_any_value(&json!({"bytesValue": "AAEC"})),
+            Some(AttributeValue::String("base64:AAEC".into()))
+        );
+        assert!(matches!(
+            parse_any_value(&json!({"kvlistValue": {"values": []}})),
+            Some(AttributeValue::String(_))
+        ));
+        assert_eq!(parse_any_value(&json!({})), None);
+        assert_eq!(parse_any_value(&json!({"intValue": "not-a-number"})), None);
+    }
+
+    #[test]
+    fn arrays_collapse_to_the_narrowest_matching_type() {
+        let int_arr =
+            parse_any_value(&json!({"arrayValue": {"values": [{"intValue": 1}, {"intValue": 2}]}}));
+        assert_eq!(int_arr, Some(AttributeValue::IntArray(vec![1, 2])));
+
+        // A mixed int/double array widens to floats rather than losing the decimals.
+        let float_arr = parse_any_value(
+            &json!({"arrayValue": {"values": [{"intValue": 1}, {"doubleValue": 2.5}]}}),
+        );
+        assert_eq!(float_arr, Some(AttributeValue::FloatArray(vec![1.0, 2.5])));
+
+        let str_arr = parse_any_value(
+            &json!({"arrayValue": {"values": [{"stringValue": "a"}, {"boolValue": false}]}}),
+        );
+        assert_eq!(
+            str_arr,
+            Some(AttributeValue::StringArray(vec![
+                "a".into(),
+                "false".into()
+            ]))
+        );
+
+        assert_eq!(
+            parse_any_value(&json!({"arrayValue": {"values": []}})),
+            Some(AttributeValue::StringArray(vec![]))
+        );
+        // An arrayValue with no `values` key is not an array at all.
+        assert_eq!(parse_any_value(&json!({"arrayValue": {}})), None);
+    }
+
+    #[test]
+    fn attributes_skip_entries_without_a_usable_key_or_value() {
+        let map = attrs(json!([
+            {"key": "a", "value": {"stringValue": "1"}},
+            {"key": "b"},
+            {"value": {"stringValue": "orphan"}},
+            {"key": "c", "value": {}},
+        ]));
+        assert_eq!(map.len(), 1);
+        assert_eq!(map.get("a"), Some(&AttributeValue::String("1".into())));
+    }
+
+    #[test]
+    fn timestamps_accept_both_json_encodings() {
+        assert_eq!(
+            parse_nano_ts(&json!("1700000000000000000")),
+            Some(1_700_000_000_000_000_000)
+        );
+        assert_eq!(
+            parse_nano_ts(&json!(1_700_000_000_000_000_000u64)),
+            Some(1_700_000_000_000_000_000)
+        );
+        assert_eq!(parse_nano_ts(&json!("nope")), None);
+        assert_eq!(parse_nano_ts(&json!(null)), None);
+    }
+
+    #[test]
+    fn status_maps_every_code() {
+        assert_eq!(
+            parse_status(&json!({"status": {"code": 0}})).as_str(),
+            "Unset"
+        );
+        assert_eq!(parse_status(&json!({"status": {"code": 1}})).as_str(), "Ok");
+        assert_eq!(
+            parse_status(&json!({"status": {"code": 2}})).as_str(),
+            "Error"
+        );
+        assert_eq!(
+            parse_status(&json!({"status": {"code": 99}})).as_str(),
+            "Unset"
+        );
+        assert_eq!(parse_status(&json!({})).as_str(), "Unset");
+        // Proto3 JSON may spell the code out.
+        assert_eq!(
+            parse_status(&json!({"status": {"code": "STATUS_CODE_ERROR"}})).as_str(),
+            "Error"
+        );
+        // An error status carries its message through to the inspector.
+        assert_eq!(
+            parse_status(&json!({"status": {"code": 2, "message": "boom"}})).error_message(),
+            Some("boom")
+        );
+    }
+
+    #[test]
+    fn events_carry_their_timestamp_and_attributes() {
+        let events = parse_events(
+            json!([
+                {"name": "exception", "timeUnixNano": "5", "attributes": [
+                    {"key": "exception.type", "value": {"stringValue": "IOError"}}
+                ]},
+                {"timeUnixNano": "6"},
+            ])
+            .as_array()
+            .unwrap(),
+        );
+        // A nameless event carries nothing worth showing, so it is dropped.
+        assert_eq!(events.len(), 1);
+        assert_eq!(events[0].name, "exception");
+        assert_eq!(events[0].timestamp_ns, 5);
+        assert_eq!(events[0].attributes.len(), 1);
+    }
+
+    #[test]
+    fn service_name_falls_back_when_the_resource_is_absent() {
+        assert_eq!(extract_service_name(&json!({})), "unknown_service");
+        assert_eq!(
+            extract_service_name(&json!({"resource": {"attributes": [
+                {"key": "service.name", "value": {"stringValue": "checkout"}}
+            ]}})),
+            "checkout"
+        );
+    }
+
+    fn span_json() -> serde_json::Value {
+        json!({
+            "traceId": "0123456789abcdef0123456789abcdef",
+            "spanId": "0123456789abcdef",
+            "name": "op",
+            "startTimeUnixNano": "10",
+            "endTimeUnixNano": "20",
+        })
+    }
+
+    #[test]
+    fn a_span_missing_any_required_field_is_reported_not_dropped_silently() {
+        for missing in ["traceId", "spanId", "startTimeUnixNano", "endTimeUnixNano"] {
+            let mut raw = span_json();
+            raw.as_object_mut().unwrap().remove(missing);
+            let err = parse_single_span(&raw, "svc").unwrap_err();
+            assert!(err.contains(missing), "{missing} should be named in {err}");
+        }
+    }
+
+    #[test]
+    fn span_kinds_map_across_the_whole_enum() {
+        for (code, expected) in [
+            (1, SpanKind::Internal),
+            (2, SpanKind::Server),
+            (3, SpanKind::Client),
+            (4, SpanKind::Producer),
+            (5, SpanKind::Consumer),
+            (0, SpanKind::Internal),
+        ] {
+            let mut raw = span_json();
+            raw["kind"] = json!(code);
+            let span = parse_single_span(&raw, "svc").unwrap();
+            assert_eq!(span.span_kind.as_str(), expected.as_str(), "kind {code}");
+        }
+    }
+
+    #[test]
+    fn a_parent_span_id_is_optional_and_blank_means_root() {
+        let mut raw = span_json();
+        raw["parentSpanId"] = json!("");
+        assert_eq!(parse_single_span(&raw, "svc").unwrap().parent_span_id, None);
+
+        raw["parentSpanId"] = json!("fedcba9876543210");
+        assert_eq!(
+            parse_single_span(&raw, "svc")
+                .unwrap()
+                .parent_span_id
+                .as_deref(),
+            Some("fedcba9876543210")
+        );
+    }
+
+    #[test]
+    fn skipped_spans_produce_one_counted_warning() {
+        let doc = json!({"resourceSpans": [{"scopeSpans": [{"spans": [
+            span_json(),
+            {"spanId": "1", "name": "no-trace-id"},
+            {"traceId": "2", "name": "no-span-id"},
+        ]}]}]});
+        let result = parse_otlp_with_warnings(&doc).unwrap();
+        assert_eq!(result.spans.len(), 1);
+        let warning = &result.warnings[0];
+        assert_eq!(warning.code, "SPAN_MISSING_REQUIRED");
+        assert_eq!(warning.count, 2);
+    }
+
+    #[test]
+    fn a_document_with_no_usable_span_is_an_error() {
+        let doc = json!({"resourceSpans": [{"scopeSpans": [{"spans": [{"name": "junk"}]}]}]});
+        let err = parse_otlp_with_warnings(&doc)
+            .err()
+            .expect("no usable span");
+        assert!(matches!(err, WideError::NoValidSpans { .. }));
+    }
+
+    #[test]
+    fn missing_scope_spans_and_empty_documents_are_tolerated() {
+        assert!(parse_otlp_with_warnings(&json!({"resourceSpans": []})).is_err());
+        assert!(parse_otlp_with_warnings(&json!({"resourceSpans": [{}]})).is_err());
+        assert!(
+            parse_otlp_with_warnings(&json!({"resourceSpans": [{"scopeSpans": [{}]}]})).is_err()
+        );
+    }
+
+    #[test]
+    fn parse_otlp_returns_spans_without_the_warning_envelope() {
+        let doc = json!({"resourceSpans": [{"scopeSpans": [{"spans": [span_json()]}]}]});
+        assert_eq!(parse_otlp(&doc).unwrap().len(), 1);
     }
 }

@@ -17,7 +17,17 @@ export interface InitResult {
   warnings: ParseWarning[];
 }
 
-export type ViewName = 'flame' | 'timeline' | 'waterfall' | 'graph' | 'agent' | 'diff' | 'analytics' | 'matrix' | 'dashboard';
+export type ViewName =
+  | 'waterfall'
+  | 'flame'
+  | 'timeline'
+  | 'conversation'
+  | 'graph'
+  | 'diff'
+  | 'agent'
+  | 'analytics'
+  | 'matrix'
+  | 'dashboard';
 
 export interface TraceSummary {
   trace_id: string;

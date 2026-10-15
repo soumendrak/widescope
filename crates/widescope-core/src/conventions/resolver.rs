@@ -211,3 +211,168 @@ fn extract_messages_from_events(
         })
         .collect()
 }
+
+/// Convention matching and field mapping against the bundled convention files.
+///
+/// These are the rules that turn a vendor's attribute names into the model,
+/// token and cost fields the inspector shows, so a mapping that silently misses
+/// looks like "the trace has no LLM data".
+#[cfg(test)]
+mod mapping_tests {
+    use super::*;
+    use crate::conventions::registry::load_conventions;
+    use crate::models::span::{SpanKind, SpanStatus};
+    use std::collections::HashMap;
+
+    const OTEL: &str = include_str!("../../../../conventions/opentelemetry.json");
+    const OI: &str = include_str!("../../../../conventions/openinference.json");
+    const LANGCHAIN: &str = include_str!("../../../../conventions/langchain.json");
+
+    fn bundled() -> Vec<Convention> {
+        let merged = format!("[{OTEL},{OI},{LANGCHAIN}]");
+        let result = load_conventions(&merged);
+        assert!(
+            result.warnings.is_empty(),
+            "bundled conventions must load cleanly"
+        );
+        result.conventions
+    }
+
+    fn span_with(attrs: Vec<(&str, AttributeValue)>) -> Span {
+        Span {
+            trace_id: "t".into(),
+            span_id: "s".into(),
+            parent_span_id: None,
+            operation_name: "op".into(),
+            service_name: "svc".into(),
+            span_kind: SpanKind::Client,
+            start_time_ns: 0,
+            end_time_ns: 1,
+            duration_ns: 1,
+            self_time_ns: 1,
+            status: SpanStatus::Ok,
+            attributes: attrs
+                .into_iter()
+                .map(|(k, v)| (k.to_string(), v))
+                .collect::<HashMap<_, _>>(),
+            events: vec![],
+            llm: None,
+            safety: vec![],
+        }
+    }
+
+    fn text(value: &str) -> AttributeValue {
+        AttributeValue::String(value.to_string())
+    }
+
+    #[test]
+    fn a_span_with_no_known_attributes_resolves_to_nothing() {
+        let span = span_with(vec![("http.method", text("GET"))]);
+        assert!(resolve_llm_attributes(&span, &bundled()).is_none());
+    }
+
+    #[test]
+    fn otel_genai_attributes_resolve_model_tokens_and_operation() {
+        let span = span_with(vec![
+            ("gen_ai.system", text("openai")),
+            ("gen_ai.operation.name", text("chat")),
+            ("gen_ai.request.model", text("gpt-4o")),
+            ("gen_ai.usage.input_tokens", AttributeValue::Int(120)),
+            ("gen_ai.usage.output_tokens", AttributeValue::Int(30)),
+            ("gen_ai.request.temperature", AttributeValue::Float(0.7)),
+            ("gen_ai.request.max_tokens", AttributeValue::Int(512)),
+        ]);
+        let llm = resolve_llm_attributes(&span, &bundled()).expect("gen_ai span should resolve");
+        assert_eq!(llm.model_name.as_deref(), Some("gpt-4o"));
+        assert_eq!(llm.input_tokens, Some(120));
+        assert_eq!(llm.output_tokens, Some(30));
+        // Total is derived when the export does not send it.
+        assert_eq!(llm.total_tokens, Some(150));
+        assert_eq!(llm.temperature, Some(0.7));
+        assert_eq!(llm.max_tokens, Some(512));
+        assert_eq!(llm.operation_type.as_str(), "ChatCompletion");
+    }
+
+    #[test]
+    fn openinference_attributes_resolve_through_their_own_names() {
+        let span = span_with(vec![
+            ("llm.model_name", text("claude-3-5-sonnet")),
+            ("openinference.span.kind", text("LLM")),
+            ("llm.token_count.prompt", AttributeValue::Int(10)),
+            ("llm.token_count.completion", AttributeValue::Int(5)),
+            ("llm.token_count.total", AttributeValue::Int(15)),
+        ]);
+        let llm = resolve_llm_attributes(&span, &bundled()).expect("openinference span");
+        assert_eq!(llm.model_name.as_deref(), Some("claude-3-5-sonnet"));
+        assert_eq!(llm.total_tokens, Some(15));
+    }
+
+    #[test]
+    fn a_value_map_miss_falls_back_to_the_default_then_the_raw_value() {
+        // `gen_ai.operation.name` carries a value the convention does not map.
+        let span = span_with(vec![
+            ("gen_ai.system", text("openai")),
+            ("gen_ai.operation.name", text("guardrail")),
+        ]);
+        let llm = resolve_llm_attributes(&span, &bundled()).unwrap();
+        assert!(!llm.operation_type.as_str().is_empty());
+    }
+
+    #[test]
+    fn detection_matches_on_a_named_key_as_well_as_a_prefix() {
+        let by_prefix = span_with(vec![("gen_ai.anything", text("x"))]);
+        assert!(resolve_llm_attributes(&by_prefix, &bundled()).is_some());
+
+        let by_key = span_with(vec![("llm.model_name", text("gpt-4o"))]);
+        assert!(resolve_llm_attributes(&by_key, &bundled()).is_some());
+    }
+
+    #[test]
+    fn embedding_fields_resolve_for_embedding_spans() {
+        let span = span_with(vec![
+            ("gen_ai.system", text("openai")),
+            ("gen_ai.operation.name", text("embeddings")),
+            ("gen_ai.request.model", text("text-embedding-3-small")),
+            ("gen_ai.usage.input_tokens", AttributeValue::Int(12)),
+        ]);
+        let llm = resolve_llm_attributes(&span, &bundled()).unwrap();
+        assert_eq!(llm.operation_type.as_str(), "Embedding");
+        // Without an output count there is nothing to total.
+        assert_eq!(llm.total_tokens, None);
+    }
+
+    #[test]
+    fn numeric_coercion_accepts_the_encodings_exporters_actually_use() {
+        assert_eq!(coerce_to_u64(&AttributeValue::Int(5)), Some(5));
+        assert_eq!(coerce_to_u64(&AttributeValue::Int(-5)), None);
+        assert_eq!(coerce_to_u64(&AttributeValue::Float(5.9)), Some(5));
+        assert_eq!(coerce_to_u64(&AttributeValue::Float(-0.5)), None);
+        assert_eq!(coerce_to_u64(&text("42")), Some(42));
+        assert_eq!(coerce_to_u64(&text("nope")), None);
+        assert_eq!(coerce_to_u64(&AttributeValue::Bool(true)), None);
+    }
+
+    #[test]
+    fn messages_are_lifted_out_of_span_events_when_a_convention_says_so() {
+        use crate::models::span::SpanEvent;
+
+        let mut span = span_with(vec![("gen_ai.system", text("openai"))]);
+        span.events = vec![
+            SpanEvent {
+                name: "gen_ai.content.prompt".into(),
+                timestamp_ns: 1,
+                attributes: HashMap::from([("gen_ai.prompt".to_string(), text("hello"))]),
+            },
+            SpanEvent {
+                name: "gen_ai.content.completion".into(),
+                timestamp_ns: 2,
+                attributes: HashMap::from([("gen_ai.completion".to_string(), text("hi back"))]),
+            },
+        ];
+        let llm = resolve_llm_attributes(&span, &bundled()).unwrap();
+        assert_eq!(llm.input_messages.len(), 1);
+        assert_eq!(llm.input_messages[0].content.as_deref(), Some("hello"));
+        assert_eq!(llm.output_messages.len(), 1);
+        assert_eq!(llm.output_messages[0].content.as_deref(), Some("hi back"));
+    }
+}
