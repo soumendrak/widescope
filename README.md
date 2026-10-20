@@ -232,6 +232,10 @@ Quick version:
 
 Questions or ideas? [Open an issue](https://github.com/soumendrak/widescope/issues).
 
+## Sponsor
+
+If this project helps you, consider [sponsoring my work on GitHub](https://github.com/sponsors/soumendrak). Your support helps fund maintenance, documentation, and continued development.
+
 ## License
 
 [Apache License 2.0](LICENSE)
