@@ -29,5 +29,7 @@ if [ -n "$answered" ] && [ -n "$pgid" ] && [ -n "$listener" ] && [ "$(ps -o pgid
 fi
 echo "preview did not start; log follows"
 cat "$dir/server.log"
-[ -n "$pgid" ] && kill -- -"$pgid" 2>/dev/null
+if [ -n "$pgid" ] && ps -o args= -p "$pgid" | grep -qF -- "vite preview --host 127.0.0.1 --port $port"; then
+  kill -- -"$pgid" 2>/dev/null
+fi
 exit 1
