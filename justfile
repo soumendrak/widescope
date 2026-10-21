@@ -45,38 +45,44 @@ train-share-dict:
         > crates/widescope-core/share-dict.bin
     @echo "[share-dict] $(wc -c < crates/widescope-core/share-dict.bin | tr -d ' ') bytes (keep <= 32768) — run 'just build-wasm' to embed it"
 
-check:
-    RUSTFLAGS="" {{_cargo}} check --workspace
-
-clippy:
-    RUSTFLAGS="" {{_cargo}} clippy --workspace -- -D warnings
+# Every repository standard, the same command CI's standards job runs. Ends with STANDARDS OK or STANDARDS FAIL.
+check base="":
+    node scripts/standards.mjs {{ if base == "" { "" } else { "--base " + base } }}
 
 fmt:
     {{_cargo}} fmt --all
 
-test:
+# Rust and UI unit tests
+test: build-wasm
     RUSTFLAGS="" {{_cargo}} test --workspace
+    cd ui && npx vitest run
 
-# Line/region coverage for the Rust workspace. llvm-tools ships inside the
-# toolchain but cargo-llvm-cov does not always find it, hence the explicit paths.
-coverage:
-    RUSTFLAGS="" LLVM_COV="$(ls -d ${HOME}/.rustup/toolchains/*/lib/rustlib/*/bin | head -1)/llvm-cov" \
-    LLVM_PROFDATA="$(ls -d ${HOME}/.rustup/toolchains/*/lib/rustlib/*/bin | head -1)/llvm-profdata" \
-        {{_cargo}} llvm-cov --workspace --summary-only
-
-# Same run, but fails when line coverage drops below the gate CI enforces.
-coverage-gate min="100":
-    RUSTFLAGS="" LLVM_COV="$(ls -d ${HOME}/.rustup/toolchains/*/lib/rustlib/*/bin | head -1)/llvm-cov" \
-    LLVM_PROFDATA="$(ls -d ${HOME}/.rustup/toolchains/*/lib/rustlib/*/bin | head -1)/llvm-profdata" \
-        {{_cargo}} llvm-cov --workspace --summary-only --fail-under-lines {{min}}
+# Playwright suite against the dev server, the same steps as CI's e2e job
+e2e: build-wasm
+    cd ui && npm run e2e
 
 coverage-html:
-    RUSTFLAGS="" LLVM_COV="$(ls -d ${HOME}/.rustup/toolchains/*/lib/rustlib/*/bin | head -1)/llvm-cov" \
-    LLVM_PROFDATA="$(ls -d ${HOME}/.rustup/toolchains/*/lib/rustlib/*/bin | head -1)/llvm-profdata" \
-        {{_cargo}} llvm-cov --workspace --html --open
+    {{_cargo}} llvm-cov --workspace --html --open
 
-coverage-ui:
-    cd ui && npx vitest run --coverage
+# Check the toolchain that check, test and e2e need
+doctor:
+    #!/usr/bin/env bash
+    set -uo pipefail
+    status=0
+    report() { if [ "$2" = ok ]; then echo "ok   $1"; else echo "FAIL $1: $2"; status=1; fi; }
+    has() { command -v "$1" >/dev/null 2>&1; }
+    atleast() { [ "$(printf '%s\n%s\n' "$2" "$1" | sort -V | head -n1)" = "$2" ]; }
+    has cargo && report "$(cargo --version)" ok || report cargo "install Rust with rustup"
+    rustup target list --installed 2>/dev/null | grep -qx wasm32-unknown-unknown && report "wasm32-unknown-unknown target" ok || report "wasm32-unknown-unknown target" "rustup target add wasm32-unknown-unknown"
+    has wasm-pack && report "$(wasm-pack --version)" ok || report wasm-pack "cargo install wasm-pack --locked"
+    cargo llvm-cov --version >/dev/null 2>&1 && report "$(cargo llvm-cov --version)" ok || report cargo-llvm-cov "cargo install cargo-llvm-cov --locked"
+    node_version=$(node --version 2>/dev/null)
+    atleast "${node_version#v}" 20.19 && report "node $node_version" ok || report "node ${node_version:-missing}" "install Node.js 20.19+ (CI uses 24)"
+    [ -d ui/node_modules ] && report "ui/node_modules" ok || report "ui/node_modules" "just ui-install"
+    chromium=$(cd ui && node -e 'process.stdout.write(require("@playwright/test").chromium.executablePath())' 2>/dev/null)
+    [ -n "$chromium" ] && [ -x "$chromium" ] && report "playwright chromium" ok || report "playwright chromium" "cd ui && npx playwright install --with-deps chromium"
+    [ "$status" = 0 ] && echo "DOCTOR OK" || echo "DOCTOR FAIL"
+    exit $status
 
 bench-fixtures:
     RUSTFLAGS="" {{_cargo}} run -p widescope-core --example bench_fixtures -- test-fixtures
@@ -92,7 +98,7 @@ dev:
     cd ui && npm run dev
 
 ui-install:
-    cd ui && npm install
+    cd ui && npm ci
 
 # ═══════════════════════════════════════════════════════════════════════
 # Housekeeping

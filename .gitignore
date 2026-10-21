@@ -22,3 +22,4 @@ ui/playwright-report/
 /generate_trace.py
 .commandcode/
 .playwright-mcp/
+ui/coverage/

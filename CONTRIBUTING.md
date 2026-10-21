@@ -43,9 +43,8 @@ Before opening a PR, run:
 
 ```bash
 just fmt          # cargo fmt --all
-just check        # cargo check --workspace
-just clippy       # cargo clippy --workspace -- -D warnings
-just test         # cargo test --workspace
+just check        # CI's standards gate, must end with STANDARDS OK
+just e2e          # Playwright suite, as CI runs it
 ```
 
 ---
@@ -335,9 +334,8 @@ If you're forking and want to deploy to your own domain:
 Both suites are gated in CI, and the gates only ever move up.
 
 ```bash
-just coverage        # Rust, per-file summary
+just check           # both suites, plus 100% coverage of changed executable lines
 just coverage-html   # Rust, browsable report
-just coverage-ui     # UI (vitest + v8), fails under the configured thresholds
 ```
 
 - **Rust**: 98% of lines, enforced by `cargo llvm-cov --fail-under-lines` in CI.
@@ -377,10 +375,8 @@ a threshold.
 Before opening a PR, please confirm:
 
 - [ ] `just fmt` — formatted
-- [ ] `just check` — compiles clean
-- [ ] `just clippy` — no warnings
-- [ ] `just test` — tests pass
-- [ ] `just coverage-gate` and `just coverage-ui` — coverage gates hold
+- [ ] `just check` ends with `STANDARDS OK`
+- [ ] `just e2e` passes
 - [ ] `just build` — UI bundle builds
 - [ ] Added or updated a test fixture if you changed parser, layout, or convention behavior
 - [ ] Updated the README **Supported Formats** table if you added a parser
