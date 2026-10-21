@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 import { execFileSync, spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { isAbsolute, relative, resolve } from 'node:path';
 
 const RUST_COVERAGE_MIN = '98';
@@ -8,7 +9,8 @@ const RUST_LCOV = 'target/llvm-cov.lcov';
 const UI_LCOV = 'ui/coverage/lcov.info';
 const COMMENT_CHECKED = /\.(rs|ts|js|mjs|svelte|css)$/;
 const STRING_LITERAL = /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`/g;
-const REGEX_LITERAL = /(^|[=(,:!&|?{};[]\s*|\breturn\s+)\/(?![/*])(?:\\.|\[(?:\\.|[^\]\\])*\]|[^/\\\n])+\/[a-z]*/g;
+const SCRIPT_FILE = /\.(ts|js|mjs)$/;
+const SVELTE_SCRIPT = /(<script[^>]*>)([\s\S]*?)<\/script>/g;
 const COMMENT = /\/\/|\/\*|<!-{2}/;
 const UI_UNINSTRUMENTED = new Set(['ui/src/main.ts', 'ui/src/lib/types.ts', 'ui/src/components/FlameGraph.svelte']);
 const UI_TEST_FILE = /^ui\/src\/(.*\.test\.ts|test-setup\.ts)$/;
@@ -83,12 +85,58 @@ function unquote(path) {
   return path.startsWith('"') ? JSON.parse(path) : path;
 }
 
+function scriptCommentLines(text, firstLine = 1) {
+  const ts = createRequire(resolve(root, 'ui/package.json'))('typescript');
+  const source = ts.createSourceFile('file.ts', text, ts.ScriptTarget.Latest, true);
+  const lines = new Set();
+  const mark = (ranges) => {
+    for (const range of ranges ?? []) {
+      const start = source.getLineAndCharacterOfPosition(range.pos).line;
+      const end = source.getLineAndCharacterOfPosition(range.end).line;
+      for (let line = start; line <= end; line++) lines.add(line + firstLine);
+    }
+  };
+  const visit = (node) => {
+    mark(ts.getLeadingCommentRanges(text, node.pos));
+    mark(ts.getTrailingCommentRanges(text, node.end));
+    for (const child of node.getChildren(source)) visit(child);
+  };
+  visit(source);
+  return lines;
+}
+
+function svelteCommentLines(text) {
+  const lines = new Set();
+  const scriptLines = new Set();
+  for (const match of text.matchAll(SVELTE_SCRIPT)) {
+    const firstLine = text.slice(0, match.index + match[1].length).split('\n').length;
+    for (const line of scriptCommentLines(match[2], firstLine)) lines.add(line);
+    for (let line = firstLine; line < firstLine + match[2].split('\n').length; line++) scriptLines.add(line);
+  }
+  text.split('\n').forEach((line, index) => {
+    if (!scriptLines.has(index + 1) && COMMENT.test(line.replace(STRING_LITERAL, '""'))) lines.add(index + 1);
+  });
+  return lines;
+}
+
+function commentLines(file) {
+  const text = readFileSync(file, 'utf8');
+  if (SCRIPT_FILE.test(file)) return scriptCommentLines(text);
+  if (file.endsWith('.svelte')) return svelteCommentLines(text);
+  const lines = new Set();
+  text.split('\n').forEach((line, index) => {
+    if (COMMENT.test(line.replace(STRING_LITERAL, '""'))) lines.add(index + 1);
+  });
+  return lines;
+}
+
 function checkNoNewComments() {
   const found = [];
   for (const [file, lines] of addedLines()) {
     if (!COMMENT_CHECKED.test(file)) continue;
+    const comments = commentLines(file);
     for (const [number, text] of lines) {
-      if (COMMENT.test(text.replace(STRING_LITERAL, '""').replace(REGEX_LITERAL, '$1""'))) found.push(`${file}:${number}: ${text.trim()}`);
+      if (comments.has(number)) found.push(`${file}:${number}: ${text.trim()}`);
     }
   }
   for (const entry of found) console.log(entry);
