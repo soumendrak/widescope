@@ -118,10 +118,11 @@ just ui-install    # install ui/package.json dependencies
 just build-wasm    # compile Rust -> WASM and optimize with wasm-opt when available
 just build-ui      # vite production build -> ui/dist/
 just build         # build-wasm + build-ui
-just check         # cargo check --workspace
+just check         # CI's standards gate: fmt, clippy, no new comments, tests, coverage, svelte-check
 just fmt           # cargo fmt --all
-just clippy        # cargo clippy --workspace -- -D warnings
-just test          # cargo test --workspace
+just test          # Rust and UI unit tests
+just e2e           # Playwright suite, as CI runs it
+just doctor        # check the local toolchain
 just bench-fixtures # parse + layout timings for every JSON under test-fixtures/
 just clean         # remove Rust, WASM package, UI dist, and node_modules artifacts
 ```
@@ -227,7 +228,7 @@ Quick version:
 
 1. **Open an issue** to discuss the change before working on it (optional but appreciated).
 2. **Fork** the repo and create a branch: `fix/description` or `feat/description`.
-3. **Run the checks** before opening a PR: `just fmt && just check && just clippy && just test`.
+3. **Run the checks** before opening a PR: `just fmt && just check`.
 4. **Open a PR** against `main` with a clear description of what changed and why.
 
 Questions or ideas? [Open an issue](https://github.com/soumendrak/widescope/issues).
