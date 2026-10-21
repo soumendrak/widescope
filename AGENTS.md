@@ -4,7 +4,7 @@ Instructions for coding agents and people. [CONTRIBUTING.md](CONTRIBUTING.md) co
 
 ## Setup
 
-You need Rust (rustup) with the `wasm32-unknown-unknown` target, `wasm-pack`, `cargo-llvm-cov`, Node.js 20.19+, 22.12+ or 24+ (CI uses 24), [just](https://just.systems), and Playwright Chromium.
+You need Rust (rustup) with the `wasm32-unknown-unknown` target, `wasm-pack`, `cargo-llvm-cov`, Node.js 20.19+, 22.13+ or 24+ (CI uses 24), [just](https://just.systems), and Playwright Chromium.
 
 ```bash
 rustup target add wasm32-unknown-unknown
@@ -50,7 +50,7 @@ Before you open or update a PR, prove the change with [`.agents/skills/verify-wi
 | No new comments in `.rs`, `.ts`, `.js`, `.mjs`, `.svelte` or `.css` files. Say it with names, types and tests. | `just check` flags added lines that contain `//`, `/*` or `<!--` outside a string. It can't see prose added inside an existing block comment, so review catches that case. |
 | Rust line coverage stays at or above `RUST_COVERAGE_MIN` (98) in `scripts/standards.mjs`, and the UI meets the thresholds in `ui/vite.config.ts` | `just check` |
 | Those thresholds only go up. Raise them when coverage rises and never lower one. | review |
-| Every changed executable line under `crates/` and `ui/src/` is covered, except in files that `ui/vite.config.ts` excludes from coverage (`src/main.ts`, `src/landing.js`, `src/lib/types.ts`, `FlameGraph.svelte`). Those files, plus `.github/actions/`, `vscode-extension/` and `scripts/`, are not instrumented and need a browser or manual proof. | `just check` |
+| Every changed executable line under `crates/` and `ui/src/` is covered, A changed `ui/src` file with no coverage record fails, unless it is listed in `UI_UNINSTRUMENTED` in `scripts/standards.mjs` (`main.ts`, `lib/types.ts`, `FlameGraph.svelte`), and the gate prints those for a browser proof. `.github/actions/`, `vscode-extension/` and `scripts/` are not instrumented. | `just check`, then the browser proof for listed files |
 | UI type errors | `svelte-check` in `just check` |
 | The viewer loads and every e2e journey passes | `just e2e` in CI |
 | The UI uses npm. Change dependencies through `ui/package-lock.json` only. `ui/pnpm-lock.yaml` is still tracked until #116 deletes it, so ignore it. | review, until #116 also adds `.gitignore` entries for other lockfiles |
