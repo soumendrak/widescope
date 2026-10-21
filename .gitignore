@@ -22,3 +22,5 @@ ui/playwright-report/
 /generate_trace.py
 .commandcode/
 .playwright-mcp/
+ui/pnpm-lock.yaml
+ui/yarn.lock

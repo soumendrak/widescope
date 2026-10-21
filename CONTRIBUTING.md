@@ -27,6 +27,8 @@ For deep implementation details — data models, wire contracts, edge-case rules
 
 Install prerequisites listed in the [README](README.md#requirements) (Rust via rustup, the `wasm32-unknown-unknown` target, `wasm-pack`, Node.js 18+, `just`, and optionally `binaryen` for `wasm-opt`).
 
+The UI uses npm. `ui/package-lock.json` is the only lockfile, so don't commit a `pnpm-lock.yaml` or `yarn.lock`.
+
 ```bash
 # One-time
 just ui-install
