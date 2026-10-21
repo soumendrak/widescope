@@ -75,6 +75,7 @@ if (values.tabs || values['expect-tabs'] !== undefined) {
   summary.tabs = [];
   const tabs = page.locator('.view-tabs [role="tab"]');
   const names = (await tabs.locator('.vt-label').allTextContents()).map((name) => name.trim());
+  if (names.length === 0) summary.failures.push('no view tabs found');
   if (values['expect-tabs'] !== undefined && names.join(',') !== values['expect-tabs']) {
     summary.failures.push(`expected tabs ${values['expect-tabs']}, saw ${names.join(',')}`);
   }

@@ -33,7 +33,7 @@ $S/launch.sh $P
 $S/doctor.sh $P
 ```
 
-Read-only. It checks that the port belongs to the process group in `$E/server.pid`, that `/editor/` answers, and that the WASM in `ui/dist` is byte-identical to `crates/widescope-core/pkg`, and that no UI or Rust source changed after launch.sh started the build. Drive only after `DOCTOR OK`. Run it again whenever a drive looks wrong.
+Read-only. It checks that the port belongs to the process group in `$E/server.pid`, that `/editor/` answers, and that the WASM in `ui/dist` is byte-identical to `crates/widescope-core/pkg`, and that no file in the worktree that feeds the build (anything tracked or untracked except `.agents/`, `.github/`, Markdown and tests) changed after launch.sh started the build. Drive only after `DOCTOR OK`. Run it again whenever a drive looks wrong.
 
 ## 4. Drive
 
