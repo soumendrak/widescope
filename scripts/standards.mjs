@@ -23,7 +23,7 @@ const base = baseIndex > 0 ? process.argv[baseIndex + 1] : git('merge-base', 'or
 
 const steps = [
   ['rustfmt', () => run('cargo', ['fmt', '--all', '--check'])],
-  ['clippy', () => run('cargo', ['clippy', '--workspace', '--', '-D', 'warnings'])],
+  ['clippy', () => run('cargo', ['clippy', '--workspace', '--all-targets', '--', '-D', 'warnings'])],
   ['no new comments', checkNoNewComments],
   ['rust tests and coverage', () => run('cargo', ['llvm-cov', '--workspace', '--lcov', '--output-path', RUST_LCOV, '--fail-under-lines', RUST_COVERAGE_MIN])],
   ['wasm build', () => run('wasm-pack', ['build', 'crates/widescope-core', '--target', 'web', '--out-dir', 'pkg'])],

@@ -73,16 +73,17 @@ doctor:
     has() { command -v "$1" >/dev/null 2>&1; }
     atleast() { [ "$(printf '%s\n%s\n' "$2" "$1" | sort -V | head -n1)" = "$2" ]; }
     has cargo && report "$(cargo --version)" ok || report cargo "install Rust with rustup"
-    rustup component list --installed 2>/dev/null | grep -q '^llvm-tools' && report "llvm-tools" ok || report llvm-tools "rustup component add llvm-tools-preview"
+    sysroot=$(rustc --print sysroot 2>/dev/null)
+    ls "$sysroot"/lib/rustlib/*/bin/llvm-cov >/dev/null 2>&1 && report "llvm-tools" ok || report llvm-tools "rustup component add llvm-tools-preview"
     for component in fmt clippy; do cargo $component --version >/dev/null 2>&1 && report "cargo $component" ok || report "cargo $component" "rustup component add ${component/fmt/rustfmt}"; done
-    rustup target list --installed 2>/dev/null | grep -qx wasm32-unknown-unknown && report "wasm32-unknown-unknown target" ok || report "wasm32-unknown-unknown target" "rustup target add wasm32-unknown-unknown"
+    [ -d "$sysroot/lib/rustlib/wasm32-unknown-unknown" ] && report "wasm32-unknown-unknown target in $sysroot" ok || report "wasm32-unknown-unknown target" "rustup target add wasm32-unknown-unknown (the active rustc must come from rustup)"
     has wasm-pack && report "$(wasm-pack --version)" ok || report wasm-pack "cargo install wasm-pack --locked"
     cargo llvm-cov --version >/dev/null 2>&1 && report "$(cargo llvm-cov --version)" ok || report cargo-llvm-cov "cargo install cargo-llvm-cov --locked"
     node_version=$(node --version 2>/dev/null)
     node_ok() { case "${1%%.*}" in 20) atleast "$1" 20.19 ;; 22) atleast "$1" 22.13 ;; 21|23) false ;; *) atleast "$1" 24 ;; esac; }
     node_ok "${node_version#v}" && report "node $node_version" ok || report "node ${node_version:-missing}" "install Node.js 20.19+, 22.13+ or 24+ (CI uses 24)"
     for tool in npm npx; do has $tool && report "$tool $($tool --version)" ok || report $tool "install npm with Node.js"; done
-    [ -d ui/node_modules ] && report "ui/node_modules" ok || report "ui/node_modules" "just ui-install"
+    npm ls --prefix ui >/dev/null 2>&1 && report "ui/node_modules matches package-lock.json" ok || report "ui/node_modules" "just ui-install"
     chromium=$(cd ui && node -e 'process.stdout.write(require("@playwright/test").chromium.executablePath())' 2>/dev/null)
     [ -n "$chromium" ] && [ -x "$chromium" ] && report "playwright chromium" ok || report "playwright chromium" "cd ui && npx playwright install --with-deps chromium"
     [ "$status" = 0 ] && echo "DOCTOR OK" || echo "DOCTOR FAIL"
