@@ -8,7 +8,10 @@ const RUST_LCOV = 'target/llvm-cov.lcov';
 const UI_LCOV = 'ui/coverage/lcov.info';
 const COMMENT_CHECKED = /\.(rs|ts|js|mjs|svelte|css)$/;
 const STRING_LITERAL = /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`/g;
+const REGEX_LITERAL = /(^|[=(,:!&|?{};[]\s*|\breturn\s+)\/(?![/*])(?:\\.|\[(?:\\.|[^\]\\])*\]|[^/\\\n])+\/[a-z]*/g;
 const COMMENT = /\/\/|\/\*|<!-{2}/;
+const UI_UNINSTRUMENTED = new Set(['ui/src/main.ts', 'ui/src/lib/types.ts', 'ui/src/components/FlameGraph.svelte']);
+const UI_TEST_FILE = /^ui\/src\/(.*\.test\.ts|test-setup\.ts)$/;
 const COVERAGE_CHECKED = /^(crates\/.*\.rs|ui\/src\/.*\.(ts|svelte))$/;
 
 const root = git('rev-parse', '--show-toplevel');
@@ -85,7 +88,7 @@ function checkNoNewComments() {
   for (const [file, lines] of addedLines()) {
     if (!COMMENT_CHECKED.test(file)) continue;
     for (const [number, text] of lines) {
-      if (COMMENT.test(text.replace(STRING_LITERAL, '""'))) found.push(`${file}:${number}: ${text.trim()}`);
+      if (COMMENT.test(text.replace(STRING_LITERAL, '""').replace(REGEX_LITERAL, '$1""'))) found.push(`${file}:${number}: ${text.trim()}`);
     }
   }
   for (const entry of found) console.log(entry);
@@ -112,10 +115,16 @@ function readLcov(path, sourceRoot) {
 function checkChangedLineCoverage() {
   const hits = new Map([...readLcov(RUST_LCOV, root), ...readLcov(UI_LCOV, resolve(root, 'ui'))]);
   const uncovered = [];
+  const unrecorded = [];
   let checked = 0;
   for (const [file, lines] of addedLines()) {
     if (!COVERAGE_CHECKED.test(file)) continue;
     const fileHits = hits.get(file);
+    if (!fileHits && file.startsWith('ui/src/') && !UI_TEST_FILE.test(file)) {
+      if (UI_UNINSTRUMENTED.has(file)) console.log(`not instrumented, prove it in the browser: ${file}`);
+      else unrecorded.push(file);
+      continue;
+    }
     for (const number of lines.keys()) {
       const count = fileHits?.get(number);
       if (count === undefined) continue;
@@ -124,6 +133,7 @@ function checkChangedLineCoverage() {
     }
   }
   for (const entry of uncovered) console.log(`not covered: ${entry}`);
+  for (const file of unrecorded) console.log(`no coverage record: ${file}. Remove it from the coverage exclusions in ui/vite.config.ts, or add it to UI_UNINSTRUMENTED here and prove it in the browser.`);
   console.log(`${checked - uncovered.length}/${checked} changed executable lines covered`);
-  return uncovered.length === 0;
+  return uncovered.length === 0 && unrecorded.length === 0;
 }
