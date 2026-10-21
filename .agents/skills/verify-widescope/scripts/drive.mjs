@@ -33,6 +33,7 @@ const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const consoleErrors = [];
 page.on('console', (message) => message.type() === 'error' && consoleErrors.push(message.text()));
+page.on('pageerror', (error) => consoleErrors.push(`uncaught: ${error.message}`));
 const summary = { file: traceFile, url: `${baseUrl}/editor/`, failures: [] };
 
 await page.goto(summary.url);
@@ -41,7 +42,10 @@ await shot(page, '1-before');
 
 const chooser = page.waitForEvent('filechooser');
 await page.getByRole('button', { name: /Open file/ }).first().click();
-await (await chooser).setFiles(resolve(traceFile));
+const fileChooser = await chooser;
+const accept = (await fileChooser.element().getAttribute('accept')) ?? '';
+if (accept && !accept.split(',').some((type) => traceFile.toLowerCase().endsWith(type.trim()))) summary.failures.push(`the file picker accepts ${accept}, so a user cannot pick ${traceFile}`);
+await fileChooser.setFiles(resolve(traceFile));
 
 const loaded = page.locator('.stats-bar');
 const banner = page.locator('[role="alert"]');
@@ -89,6 +93,7 @@ if (values.tabs || values['expect-tabs'] !== undefined) {
 }
 
 summary.consoleErrors = consoleErrors;
+for (const error of consoleErrors) summary.failures.push(`browser error: ${error}`);
 summary.ok = summary.failures.length === 0;
 writeFileSync(`${outDir}/${run}-drive.json`, `${JSON.stringify(summary, null, 2)}\n`);
 console.log(JSON.stringify(summary, null, 2));

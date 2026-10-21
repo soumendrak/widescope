@@ -33,7 +33,7 @@ $S/launch.sh $P
 $S/doctor.sh $P
 ```
 
-Read-only. It checks that the port belongs to the process group in `$E/server.pid`, that `/editor/` answers, and that the WASM in `ui/dist` is byte-identical to `crates/widescope-core/pkg`. Drive only after `DOCTOR OK`. Run it again whenever a drive looks wrong.
+Read-only. It checks that the port belongs to the process group in `$E/server.pid`, that `/editor/` answers, and that the WASM in `ui/dist` is byte-identical to `crates/widescope-core/pkg`, and that no UI or Rust source changed after launch.sh started the build. Drive only after `DOCTOR OK`. Run it again whenever a drive looks wrong.
 
 ## 4. Drive
 
@@ -41,7 +41,7 @@ Read-only. It checks that the port belongs to the process group in `$E/server.pi
 node $S/drive.mjs http://127.0.0.1:$P test-fixtures/otlp/sample_llm_pipeline.json $E --expect-spans 7 --expect-format 'OTLP JSON' --expect-tabs Waterfall,Flame,Conversation,Graph,Diff
 ```
 
-The script opens `/editor/`, clicks the "Open file" button, picks the file in the file chooser and waits for either the stats bar or the `role="alert"` error banner. It names the run after the file's path, so files with the same name don't overwrite each other. It writes `<run>-drive.json` and screenshots to `$E`, prints the summary and exits 1 when any expectation fails.
+The script opens `/editor/`, clicks the "Open file" button, picks the file in the file chooser and waits for either the stats bar or the `role="alert"` error banner. It names the run after the file's path, so files with the same name don't overwrite each other. It writes `<run>-drive.json` and screenshots to `$E`, prints the summary and exits 1 when any expectation fails, the picker's `accept` list excludes the file, or the browser logs a console error or uncaught exception.
 
 - `--expect-spans N` fails unless the stats bar shows N spans.
 - `--expect-format LABEL` fails unless the format badge reads LABEL (`OTLP JSON`, `Jaeger JSON` or `OpenInference`).

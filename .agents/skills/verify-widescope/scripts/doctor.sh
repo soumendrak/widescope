@@ -11,5 +11,7 @@ listener="$(ss -ltnpH "sport = :$port" | grep -o 'pid=[0-9]*' | head -1 | cut -d
 html="$(curl -sf --max-time 5 "http://127.0.0.1:$port/editor/")" && report "GET /editor/" ok || report "GET /editor/" "no 200 response"
 wasm="$(ls ui/dist/assets/*.wasm 2>/dev/null | head -1)"
 [ -n "$wasm" ] && cmp -s "$wasm" crates/widescope-core/pkg/widescope_core_bg.wasm && report "ui/dist has this worktree's WASM build" ok || report "ui/dist WASM" "stale or missing; stop, then launch.sh again"
+edited="$(find ui/src ui/public ui/index.html ui/vite.config.ts crates/*/src crates/*/Cargo.toml Cargo.toml Cargo.lock -type f -newer "$dir/build-started" 2>/dev/null | head -1)"
+[ -f "$dir/build-started" ] && [ -z "$edited" ] && report "no source edited since the build" ok || report "build" "${edited:-no build-started marker} changed after the build; stop, then launch.sh again"
 [ "$status" = 0 ] && echo "DOCTOR OK" || echo "DOCTOR FAIL"
 exit $status
