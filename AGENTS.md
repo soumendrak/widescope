@@ -4,7 +4,7 @@ Instructions for coding agents and people. [CONTRIBUTING.md](CONTRIBUTING.md) co
 
 ## Setup
 
-You need Rust (rustup) with the `wasm32-unknown-unknown` target, `wasm-pack`, `cargo-llvm-cov`, Node.js 20.19+ (CI uses 24), [just](https://just.systems), and Playwright Chromium.
+You need Rust (rustup) with the `wasm32-unknown-unknown` target, `wasm-pack`, `cargo-llvm-cov`, Node.js 20.19+, 22.12+ or 24+ (CI uses 24), [just](https://just.systems), and Playwright Chromium.
 
 ```bash
 rustup target add wasm32-unknown-unknown
