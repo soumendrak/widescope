@@ -49,14 +49,21 @@ function addedLines() {
   const files = new Map();
   let current = null;
   let lineNumber = 0;
+  let inHeader = false;
   for (const line of git('-c', 'core.quotePath=false', 'diff', '-U0', '--no-color', '--no-ext-diff', base).split('\n')) {
-    if (line.startsWith('+++ ')) {
+    if (line.startsWith('diff --git ')) {
+      inHeader = true;
+      current = null;
+      continue;
+    }
+    if (inHeader && line.startsWith('+++ ')) {
       current = line === '+++ /dev/null' ? null : unquote(line.slice(4)).slice(2);
       if (current && !files.has(current)) files.set(current, new Map());
       continue;
     }
     const hunk = line.match(/^@@ -\S+ \+(\d+)/);
     if (hunk) {
+      inHeader = false;
       lineNumber = Number(hunk[1]);
       continue;
     }
