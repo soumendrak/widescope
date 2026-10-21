@@ -8,6 +8,7 @@ You need Rust (rustup) with the `wasm32-unknown-unknown` target, `wasm-pack`, `c
 
 ```bash
 rustup target add wasm32-unknown-unknown
+rustup component add clippy rustfmt llvm-tools-preview
 cargo install wasm-pack cargo-llvm-cov --locked
 just ui-install
 (cd ui && npx playwright install --with-deps chromium)
@@ -47,14 +48,14 @@ Before you open or update a PR, prove the change with [`.agents/skills/verify-wi
 | --- | --- |
 | rustfmt formatting, no clippy warnings | `just check` |
 | No new comments in `.rs`, `.ts`, `.js`, `.mjs`, `.svelte` or `.css` files. Say it with names, types and tests. | `just check` |
-| Rust line coverage stays at or above 98%. Raise `RUST_COVERAGE_MIN` in `scripts/standards.mjs` when coverage rises. Never lower it. | `just check` |
-| UI coverage thresholds in `ui/vite.config.ts` only go up | `just check` |
-| Every changed executable line is covered | `just check` |
+| Rust line coverage stays at or above `RUST_COVERAGE_MIN` (98) in `scripts/standards.mjs`, and the UI meets the thresholds in `ui/vite.config.ts` | `just check` |
+| Those thresholds only go up. Raise them when coverage rises and never lower one. | review |
+| Every changed executable line under `crates/` and `ui/src/` is covered. `.github/actions/`, `vscode-extension/` and `scripts/` are not instrumented. | `just check` |
 | UI type errors | `svelte-check` in `just check` |
 | The viewer loads and every e2e journey passes | `just e2e` in CI |
-| The UI uses npm. `ui/package-lock.json` is the only lockfile. | review, until #116 adds `.gitignore` entries for the other lockfiles |
+| The UI uses npm. Change dependencies through `ui/package-lock.json` only. `ui/pnpm-lock.yaml` is still tracked until #116 deletes it, so ignore it. | review, until #116 also adds `.gitignore` entries for other lockfiles |
 | Keep a PR under 400 changed lines, not counting tests, generated files and lockfiles | review |
-| Don't deploy. Cloudflare builds and deploys `main` through `wrangler.jsonc`. | review |
+| Don't deploy. Cloudflare's Git build deploys `main` with a build command set in the Cloudflare dashboard, not the one in `wrangler.jsonc`. If you change either one, change the other too and say so in the PR (README, "Deployment on Cloudflare"). | review |
 
 When a reviewer corrects the same mistake twice, add a check to `scripts/standards.mjs` and a row here.
 
