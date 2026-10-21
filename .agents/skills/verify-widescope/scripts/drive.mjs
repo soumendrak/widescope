@@ -15,11 +15,11 @@ const VIEW_ROOT = {
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
-  options: { 'expect-spans': { type: 'string' }, 'expect-error': { type: 'string' }, tabs: { type: 'boolean' } },
+  options: { 'expect-spans': { type: 'string' }, 'expect-format': { type: 'string' }, 'expect-tabs': { type: 'string' }, 'expect-error': { type: 'string' }, tabs: { type: 'boolean' } },
 });
 const [baseUrl, traceFile, outDir] = positionals;
 if (!baseUrl || !traceFile || !outDir) {
-  console.error('usage: drive.mjs <base-url> <trace-file> <evidence-dir> [--expect-spans N | --expect-error TEXT] [--tabs]');
+  console.error('usage: drive.mjs <base-url> <trace-file> <evidence-dir> [--expect-spans N] [--expect-format LABEL] [--expect-error TEXT] [--tabs] [--expect-tabs A,B,...]');
   process.exit(2);
 }
 
@@ -50,6 +50,7 @@ await shot(page, '2-after-open');
 
 if (await banner.isVisible()) summary.error = (await banner.innerText()).trim();
 if (await loaded.isVisible()) {
+  summary.format = ((await page.locator('.format-badge').textContent()) ?? '').trim();
   summary.spans = Number(await page.locator('.stat', { hasText: 'spans' }).first().locator('b').innerText());
   summary.services = Number(await page.locator('.stat', { hasText: 'services' }).first().locator('b').innerText());
 }
@@ -57,17 +58,24 @@ if (await loaded.isVisible()) {
 if (values['expect-spans'] !== undefined && summary.spans !== Number(values['expect-spans'])) {
   summary.failures.push(`expected ${values['expect-spans']} spans, saw ${summary.spans ?? 'no trace'}`);
 }
+if (values['expect-format'] !== undefined && summary.format !== values['expect-format']) {
+  summary.failures.push(`expected format ${values['expect-format']}, saw ${summary.format ?? 'no trace'}`);
+}
 if (values['expect-error'] !== undefined && !summary.error?.includes(values['expect-error'])) {
   summary.failures.push(`expected an error containing "${values['expect-error']}", saw ${summary.error ?? 'none'}`);
 }
 if (values['expect-error'] === undefined && summary.error) summary.failures.push(`unexpected error: ${summary.error}`);
 
-if (values.tabs) {
+if (values.tabs || values['expect-tabs'] !== undefined) {
   summary.tabs = [];
   const tabs = page.locator('.view-tabs [role="tab"]');
+  const names = (await tabs.locator('.vt-label').allTextContents()).map((name) => name.trim());
+  if (values['expect-tabs'] !== undefined && names.join(',') !== values['expect-tabs']) {
+    summary.failures.push(`expected tabs ${values['expect-tabs']}, saw ${names.join(',')}`);
+  }
   for (let i = 0; i < (await tabs.count()); i++) {
     const tab = tabs.nth(i);
-    const name = ((await tab.locator('.vt-label').textContent()) ?? '').trim();
+    const name = names[i];
     await tab.click();
     const selected = (await tab.getAttribute('aria-selected')) === 'true';
     const root = VIEW_ROOT[name];
