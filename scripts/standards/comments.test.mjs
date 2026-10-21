@@ -84,11 +84,13 @@ test('svelte: comments inside markup expressions are found; braces in strings an
     `{#if ok}<b>{${OPEN} a ${CLOSE} n}</b>{/if}`,
     `<i>don't ${OPEN} text ${CLOSE}</i>`,
     `<a href="https:${SLASHES}x">{fn({ a: 1 })}</a>`,
-    `<p>{/[}]/.test(x) ${OPEN} after regex ${CLOSE}}</p>`,
-    '<p>{/https?:\\/\\//.test(u) ? a / b : c}</p>',
+    `<p>{ok && /[}]/.test(x) ${OPEN} after regex ${CLOSE}}</p>`,
+    '<p>{ok && /https?:\\/\\//.test(u) ? a / b : c}</p>',
     '{#each xs as x}{x}{/each}',
     `<p>see https:${SLASHES}y</p>`,
+    `{#if ok}x{/if}{${OPEN} after block ${CLOSE} n}`,
+    `<p>{() => { if (x) /[}}]/.test(y); ${OPEN} after statement regex ${CLOSE} }}</p>`,
     '',
   ].join('\n');
-  assert.deepEqual(lines('a.svelte', text), [1, 3, 5, 8]);
+  assert.deepEqual(lines('a.svelte', text), [1, 3, 5, 8, 12, 13]);
 });

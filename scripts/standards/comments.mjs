@@ -1,9 +1,6 @@
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 
-const SVELTE_BLOCK = /(<(script|style)[^>]*>)([\s\S]*?)<\/\2>/g;
-const HTML_COMMENT_OPEN = '<!-' + '-';
-const HTML_COMMENT_CLOSE = '-' + '->';
 
 export function commentLines(file, text, repoRoot) {
   if (/\.(ts|js|mjs)$/.test(file)) return linesOf(text, scriptCommentRanges(text, repoRoot));
@@ -29,36 +26,8 @@ function lineAt(text, offset) {
   return line;
 }
 
-function typescript(repoRoot) {
-  return createRequire(resolve(repoRoot, 'ui/package.json'))('typescript');
-}
-
-function markupExpressionEnd(ts, text, start, ranges) {
-  const { SyntaxKind: K } = ts;
-  const operandEnd = new Set([K.Identifier, K.PrivateIdentifier, K.NumericLiteral, K.BigIntLiteral, K.StringLiteral, K.RegularExpressionLiteral, K.NoSubstitutionTemplateLiteral, K.TemplateTail, K.CloseParenToken, K.CloseBracketToken, K.CloseBraceToken, K.ThisKeyword, K.SuperKeyword, K.TrueKeyword, K.FalseKeyword, K.NullKeyword, K.PlusPlusToken, K.MinusMinusToken]);
-  const scanner = ts.createScanner(ts.ScriptTarget.Latest, false, ts.LanguageVariant.Standard, text);
-  scanner.resetTokenState(start);
-  const open = [];
-  let previous;
-  for (let kind = scanner.scan(); kind !== K.EndOfFileToken; kind = scanner.scan()) {
-    if (kind === K.SingleLineCommentTrivia || kind === K.MultiLineCommentTrivia) {
-      ranges.push([scanner.getTokenStart(), scanner.getTokenEnd()]);
-      continue;
-    }
-    if (kind === K.NewLineTrivia || kind === K.WhitespaceTrivia) continue;
-    if ((kind === K.SlashToken || kind === K.SlashEqualsToken) && !operandEnd.has(previous)) kind = scanner.reScanSlashToken();
-    else if (kind === K.OpenBraceToken || kind === K.TemplateHead) open.push(kind);
-    else if (kind === K.CloseBraceToken) {
-      if (open.length === 0) return scanner.getTokenEnd();
-      if (open.pop() === K.TemplateHead && scanner.reScanTemplateToken(false) === K.TemplateMiddle) open.push(K.TemplateHead);
-    }
-    previous = kind;
-  }
-  return text.length;
-}
-
 function scriptCommentRanges(text, repoRoot) {
-  const ts = typescript(repoRoot);
+  const ts = createRequire(resolve(repoRoot, 'ui/package.json'))('typescript');
   const source = ts.createSourceFile('file.ts', text, ts.ScriptTarget.Latest, true);
   const ranges = [];
   const add = (found) => {
@@ -153,27 +122,17 @@ export function cssCommentRanges(text) {
 }
 
 function svelteCommentRanges(text, repoRoot) {
-  const ranges = [];
-  const blocks = [];
-  for (const match of text.matchAll(SVELTE_BLOCK)) {
-    const start = match.index + match[1].length;
-    const inner = match[3];
-    const found = match[2] === 'script' ? scriptCommentRanges(inner, repoRoot) : cssCommentRanges(inner);
-    for (const [from, to] of found) ranges.push([start + from, start + to]);
-    blocks.push([match.index, match.index + match[0].length]);
-  }
-  const ts = typescript(repoRoot);
-  let i = 0;
-  while (i < text.length) {
-    const block = blocks.find(([from, to]) => i >= from && i < to);
-    if (block) i = block[1];
-    else if (text.startsWith(HTML_COMMENT_OPEN, i)) {
-      const end = text.indexOf(HTML_COMMENT_CLOSE, i + 4);
-      const stop = end === -1 ? text.length : end + 3;
-      ranges.push([i, stop]);
-      i = stop;
-    } else if (text[i] === '{') i = markupExpressionEnd(ts, text, i + 1, ranges);
-    else i++;
-  }
+  const { parse } = createRequire(resolve(repoRoot, 'ui/package.json'))('svelte/compiler');
+  const root = parse(text, { modern: true });
+  const ranges = root.comments.map(({ start, end }) => [start, end]);
+  const visit = (node) => {
+    if (Array.isArray(node)) node.forEach(visit);
+    else if (node && typeof node === 'object') {
+      if (node.type === 'Comment') ranges.push([node.start, node.end]);
+      Object.values(node).forEach(visit);
+    }
+  };
+  visit(root.fragment);
+  if (root.css) for (const [from, to] of cssCommentRanges(root.css.content.styles)) ranges.push([root.css.content.start + from, root.css.content.start + to]);
   return ranges;
 }
