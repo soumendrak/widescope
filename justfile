@@ -79,8 +79,8 @@ doctor:
     has wasm-pack && report "$(wasm-pack --version)" ok || report wasm-pack "cargo install wasm-pack --locked"
     cargo llvm-cov --version >/dev/null 2>&1 && report "$(cargo llvm-cov --version)" ok || report cargo-llvm-cov "cargo install cargo-llvm-cov --locked"
     node_version=$(node --version 2>/dev/null)
-    node_ok() { case "${1%%.*}" in 20) atleast "$1" 20.19 ;; 22) atleast "$1" 22.12 ;; 21|23) false ;; *) atleast "$1" 24 ;; esac; }
-    node_ok "${node_version#v}" && report "node $node_version" ok || report "node ${node_version:-missing}" "install Node.js 20.19+, 22.12+ or 24+ (CI uses 24)"
+    node_ok() { case "${1%%.*}" in 20) atleast "$1" 20.19 ;; 22) atleast "$1" 22.13 ;; 21|23) false ;; *) atleast "$1" 24 ;; esac; }
+    node_ok "${node_version#v}" && report "node $node_version" ok || report "node ${node_version:-missing}" "install Node.js 20.19+, 22.13+ or 24+ (CI uses 24)"
     for tool in npm npx; do has $tool && report "$tool $($tool --version)" ok || report $tool "install npm with Node.js"; done
     [ -d ui/node_modules ] && report "ui/node_modules" ok || report "ui/node_modules" "just ui-install"
     chromium=$(cd ui && node -e 'process.stdout.write(require("@playwright/test").chromium.executablePath())' 2>/dev/null)
