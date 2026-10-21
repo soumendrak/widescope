@@ -34,16 +34,25 @@ function typescript(repoRoot) {
 }
 
 function markupExpressionEnd(ts, text, start, ranges) {
+  const { SyntaxKind: K } = ts;
+  const operandEnd = new Set([K.Identifier, K.PrivateIdentifier, K.NumericLiteral, K.BigIntLiteral, K.StringLiteral, K.RegularExpressionLiteral, K.NoSubstitutionTemplateLiteral, K.TemplateTail, K.CloseParenToken, K.CloseBracketToken, K.CloseBraceToken, K.ThisKeyword, K.SuperKeyword, K.TrueKeyword, K.FalseKeyword, K.NullKeyword, K.PlusPlusToken, K.MinusMinusToken]);
   const scanner = ts.createScanner(ts.ScriptTarget.Latest, false, ts.LanguageVariant.Standard, text);
   scanner.resetTokenState(start);
   const open = [];
-  for (let kind = scanner.scan(); kind !== ts.SyntaxKind.EndOfFileToken; kind = scanner.scan()) {
-    if (kind === ts.SyntaxKind.SingleLineCommentTrivia || kind === ts.SyntaxKind.MultiLineCommentTrivia) ranges.push([scanner.getTokenStart(), scanner.getTokenEnd()]);
-    else if (kind === ts.SyntaxKind.OpenBraceToken || kind === ts.SyntaxKind.TemplateHead) open.push(kind);
-    else if (kind === ts.SyntaxKind.CloseBraceToken) {
-      if (open.length === 0) return scanner.getTokenEnd();
-      if (open.pop() === ts.SyntaxKind.TemplateHead && scanner.reScanTemplateToken(false) === ts.SyntaxKind.TemplateMiddle) open.push(ts.SyntaxKind.TemplateHead);
+  let previous;
+  for (let kind = scanner.scan(); kind !== K.EndOfFileToken; kind = scanner.scan()) {
+    if (kind === K.SingleLineCommentTrivia || kind === K.MultiLineCommentTrivia) {
+      ranges.push([scanner.getTokenStart(), scanner.getTokenEnd()]);
+      continue;
     }
+    if (kind === K.NewLineTrivia || kind === K.WhitespaceTrivia) continue;
+    if ((kind === K.SlashToken || kind === K.SlashEqualsToken) && !operandEnd.has(previous)) kind = scanner.reScanSlashToken();
+    else if (kind === K.OpenBraceToken || kind === K.TemplateHead) open.push(kind);
+    else if (kind === K.CloseBraceToken) {
+      if (open.length === 0) return scanner.getTokenEnd();
+      if (open.pop() === K.TemplateHead && scanner.reScanTemplateToken(false) === K.TemplateMiddle) open.push(K.TemplateHead);
+    }
+    previous = kind;
   }
   return text.length;
 }
