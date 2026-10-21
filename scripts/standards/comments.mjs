@@ -29,8 +29,27 @@ function lineAt(text, offset) {
   return line;
 }
 
+function typescript(repoRoot) {
+  return createRequire(resolve(repoRoot, 'ui/package.json'))('typescript');
+}
+
+function markupExpressionEnd(ts, text, start, ranges) {
+  const scanner = ts.createScanner(ts.ScriptTarget.Latest, false, ts.LanguageVariant.Standard, text);
+  scanner.resetTokenState(start);
+  const open = [];
+  for (let kind = scanner.scan(); kind !== ts.SyntaxKind.EndOfFileToken; kind = scanner.scan()) {
+    if (kind === ts.SyntaxKind.SingleLineCommentTrivia || kind === ts.SyntaxKind.MultiLineCommentTrivia) ranges.push([scanner.getTokenStart(), scanner.getTokenEnd()]);
+    else if (kind === ts.SyntaxKind.OpenBraceToken || kind === ts.SyntaxKind.TemplateHead) open.push(kind);
+    else if (kind === ts.SyntaxKind.CloseBraceToken) {
+      if (open.length === 0) return scanner.getTokenEnd();
+      if (open.pop() === ts.SyntaxKind.TemplateHead && scanner.reScanTemplateToken(false) === ts.SyntaxKind.TemplateMiddle) open.push(ts.SyntaxKind.TemplateHead);
+    }
+  }
+  return text.length;
+}
+
 function scriptCommentRanges(text, repoRoot) {
-  const ts = createRequire(resolve(repoRoot, 'ui/package.json'))('typescript');
+  const ts = typescript(repoRoot);
   const source = ts.createSourceFile('file.ts', text, ts.ScriptTarget.Latest, true);
   const ranges = [];
   const add = (found) => {
@@ -134,17 +153,18 @@ function svelteCommentRanges(text, repoRoot) {
     for (const [from, to] of found) ranges.push([start + from, start + to]);
     blocks.push([match.index, match.index + match[0].length]);
   }
+  const ts = typescript(repoRoot);
   let i = 0;
-  while ((i = text.indexOf(HTML_COMMENT_OPEN, i)) !== -1) {
+  while (i < text.length) {
     const block = blocks.find(([from, to]) => i >= from && i < to);
-    if (block) {
-      i = block[1];
-      continue;
-    }
-    const end = text.indexOf(HTML_COMMENT_CLOSE, i + 4);
-    const stop = end === -1 ? text.length : end + 3;
-    ranges.push([i, stop]);
-    i = stop;
+    if (block) i = block[1];
+    else if (text.startsWith(HTML_COMMENT_OPEN, i)) {
+      const end = text.indexOf(HTML_COMMENT_CLOSE, i + 4);
+      const stop = end === -1 ? text.length : end + 3;
+      ranges.push([i, stop]);
+      i = stop;
+    } else if (text[i] === '{') i = markupExpressionEnd(ts, text, i + 1, ranges);
+    else i++;
   }
   return ranges;
 }

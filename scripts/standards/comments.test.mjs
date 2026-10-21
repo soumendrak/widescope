@@ -74,3 +74,17 @@ test('svelte: script, style and markup comments are found; strings are not', () 
   ].join('\n');
   assert.deepEqual(lines('a.svelte', text), [3, 5, 6, 9]);
 });
+
+test('svelte: comments inside markup expressions are found; braces in strings and templates are not', () => {
+  const text = [
+    `<span>{${OPEN} hidden ${CLOSE} "x"}</span>`,
+    '<p title={`a ${"}"} b`}>{"{"}</p>',
+    `<p>{n ${SLASHES} why`,
+    '}</p>',
+    `{#if ok}<b>{${OPEN} a ${CLOSE} n}</b>{/if}`,
+    `<i>don't ${OPEN} text ${CLOSE}</i>`,
+    `<a href="https:${SLASHES}x">{fn({ a: 1 })}</a>`,
+    '',
+  ].join('\n');
+  assert.deepEqual(lines('a.svelte', text), [1, 3, 5]);
+});
