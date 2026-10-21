@@ -73,6 +73,7 @@ doctor:
     has() { command -v "$1" >/dev/null 2>&1; }
     atleast() { [ "$(printf '%s\n%s\n' "$2" "$1" | sort -V | head -n1)" = "$2" ]; }
     has cargo && report "$(cargo --version)" ok || report cargo "install Rust with rustup"
+    rustup component list --installed 2>/dev/null | grep -q '^llvm-tools' && report "llvm-tools" ok || report llvm-tools "rustup component add llvm-tools-preview"
     for component in fmt clippy; do cargo $component --version >/dev/null 2>&1 && report "cargo $component" ok || report "cargo $component" "rustup component add ${component/fmt/rustfmt}"; done
     rustup target list --installed 2>/dev/null | grep -qx wasm32-unknown-unknown && report "wasm32-unknown-unknown target" ok || report "wasm32-unknown-unknown target" "rustup target add wasm32-unknown-unknown"
     has wasm-pack && report "$(wasm-pack --version)" ok || report wasm-pack "cargo install wasm-pack --locked"
