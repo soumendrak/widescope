@@ -12,9 +12,10 @@ Load a trace, then click a tab in the "View mode" tab list.
 
 ```bash
 node $S/drive.mjs http://127.0.0.1:$P test-fixtures/otlp/sample_llm_pipeline.json $E --expect-spans 7 --tabs
+node $S/drive.mjs http://127.0.0.1:$P test-fixtures/otlp/upload-samples/01-simple-request.json $E --expect-spans 3 --tabs
 ```
 
-The summary lists each tab with `selected` and `rendered`. Screenshots are `<file>-3-tab-<name>.png`.
+The first trace has LLM spans and gets the Conversation tab. The second has none and gets Timeline. For each tab the summary records `selected` and `rendered`, where `rendered` means that view's own root element is visible in `#view-panel` (`VIEW_ROOT` in `drive.mjs`). A tab with no `VIEW_ROOT` entry fails, so add one when you add a tab. Screenshots are `<run>-3-tab-<name>.png`.
 
 ## Gotchas
 

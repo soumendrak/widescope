@@ -1,8 +1,17 @@
 #!/usr/bin/env node
 import { createRequire } from 'node:module';
 import { mkdirSync, writeFileSync } from 'node:fs';
-import { basename, resolve } from 'node:path';
+import { relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
+
+const VIEW_ROOT = {
+  Waterfall: '.wf-root',
+  Flame: 'canvas.flame-canvas',
+  Conversation: '.conversation',
+  Timeline: '.timeline-root',
+  Graph: '.graph-wrap',
+  Diff: '.diff-empty',
+};
 
 const { values, positionals } = parseArgs({
   allowPositionals: true,
@@ -16,7 +25,7 @@ if (!baseUrl || !traceFile || !outDir) {
 
 const require = createRequire(resolve('ui/package.json'));
 const { chromium } = require('@playwright/test');
-const run = basename(traceFile).replace(/\W+/g, '-');
+const run = relative(process.cwd(), resolve(traceFile)).replace(/\W+/g, '-');
 mkdirSync(outDir, { recursive: true });
 const shot = (page, step) => page.screenshot({ path: `${outDir}/${run}-${step}.png` });
 
@@ -61,7 +70,9 @@ if (values.tabs) {
     const name = ((await tab.locator('.vt-label').textContent()) ?? '').trim();
     await tab.click();
     const selected = (await tab.getAttribute('aria-selected')) === 'true';
-    const rendered = (await page.locator('#view-panel').isVisible()) && !(await banner.isVisible());
+    const root = VIEW_ROOT[name];
+    const shown = root === undefined ? false : await page.locator(`#view-panel ${root}`).first().waitFor({ timeout: 5_000 }).then(() => true, () => false);
+    const rendered = shown && !(await banner.isVisible());
     await shot(page, `3-tab-${name.replace(/\W+/g, '-')}`);
     summary.tabs.push({ name, selected, rendered });
     if (!selected || !rendered) summary.failures.push(`tab ${name}: selected=${selected} rendered=${rendered}`);
