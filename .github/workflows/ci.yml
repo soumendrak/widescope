@@ -35,7 +35,7 @@ jobs:
 
     - uses: taiki-e/install-action@v2
       with:
-        tool: just,cargo-llvm-cov,wasm-pack
+        tool: just@1.59.0,cargo-llvm-cov@0.9.1,wasm-pack@0.13.1
 
     - uses: actions/setup-node@v4
       with:
@@ -61,7 +61,7 @@ jobs:
 
     - uses: taiki-e/install-action@v2
       with:
-        tool: just,wasm-pack
+        tool: just@1.59.0,wasm-pack@0.13.1
 
     - uses: actions/setup-node@v4
       with:
