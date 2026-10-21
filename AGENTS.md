@@ -23,7 +23,7 @@ just doctor
 | --- | --- |
 | Every standard, the same gate CI runs | `just check` |
 | Rust and UI unit tests | `just test` |
-| Playwright suite, the same steps as CI | `just e2e` |
+| Playwright suite, the same steps as CI (`CI=1`, so it never reuses a server already on port 5173) | `just e2e` |
 | Toolchain check | `just doctor` |
 | Build WASM, then the UI into `ui/dist/` | `just build` |
 | Dev server on `http://localhost:5173/editor/` | `just build-wasm && just dev` |
@@ -47,10 +47,10 @@ Before you open or update a PR, prove the change with [`.agents/skills/verify-wi
 | Rule | Enforced by |
 | --- | --- |
 | rustfmt formatting, no clippy warnings | `just check` |
-| No new comments in `.rs`, `.ts`, `.js`, `.mjs`, `.svelte` or `.css` files. Say it with names, types and tests. | `just check` |
+| No new comments in `.rs`, `.ts`, `.js`, `.mjs`, `.svelte` or `.css` files. Say it with names, types and tests. | `just check` flags added lines that contain `//`, `/*` or `<!--` outside a string. It can't see prose added inside an existing block comment, so review catches that case. |
 | Rust line coverage stays at or above `RUST_COVERAGE_MIN` (98) in `scripts/standards.mjs`, and the UI meets the thresholds in `ui/vite.config.ts` | `just check` |
 | Those thresholds only go up. Raise them when coverage rises and never lower one. | review |
-| Every changed executable line under `crates/` and `ui/src/` is covered. `.github/actions/`, `vscode-extension/` and `scripts/` are not instrumented. | `just check` |
+| Every changed executable line under `crates/` and `ui/src/` is covered, except in files that `ui/vite.config.ts` excludes from coverage (`src/main.ts`, `src/landing.js`, `src/lib/types.ts`, `FlameGraph.svelte`). Those files, plus `.github/actions/`, `vscode-extension/` and `scripts/`, are not instrumented and need a browser or manual proof. | `just check` |
 | UI type errors | `svelte-check` in `just check` |
 | The viewer loads and every e2e journey passes | `just e2e` in CI |
 | The UI uses npm. Change dependencies through `ui/package-lock.json` only. `ui/pnpm-lock.yaml` is still tracked until #116 deletes it, so ignore it. | review, until #116 also adds `.gitignore` entries for other lockfiles |
@@ -62,8 +62,7 @@ When a reviewer corrects the same mistake twice, add a check to `scripts/standar
 ## Traps
 
 - The UI imports the WASM package from `crates/widescope-core/pkg/`, which is not committed. Run `just build-wasm` after every Rust change, or the UI tests, dev server and e2e run the old core.
-- Locally, Playwright reuses any server already on port 5173 (`reuseExistingServer` in `ui/playwright.config.ts`). A dev server from another worktree makes `just e2e` test that worktree's code. Stop it first.
+- `just e2e` sets `CI=1`, so a server already on port 5173 makes it fail instead of testing that server's code. A bare `npx playwright test` without `CI` reuses it (`reuseExistingServer` in `ui/playwright.config.ts`).
 - `vite preview` binds to `localhost`, which on this Linux box resolved to `::1` only. Pass `--host 127.0.0.1` when a script calls `127.0.0.1`.
-- Changed-line coverage skips files that `ui/vite.config.ts` excludes from coverage, such as `FlameGraph.svelte` and `src/main.ts`. Their changes need a browser proof instead.
 - Regenerating `crates/widescope-core/share-dict.bin` (`just train-share-dict`) breaks old share links unless you add a new format tag in `share.rs`.
 - CI runs only on PRs into `main`. A PR stacked on another branch gets no CI until it is retargeted.
