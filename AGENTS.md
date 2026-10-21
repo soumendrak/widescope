@@ -47,7 +47,7 @@ Before you open or update a PR, prove the change with [`.agents/skills/verify-wi
 | Rule | Enforced by |
 | --- | --- |
 | rustfmt formatting, no clippy warnings | `just check` |
-| No new comments in `.rs`, `.ts`, `.js`, `.mjs`, `.svelte` or `.css` files. Say it with names, types and tests. | `just check` flags added lines that contain `//`, `/*` or `<!--` outside a string. It can't see prose added inside an existing block comment, so review catches that case. |
+| No new comments in `.rs`, `.ts`, `.js`, `.mjs`, `.svelte` or `.css` files. Say it with names, types and tests. | `just check`. In `.ts`, `.js`, `.mjs` and Svelte `<script>` blocks it reads comments with the TypeScript parser. In `.rs`, `.css` and Svelte markup it flags `//`, `/*` or `<!--` outside strings, which misses prose added inside an existing block comment, so review catches that case. |
 | Rust line coverage stays at or above `RUST_COVERAGE_MIN` (98) in `scripts/standards.mjs`, and the UI meets the thresholds in `ui/vite.config.ts` | `just check` |
 | Those thresholds only go up. Raise them when coverage rises and never lower one. | review |
 | Every changed executable line under `crates/` and `ui/src/` is covered. A changed `ui/src` file with no coverage record fails, unless it is listed in `UI_UNINSTRUMENTED` in `scripts/standards.mjs` (`main.ts`, `lib/types.ts`, `FlameGraph.svelte`), and the gate prints those for a browser proof. `.github/actions/`, `vscode-extension/` and `scripts/` are not instrumented. | `just check`, then the browser proof for listed files |
