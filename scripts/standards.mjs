@@ -7,7 +7,8 @@ const RUST_COVERAGE_MIN = '98';
 const RUST_LCOV = 'target/llvm-cov.lcov';
 const UI_LCOV = 'ui/coverage/lcov.info';
 const COMMENT_CHECKED = /\.(rs|ts|js|mjs|svelte|css)$/;
-const COMMENT = /^\s*(\/\/|\/\*|<!-{2})|\s(\/\/|\/\*)(\s|$)|<!-{2}/;
+const STRING_LITERAL = /"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`/g;
+const COMMENT = /\/\/|\/\*|<!-{2}/;
 const COVERAGE_CHECKED = /^(crates\/.*\.rs|ui\/src\/.*\.(ts|svelte))$/;
 
 const root = git('rev-parse', '--show-toplevel');
@@ -48,9 +49,9 @@ function addedLines() {
   const files = new Map();
   let current = null;
   let lineNumber = 0;
-  for (const line of git('diff', '-U0', '--no-color', '--no-ext-diff', base).split('\n')) {
+  for (const line of git('-c', 'core.quotePath=false', 'diff', '-U0', '--no-color', '--no-ext-diff', base).split('\n')) {
     if (line.startsWith('+++ ')) {
-      current = line === '+++ /dev/null' ? null : line.slice(6);
+      current = line === '+++ /dev/null' ? null : unquote(line.slice(4)).slice(2);
       if (current && !files.has(current)) files.set(current, new Map());
       continue;
     }
@@ -61,11 +62,15 @@ function addedLines() {
     }
     if (current && line.startsWith('+')) files.get(current).set(lineNumber++, line.slice(1));
   }
-  for (const file of git('ls-files', '--others', '--exclude-standard').split('\n').filter(Boolean)) {
+  for (const file of git('-c', 'core.quotePath=false', 'ls-files', '--others', '--exclude-standard').split('\n').filter(Boolean)) {
     const lines = readFileSync(file, 'utf8').split('\n');
     files.set(file, new Map(lines.map((text, index) => [index + 1, text])));
   }
   return files;
+}
+
+function unquote(path) {
+  return path.startsWith('"') ? JSON.parse(path) : path;
 }
 
 function checkNoNewComments() {
@@ -73,7 +78,7 @@ function checkNoNewComments() {
   for (const [file, lines] of addedLines()) {
     if (!COMMENT_CHECKED.test(file)) continue;
     for (const [number, text] of lines) {
-      if (COMMENT.test(text)) found.push(`${file}:${number}: ${text.trim()}`);
+      if (COMMENT.test(text.replace(STRING_LITERAL, '""'))) found.push(`${file}:${number}: ${text.trim()}`);
     }
   }
   for (const entry of found) console.log(entry);
