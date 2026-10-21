@@ -1,17 +1,13 @@
 #!/usr/bin/env node
 import { execFileSync, spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { createRequire } from 'node:module';
+import { readdirSync, readFileSync } from 'node:fs';
 import { isAbsolute, relative, resolve } from 'node:path';
+import { commentLines } from './standards/comments.mjs';
 
 const RUST_COVERAGE_MIN = '98';
 const RUST_LCOV = 'target/llvm-cov.lcov';
 const UI_LCOV = 'ui/coverage/lcov.info';
 const COMMENT_CHECKED = /\.(rs|ts|js|mjs|svelte|css)$/;
-const STRING_LITERAL = /r(#+)"[\s\S]*?"\1|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|`(?:\\.|[^`\\])*`/g;
-const SCRIPT_FILE = /\.(ts|js|mjs)$/;
-const SVELTE_SCRIPT = /(<script[^>]*>)([\s\S]*?)<\/script>/g;
-const COMMENT = /\/\/|\/\*|<!-{2}/;
 const UI_UNINSTRUMENTED = new Set(['ui/src/main.ts', 'ui/src/lib/types.ts', 'ui/src/components/FlameGraph.svelte']);
 const UI_TEST_FILE = /^ui\/src\/(.*\.test\.ts|test-setup\.ts)$/;
 const COVERAGE_CHECKED = /^(crates\/.*\.rs|ui\/src\/.*\.(ts|svelte))$/;
@@ -22,6 +18,7 @@ const baseIndex = process.argv.indexOf('--base');
 const base = baseIndex > 0 ? process.argv[baseIndex + 1] : git('merge-base', 'origin/main', 'HEAD');
 
 const steps = [
+  ['standards self-test', () => run('node', ['--test', ...readdirSync('scripts/standards').filter((name) => name.endsWith('.test.mjs')).map((name) => `scripts/standards/${name}`)])],
   ['rustfmt', () => run('cargo', ['fmt', '--all', '--check'])],
   ['clippy', () => run('cargo', ['clippy', '--workspace', '--all-targets', '--', '-D', 'warnings'])],
   ['no new comments', checkNoNewComments],
@@ -85,56 +82,11 @@ function unquote(path) {
   return path.startsWith('"') ? JSON.parse(path) : path;
 }
 
-function scriptCommentLines(text, firstLine = 1) {
-  const ts = createRequire(resolve(root, 'ui/package.json'))('typescript');
-  const source = ts.createSourceFile('file.ts', text, ts.ScriptTarget.Latest, true);
-  const lines = new Set();
-  const mark = (ranges) => {
-    for (const range of ranges ?? []) {
-      const start = source.getLineAndCharacterOfPosition(range.pos).line;
-      const end = source.getLineAndCharacterOfPosition(range.end).line;
-      for (let line = start; line <= end; line++) lines.add(line + firstLine);
-    }
-  };
-  const visit = (node) => {
-    mark(ts.getLeadingCommentRanges(text, node.pos));
-    mark(ts.getTrailingCommentRanges(text, node.end));
-    for (const child of node.getChildren(source)) visit(child);
-  };
-  visit(source);
-  return lines;
-}
-
-function svelteCommentLines(text) {
-  const lines = new Set();
-  const scriptLines = new Set();
-  for (const match of text.matchAll(SVELTE_SCRIPT)) {
-    const firstLine = text.slice(0, match.index + match[1].length).split('\n').length;
-    for (const line of scriptCommentLines(match[2], firstLine)) lines.add(line);
-    for (let line = firstLine; line < firstLine + match[2].split('\n').length; line++) scriptLines.add(line);
-  }
-  text.split('\n').forEach((line, index) => {
-    if (!scriptLines.has(index + 1) && COMMENT.test(line.replace(STRING_LITERAL, '""'))) lines.add(index + 1);
-  });
-  return lines;
-}
-
-function commentLines(file) {
-  const text = readFileSync(file, 'utf8');
-  if (SCRIPT_FILE.test(file)) return scriptCommentLines(text);
-  if (file.endsWith('.svelte')) return svelteCommentLines(text);
-  const lines = new Set();
-  text.split('\n').forEach((line, index) => {
-    if (COMMENT.test(line.replace(STRING_LITERAL, '""'))) lines.add(index + 1);
-  });
-  return lines;
-}
-
 function checkNoNewComments() {
   const found = [];
   for (const [file, lines] of addedLines()) {
     if (!COMMENT_CHECKED.test(file)) continue;
-    const comments = commentLines(file);
+    const comments = commentLines(file, readFileSync(file, 'utf8'), root);
     for (const [number, text] of lines) {
       if (comments.has(number)) found.push(`${file}:${number}: ${text.trim()}`);
     }
@@ -163,16 +115,14 @@ function readLcov(path, sourceRoot) {
 function checkChangedLineCoverage() {
   const hits = new Map([...readLcov(RUST_LCOV, root), ...readLcov(UI_LCOV, resolve(root, 'ui'))]);
   const uncovered = [];
-  const unrecorded = [];
+  const unrecorded = git('-c', 'core.quotePath=false', 'ls-files', '--cached', '--others', '--exclude-standard', 'ui/src')
+    .split('\n')
+    .filter((file) => /\.(ts|svelte)$/.test(file) && !UI_TEST_FILE.test(file) && !UI_UNINSTRUMENTED.has(file) && !hits.has(file));
   let checked = 0;
   for (const [file, lines] of addedLines()) {
     if (!COVERAGE_CHECKED.test(file)) continue;
     const fileHits = hits.get(file);
-    if (!fileHits && file.startsWith('ui/src/') && !UI_TEST_FILE.test(file)) {
-      if (UI_UNINSTRUMENTED.has(file)) console.log(`not instrumented, prove it in the browser: ${file}`);
-      else unrecorded.push(file);
-      continue;
-    }
+    if (UI_UNINSTRUMENTED.has(file)) console.log(`not instrumented, prove it in the browser: ${file}`);
     for (const number of lines.keys()) {
       const count = fileHits?.get(number);
       if (count === undefined) continue;
