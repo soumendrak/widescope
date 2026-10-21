@@ -25,7 +25,7 @@ E=/tmp/verify-widescope/$P
 $S/launch.sh $P
 ```
 
-`launch.sh` builds the WASM package and `ui/dist`, then serves the build with `vite preview` on `127.0.0.1:$P`. It prints `ready:` only after `/editor/` answers and the listener belongs to the process group it started. It refuses a port that is already taken and touches nothing. Logs and evidence go to `$E`. To test a new edit, stop and launch again: the preview serves the build, not the source.
+`launch.sh` builds the WASM package and `ui/dist`, then serves the build with `vite preview` on `127.0.0.1:$P`. It prints `ready:` only after `/editor/` answers and the listener belongs to the process group it started. It refuses a port that is already taken and touches nothing. Logs and evidence go to `$E`. A new launch moves the previous launch's screenshots and summaries to `$E/previous-<time>/`, so `$E` only holds evidence from the current build. To test a new edit, stop and launch again: the preview serves the build, not the source.
 
 ## 3. Doctor
 
@@ -41,11 +41,11 @@ Read-only. It checks that the port belongs to the process group in `$E/server.pi
 node $S/drive.mjs http://127.0.0.1:$P test-fixtures/otlp/sample_llm_pipeline.json $E --expect-spans 7 --tabs
 ```
 
-The script opens `/editor/`, clicks the "Open file" button, picks the file in the file chooser and waits for either the stats bar or the `role="alert"` error banner. It writes `<file>-drive.json` and screenshots to `$E`, prints the summary and exits 1 when any expectation fails.
+The script opens `/editor/`, clicks the "Open file" button, picks the file in the file chooser and waits for either the stats bar or the `role="alert"` error banner. It names the run after the file's path, so files with the same name don't overwrite each other. It writes `<run>-drive.json` and screenshots to `$E`, prints the summary and exits 1 when any expectation fails.
 
 - `--expect-spans N` fails unless the stats bar shows N spans.
 - `--expect-error TEXT` fails unless the error banner contains TEXT. Without it, any banner fails the run.
-- `--tabs` clicks every view tab and fails if a tab is not selected afterwards or `#view-panel` is gone.
+- `--tabs` clicks every view tab and fails if a tab is not selected afterwards or its view's root element is not visible.
 
 [features/README.md](features/README.md) lists the journeys. Run every journey for the area you touched.
 
@@ -61,4 +61,4 @@ The script opens `/editor/`, clicks the "Open file" button, picks the file in th
 $S/stop.sh $P
 ```
 
-It kills only the process group recorded in `$E/server.pid` and keeps the evidence in `$E`. Never `pkill node` or `pkill vite`: other agents share the machine.
+It kills the process group recorded in `$E/server.pid` only if that group still owns the port, and it keeps the evidence in `$E`. Never `pkill node` or `pkill vite`: other agents share the machine.
