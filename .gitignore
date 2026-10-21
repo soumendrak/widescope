@@ -23,3 +23,5 @@ ui/playwright-report/
 .commandcode/
 .playwright-mcp/
 ui/coverage/
+ui/pnpm-lock.yaml
+ui/yarn.lock
