@@ -45,7 +45,7 @@ The script opens `/editor/`, clicks the "Open file" button, picks the file in th
 
 - `--expect-spans N` fails unless the stats bar shows N spans.
 - `--expect-format LABEL` fails unless the format badge reads LABEL (`OTLP JSON`, `Jaeger JSON` or `OpenInference`).
-- `--expect-error TEXT` fails unless the error banner contains TEXT. Without it, any banner fails the run.
+- `--expect-error TEXT` fails unless the error banner contains TEXT and no trace is loaded. Without it, any banner fails the run.
 - `--tabs` clicks every view tab and fails if a tab is not selected afterwards or its view's root element is not visible. `--expect-tabs A,B,...` does the same and also fails unless the tab bar shows exactly that list.
 
 [features/README.md](features/README.md) lists the journeys. Run every journey for the area you touched.

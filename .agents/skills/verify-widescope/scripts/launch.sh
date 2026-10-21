@@ -18,7 +18,7 @@ just build-wasm >"$dir/build.log" 2>&1 && (cd ui && npm run build) >>"$dir/build
 (cd ui && setsid -f sh -c 'echo $$ >"$1/server.pid"; exec npx vite preview --host 127.0.0.1 --port "$2" --strictPort' sh "$dir" "$port" >"$dir/server.log" 2>&1 </dev/null)
 answered=""
 for _ in $(seq 60); do
-  curl -sf "http://127.0.0.1:$port/editor/" >/dev/null && answered=yes && break
+  curl -sf --max-time 5 "http://127.0.0.1:$port/editor/" >/dev/null && answered=yes && break
   sleep 1
 done
 pgid="$(cat "$dir/server.pid" 2>/dev/null)"

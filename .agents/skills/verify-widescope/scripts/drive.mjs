@@ -64,6 +64,7 @@ if (values['expect-format'] !== undefined && summary.format !== values['expect-f
 if (values['expect-error'] !== undefined && !summary.error?.includes(values['expect-error'])) {
   summary.failures.push(`expected an error containing "${values['expect-error']}", saw ${summary.error ?? 'none'}`);
 }
+if (values['expect-error'] !== undefined && summary.spans !== undefined) summary.failures.push(`expected no trace with the error, saw ${summary.spans} spans`);
 if (values['expect-error'] === undefined && summary.error) summary.failures.push(`unexpected error: ${summary.error}`);
 
 if (values.tabs || values['expect-tabs'] !== undefined) {
