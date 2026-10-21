@@ -59,7 +59,7 @@ test: build-wasm
 
 # Playwright suite against the dev server, the same steps as CI's e2e job
 e2e: build-wasm
-    cd ui && npm run e2e
+    cd ui && CI=1 npm run e2e
 
 coverage-html:
     {{_cargo}} llvm-cov --workspace --html --open
