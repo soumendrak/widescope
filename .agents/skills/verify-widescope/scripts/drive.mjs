@@ -1,6 +1,7 @@
 #!/usr/bin/env node
+import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
@@ -25,14 +26,16 @@ if (!baseUrl || !traceFile || !outDir) {
 
 const require = createRequire(resolve('ui/package.json'));
 const { chromium } = require('@playwright/test');
-const run = relative(process.cwd(), resolve(traceFile)).replace(/\W+/g, '-');
+const run = `${relative(process.cwd(), resolve(traceFile)).replace(/\W+/g, '-').replace(/^-+/, '')}-${createHash('sha256').update(resolve(traceFile)).digest('hex').slice(0, 8)}`;
 mkdirSync(outDir, { recursive: true });
+for (const file of readdirSync(outDir)) if (file.startsWith(`${run}-`)) rmSync(`${outDir}/${file}`);
 const shot = (page, step) => page.screenshot({ path: `${outDir}/${run}-${step}.png` });
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
 const consoleErrors = [];
 page.on('console', (message) => message.type() === 'error' && consoleErrors.push(message.text()));
+page.on('pageerror', (error) => consoleErrors.push(`uncaught: ${error.message}`));
 const summary = { file: traceFile, url: `${baseUrl}/editor/`, failures: [] };
 
 await page.goto(summary.url);
@@ -41,7 +44,10 @@ await shot(page, '1-before');
 
 const chooser = page.waitForEvent('filechooser');
 await page.getByRole('button', { name: /Open file/ }).first().click();
-await (await chooser).setFiles(resolve(traceFile));
+const fileChooser = await chooser;
+const accept = (await fileChooser.element().getAttribute('accept')) ?? '';
+if (accept && !accept.split(',').some((type) => traceFile.toLowerCase().endsWith(type.trim()))) summary.failures.push(`the file picker accepts ${accept}, so a user cannot pick ${traceFile}`);
+await fileChooser.setFiles(resolve(traceFile));
 
 const loaded = page.locator('.stats-bar');
 const banner = page.locator('[role="alert"]');
@@ -64,12 +70,14 @@ if (values['expect-format'] !== undefined && summary.format !== values['expect-f
 if (values['expect-error'] !== undefined && !summary.error?.includes(values['expect-error'])) {
   summary.failures.push(`expected an error containing "${values['expect-error']}", saw ${summary.error ?? 'none'}`);
 }
+if (values['expect-error'] !== undefined && summary.spans !== undefined) summary.failures.push(`expected no trace with the error, saw ${summary.spans} spans`);
 if (values['expect-error'] === undefined && summary.error) summary.failures.push(`unexpected error: ${summary.error}`);
 
 if (values.tabs || values['expect-tabs'] !== undefined) {
   summary.tabs = [];
   const tabs = page.locator('.view-tabs [role="tab"]');
   const names = (await tabs.locator('.vt-label').allTextContents()).map((name) => name.trim());
+  if (names.length === 0) summary.failures.push('no view tabs found');
   if (values['expect-tabs'] !== undefined && names.join(',') !== values['expect-tabs']) {
     summary.failures.push(`expected tabs ${values['expect-tabs']}, saw ${names.join(',')}`);
   }
@@ -88,6 +96,7 @@ if (values.tabs || values['expect-tabs'] !== undefined) {
 }
 
 summary.consoleErrors = consoleErrors;
+for (const error of consoleErrors) summary.failures.push(`browser error: ${error}`);
 summary.ok = summary.failures.length === 0;
 writeFileSync(`${outDir}/${run}-drive.json`, `${JSON.stringify(summary, null, 2)}\n`);
 console.log(JSON.stringify(summary, null, 2));

@@ -1,10 +1,6 @@
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 
-const SVELTE_BLOCK = /(<(script|style)[^>]*>)([\s\S]*?)<\/\2>/g;
-const HTML_COMMENT_OPEN = '<!-' + '-';
-const HTML_COMMENT_CLOSE = '-' + '->';
-
 export function commentLines(file, text, repoRoot) {
   if (/\.(ts|js|mjs)$/.test(file)) return linesOf(text, scriptCommentRanges(text, repoRoot));
   if (file.endsWith('.rs')) return linesOf(text, rustCommentRanges(text));
@@ -125,26 +121,23 @@ export function cssCommentRanges(text) {
 }
 
 function svelteCommentRanges(text, repoRoot) {
-  const ranges = [];
-  const blocks = [];
-  for (const match of text.matchAll(SVELTE_BLOCK)) {
-    const start = match.index + match[1].length;
-    const inner = match[3];
-    const found = match[2] === 'script' ? scriptCommentRanges(inner, repoRoot) : cssCommentRanges(inner);
-    for (const [from, to] of found) ranges.push([start + from, start + to]);
-    blocks.push([match.index, match.index + match[0].length]);
-  }
-  let i = 0;
-  while ((i = text.indexOf(HTML_COMMENT_OPEN, i)) !== -1) {
-    const block = blocks.find(([from, to]) => i >= from && i < to);
-    if (block) {
-      i = block[1];
-      continue;
+  const { parse } = createRequire(resolve(repoRoot, 'ui/package.json'))('svelte/compiler');
+  const root = parse(text, { modern: true });
+  const ranges = root.comments.map(({ start, end }) => [start, end]);
+  const addCss = (offset, css) => {
+    for (const [from, to] of cssCommentRanges(css)) ranges.push([offset + from, offset + to]);
+  };
+  const visit = (node) => {
+    if (Array.isArray(node)) node.forEach(visit);
+    else if (node && typeof node === 'object') {
+      if (node.type === 'Comment') ranges.push([node.start, node.end]);
+      if (node.type === 'RegularElement' && node.name === 'style') {
+        for (const { type, start, data } of node.fragment.nodes) if (type === 'Text') addCss(start, data);
+      }
+      Object.values(node).forEach(visit);
     }
-    const end = text.indexOf(HTML_COMMENT_CLOSE, i + 4);
-    const stop = end === -1 ? text.length : end + 3;
-    ranges.push([i, stop]);
-    i = stop;
-  }
+  };
+  visit(root.fragment);
+  if (root.css) addCss(root.css.content.start, root.css.content.styles);
   return ranges;
 }

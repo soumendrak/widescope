@@ -74,3 +74,35 @@ test('svelte: script, style and markup comments are found; strings are not', () 
   ].join('\n');
   assert.deepEqual(lines('a.svelte', text), [3, 5, 6, 9]);
 });
+
+test('svelte: comments inside markup expressions are found; braces in strings and templates are not', () => {
+  const text = [
+    `<span>{${OPEN} hidden ${CLOSE} "x"}</span>`,
+    '<p title={`a ${"}"} b`}>{"{"}</p>',
+    `<p>{n ${SLASHES} why`,
+    '}</p>',
+    `{#if ok}<b>{${OPEN} a ${CLOSE} n}</b>{/if}`,
+    `<i>don't ${OPEN} text ${CLOSE}</i>`,
+    `<a href="https:${SLASHES}x">{fn({ a: 1 })}</a>`,
+    `<p>{ok && /[}]/.test(x) ${OPEN} after regex ${CLOSE}}</p>`,
+    '<p>{ok && /https?:\\/\\//.test(u) ? a / b : c}</p>',
+    '{#each xs as x}{x}{/each}',
+    `<p>see https:${SLASHES}y</p>`,
+    `{#if ok}x{/if}{${OPEN} after block ${CLOSE} n}`,
+    `<p>{() => { if (x) /[}}]/.test(y); ${OPEN} after statement regex ${CLOSE} }}</p>`,
+    '',
+  ].join('\n');
+  assert.deepEqual(lines('a.svelte', text), [1, 3, 5, 8, 12, 13]);
+});
+
+test('svelte: comments in nested style elements are found', () => {
+  const text = [
+    `<svelte:head><style>${OPEN} head ${CLOSE}</style></svelte:head>`,
+    '<div>',
+    `  <style>p { color: red; } ${OPEN} nested`,
+    `  still ${CLOSE} a { content: "${OPEN}"; }</style>`,
+    '</div>',
+    '',
+  ].join('\n');
+  assert.deepEqual(lines('a.svelte', text), [1, 3, 4]);
+});
