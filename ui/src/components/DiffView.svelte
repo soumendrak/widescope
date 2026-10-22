@@ -2,14 +2,14 @@
   import Icon from './ui/Icon.svelte';
   import { traceState } from '../stores/trace';
   import { comparisonState } from '../stores/comparison';
-  import { handleFile } from '../lib/input';
+  import { handleFile, TRACE_FILE_ACCEPT } from '../lib/input';
 
   let comparisonInputEl: HTMLTextAreaElement;
 
   function loadComparisonFile(): void {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json';
+    input.accept = TRACE_FILE_ACCEPT;
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {

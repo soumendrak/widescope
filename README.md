@@ -72,7 +72,7 @@ Sample trace files are available in [`test-fixtures/`](test-fixtures/) if you wa
 ### 🧰 Fits your workflow
 
 - **Formats** — OTLP JSON (`resourceSpans`), Jaeger JSON (`data[].spans`), and OpenInference JSON (`spans`).
-- **Flexible loading** — drag and drop, file picker, clipboard paste, hosted URL, zip of multiple trace files, or the built-in JSON editor with live parsing.
+- **Flexible loading** — drag and drop, file picker, clipboard paste, hosted URL, `.json` / `.jsonl` / `.ndjson` files or a zip of them, or the built-in JSON editor with live parsing.
 - **Ecosystem** — [VS Code extension](vscode-extension/), embed mode for external tools, span annotations, and PNG / SVG export.
 
 ## Sharing traces
@@ -205,6 +205,7 @@ widescope/
 | OTLP JSON (`resourceSpans`) | ✅ Supported |
 | Jaeger JSON (`data[].spans`) | ✅ Supported |
 | OpenInference JSON (`spans`) | ✅ Supported |
+| Newline-delimited OTLP JSON (`.jsonl` / `.ndjson`, the Collector file exporter's output) | ✅ Supported |
 
 > OpenInference JSON traces are now parsed natively. Convention mappings for LLM attribute normalization across OTel, OpenInference, and LangChain are bundled for all formats.
 
