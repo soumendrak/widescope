@@ -25,29 +25,9 @@ For deep implementation details — data models, wire contracts, edge-case rules
 
 ## 1. Getting Started
 
-Install prerequisites listed in the [README](README.md#requirements) (Rust via rustup, the `wasm32-unknown-unknown` target, `wasm-pack`, Node.js 18+, `just`, and optionally `binaryen` for `wasm-opt`).
+Setup, the `just` commands and the standards gate are in [AGENTS.md](AGENTS.md), which is kept in step with CI. Run `just doctor` first; it names anything missing.
 
 The UI uses npm. `ui/package-lock.json` is the only lockfile, so don't commit a `pnpm-lock.yaml` or `yarn.lock`.
-
-```bash
-# One-time
-just ui-install
-
-# Build everything
-just build
-
-# Run the dev server (UI only — re-run `just build-wasm` after Rust changes)
-just dev
-# → http://localhost:5173
-```
-
-Before opening a PR, run:
-
-```bash
-just fmt          # cargo fmt --all
-just check        # CI's standards gate, must end with STANDARDS OK
-just e2e          # Playwright suite, as CI runs it
-```
 
 ---
 
@@ -333,31 +313,12 @@ If you're forking and want to deploy to your own domain:
 
 ## 11. Test Coverage
 
-Both suites are gated in CI, and the gates only ever move up.
+The coverage floors, the changed-line rule and the commands that check them are in [AGENTS.md](AGENTS.md). `just coverage-html` gives a browsable Rust report.
 
-```bash
-just check           # both suites, plus 100% coverage of changed executable lines
-just coverage-html   # Rust, browsable report
-```
-
-- **Rust**: 98% of lines, enforced by `cargo llvm-cov --fail-under-lines` in CI.
-  What is left is not "untested code" — it is three classes of line that a test
-  cannot reach without lying:
-  - `?` propagation arms where the inner call cannot fail for the input the
-    caller can construct;
-  - `.expect("...cannot fail")` guards on in-memory codec calls;
-  - the failure arms of `assert!`/`matches!` inside the test modules themselves,
-    which `llvm-cov` counts along with production code.
-
-  Error paths through the WASM boundary *are* covered: `ApiError` is a plain
+- **Rust**: error paths through the WASM boundary are covered: `ApiError` is a plain
   `WideError` off-wasm (see the top of `lib.rs`), so `cargo test` drives both
   arms of every exported function. Keep that property when you add one.
-- **UI**: thresholds live in `ui/vite.config.ts` and are ratchets — each one is
-  what the suite reaches today, so a drop fails the build. The bar is highest
-  where the logic is: `src/stores/**` 82%, `src/components/ui/**` 88%,
-  `src/lib/**` 60%, with a 28% global floor.
-
-  The large visualization components (waterfall, timeline, service graph, span
+- **UI**: the large visualization components (waterfall, timeline, service graph, span
   inspector, dashboards) are deliberately *not* driven through jsdom: their
   behaviour is canvas painting and measured layout, so a jsdom assertion would
   be testing the stub rather than the view. They are covered by the browser gate
@@ -376,10 +337,7 @@ a threshold.
 
 Before opening a PR, please confirm:
 
-- [ ] `just fmt` — formatted
-- [ ] `just check` ends with `STANDARDS OK`
-- [ ] `just e2e` passes
-- [ ] `just build` — UI bundle builds
+- [ ] The commands in [AGENTS.md](AGENTS.md) pass: `just check` ends with `STANDARDS OK` and `just e2e` passes
 - [ ] Added or updated a test fixture if you changed parser, layout, or convention behavior
 - [ ] Updated the README **Supported Formats** table if you added a parser
 - [ ] Updated `conventions/README.md` if you added a convention file

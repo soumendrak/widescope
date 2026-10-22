@@ -25,7 +25,11 @@ just doctor
 | Rust and UI unit tests | `just test` |
 | Playwright suite, the same steps as CI (`CI=1`, so it never reuses a server already on port 5173) | `just e2e` |
 | Toolchain check | `just doctor` |
+| Format Rust | `just fmt` |
 | Build WASM, then the UI into `ui/dist/` | `just build` |
+| Rebuild only the UI into `ui/dist/` | `just build-ui` |
+| Time parsing of every fixture in `test-fixtures/` | `just bench-fixtures` |
+| Remove `target/`, the WASM package, `ui/dist/` and `ui/node_modules/` (run `just ui-install` afterwards) | `just clean` |
 | Dev server on `http://localhost:5173/editor/` | `just build-wasm && just dev` |
 | CLI summary of a trace file | `cargo run -q -p widescope-cli -- analyze <file>` |
 
@@ -54,8 +58,8 @@ Before you open or update a PR, prove the change with [`.agents/skills/verify-wi
 | rustfmt formatting, no clippy warnings in any target (`--all-targets`) | `just check` |
 | No new comments in `.rs`, `.ts`, `.js`, `.mjs`, `.svelte` or `.css` files. Say it with names, types and tests. | `just check`. `scripts/standards/comments.mjs` finds comment ranges over the whole file. `.ts`, `.js` and `.mjs` use the TypeScript parser. `.rs` uses a lexer that handles lifetimes, char literals, nested blocks and raw strings, and `.css` uses a lexer that skips strings. `.svelte` uses Svelte's own parser (`svelte/compiler`), which gives every JS/TS comment in `<script>` and in markup expressions and attributes, plus HTML comments and every `<style>` element, including nested ones. Every line inside a comment counts, including lines added to an existing block. `scripts/standards/comments.test.mjs` runs first in the gate. |
 | Rust line coverage stays at or above `RUST_COVERAGE_MIN` (98) in `scripts/standards.mjs`, and the UI meets the thresholds in `ui/vite.config.ts` | `just check` |
-| Those thresholds only go up. Raise them when coverage rises and never lower one. | review, until #120 adds a check |
-| Every changed executable line in `.rs` files under `crates/` and in `.ts` and `.svelte` files under `ui/src/` is covered. A `.js` file under `ui/src/` isn't instrumented or checked, so write UI code in TypeScript. Every `ui/src` `.ts` and `.svelte` file, changed or not, must have a coverage record, so a new entry in the coverage exclusions of `ui/vite.config.ts` fails. The exceptions are tests and the files in `UI_UNINSTRUMENTED` in `scripts/standards.mjs` (`main.ts`, `lib/types.ts`, `FlameGraph.svelte`), which the gate prints for a browser proof. Rust code compiled only for `wasm32` (`#[cfg(target_arch = "wasm32")]`, as in `errors.rs`) has no coverage record and is skipped. `ui/public/`, `.github/actions/`, `vscode-extension/` and `scripts/` are not instrumented, and e2e only opens `/editor/` (#120). | `just check`, then the browser proof for listed files |
+| Those thresholds only go up. Raise them when coverage rises and never lower one. | review, until [#120](https://github.com/soumendrak/widescope/issues/120) adds a check |
+| Every changed executable line in `.rs` files under `crates/` and in `.ts` and `.svelte` files under `ui/src/` is covered. A `.js` file under `ui/src/` isn't instrumented or checked, so write UI code in TypeScript. Every `ui/src` `.ts` and `.svelte` file, changed or not, must have a coverage record, so a new entry in the coverage exclusions of `ui/vite.config.ts` fails. The exceptions are tests and the files in `UI_UNINSTRUMENTED` in `scripts/standards.mjs` (`main.ts`, `lib/types.ts`, `FlameGraph.svelte`), which the gate prints for a browser proof. Rust code compiled only for `wasm32` (`#[cfg(target_arch = "wasm32")]`, as in `errors.rs`) has no coverage record and is skipped. `ui/public/`, `.github/actions/`, `vscode-extension/` and `scripts/` are not instrumented, and e2e only opens `/editor/` ([#120](https://github.com/soumendrak/widescope/issues/120)). | `just check`, then the browser proof for listed files |
 | No type errors in `ui/src` (`ui/tsconfig.json` includes only `src/`, so `ui/public/*.js` is unchecked) | `svelte-check` in `just check` |
 | The viewer loads and every e2e journey passes | `just e2e` in CI |
 | The UI uses npm. Change dependencies through `ui/package-lock.json` only. | `.gitignore` ignores `ui/pnpm-lock.yaml` and `ui/yarn.lock` |
@@ -64,8 +68,8 @@ Before you open or update a PR, prove the change with [`.agents/skills/verify-wi
 
 ## Known gaps
 
-- #120: `ui/public/*.js` has no tests or type checks, `FlameGraph.svelte` is excluded from coverage, and nothing yet enforces that the thresholds only go up.
-- #123: `npm audit` reports `braces` through `svelte-check@3`. The fix is a major upgrade to svelte-check 4.
+- [#120](https://github.com/soumendrak/widescope/issues/120): `ui/public/*.js` has no tests or type checks, `FlameGraph.svelte` is excluded from coverage, and nothing yet enforces that the thresholds only go up.
+- [#123](https://github.com/soumendrak/widescope/issues/123): `npm audit` reports `braces` through `svelte-check@3`. The fix is a major upgrade to svelte-check 4.
 
 When a reviewer corrects the same mistake twice, add a check to `scripts/standards.mjs` and a row here.
 
@@ -73,6 +77,6 @@ When a reviewer corrects the same mistake twice, add a check to `scripts/standar
 
 - The UI imports the WASM package from `crates/widescope-core/pkg/`, which is not committed. Run `just build-wasm` after every Rust change, or the UI tests, dev server and e2e run the old core.
 - `just e2e` sets `CI=1`, so a server already on port 5173 makes it fail instead of testing that server's code. A bare `npx playwright test` without `CI` reuses it (`reuseExistingServer` in `ui/playwright.config.ts`).
-- `vite preview` binds to `localhost`, which on this Linux box resolved to `::1` only. Pass `--host 127.0.0.1` when a script calls `127.0.0.1`.
+- `vite preview` binds to `localhost`, which on some Linux hosts resolves to `::1` only. Pass `--host 127.0.0.1` when a script calls `127.0.0.1`.
 - Regenerating `crates/widescope-core/share-dict.bin` (`just train-share-dict`) breaks every existing share link. `decompress_share` in `share.rs` accepts one tag and uses the one current dictionary, so a new dictionary needs a new tag, and the old dictionary must be kept and chosen by tag when decoding.
 - CI runs only on PRs into `main`. A PR stacked on another branch gets no CI until it is retargeted.
