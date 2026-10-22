@@ -100,7 +100,9 @@ test('svelte: comments in nested style elements are found', () => {
     `<svelte:head><style>${OPEN} head ${CLOSE}</style></svelte:head>`,
     '<div>',
     `  <style>p { color: red; } ${OPEN} nested`,
-    `  still ${CLOSE} a { content: "${OPEN}"; }</style>`,
+    `  still ${CLOSE}`,
+    `  a { content: "${OPEN}"; }`,
+    '  </style>',
     '</div>',
     '',
   ].join('\n');

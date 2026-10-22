@@ -62,4 +62,4 @@ The script opens `/editor/`, clicks the "Open file" button, picks the file in th
 $S/stop.sh $P
 ```
 
-It kills the process group recorded in `$E/server.pid` only if that group still owns the port, and it keeps the evidence in `$E`. Never `pkill node` or `pkill vite`: other agents share the machine.
+It kills the process group recorded in `$E/server.pid` only if that group still owns the port, and it keeps the evidence in `$E`. It also deletes the port's launch lock file, unless a launch.sh still holds it. Never `pkill node` or `pkill vite`: other agents share the machine.

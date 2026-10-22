@@ -15,7 +15,7 @@ wasm="$(ls ui/dist/assets/*.wasm 2>/dev/null | head -1)"
 built="$(stat -c %.9Y "$dir/build-started" 2>/dev/null)"
 inputs="$("$here/inputs.sh")"
 edited="$(diff <(echo "$inputs") "$dir/build-started" 2>/dev/null | grep -m1 -oP '^[<>] \K.*')"
-[ -z "$edited" ] && edited="$(echo "$inputs" | xargs -d '\n' stat -c '%.9Y %n' | awk -v built="${built:-0}" '$1 > built { print $2; exit }')"
+[ -z "$edited" ] && edited="$(echo "$inputs" | xargs -d '\n' stat -c '%.9Y %n' | awk -v built="${built:-0}" '$1 > built' | sort -n | tail -1 | cut -d' ' -f2-)"
 [ -n "$built" ] && [ -z "$edited" ] && report "no source edited since the build" ok || report "build" "${edited:-no build-started marker} was added, deleted or changed after the build; stop, then launch.sh again"
 [ "$status" = 0 ] && echo "DOCTOR OK" || echo "DOCTOR FAIL"
 exit $status
