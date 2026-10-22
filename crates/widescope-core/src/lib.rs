@@ -2575,6 +2575,28 @@ mod ndjson_input_tests {
     }
 
     #[test]
+    fn a_malformed_first_record_is_named_as_line_one() {
+        let lines: Vec<&str> = NDJSON.lines().collect();
+        let raw = format!("{}\n{}\n", lines[0].trim_end_matches('}'), lines[1]);
+        let error = invalid_json(&raw);
+        assert!(
+            matches!(error, WideError::InvalidJson { line: Some(1), .. }),
+            "{error:?}"
+        );
+        assert!(error.to_string().contains(": line 1: "), "{error}");
+    }
+
+    #[test]
+    fn a_pretty_printed_document_keeps_the_serde_position() {
+        let error = invalid_json("{\n  \"resourceSpans\": [\n    {}\n  ,\n}\n");
+        assert!(
+            matches!(error, WideError::InvalidJson { line: Some(5), .. }),
+            "{error:?}"
+        );
+        assert!(error.to_string().contains("at line 5 column"), "{error}");
+    }
+
+    #[test]
     fn a_line_that_is_not_otlp_is_named_by_its_line_number() {
         let first = NDJSON.lines().next().unwrap();
         let error = invalid_json(&format!("{first}\n{{\"data\": []}}\n"));

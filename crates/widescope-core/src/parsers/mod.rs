@@ -18,10 +18,8 @@ pub fn read_input(raw_input: &str) -> Result<Value, WideError> {
         .map(|(index, line)| (index + 1, line.trim()))
         .filter(|(_, line)| !line.is_empty())
         .collect();
-    let first_line_is_object = lines.first().is_some_and(|(_, line)| {
-        serde_json::from_str::<serde_json::Map<String, Value>>(line).is_ok()
-    });
-    if lines.len() < 2 || !first_line_is_object {
+    let one_record_per_line = lines.iter().all(|(_, line)| line.starts_with('{'));
+    if lines.len() < 2 || !one_record_per_line {
         return Err(invalid_json(&whole_error, None));
     }
     let mut resource_spans = Vec::new();

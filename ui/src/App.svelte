@@ -9,6 +9,7 @@
   import { connectLive, disconnectLive } from './lib/live';
   import { loadRecent } from './lib/recent';
   import { SAMPLE_TRACE } from './lib/sample';
+  import { formatTraceText } from './lib/formatTrace';
   import { traceState } from './stores/trace';
   import { traceList } from './stores/traceList';
   import { annotations } from './stores/annotations';
@@ -268,7 +269,7 @@
     editorMessage = null;
     if (!editorValue.trim()) return;
     try {
-      editorValue = JSON.stringify(JSON.parse(editorValue), null, 2);
+      editorValue = formatTraceText(editorValue);
       clearLiveParseTimer();
       void applyEditorValue(false);
     } catch {
