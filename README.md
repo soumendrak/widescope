@@ -36,7 +36,7 @@ Use it alongside your observability platform: for trace files, CI artifacts, bug
 
 <sub>Built with Rust/WASM and Svelte. The trace is parsed and rendered in your tab.</sub>
 
-**No backend. No upload. Even sharing is serverless — the whole trace travels inside the link. Just your traces, in your browser.**
+**No backend. No upload. Even sharing is serverless — a small or medium trace travels inside the link. Just your traces, in your browser.**
 
 [Try the live demo →](https://widescope.soumendrak.com)
 
@@ -48,7 +48,7 @@ Observability platforms such as Langfuse, Arize Phoenix and LangSmith ingest tra
 |---|---|
 | A trace file from CI, an export, or a bug report, and no backend to ingest it into | WideScope |
 | Trace data that must not leave your machine | WideScope (nothing is uploaded) |
-| A trace you want to hand to someone as a link | WideScope (the link carries the trace) |
+| A small or medium trace you want to hand to someone as a link | WideScope (the link carries the trace; a large one falls back to a download or a hosted `?trace=` URL) |
 | Live traffic your team already ingests, with retention, search and evals | Your observability platform, plus WideScope for traces you export from it as OTLP, OpenInference or Jaeger JSON |
 
 ---
