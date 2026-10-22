@@ -41,7 +41,7 @@ Read-only. It checks that the port belongs to the process group in `$E/server.pi
 node $S/drive.mjs http://127.0.0.1:$P test-fixtures/otlp/sample_llm_pipeline.json $E --expect-spans 7 --expect-format 'OTLP JSON' --expect-tabs Waterfall,Flame,Conversation,Graph,Diff
 ```
 
-The script opens `/editor/`, clicks the "Open file" button, picks the file in the file chooser and waits for either the stats bar or the `role="alert"` error banner. It names the run after the file's path, so files with the same name don't overwrite each other. It writes `<run>-drive.json` and screenshots to `$E`, prints the summary and exits 1 when any expectation fails, the picker's `accept` list excludes the file, or the browser logs a console error or uncaught exception.
+The script opens `/editor/`, clicks the "Open file" button, picks the file in the file chooser and waits for either the stats bar or the `role="alert"` error banner. It names the run after the file's path plus a short hash of the absolute path, so two different files never share evidence names. It writes `<run>-drive.json` and screenshots to `$E`, prints the summary and exits 1 when any expectation fails, the picker's `accept` list excludes the file, or the browser logs a console error or uncaught exception.
 
 - `--expect-spans N` fails unless the stats bar shows N spans.
 - `--expect-format LABEL` fails unless the format badge reads LABEL (`OTLP JSON`, `Jaeger JSON` or `OpenInference`).
