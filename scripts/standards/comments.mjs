@@ -1,7 +1,6 @@
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 
-
 export function commentLines(file, text, repoRoot) {
   if (/\.(ts|js|mjs)$/.test(file)) return linesOf(text, scriptCommentRanges(text, repoRoot));
   if (file.endsWith('.rs')) return linesOf(text, rustCommentRanges(text));
@@ -125,14 +124,20 @@ function svelteCommentRanges(text, repoRoot) {
   const { parse } = createRequire(resolve(repoRoot, 'ui/package.json'))('svelte/compiler');
   const root = parse(text, { modern: true });
   const ranges = root.comments.map(({ start, end }) => [start, end]);
+  const addCss = (offset, css) => {
+    for (const [from, to] of cssCommentRanges(css)) ranges.push([offset + from, offset + to]);
+  };
   const visit = (node) => {
     if (Array.isArray(node)) node.forEach(visit);
     else if (node && typeof node === 'object') {
       if (node.type === 'Comment') ranges.push([node.start, node.end]);
+      if (node.type === 'RegularElement' && node.name === 'style') {
+        for (const { type, start, data } of node.fragment.nodes) if (type === 'Text') addCss(start, data);
+      }
       Object.values(node).forEach(visit);
     }
   };
   visit(root.fragment);
-  if (root.css) for (const [from, to] of cssCommentRanges(root.css.content.styles)) ranges.push([root.css.content.start + from, root.css.content.start + to]);
+  if (root.css) addCss(root.css.content.start, root.css.content.styles);
   return ranges;
 }

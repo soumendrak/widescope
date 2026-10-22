@@ -94,3 +94,15 @@ test('svelte: comments inside markup expressions are found; braces in strings an
   ].join('\n');
   assert.deepEqual(lines('a.svelte', text), [1, 3, 5, 8, 12, 13]);
 });
+
+test('svelte: comments in nested style elements are found', () => {
+  const text = [
+    `<svelte:head><style>${OPEN} head ${CLOSE}</style></svelte:head>`,
+    '<div>',
+    `  <style>p { color: red; } ${OPEN} nested`,
+    `  still ${CLOSE} a { content: "${OPEN}"; }</style>`,
+    '</div>',
+    '',
+  ].join('\n');
+  assert.deepEqual(lines('a.svelte', text), [1, 3, 4]);
+});
