@@ -28,8 +28,8 @@ just doctor
 | Format Rust | `just fmt` |
 | Build WASM, then the UI into `ui/dist/` | `just build` |
 | Rebuild only the UI into `ui/dist/` | `just build-ui` |
-| Regenerate the benchmark fixtures in `test-fixtures/` | `just bench-fixtures` |
-| Remove `target/`, the WASM package and `ui/dist/` | `just clean` |
+| Time parsing of every fixture in `test-fixtures/` | `just bench-fixtures` |
+| Remove `target/`, the WASM package, `ui/dist/` and `ui/node_modules/` (run `just ui-install` afterwards) | `just clean` |
 | Dev server on `http://localhost:5173/editor/` | `just build-wasm && just dev` |
 | CLI summary of a trace file | `cargo run -q -p widescope-cli -- analyze <file>` |
 
