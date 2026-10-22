@@ -18,6 +18,7 @@ if [ -e "${old[0]}" ]; then
   mkdir -p "$archive" && mv "$dir"/*.png "$dir"/*-drive.json "$archive"/ 2>/dev/null
   echo "moved the last launch's evidence to $archive"
 fi
+[ -e Cargo.lock ] || cargo generate-lockfile --quiet
 "$here/inputs.sh" >"$dir/build-started"
 just build-wasm >"$dir/build.log" 2>&1 && (cd ui && npm run build) >>"$dir/build.log" 2>&1 || { echo "build failed, see $dir/build.log"; exit 1; }
 (cd ui && setsid -f sh -c 'echo $$ >"$1/server.pid"; exec npx vite preview --host 127.0.0.1 --port "$2" --strictPort' sh "$dir" "$port" >"$dir/server.log" 2>&1 </dev/null 9>&-)
