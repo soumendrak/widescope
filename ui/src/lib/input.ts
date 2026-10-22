@@ -11,7 +11,7 @@ const LARGE_TRACE_BYTES = 5 * 1024 * 1024;
 export function openFilePicker(onText?: (text: string) => void): void {
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = '.json,.zip';
+  input.accept = '.json,.jsonl,.ndjson,.zip';
   input.onchange = async (e) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) await handleFile(file, onText);

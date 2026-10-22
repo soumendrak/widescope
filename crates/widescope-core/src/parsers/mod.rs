@@ -7,6 +7,60 @@ use crate::models::span::Span;
 use crate::models::trace::InputFormat;
 use serde_json::Value;
 
+pub fn read_input(raw_input: &str) -> Result<Value, WideError> {
+    let whole_error = match serde_json::from_str(raw_input) {
+        Ok(value) => return Ok(value),
+        Err(error) => error,
+    };
+    let lines: Vec<(usize, &str)> = raw_input
+        .lines()
+        .enumerate()
+        .map(|(index, line)| (index + 1, line.trim()))
+        .filter(|(_, line)| !line.is_empty())
+        .collect();
+    let first_line_is_object = lines.first().is_some_and(|(_, line)| {
+        serde_json::from_str::<serde_json::Map<String, Value>>(line).is_ok()
+    });
+    if lines.len() < 2 || !first_line_is_object {
+        return Err(invalid_json(&whole_error, None));
+    }
+    let mut resource_spans = Vec::new();
+    for (number, line) in lines {
+        let value: Value =
+            serde_json::from_str(line).map_err(|error| invalid_json(&error, Some(number)))?;
+        let Some(batch) = value.get("resourceSpans").and_then(Value::as_array) else {
+            return Err(WideError::InvalidJson {
+                message: format!("line {number}: not an OTLP resourceSpans document"),
+                line: Some(number),
+                column: Some(1),
+            });
+        };
+        resource_spans.extend(batch.iter().cloned());
+    }
+    Ok(serde_json::json!({ "resourceSpans": resource_spans }))
+}
+
+fn invalid_json(error: &serde_json::Error, ndjson_line: Option<usize>) -> WideError {
+    match ndjson_line {
+        None => WideError::InvalidJson {
+            message: error.to_string(),
+            line: Some(error.line()),
+            column: Some(error.column()),
+        },
+        Some(number) => {
+            let text = error.to_string();
+            let reason = text
+                .rsplit_once(" at line ")
+                .map_or(text.as_str(), |(reason, _)| reason);
+            WideError::InvalidJson {
+                message: format!("line {number}: {reason}"),
+                line: Some(number),
+                column: Some(error.column()),
+            }
+        }
+    }
+}
+
 pub fn detect_format(value: &Value) -> Result<InputFormat, WideError> {
     if value.get("resourceSpans").is_some() {
         return Ok(InputFormat::OtlpJson);

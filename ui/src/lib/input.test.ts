@@ -114,7 +114,7 @@ describe('openFilePicker', () => {
 
     openFilePicker();
     expect(created[0].type).toBe('file');
-    expect(created[0].accept).toBe('.json,.zip');
+    expect(created[0].accept).toBe('.json,.jsonl,.ndjson,.zip');
     expect(click).toHaveBeenCalled();
   });
 });

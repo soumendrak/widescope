@@ -232,9 +232,8 @@ service:
 export OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
 </code></pre>
   <p class="note">The file exporter writes <b>newline-delimited</b> OTLP JSON — one batch per line.
-    If your run produced several lines, drag a single line into WideScope (each line is a
-    complete <code>resourceSpans</code> document), or lower your batch settings so the whole
-    trace flushes at once.</p>
+    Open the whole file as it is (<code>.json</code>, <code>.jsonl</code> or <code>.ndjson</code>): WideScope reads
+    every line and merges the batches into one trace. A line that isn't valid OTLP JSON is reported by its line number.</p>
 
   <div class="drop">
     <p style="color:var(--text);font-size:1.05rem;margin-bottom:.9rem">Got a <code>trace.json</code>? Drop it in.</p>

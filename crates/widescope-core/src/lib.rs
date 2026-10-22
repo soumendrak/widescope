@@ -155,40 +155,43 @@ struct TraceSummary {
 /// Parse raw trace input into a fully-resolved [`Trace`] (LLM attributes
 /// resolved, costs priced). Shared by [`parse_trace`] and the cross-trace
 /// analytics in [`compute_token_trends`].
-fn parse_input_to_trace(raw_input: &str) -> Result<Trace, WideError> {
-    let value: serde_json::Value =
-        serde_json::from_str(raw_input).map_err(|e| WideError::InvalidJson {
-            message: e.to_string(),
-            line: Some(e.line()),
-            column: Some(e.column()),
-        })?;
-
-    let format = detect_format(&value)?;
-
-    let (mut spans, parse_warnings) = match &format {
+fn parse_value(
+    value: &serde_json::Value,
+    format: &models::trace::InputFormat,
+) -> Result<(Vec<Span>, Vec<ParseWarning>), WideError> {
+    match format {
         models::trace::InputFormat::OtlpJson => {
-            let result = parse_otlp_with_warnings(&value)?;
-            (result.spans, result.warnings)
+            let result = parse_otlp_with_warnings(value)?;
+            Ok((result.spans, result.warnings))
         }
         models::trace::InputFormat::JaegerJson => {
-            let result = parse_jaeger_with_warnings(&value)?;
-            (result.spans, result.warnings)
+            let result = parse_jaeger_with_warnings(value)?;
+            Ok((result.spans, result.warnings))
         }
         models::trace::InputFormat::OpenInferenceJson => {
-            let result = parse_openinference_with_warnings(&value)?;
-            (result.spans, result.warnings)
+            let result = parse_openinference_with_warnings(value)?;
+            Ok((result.spans, result.warnings))
         }
-        _ => {
-            return Err(WideError::UnrecognizedFormat);
-        }
-    };
+        models::trace::InputFormat::Unknown => Err(WideError::UnrecognizedFormat),
+    }
+}
 
+fn read_spans(
+    raw_input: &str,
+) -> Result<(Vec<Span>, Vec<ParseWarning>, models::trace::InputFormat), WideError> {
+    let value = parsers::read_input(raw_input)?;
+    let format = detect_format(&value)?;
+    let (mut spans, warnings) = parse_value(&value, &format)?;
     let conventions = CONVENTIONS.with(|c| c.borrow().clone());
-
     for span in &mut spans {
         span.llm = conventions::resolver::resolve_llm_attributes(span, &conventions);
         span.safety = conventions::safety::detect_safety_signals(span);
     }
+    Ok((spans, warnings, format))
+}
+
+fn parse_input_to_trace(raw_input: &str) -> Result<Trace, WideError> {
+    let (mut spans, parse_warnings, format) = read_spans(raw_input)?;
 
     PRICING.with(|p| {
         let table = p.borrow();
@@ -919,36 +922,7 @@ struct ComparisonSummary {
 
 #[cfg_attr(target_arch = "wasm32", wasm_bindgen)]
 pub fn parse_comparison_trace(raw_input: &str) -> Result<String, ApiError> {
-    let value: serde_json::Value =
-        serde_json::from_str(raw_input).map_err(|e| WideError::InvalidJson {
-            message: e.to_string(),
-            line: Some(e.line()),
-            column: Some(e.column()),
-        })?;
-
-    let format = detect_format(&value).map_err(ApiError::from)?;
-
-    let (mut spans, _parse_warnings) = match &format {
-        models::trace::InputFormat::OtlpJson => {
-            let result = parse_otlp_with_warnings(&value).map_err(ApiError::from)?;
-            (result.spans, result.warnings)
-        }
-        models::trace::InputFormat::JaegerJson => {
-            let result = parse_jaeger_with_warnings(&value).map_err(ApiError::from)?;
-            (result.spans, result.warnings)
-        }
-        models::trace::InputFormat::OpenInferenceJson => {
-            let result = parse_openinference_with_warnings(&value).map_err(ApiError::from)?;
-            (result.spans, result.warnings)
-        }
-        _ => return Err(WideError::UnrecognizedFormat.into()),
-    };
-
-    let conventions = CONVENTIONS.with(|c| c.borrow().clone());
-    for span in &mut spans {
-        span.llm = conventions::resolver::resolve_llm_attributes(span, &conventions);
-        span.safety = conventions::safety::detect_safety_signals(span);
-    }
+    let (spans, _, format) = read_spans(raw_input).map_err(ApiError::from)?;
 
     let trace = build_trace(spans, format, vec![]).map_err(ApiError::from)?;
 
@@ -2539,5 +2513,90 @@ mod full_llm_detail_tests {
         assert_eq!(cost["entries"][0]["model"], "gpt-4o");
         assert_eq!(cost["entries"][0]["provider"], "openai");
         assert_eq!(cost["total_input_tokens"], 10);
+    }
+}
+
+#[cfg(test)]
+mod ndjson_input_tests {
+    use super::*;
+
+    const NDJSON: &str = include_str!("../../../test-fixtures/otlp/collector_file_exporter.jsonl");
+    const OTLP: &str = include_str!("../../../test-fixtures/otlp/sample_llm_pipeline.json");
+
+    fn invalid_json(raw: &str) -> WideError {
+        parse_input_to_trace(raw).unwrap_err()
+    }
+
+    #[test]
+    fn collector_file_exporter_lines_merge_into_the_same_trace_as_the_json_document() {
+        let merged = parse_input_to_trace(NDJSON).unwrap();
+        let single = parse_input_to_trace(OTLP).unwrap();
+        assert_eq!(merged.span_count, 7);
+        assert_eq!(merged.trace_id, single.trace_id);
+        assert_eq!(merged.service_count, single.service_count);
+        assert!(matches!(
+            merged.detected_format,
+            models::trace::InputFormat::OtlpJson
+        ));
+    }
+
+    #[test]
+    fn comparison_reads_ndjson_through_the_same_path() {
+        let summary: serde_json::Value =
+            serde_json::from_str(&parse_comparison_trace(NDJSON).unwrap()).unwrap();
+        assert_eq!(summary["span_count"], 7);
+    }
+
+    #[test]
+    fn an_unknown_format_is_rejected_before_any_parser_runs() {
+        let error = parse_value(&serde_json::json!({}), &models::trace::InputFormat::Unknown);
+        assert!(matches!(error, Err(WideError::UnrecognizedFormat)));
+    }
+
+    #[test]
+    fn blank_lines_and_crlf_endings_are_ignored() {
+        let spaced = format!("\n{}\r\n", NDJSON.replace('\n', "\r\n\r\n"));
+        assert_eq!(parse_input_to_trace(&spaced).unwrap().span_count, 7);
+    }
+
+    #[test]
+    fn a_malformed_line_is_named_by_its_line_number() {
+        let lines: Vec<&str> = NDJSON.lines().collect();
+        let raw = format!("{}\n\n{}\n{{\"resourceSpans\": [\n", lines[0], lines[1]);
+        let error = invalid_json(&raw);
+        assert!(
+            matches!(error, WideError::InvalidJson { line: Some(4), .. }),
+            "{error:?}"
+        );
+        assert!(
+            error.to_string().contains(": line 4: EOF while parsing"),
+            "{error}"
+        );
+    }
+
+    #[test]
+    fn a_line_that_is_not_otlp_is_named_by_its_line_number() {
+        let first = NDJSON.lines().next().unwrap();
+        let error = invalid_json(&format!("{first}\n{{\"data\": []}}\n"));
+        assert!(
+            matches!(error, WideError::InvalidJson { line: Some(2), .. }),
+            "{error:?}"
+        );
+        assert!(
+            error
+                .to_string()
+                .contains("line 2: not an OTLP resourceSpans document"),
+            "{error}"
+        );
+    }
+
+    #[test]
+    fn a_single_json_error_still_reports_serde_position() {
+        let error = invalid_json("{\"resourceSpans\": [}");
+        assert!(
+            matches!(error, WideError::InvalidJson { line: Some(1), .. }),
+            "{error:?}"
+        );
+        assert!(error.to_string().contains("at line 1 column"), "{error}");
     }
 }
