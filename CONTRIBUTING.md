@@ -313,31 +313,12 @@ If you're forking and want to deploy to your own domain:
 
 ## 11. Test Coverage
 
-Both suites are gated in CI, and the gates only ever move up.
+The coverage floors, the changed-line rule and the commands that check them are in [AGENTS.md](AGENTS.md). `just coverage-html` gives a browsable Rust report.
 
-```bash
-just check           # both suites, plus 100% coverage of changed executable lines
-just coverage-html   # Rust, browsable report
-```
-
-- **Rust**: 98% of lines, enforced by `cargo llvm-cov --fail-under-lines` in CI.
-  What is left is not "untested code" — it is three classes of line that a test
-  cannot reach without lying:
-  - `?` propagation arms where the inner call cannot fail for the input the
-    caller can construct;
-  - `.expect("...cannot fail")` guards on in-memory codec calls;
-  - the failure arms of `assert!`/`matches!` inside the test modules themselves,
-    which `llvm-cov` counts along with production code.
-
-  Error paths through the WASM boundary *are* covered: `ApiError` is a plain
+- **Rust**: error paths through the WASM boundary are covered: `ApiError` is a plain
   `WideError` off-wasm (see the top of `lib.rs`), so `cargo test` drives both
   arms of every exported function. Keep that property when you add one.
-- **UI**: thresholds live in `ui/vite.config.ts` and are ratchets — each one is
-  what the suite reaches today, so a drop fails the build. The bar is highest
-  where the logic is: `src/stores/**` 82%, `src/components/ui/**` 88%,
-  `src/lib/**` 60%, with a 28% global floor.
-
-  The large visualization components (waterfall, timeline, service graph, span
+- **UI**: the large visualization components (waterfall, timeline, service graph, span
   inspector, dashboards) are deliberately *not* driven through jsdom: their
   behaviour is canvas painting and measured layout, so a jsdom assertion would
   be testing the stub rather than the view. They are covered by the browser gate

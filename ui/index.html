@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <script src="/redirect.js"></script>
 <title>WideScope — The trace file viewer for AI agents, private by architecture</title>
-<meta name="description" content="Drop any AI-agent trace file (OTLP, OpenInference, Jaeger) into your browser and debug the run — nothing uploaded, nothing installed, shareable as a link. Use it alongside your observability platform: for trace files, CI artifacts, bug-report attachments and data that must not leave your machine." />
+<meta name="description" content="Drop an AI-agent trace (OTLP, OpenInference or Jaeger JSON, or a zip of them) into your browser and debug the run — nothing uploaded, nothing installed, shareable as a link. Use it alongside your observability platform: for trace files, CI artifacts, bug-report attachments and data that must not leave your machine." />
 <meta property="og:title" content="WideScope — The trace file viewer for AI agents, private by architecture" />
-<meta property="og:description" content="Drop any AI-agent trace file (OTLP, OpenInference, Jaeger) into your browser and debug the run — nothing uploaded, nothing installed, shareable as a link." />
+<meta property="og:description" content="Drop an AI-agent trace (OTLP, OpenInference or Jaeger JSON, or a zip of them) into your browser and debug the run — nothing uploaded, nothing installed, shareable as a link." />
 <meta property="og:type" content="website" />
 <meta property="og:url" content="https://widescope.soumendrak.com" />
 <meta property="og:image" content="https://raw.githubusercontent.com/soumendrak/widescope/main/docs/assets/screenshot.webp" />
@@ -733,11 +733,11 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
   <section class="hero">
     <div class="wrap">
       <div class="spanchip stage stage-1">span 00 · page.load <em>// trace viewer for llm pipelines</em></div>
-      <h1 class="stage stage-2">Put every agent run <span class="lens">under the lens.</span></h1>
+      <h1 class="stage stage-2">Debug an agent run <span class="lens">from its trace file.</span></h1>
       <p class="lede stage stage-3">
-        WideScope turns raw <b>OTLP, Jaeger, and OpenInference JSON</b> into flame graphs, timelines,
-        token costs, and side-by-side diffs — parsed by <b>Rust&nbsp;/&nbsp;WASM</b>, rendered at 60&nbsp;fps,
-        and never leaving your browser tab. Even sharing is serverless: <b>the whole trace travels
+        Open an <b>OTLP, OpenInference or Jaeger JSON</b> trace and see where the run went wrong: flame graphs,
+        timelines, token costs and side-by-side diffs, parsed by <b>Rust&nbsp;/&nbsp;WASM</b> and never leaving
+        your browser tab. Even sharing is serverless: <b>the whole trace travels
         inside the link</b>.
       </p>
       <div class="hero-cta stage stage-4">
@@ -752,7 +752,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
         </a>
       </div>
       <div class="hero-meta stage stage-4">
-        <span>No backend</span><span>No upload</span><span>No telemetry</span><span>Serverless sharing</span><span>Apache 2.0</span>
+        <span>No backend</span><span>No upload</span><span>No cookies</span><span>Serverless sharing</span><span>Apache 2.0</span>
       </div>
 
       <!-- live trace window (pins while scrolling; tabs advance with scroll) -->
@@ -970,7 +970,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
               <i style="left:8px;bottom:4px"></i><i style="left:calc(50% - 6px);top:2px;background:var(--gold);box-shadow:0 0 10px rgba(252,211,77,.7)"></i><i style="right:8px;bottom:4px"></i>
             </div>
             <h3>Service graph</h3>
-            <p>Who calls whom, how often, and how slowly — plus filters by service, status, kind, and duration.</p>
+            <p>Who calls whom, how often, and how slowly — plus filters by status, service, kind, and LLM-only.</p>
           </div>
         </div>
 
@@ -1059,7 +1059,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
         </div>
       </div>
       <p class="diff-note reveal">also diffs tokens, cost, and span counts — open two traces, or one trace against yesterday's share link.</p>
-      <p class="diff-note reveal">going wider? drop in a whole batch — the <b style="color:var(--ice)">matrix view</b> ranks every run side by side, and <b style="color:var(--ice)">session grouping</b> folds related traces into one timeline. spot the slow outlier across 50 runs, not just two.</p>
+      <p class="diff-note reveal">going wider? drop in a whole batch — the <b style="color:var(--ice)">matrix view</b> compares every run metric by metric against a baseline, and <b style="color:var(--ice)">session grouping</b> groups related traces in the trace switcher.</p>
     </div>
   </section>
 
@@ -1078,8 +1078,8 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
 
       <div class="zerogrid">
         <div class="zero reveal" data-rd="1"><div class="num">0</div><div class="lbl">servers</div><p>Static files on a CDN. Parsing, layout, and rendering all happen in-process, in your tab.</p></div>
-        <div class="zero reveal" data-rd="2"><div class="num">0</div><div class="lbl">uploads</div><p>No ingest endpoint exists. Drag in a 50&nbsp;MB trace on a plane — it works exactly the same.</p></div>
-        <div class="zero reveal" data-rd="3"><div class="num">0</div><div class="lbl">telemetry</div><p>The trace viewer that doesn't trace you. No cookies, no analytics, no runtime fetches.</p></div>
+        <div class="zero reveal" data-rd="2"><div class="num">0</div><div class="lbl">uploads</div><p>No ingest endpoint exists. Drag in a 20&nbsp;MB trace on a plane — it works exactly the same.</p></div>
+        <div class="zero reveal" data-rd="3"><div class="num">0</div><div class="lbl">cookies</div><p>Your trace never leaves the tab. The viewer's only fetch is a <code>?trace=</code> URL you ask it to open. The hosted site may count page views with Cloudflare Web Analytics, which sets no cookies.</p></div>
         <div class="zero reveal" data-rd="4"><div class="num"><span data-count="60">0</span><sup>fps</sup></div><div class="lbl">rust → wasm</div><p>A Rust core parses and lays out tens of thousands of spans without dropping a frame.</p></div>
       </div>
 
@@ -1104,10 +1104,10 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
         <div class="qs reveal" data-rd="1">
           <div class="qs-n">01</div>
           <h3>Export a trace</h3>
-          <p>Point your OTLP exporter at a file, or grab the JSON your collector already writes.</p>
-          <pre class="qs-code"><code>OTEL_TRACES_EXPORTER=otlp \
-OTEL_EXPORTER_OTLP_PROTOCOL=http/json \
-python agent.py &gt; trace.json</code></pre>
+          <p>Add the small OTLP-JSON file exporter from the <a href="/docs/">docs</a> to your Python app, or use a Jaeger or OpenInference JSON export.</p>
+          <pre class="qs-code"><code>provider.add_span_processor(
+  SimpleSpanProcessor(
+    OtlpJsonFileExporter("trace.json")))</code></pre>
         </div>
         <div class="qs reveal" data-rd="2">
           <div class="qs-n">02</div>

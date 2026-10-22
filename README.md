@@ -5,7 +5,7 @@
 <h1 align="center">WideScope</h1>
 
 <p align="center">
-  <strong>Drop any AI-agent trace file (OTLP, OpenInference, Jaeger) into your browser and debug the run — nothing uploaded, nothing installed, shareable as a link.</strong>
+  <strong>Drop an AI-agent trace (OTLP, OpenInference or Jaeger JSON, or a zip of them) into your browser and debug the run — nothing uploaded, nothing installed, shareable as a link.</strong>
 </p>
 
 <p align="center">
@@ -36,7 +36,7 @@ Use it alongside your observability platform: for trace files, CI artifacts, bug
 
 <sub>Built with Rust/WASM and Svelte. The trace is parsed and rendered in your tab.</sub>
 
-**No backend. No upload. No telemetry. Even sharing is serverless — the whole trace travels inside the link. Just your traces, in your browser.**
+**No backend. No upload. Even sharing is serverless — the whole trace travels inside the link. Just your traces, in your browser.**
 
 [Try the live demo →](https://widescope.soumendrak.com)
 
@@ -49,7 +49,7 @@ Observability platforms such as Langfuse, Arize Phoenix and LangSmith ingest tra
 | A trace file from CI, an export, or a bug report, and no backend to ingest it into | WideScope |
 | Trace data that must not leave your machine | WideScope (nothing is uploaded) |
 | A trace you want to hand to someone as a link | WideScope (the link carries the trace) |
-| Live traffic your team already ingests, with retention, search and evals | Your observability platform, plus WideScope for any trace you export from it |
+| Live traffic your team already ingests, with retention, search and evals | Your observability platform, plus WideScope for traces you export from it as OTLP, OpenInference or Jaeger JSON |
 
 ---
 
@@ -80,8 +80,8 @@ Sample trace files are available in [`test-fixtures/`](test-fixtures/) if you wa
 
 ### 🔒 Private by architecture
 
-- **Zero backend** — a static page plus a WASM binary; deployable to Cloudflare Pages, any CDN, or any static host. There is no server to trust because there is no server at all.
-- **No upload, no telemetry** — parsing and rendering happen entirely in your tab. No ingest endpoint, no cookies, no analytics.
+- **Zero backend** — a static page plus a WASM binary; served as Cloudflare Workers static assets (`wrangler.jsonc`), and deployable to any CDN or static host. There is no server to trust because there is no server at all.
+- **No upload** — parsing and rendering happen entirely in your tab. There is no ingest endpoint and no cookies, and trace data never leaves the tab. The viewer's only fetch is a `?trace=<url>` you ask it to open. The hosted site's Content-Security-Policy allows Cloudflare Web Analytics (`static.cloudflareinsights.com`), which counts page views without cookies when it is enabled on the host.
 - **Sharing without a backend** — a share link carries the whole compressed trace in its URL fragment, which browsers never send to any server. See [Sharing traces](#sharing-traces).
 
 ### 🧰 Fits your workflow
