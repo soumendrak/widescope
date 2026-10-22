@@ -751,7 +751,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
         </a>
       </div>
       <div class="hero-meta stage stage-4">
-        <span>No backend</span><span>No upload</span><span>No cookies</span><span>Serverless sharing</span><span>Apache 2.0</span>
+        <span>No backend</span><span>No upload</span><span>No telemetry</span><span>Serverless sharing</span><span>Apache 2.0</span>
       </div>
 
       <!-- live trace window (pins while scrolling; tabs advance with scroll) -->
@@ -1078,7 +1078,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
       <div class="zerogrid">
         <div class="zero reveal" data-rd="1"><div class="num">0</div><div class="lbl">servers</div><p>Static files on a CDN. Parsing, layout, and rendering all happen in-process, in your tab.</p></div>
         <div class="zero reveal" data-rd="2"><div class="num">0</div><div class="lbl">uploads</div><p>No ingest endpoint exists. Drag in a 20&nbsp;MB trace on a plane — it works exactly the same.</p></div>
-        <div class="zero reveal" data-rd="3"><div class="num">0</div><div class="lbl">cookies</div><p>Your trace never leaves the tab. The viewer connects out only to a <code>?trace=</code> or <code>?live=</code> URL you ask it to open. The hosted site may count page views with Cloudflare Web Analytics, which sets no cookies.</p></div>
+        <div class="zero reveal" data-rd="3"><div class="num">0</div><div class="lbl">telemetry</div><p>The trace viewer that doesn't trace you. No cookies, no analytics. The viewer connects out only to a <code>?trace=</code> or <code>?live=</code> URL you ask it to open.</p></div>
         <div class="zero reveal" data-rd="4"><div class="num"><span data-count="60">0</span><sup>fps</sup></div><div class="lbl">rust → wasm</div><p>A Rust core parses and lays out tens of thousands of spans without dropping a frame.</p></div>
       </div>
 

@@ -14,7 +14,7 @@
 
 - LLM-aware inspection with model, token, prompt/completion, and tool-call detail views
 - Five trace views: flame graph, timeline, waterfall, service dependency graph, trace diff
-- Privacy-first: no upload, no backend, no cookies — traces never leave your browser; the viewer connects out only to a `?trace=` or `?live=` URL you open
+- Privacy-first: no upload, no backend, no telemetry — traces never leave your browser; the viewer connects out only to a `?trace=` or `?live=` URL you open
 - Shareable links with DEFLATE-compressed self-contained trace embedding
 - Multi-trace loading via zip upload, file picker, clipboard paste, or JSON editor
 - Attribute search with operators (`duration>100ms`, `status=error`)

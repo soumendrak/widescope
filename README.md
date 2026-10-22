@@ -36,7 +36,7 @@ Use it alongside your observability platform: for trace files, CI artifacts, bug
 
 <sub>Built with Rust/WASM and Svelte. The trace is parsed and rendered in your tab.</sub>
 
-**No backend. No upload. Even sharing is serverless — a small or medium trace travels inside the link. Just your traces, in your browser.**
+**No backend. No upload. No telemetry. Even sharing is serverless — a small or medium trace travels inside the link. Just your traces, in your browser.**
 
 [Try the live demo →](https://widescope.soumendrak.com)
 
@@ -81,7 +81,7 @@ Sample trace files are available in [`test-fixtures/`](test-fixtures/) if you wa
 ### 🔒 Private by architecture
 
 - **Zero backend** — a static page plus a WASM binary; served as Cloudflare Workers static assets (`wrangler.jsonc`), and deployable to any CDN or static host. There is no server to trust because there is no server at all.
-- **No upload** — parsing and rendering happen entirely in your tab. There is no ingest endpoint and no cookies, and trace data never leaves the tab. The viewer connects out only when you ask it to: fetching a `?trace=<url>`, or streaming spans from a `?live=<url>` event source. The hosted site's Content-Security-Policy allows Cloudflare Web Analytics (`static.cloudflareinsights.com`), which counts page views without cookies when it is enabled on the host.
+- **No upload, no telemetry** — parsing and rendering happen entirely in your tab. There is no ingest endpoint, no cookies and no analytics, and trace data never leaves the tab. The viewer connects out only when you ask it to: fetching a `?trace=<url>`, or streaming spans from a `?live=<url>` event source.
 - **Sharing without a backend** — a share link carries the whole compressed trace in its URL fragment, which browsers never send to any server. See [Sharing traces](#sharing-traces).
 
 ### 🧰 Fits your workflow
