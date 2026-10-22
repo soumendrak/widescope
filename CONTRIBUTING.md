@@ -16,7 +16,7 @@ For deep implementation details — data models, wire contracts, edge-case rules
 6. [Adding a Convention Mapping File](#6-adding-a-convention-mapping-file)
 7. [Extending an Existing Convention](#7-extending-an-existing-convention)
 8. [Rebuilding the Share Dictionary](#8-rebuilding-the-share-dictionary)
-9. [Publishing (Cloudflare Pages + Custom Domain)](#9-publishing-cloudflare-pages--custom-domain)
+9. [Publishing (Cloudflare Workers static assets)](#9-publishing-cloudflare-workers-static-assets)
 10. [Code Style](#10-code-style)
 11. [Test Coverage](#11-test-coverage)
 12. [PR Checklist](#12-pr-checklist)
@@ -51,7 +51,7 @@ flowchart LR
 **Key design points:**
 
 - **All data crosses the WASM↔JS boundary as JSON strings** (see [LLD §6](docs/LLD.md)). This keeps the contract debuggable and avoids `wasm-bindgen` type-marshalling complexity.
-- **No runtime fetch.** Conventions and the sample trace are bundled into the JS at build time using Vite `?raw` imports, so `connect-src: 'none'` stays enforceable.
+- **No runtime fetch.** Conventions and the sample trace are bundled into the JS at build time using Vite `?raw` imports, so the viewer fetches nothing on its own. The hosted CSP (`ui/public/_headers`) allows `connect-src 'self' https:` only so it can open a `?trace=` or `?live=` URL you give it.
 - **WASM holds one trace at a time.** `parse_trace` replaces any prior trace. See [LLD §6.3](docs/LLD.md) for lifecycle semantics.
 - **Raw values are normative; `*_display` strings are convenience.** Durations, token counts, costs cross the boundary as raw numbers — the UI may use or ignore the pre-formatted strings.
 
@@ -264,26 +264,16 @@ The dictionary must stay at or below DEFLATE's 32 KiB sliding window — bytes b
 
 ---
 
-## 9. Publishing (Cloudflare Pages + Custom Domain)
+## 9. Publishing (Cloudflare Workers static assets)
 
-The repo is wired to deploy `ui/dist/` to Cloudflare Pages via GitHub Actions on every push to `main`.
-
-### One-time setup
-
-1. Create a Cloudflare Pages project named `widescope`.
-2. In the GitHub repo, add secrets:
-   - `CLOUDFLARE_API_TOKEN` — an API token scoped to "Cloudflare Pages: Edit"
-   - `CLOUDFLARE_ACCOUNT_ID`
-3. Push to `main`. The workflow in `.github/workflows/ci.yml` builds and deploys.
-4. (Optional) In the Cloudflare Pages dashboard → **Custom Domains**, add your domain and point your DNS at Cloudflare.
+CI in `.github/workflows/ci.yml` only runs checks; it has no deploy job. Cloudflare serves `ui/dist/` as Workers static assets, configured in `wrangler.jsonc`. The README's [Deployment on Cloudflare](README.md#deployment-on-cloudflare) section has the build and deploy commands.
 
 ### Publishing a fork to a different domain
 
-If you're forking and want to deploy to your own domain:
-
-1. Replace the project name in `wrangler.jsonc` if you want it to differ from `widescope`.
+1. Change `name` in `wrangler.jsonc` if you want the Worker to be called something other than `widescope`.
 2. Update the `homepage` and badge URLs in `README.md`.
-3. Set your fork's secrets as above; pushes to your fork's `main` will then deploy to your own Pages project.
+3. Run `npx wrangler deploy`, or connect your fork to a Cloudflare Git build as the README describes.
+4. (Optional) Add a custom domain to the Worker in the Cloudflare dashboard.
 
 ---
 
