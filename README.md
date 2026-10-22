@@ -5,7 +5,7 @@
 <h1 align="center">WideScope</h1>
 
 <p align="center">
-  <strong>Browser-native trace viewer for LLM and AI agent pipelines</strong>
+  <strong>Drop any AI-agent trace file (OTLP, OpenInference, Jaeger) into your browser and debug the run — nothing uploaded, nothing installed, shareable as a link.</strong>
 </p>
 
 <p align="center">
@@ -30,11 +30,26 @@
   <img src="docs/assets/screenshot.webp" alt="WideScope screenshot" width="800" />
 </p>
 
-A browser-based, zero-backend trace viewer for OpenTelemetry- and Jaeger-style traces, with an LLM-aware inspection UI powered by Rust/WASM and Svelte. Load a JSON trace locally, inspect it instantly, and keep the data entirely in your browser.
+**The trace file viewer for AI agents — private by architecture.** Someone hands you a trace file, a CI artifact or a bug-report attachment, and you can't or won't send it to a backend. Open it in WideScope and debug the run in your browser: waterfall, flame graph, conversation and span details, with LLM tokens and costs.
+
+Use it alongside your observability platform: for trace files, CI artifacts, bug-report attachments and data that must not leave your machine.
+
+<sub>Built with Rust/WASM and Svelte. The trace is parsed and rendered in your tab.</sub>
 
 **No backend. No upload. No telemetry. Even sharing is serverless — the whole trace travels inside the link. Just your traces, in your browser.**
 
 [Try the live demo →](https://widescope.soumendrak.com)
+
+## When to use WideScope vs an observability platform
+
+Observability platforms such as Langfuse, Arize Phoenix and LangSmith ingest traces from your running services and keep them for search, evals and dashboards. WideScope is the companion for the cases where a trace exists as a file:
+
+| You have… | Use |
+|---|---|
+| A trace file from CI, an export, or a bug report, and no backend to ingest it into | WideScope |
+| Trace data that must not leave your machine | WideScope (nothing is uploaded) |
+| A trace you want to hand to someone as a link | WideScope (the link carries the trace) |
+| Live traffic your team already ingests, with retention, search and evals | Your observability platform, plus WideScope for any trace you export from it |
 
 ---
 
@@ -84,54 +99,12 @@ WideScope can produce a link that reopens the exact trace, view, and selected sp
 - **Deep links** — both forms accept `view=<flame|timeline|conversation|waterfall|graph|agent|diff|analytics|matrix|dashboard>` and `span=<id>` to restore the view mode and pre-select a span. `matrix` and `dashboard` are multi-trace views: they only apply when more than one trace is loaded, and the **⋯** menu only offers them then. A link opens a single trace, so `view=matrix` shows a "Load 2+ traces" prompt and `view=dashboard` summarizes just that one trace.
 - **Legacy links** — share links minted before the viewer moved to `/editor/` (e.g. `/?trace=…` or `/#trace=…`) are redirected there by the landing page, so old links keep working.
 
-## Requirements
+## Development
 
-| Tool | Version | Install |
-|---|---|---|
-| Rust (via rustup) | stable | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \| sh` |
-| wasm32 target | — | `rustup target add wasm32-unknown-unknown` |
-| wasm-pack | 0.14+ | `cargo install wasm-pack` |
-| Node.js | 22.13+ (22.x) or 24+ | <https://nodejs.org> |
-| just | 1.0+ | `brew install just` / `cargo install just` |
-| binaryen (`wasm-opt`) | optional, recommended | `brew install binaryen` / `apt install binaryen` |
+[AGENTS.md](AGENTS.md) is the single reference for setup (with the tool versions CI pins), the `just` commands and the standards gate that CI runs. Two notes it doesn't cover:
 
-> **Homebrew Rust users:** the `wasm32-unknown-unknown` target is not included in the Homebrew Rust package. Install Rust via `rustup` instead (both can coexist; prefix commands with `PATH="$HOME/.cargo/bin:$PATH"`).
-
-## Quick Start
-
-```bash
-# 1. Install UI deps (one-time)
-just ui-install
-
-# 2. Build the WASM package and the production UI bundle
-just build
-
-# 3. Start the Vite dev server
-just dev
-# → http://localhost:5173
-```
-
-## Common Targets
-
-```bash
-just ui-install    # install ui/package.json dependencies
-just build-wasm    # compile Rust -> WASM and optimize with wasm-opt when available
-just build-ui      # vite production build -> ui/dist/
-just build         # build-wasm + build-ui
-just check         # CI's standards gate: fmt, clippy, no new comments, tests, coverage, svelte-check
-just fmt           # cargo fmt --all
-just test          # Rust and UI unit tests
-just e2e           # Playwright suite, as CI runs it
-just doctor        # check the local toolchain
-just bench-fixtures # parse + layout timings for every JSON under test-fixtures/
-just clean         # remove Rust, WASM package, UI dist, and node_modules artifacts
-```
-
-## Development Notes
-
-- **`just dev` only starts the UI dev server** — if you change Rust code, rerun `just build-wasm` to regenerate `crates/widescope-core/pkg/`.
-- **`just build` produces the deployable static assets** in `ui/dist/`.
-- **`wasm-opt` is optional** — the build still succeeds without it, but the generated `.wasm` will be larger.
+- **Homebrew Rust users:** the Homebrew Rust package has no `wasm32-unknown-unknown` target. Install Rust with `rustup` instead (both can coexist; prefix commands with `PATH="$HOME/.cargo/bin:$PATH"`).
+- **`wasm-opt` (binaryen) is optional.** The build succeeds without it, but the `.wasm` is larger.
 
 ## Deployment on Cloudflare
 
@@ -228,7 +201,7 @@ Quick version:
 
 1. **Open an issue** to discuss the change before working on it (optional but appreciated).
 2. **Fork** the repo and create a branch: `fix/description` or `feat/description`.
-3. **Run the checks** before opening a PR: `just fmt && just check`.
+3. **Run the checks** in [AGENTS.md](AGENTS.md) before opening a PR. `just check` must end with `STANDARDS OK`.
 4. **Open a PR** against `main` with a clear description of what changed and why.
 
 Questions or ideas? [Open an issue](https://github.com/soumendrak/widescope/issues).

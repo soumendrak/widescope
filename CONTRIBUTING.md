@@ -25,29 +25,9 @@ For deep implementation details — data models, wire contracts, edge-case rules
 
 ## 1. Getting Started
 
-Install prerequisites listed in the [README](README.md#requirements) (Rust via rustup, the `wasm32-unknown-unknown` target, `wasm-pack`, Node.js 18+, `just`, and optionally `binaryen` for `wasm-opt`).
+Setup, the `just` commands and the standards gate are in [AGENTS.md](AGENTS.md), which is kept in step with CI. Run `just doctor` first; it names anything missing.
 
 The UI uses npm. `ui/package-lock.json` is the only lockfile, so don't commit a `pnpm-lock.yaml` or `yarn.lock`.
-
-```bash
-# One-time
-just ui-install
-
-# Build everything
-just build
-
-# Run the dev server (UI only — re-run `just build-wasm` after Rust changes)
-just dev
-# → http://localhost:5173
-```
-
-Before opening a PR, run:
-
-```bash
-just fmt          # cargo fmt --all
-just check        # CI's standards gate, must end with STANDARDS OK
-just e2e          # Playwright suite, as CI runs it
-```
 
 ---
 
@@ -376,10 +356,7 @@ a threshold.
 
 Before opening a PR, please confirm:
 
-- [ ] `just fmt` — formatted
-- [ ] `just check` ends with `STANDARDS OK`
-- [ ] `just e2e` passes
-- [ ] `just build` — UI bundle builds
+- [ ] The commands in [AGENTS.md](AGENTS.md) pass: `just check` ends with `STANDARDS OK` and `just e2e` passes
 - [ ] Added or updated a test fixture if you changed parser, layout, or convention behavior
 - [ ] Updated the README **Supported Formats** table if you added a parser
 - [ ] Updated `conventions/README.md` if you added a convention file

@@ -1,8 +1,8 @@
 # WideScope — LLM Trace Viewer
 
-> A browser-native, zero-backend trace viewer for LLM and AI agent pipelines. 
-> Load OTLP, Jaeger, or OpenInference JSON traces and inspect them instantly — 
-> all data stays in your browser. Powered by Rust/WASM and Svelte.
+> The trace file viewer for AI agents — private by architecture. Drop any AI-agent trace file (OTLP, OpenInference, Jaeger) into your browser and debug the run — nothing uploaded, nothing installed, shareable as a link.
+> Use it alongside your observability platform: for trace files, CI artifacts, bug-report attachments and data that must not leave your machine.
+> Built with Rust/WASM and Svelte.
 
 ## Pages
 
