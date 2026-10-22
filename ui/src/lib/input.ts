@@ -7,11 +7,13 @@ import { parseTrace, getFlameGraphLayout, getTimelineLayout, getWaterfallLayout,
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 const LARGE_TRACE_BYTES = 5 * 1024 * 1024;
+export const TRACE_FILE_ACCEPT = '.json,.jsonl,.ndjson';
+const TRACE_ENTRY = /\.(json|jsonl|ndjson)$/;
 
 export function openFilePicker(onText?: (text: string) => void): void {
   const input = document.createElement('input');
   input.type = 'file';
-  input.accept = '.json,.zip';
+  input.accept = `${TRACE_FILE_ACCEPT},.zip`;
   input.onchange = async (e) => {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (file) await handleFile(file, onText);
@@ -69,7 +71,7 @@ async function readZipFile(file: File): Promise<string | null> {
 
     const dataStart = nameStart + fileNameLen + extraLen;
 
-    if (name.endsWith('.json')) {
+    if (TRACE_ENTRY.test(name)) {
       const raw = new Uint8Array(buffer, dataStart, compLen);
       // 0 = stored, 8 = deflate (the two methods real zip tools produce).
       if (compMethod === 0) {
@@ -90,7 +92,7 @@ async function readZipFile(file: File): Promise<string | null> {
     traceState.setError({
       error_type: 'WideError',
       code: 'ZIP_EMPTY',
-      message: 'No .json files found in the zip archive.',
+      message: 'No .json, .jsonl or .ndjson files found in the zip archive.',
       context: null,
     });
     return null;

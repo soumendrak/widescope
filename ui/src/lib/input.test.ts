@@ -101,6 +101,36 @@ describe('readFileText', () => {
   });
 });
 
+function storedZip(entries: Record<string, string>): File {
+  const encoder = new TextEncoder();
+  const parts = Object.entries(entries).flatMap(([name, text]) => {
+    const nameBytes = encoder.encode(name);
+    const data = encoder.encode(text);
+    const header = new DataView(new ArrayBuffer(30));
+    header.setUint32(0, 0x04034b50, true);
+    header.setUint32(18, data.length, true);
+    header.setUint32(22, data.length, true);
+    header.setUint16(26, nameBytes.length, true);
+    return [new Uint8Array(header.buffer), nameBytes, data];
+  });
+  return new File([...parts, new Uint8Array(4)], 'traces.zip');
+}
+
+describe('readFileText with a zip', () => {
+  beforeEach(() => traceState.reset());
+
+  it('loads newline-delimited trace entries', async () => {
+    const ndjson = '{"resourceSpans":[]}\n{"resourceSpans":[]}';
+    await expect(readFileText(storedZip({ 'notes.txt': 'x', 'export.jsonl': ndjson }))).resolves.toBe(ndjson);
+    await expect(readFileText(storedZip({ 'export.ndjson': ndjson }))).resolves.toBe(ndjson);
+  });
+
+  it('names the accepted extensions when the zip holds no trace file', async () => {
+    await expect(readFileText(storedZip({ 'notes.txt': 'x' }))).resolves.toBeNull();
+    expect(get(traceState).error?.message).toBe('No .json, .jsonl or .ndjson files found in the zip archive.');
+  });
+});
+
 describe('openFilePicker', () => {
   it('opens a picker that accepts json and zip', () => {
     const click = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(() => {});
@@ -114,7 +144,7 @@ describe('openFilePicker', () => {
 
     openFilePicker();
     expect(created[0].type).toBe('file');
-    expect(created[0].accept).toBe('.json,.zip');
+    expect(created[0].accept).toBe('.json,.jsonl,.ndjson,.zip');
     expect(click).toHaveBeenCalled();
   });
 });
