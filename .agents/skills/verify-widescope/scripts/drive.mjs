@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { relative, resolve } from 'node:path';
 import { parseArgs } from 'node:util';
 
@@ -26,8 +26,9 @@ if (!baseUrl || !traceFile || !outDir) {
 
 const require = createRequire(resolve('ui/package.json'));
 const { chromium } = require('@playwright/test');
-const run = `${relative(process.cwd(), resolve(traceFile)).replace(/\W+/g, '-')}-${createHash('sha256').update(resolve(traceFile)).digest('hex').slice(0, 8)}`;
+const run = `${relative(process.cwd(), resolve(traceFile)).replace(/\W+/g, '-').replace(/^-+/, '')}-${createHash('sha256').update(resolve(traceFile)).digest('hex').slice(0, 8)}`;
 mkdirSync(outDir, { recursive: true });
+for (const file of readdirSync(outDir)) if (file.startsWith(`${run}-`)) rmSync(`${outDir}/${file}`);
 const shot = (page, step) => page.screenshot({ path: `${outDir}/${run}-${step}.png` });
 
 const browser = await chromium.launch();

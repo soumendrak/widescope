@@ -4,11 +4,14 @@ port="${1:?usage: launch.sh <port>}"
 dir="/tmp/verify-widescope/$port"
 here="$(cd "$(dirname "$0")" && pwd)"
 cd "$(git rev-parse --show-toplevel)"
+mkdir -p "$dir"
+exec 9>"$dir.lock"
+flock -n 9 || { echo "another launch.sh holds port $port; nothing started"; exit 1; }
 if [ -n "$(ss -ltnH "sport = :$port")" ]; then
   echo "port $port is taken; nothing started"
   exit 1
 fi
-mkdir -p "$dir" && rm -f "$dir/server.pid"
+rm -f "$dir/server.pid"
 old=( "$dir"/*.png "$dir"/*-drive.json )
 if [ -e "${old[0]}" ]; then
   archive="$dir/previous-$(date +%Y%m%d-%H%M%S)"
@@ -17,7 +20,7 @@ if [ -e "${old[0]}" ]; then
 fi
 "$here/inputs.sh" >"$dir/build-started"
 just build-wasm >"$dir/build.log" 2>&1 && (cd ui && npm run build) >>"$dir/build.log" 2>&1 || { echo "build failed, see $dir/build.log"; exit 1; }
-(cd ui && setsid -f sh -c 'echo $$ >"$1/server.pid"; exec npx vite preview --host 127.0.0.1 --port "$2" --strictPort' sh "$dir" "$port" >"$dir/server.log" 2>&1 </dev/null)
+(cd ui && setsid -f sh -c 'echo $$ >"$1/server.pid"; exec npx vite preview --host 127.0.0.1 --port "$2" --strictPort' sh "$dir" "$port" >"$dir/server.log" 2>&1 </dev/null 9>&-)
 answered=""
 for _ in $(seq 60); do
   curl -sf --max-time 5 "http://127.0.0.1:$port/editor/" >/dev/null && answered=yes && break
