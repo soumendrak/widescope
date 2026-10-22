@@ -6,7 +6,7 @@ here="$(cd "$(dirname "$0")" && pwd)"
 cd "$(git rev-parse --show-toplevel)"
 mkdir -p "$dir"
 exec 9>"$dir.lock"
-flock -n 9 || { echo "another launch.sh holds port $port; nothing started"; exit 1; }
+flock -n 9 && [ "$(stat -c %i "$dir.lock" 2>/dev/null)" = "$(stat -L -c %i /proc/$$/fd/9)" ] || { echo "another launch.sh holds port $port; nothing started"; exit 1; }
 if [ -n "$(ss -ltnH "sport = :$port")" ]; then
   echo "port $port is taken; nothing started"
   exit 1
