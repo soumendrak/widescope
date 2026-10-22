@@ -15,7 +15,8 @@ Rust compiled to WebAssembly at client-side.
 
 ## Key capabilities
 
-- Zero backend: static UI + WASM, deployed to Cloudflare Pages
+- Zero backend: static UI + WASM, served as Cloudflare Workers static assets
+- No telemetry: no analytics, no tracking, no cookies
 - Five trace views: flame graph, timeline, waterfall, service graph, trace diff
 - LLM-aware inspection: resolves OTel GenAI, OpenInference, and LangChain attributes
   into model name, token counts, prompt/completion content, tool calls, and cost estimates
