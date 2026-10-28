@@ -19,7 +19,7 @@ export default defineConfig({
         name: 'WideScope — LLM Trace Viewer',
         short_name: 'WideScope',
         description:
-          'Browser-native trace viewer for LLM and AI agent pipelines. Zero-backend, privacy-first, powered by Rust/WASM.',
+          'Drop an AI-agent trace (OTLP, OpenInference or Jaeger JSON, or a zip of them) into your browser and debug the run — nothing uploaded, nothing installed, shareable as a link.',
         theme_color: '#05080f',
         background_color: '#05080f',
         display: 'standalone',

@@ -1,6 +1,6 @@
 # Contributing to WideScope
 
-Thanks for your interest in contributing! WideScope is a browser-native trace viewer for LLM and AI agent pipelines, built with Rust/WASM and Svelte 5. This guide explains how the pieces fit together and how to extend the most common surfaces (parsers, views, conventions).
+Thanks for your interest in contributing! WideScope is the trace file viewer for AI agents, private by architecture. It is built with Rust/WASM and Svelte 5. This guide explains how the pieces fit together and how to extend the most common surfaces (parsers, views, conventions).
 
 For deep implementation details — data models, wire contracts, edge-case rules, and rendering algorithms — see [`docs/LLD.md`](docs/LLD.md). This file points at the right places to plug in new code; the LLD is the reference.
 

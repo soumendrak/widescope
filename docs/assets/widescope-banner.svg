@@ -19,7 +19,7 @@
 
   <g opacity="0.9">
     <text x="96" y="184" fill="#E2E8F0" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="72" font-weight="800">WideScope</text>
-    <text x="96" y="236" fill="#93C5FD" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="28" font-weight="600">Browser-native trace viewer for LLM and AI agent pipelines</text>
+    <text x="96" y="236" fill="#93C5FD" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="28" font-weight="600">The trace file viewer for AI agents, private by architecture</text>
     <text x="96" y="292" fill="#94A3B8" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="22" font-weight="500">OTLP JSON + Jaeger JSON • Rust/WASM core • Flame graph + timeline • Local-first inspection</text>
   </g>
 
