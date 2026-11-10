@@ -3,11 +3,11 @@ pub mod openinference;
 pub mod otlp_json;
 
 use crate::errors::WideError;
-use crate::models::span::Span;
 use crate::models::trace::InputFormat;
 use serde_json::Value;
 
 pub fn read_input(raw_input: &str) -> Result<Value, WideError> {
+    let raw_input = raw_input.strip_prefix('\u{feff}').unwrap_or(raw_input);
     let whole_error = match serde_json::from_str(raw_input) {
         Ok(value) => return Ok(value),
         Err(error) => error,
@@ -24,18 +24,23 @@ pub fn read_input(raw_input: &str) -> Result<Value, WideError> {
     }
     let mut resource_spans = Vec::new();
     for (number, line) in lines {
-        let value: Value =
+        let mut value: Value =
             serde_json::from_str(line).map_err(|error| invalid_json(&error, Some(number)))?;
-        let Some(batch) = value.get("resourceSpans").and_then(Value::as_array) else {
+        let Some(Value::Array(batch)) = value
+            .as_object_mut()
+            .and_then(|object| object.remove("resourceSpans"))
+        else {
             return Err(WideError::InvalidJson {
                 message: format!("line {number}: not an OTLP resourceSpans document"),
                 line: Some(number),
                 column: Some(1),
             });
         };
-        resource_spans.extend(batch.iter().cloned());
+        resource_spans.extend(batch);
     }
-    Ok(serde_json::json!({ "resourceSpans": resource_spans }))
+    let mut merged = serde_json::Map::new();
+    merged.insert("resourceSpans".to_owned(), Value::Array(resource_spans));
+    Ok(Value::Object(merged))
 }
 
 fn invalid_json(error: &serde_json::Error, ndjson_line: Option<usize>) -> WideError {
@@ -87,33 +92,6 @@ pub fn detect_format(value: &Value) -> Result<InputFormat, WideError> {
     Err(WideError::UnrecognizedFormat)
 }
 
-#[allow(dead_code)]
-pub fn parse(raw_input: &str) -> Result<(Vec<Span>, InputFormat), WideError> {
-    let value: Value = serde_json::from_str(raw_input).map_err(|e| WideError::InvalidJson {
-        message: e.to_string(),
-        line: Some(e.line()),
-        column: Some(e.column()),
-    })?;
-
-    let format = detect_format(&value)?;
-
-    let spans = match &format {
-        InputFormat::OtlpJson => otlp_json::parse_otlp(&value)?,
-        InputFormat::JaegerJson => jaeger::parse_jaeger(&value)?,
-        InputFormat::OpenInferenceJson => {
-            let result = openinference::parse_openinference_with_warnings(&value)?;
-            result.spans
-        }
-        InputFormat::Unknown => return Err(WideError::UnrecognizedFormat),
-    };
-
-    Ok((spans, format))
-}
-
-/// Format sniffing and the raw-string entry point.
-///
-/// Detection runs before any parser sees the payload, so a wrong answer here
-/// shows up as "unrecognized format" on a perfectly good trace.
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -156,34 +134,5 @@ mod tests {
                 Err(WideError::UnrecognizedFormat)
             ));
         }
-    }
-
-    #[test]
-    fn parse_reads_a_raw_string_in_every_format() {
-        for (raw, expected) in [
-            (OTLP, InputFormat::OtlpJson),
-            (JAEGER, InputFormat::JaegerJson),
-            (OI, InputFormat::OpenInferenceJson),
-        ] {
-            let (spans, format) = parse(raw).unwrap();
-            assert_eq!(spans.len(), 7);
-            assert_eq!(format.as_str(), expected.as_str());
-        }
-    }
-
-    #[test]
-    fn parse_reports_where_invalid_json_broke() {
-        match parse("{\"resourceSpans\": [").unwrap_err() {
-            WideError::InvalidJson { line, .. } => assert_eq!(line, Some(1)),
-            other => panic!("expected InvalidJson, got {other:?}"),
-        }
-    }
-
-    #[test]
-    fn parse_rejects_an_unrecognized_payload() {
-        assert!(matches!(
-            parse("{\"hello\":1}").unwrap_err(),
-            WideError::UnrecognizedFormat
-        ));
     }
 }
