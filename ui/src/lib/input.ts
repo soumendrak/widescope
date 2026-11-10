@@ -3,9 +3,9 @@ import { traceState } from '../stores/trace';
 import { focusedSpanId, hoveredSpanId, searchQuery, searchResults, selectedSpanId } from '../stores/selection';
 import { traceList } from '../stores/traceList';
 import { saveRecent } from './recent';
+import { fileTooLargeMessage, MAX_FILE_SIZE } from './traceUrl';
 import { parseTrace, getFlameGraphLayout, getTimelineLayout, getWaterfallLayout, getServiceGraph, getAgentFlow, safeParseWasmError } from './wasm';
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20 MB
 const LARGE_TRACE_BYTES = 5 * 1024 * 1024;
 export const TRACE_FILE_ACCEPT = '.json,.jsonl,.ndjson';
 const TRACE_ENTRY = /\.(json|jsonl|ndjson)$/;
@@ -26,7 +26,7 @@ export async function readFileText(file: File): Promise<string | null> {
     traceState.setError({
       error_type: 'WideError',
       code: 'FILE_TOO_LARGE',
-      message: `File too large (${(file.size / 1024 / 1024).toFixed(1)} MB). Maximum is 20 MB.`,
+      message: fileTooLargeMessage(file.size),
       context: null,
     });
     return null;
