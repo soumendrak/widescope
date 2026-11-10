@@ -12,7 +12,7 @@
       source
     </a>
     <span class="footer-sep">·</span>
-    <span class="footer-license">MIT</span>
+    <span class="footer-license">Apache 2.0</span>
     <span class="footer-sep">·</span>
     <a href="https://www.soumendrak.com" target="_blank" rel="noopener" class="footer-link">soumendra kumar sahoo</a>
   </div>

@@ -12,6 +12,22 @@
   $: visibleWarnings = isSample ? [] : warnings;
   $: showWarnings = !warningsDismissed && visibleWarnings.length > 0;
   $: collapsed = visibleWarnings.length >= 4 && !warningsExpanded;
+  $: shown = error ? presentedError(error) : { message: '', location: '' };
+
+  function presentedError(parseError: WasmError): { message: string; location: string } {
+    const line = parseError.context?.line;
+    if (parseError.code !== 'INVALID_JSON' || typeof line !== 'number') {
+      return { message: parseError.message, location: '' };
+    }
+    const namesLine = new RegExp(`(?:^|\\D)line ${line}(?!\\d)`).test(parseError.message);
+    const namesColumn = new RegExp(`(?:^|\\D)line ${line}\\D+column \\d+`).test(parseError.message);
+    if (namesLine && namesColumn) return { message: parseError.message, location: '' };
+    const column = parseError.context?.column;
+    const location = `at line ${line}${typeof column === 'number' ? `, column ${column}` : ''}`;
+    if (!namesLine) return { message: parseError.message, location };
+    const message = parseError.message.replace(new RegExp(`(^|\\D)line ${line}:\\s*`), '$1');
+    return { message, location };
+  }
 
   function dismiss() {
     warningsDismissed = true;
@@ -26,13 +42,9 @@
   <div class="banner error" role="alert">
     <span class="icon"><Icon name="error" size={15} /></span>
     <div class="content">
-      <strong>{formatCode(error.code)}:</strong> {error.message}
-      {#if error.code === 'INVALID_JSON' && error.context}
-        <span class="error-location">
-          {#if error.context.line !== undefined && error.context.line !== null}
-            at line {error.context.line}{error.context.column !== undefined && error.context.column !== null ? `, column ${error.context.column}` : ''}
-          {/if}
-        </span>
+      <strong>{formatCode(error.code)}:</strong> {shown.message}
+      {#if shown.location}
+        <span class="error-location">{shown.location}</span>
       {/if}
     </div>
   </div>

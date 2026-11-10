@@ -127,10 +127,7 @@ export default defineConfig({
       exclude: [
         'src/**/*.test.ts',
         'src/test-setup.ts',
-        // Entry bootstraps: they mount the app against a real document and have
-        // no behaviour of their own to assert.
         'src/main.ts',
-        'src/landing.js',
         // Mirrors of the Rust structs — type declarations, no runtime code.
         'src/lib/types.ts',
         // Canvas painting: jsdom has no 2D context, so every draw call would be

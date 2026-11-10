@@ -2621,4 +2621,27 @@ mod ndjson_input_tests {
         );
         assert!(error.to_string().contains("at line 1 column"), "{error}");
     }
+
+    #[test]
+    fn a_leading_bom_parses_and_keeps_ndjson_line_numbers() {
+        let bommed = format!("\u{feff}{NDJSON}");
+        assert_eq!(parse_input_to_trace(&bommed).unwrap().span_count, 7);
+        assert_eq!(
+            parse_input_to_trace(&format!("\u{feff}{OTLP}"))
+                .unwrap()
+                .span_count,
+            7
+        );
+
+        let first = NDJSON.lines().next().unwrap();
+        let broken = format!("\u{feff}{first}\n{{\"resourceSpans\": [\n");
+        let error = invalid_json(&broken);
+        assert!(
+            matches!(error, WideError::InvalidJson { line: Some(2), column: Some(column), .. } if column > 1),
+            "{error:?}"
+        );
+        let text = error.to_string();
+        assert!(text.contains(": line 2:"), "{error}");
+        assert_eq!(text.matches("line 2").count(), 1, "{error}");
+    }
 }

@@ -735,7 +735,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
       <div class="spanchip stage stage-1">span 00 · page.load <em>// trace viewer for llm pipelines</em></div>
       <h1 class="stage stage-2">Debug an agent run <span class="lens">from its trace file.</span></h1>
       <p class="lede stage stage-3">
-        Open an <b>OTLP, OpenInference or Jaeger JSON</b> trace and see where the run went wrong: flame graphs,
+        Open an <b>OTLP</b> trace as <b>.json</b>, <b>.jsonl</b> or <b>.ndjson</b>, or an <b>OpenInference or Jaeger JSON</b> trace, and see where the run went wrong: flame graphs,
         timelines, token costs and side-by-side diffs, parsed by <b>Rust&nbsp;/&nbsp;WASM</b> and never leaving
         your browser tab. Even sharing is serverless: <b>a small or medium trace travels inside the link</b>.
       </p>
@@ -1087,7 +1087,7 @@ footer{border-top:1px solid var(--line-soft);padding:44px 28px;position:relative
         <code><b>widescope.soumendrak.com</b>/editor/<span class="frag">#trace=eJzVk11P2zAUhv_K0bmasKqkpYVy…</span></code>
         <span class="tag">fragment — never sent to any server</span>
       </div>
-      <p class="diff-note reveal" style="margin-top:18px">share a whole trace as a link — DEFLATE-compressed into the URL fragment, which browsers keep client-side. deep-link straight to <b style="color:var(--muted)">view=diff&amp;span=…</b></p>
+      <p class="diff-note reveal" style="margin-top:18px;display:block">share a trace as a link when the encoded trace and notes fit in 32,000 characters. DEFLATE compresses them into the URL fragment, which browsers keep client-side. a longer payload is not copied, and the toolbar offers <b style="color:var(--muted)">Download trace</b> instead. deep-link straight to <b style="color:var(--muted)">view=diff&amp;span=…</b></p>
     </div>
   </section>
 

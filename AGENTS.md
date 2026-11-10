@@ -37,7 +37,7 @@ just doctor
 
 Before you open or update a PR, prove the change with [`.agents/skills/verify-widescope`](.agents/skills/verify-widescope/SKILL.md). It serves the built viewer and loads trace files through the real "Open file" button:
 
-- `launch.sh <port>` holds a per-port `flock` while it builds, then serves `ui/dist` with `vite preview` on `127.0.0.1:<port>`. It refuses a port that is taken or that another launch is still starting. Before building, it creates `Cargo.lock` if it is missing and snapshots the build inputs (`inputs.sh`: every tracked or untracked file except `.agents/`, `.github/`, Markdown and tests, plus the gitignored `Cargo.lock`).
+- `launch.sh <port>` holds a per-port `flock` while it builds, then serves `ui/dist` with `vite preview` on `127.0.0.1:<port>`. It refuses a port that is taken or that another launch is still starting. Before building, it creates `Cargo.lock` if it is missing and snapshots the build inputs (`inputs.sh`: every tracked or untracked file except `.agents/`, `.github/`, Markdown and tests).
 - `doctor.sh <port>` checks four things: the port belongs to the process group launch.sh started, `/editor/` answers within 5s, the WASM in `ui/dist` matches `crates/widescope-core/pkg`, and no build input was added, deleted or changed since the snapshot. Drive only after `DOCTOR OK`.
 - `drive.mjs` fails on an unmet expectation, a console error or uncaught exception, or a file the picker's `accept` list would reject. It writes evidence to `/tmp/verify-widescope/<port>/`, named after the file's path plus a hash.
 - `stop.sh <port>` kills the preview only if its process group still owns the port.
@@ -69,7 +69,6 @@ Before you open or update a PR, prove the change with [`.agents/skills/verify-wi
 ## Known gaps
 
 - [#120](https://github.com/soumendrak/widescope/issues/120): `ui/public/*.js` has no tests or type checks, `FlameGraph.svelte` is excluded from coverage, and nothing yet enforces that the thresholds only go up.
-- [#123](https://github.com/soumendrak/widescope/issues/123): `npm audit` reports `braces` through `svelte-check@3`. The fix is a major upgrade to svelte-check 4.
 
 When a reviewer corrects the same mistake twice, add a check to `scripts/standards.mjs` and a row here.
 
