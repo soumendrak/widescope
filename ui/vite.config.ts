@@ -146,7 +146,7 @@ export default defineConfig({
         // The logic layers carry the real bar. The large visualization
         // components are driven by the browser gate instead — asserting canvas
         // and layout behaviour through jsdom would test the mock, not the view.
-        'src/lib/**': { lines: 71, functions: 57, branches: 67, statements: 67 },
+        'src/lib/**': { lines: 71, functions: 57, branches: 68, statements: 68 },
         'src/stores/**': { lines: 85, functions: 85, branches: 70, statements: 85 },
         'src/components/ui/**': { lines: 88, functions: 96, branches: 62, statements: 91 },
       },

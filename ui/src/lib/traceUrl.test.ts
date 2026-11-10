@@ -6,6 +6,7 @@ import {
   fetchTraceText,
   fileTooLargeMessage,
   readBoundedResponse,
+  streamedTooLargeMessage,
   traceUrlSchemeError,
 } from './traceUrl';
 
@@ -41,6 +42,11 @@ describe('trace URL scheme', () => {
   it('rejects data URLs', () => {
     expect(scheme('data:application/json,{}')).toBe(HTTPS_TRACE_URL_MESSAGE);
     expect(scheme('data:text/plain,hello')).toBe(HTTPS_TRACE_URL_MESSAGE);
+  });
+
+  it('rejects javascript and file URLs', () => {
+    expect(scheme('javascript:alert(1)')).toBe(HTTPS_TRACE_URL_MESSAGE);
+    expect(scheme('file:///etc/passwd')).toBe(HTTPS_TRACE_URL_MESSAGE);
   });
 
   it('does not fetch a rejected URL', async () => {
@@ -121,6 +127,38 @@ describe('readBoundedResponse', () => {
     expect(cancel).toHaveBeenCalledOnce();
   });
 
+  it('does not report bytes read as the file size when a stream has no length', async () => {
+    const chunk = new Uint8Array(1024 * 1024);
+    let pulls = 0;
+    const stream = new ReadableStream<Uint8Array>({
+      pull(controller) {
+        pulls += 1;
+        if (pulls > 50) {
+          controller.close();
+          return;
+        }
+        controller.enqueue(chunk);
+      },
+    });
+    await expect(readBoundedResponse(new Response(stream))).rejects.toMatchObject({
+      code: 'FILE_TOO_LARGE',
+      message: 'File too large (max 20 MB)',
+    });
+    expect(pulls).toBe(21);
+
+    const overflow = new Uint8Array(MAX_FILE_SIZE + 1);
+    const oneShot = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(overflow);
+        controller.close();
+      },
+    });
+    await expect(readBoundedResponse(new Response(oneShot))).rejects.toMatchObject({
+      code: 'FILE_TOO_LARGE',
+      message: 'File too large (max 20 MB)',
+    });
+  });
+
   it('stops a stream once the byte count passes the cap', async () => {
     const tracked = trackedStream([
       encoder.encode('aaaa'),
@@ -132,7 +170,7 @@ describe('readBoundedResponse', () => {
 
     await expect(readBoundedResponse(response, 8)).rejects.toMatchObject({
       code: 'FILE_TOO_LARGE',
-      message: fileTooLargeMessage(12),
+      message: streamedTooLargeMessage(8),
     });
     expect(tracked.pulls()).toBe(3);
   });

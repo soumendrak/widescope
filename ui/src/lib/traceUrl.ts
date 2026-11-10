@@ -6,6 +6,12 @@ export function fileTooLargeMessage(bytes: number): string {
   return `File too large (${(bytes / 1024 / 1024).toFixed(1)} MB). Maximum is 20 MB.`;
 }
 
+export function streamedTooLargeMessage(maxBytes: number): string {
+  const mb = maxBytes / (1024 * 1024);
+  const label = Number.isInteger(mb) ? String(mb) : mb.toFixed(1);
+  return `File too large (max ${label} MB)`;
+}
+
 export class TraceFetchError extends Error {
   readonly code: 'TRACE_URL' | 'FILE_TOO_LARGE';
 
@@ -47,7 +53,7 @@ async function readStream(body: ReadableStream<Uint8Array>, maxBytes: number): P
     received += value.byteLength;
     if (received > maxBytes) {
       await reader.cancel();
-      throw new TraceFetchError('FILE_TOO_LARGE', fileTooLargeMessage(received));
+      throw new TraceFetchError('FILE_TOO_LARGE', streamedTooLargeMessage(maxBytes));
     }
     chunks.push(value);
   }
