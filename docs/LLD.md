@@ -152,9 +152,7 @@ Vite as bundler with `vite-plugin-wasm` and `vite-plugin-top-level-await`. **JS 
 
 ### 2.3 CI (GitHub Actions)
 
-```
-cargo check/clippy → cargo test → wasm-pack build → wasm-opt → vite build → Playwright E2E → Deploy
-```
+`.github/workflows/ci.yml` runs on pushes to `main` and on pull requests into `main`. It has two jobs and no deploy job. `standards` runs `just check`. `e2e` runs `just e2e`. Cloudflare serves `ui/dist/` as Workers static assets (`wrangler.jsonc`).
 
 ---
 
@@ -642,7 +640,9 @@ for each span in trace.spans:
 
 ### 5.4 Conventions Loading
 
-> **Key constraint:** `connect-src: 'none'` blocks **all** `fetch()` / `XMLHttpRequest` calls, including same-origin. Conventions therefore **cannot** be loaded via runtime fetch in any CSP-enforced deployment. They must be embedded at build time.
+Conventions are embedded at build time. `ui/src/lib/conventions-bundle.ts` imports each conventions file with a Vite `?raw` import, and `loadWasm` in `ui/src/lib/wasm.ts` passes the joined JSON to the WASM `init` export. The hosted page does not fetch them.
+
+The hosted Content-Security-Policy is the response header in `ui/public/_headers`. Its `connect-src` value is `'self' https:`. That allows `fetch` and `EventSource` to the page origin and to `https:` URLs. The viewer uses that for a `?trace=` URL (`loadTraceFromUrl` in `ui/src/App.svelte`) and a `?live=` URL (`connectLive` in `ui/src/lib/live.ts`).
 
 **MVP mechanism:** Vite imports conventions JSON as static string constants at build time using `?raw` imports:
 
@@ -670,11 +670,11 @@ No runtime fetch. No CSP conflict. Works identically across all deployment modes
 
 | Deployment mode | Conventions source | User override |
 |---|---|---|
-| **GitHub Pages / hosted** | Bundled into JS at build time | Not supported at MVP. User must fork and rebuild. |
+| **Hosted (Cloudflare Workers static assets)** | Bundled into JS at build time | Not supported at MVP. User must fork and rebuild. |
 | **Local `file://`** | Same bundled JS | Same — no override mechanism. |
 | **Single-file HTML export (v1)** | Inlined in the JS bundle within the HTML | No override possible. |
 
-**User override (v1):** When user-configurable conventions are added in v1, they will **not** use `fetch()`. Instead, the user loads a `custom.json` file through the same file picker / drag-drop mechanism used for traces. The app detects it is a conventions file (top-level `"name"` + `"mappings"` keys), merges it into the priority list, and stores it in a Svelte store for the duration of the session. This respects `connect-src: 'none'`.
+**User override (v1):** When user-configurable conventions are added in v1, they will **not** use `fetch()`. Instead, the user loads a `custom.json` file through the same file picker / drag-drop mechanism used for traces. The app detects it is a conventions file (top-level `"name"` + `"mappings"` keys), merges it into the priority list, and stores it in a Svelte store for the duration of the session. The file is read in the browser, so this load does not make a network request.
 
 **Failure behavior:** Since conventions are embedded at build time, total loading failure is not possible at runtime — the strings are always present in the JS bundle. If a conventions JSON is malformed (e.g., corrupted during a manual edit of `conventions/opentelemetry.json` before build), `wasm.init()` logs a `CONVENTION_ERROR` warning and proceeds with remaining valid conventions. If **all** conventions are invalid, `wasm.init()` accepts an empty array — spans render without LLM-specific attributes, and a warning is surfaced in `TraceSummary.warnings`.
 
@@ -1055,7 +1055,7 @@ export const searchResults = writable<string[]>([]); // v1
 
 When `status === 'empty'`, the app auto-loads a bundled sample trace — an OTLP export of a realistic LLM pipeline (~15-20 spans, 3 services: gateway, rag-retriever, llm-service) so the Conference Explorer persona sees a rendered trace immediately.
 
-> **CSP compliance:** The sample trace is imported at build time as a string constant (like conventions), not fetched at runtime. This avoids conflicting with `connect-src: 'none'`.
+The sample trace is imported at build time as a string constant (`ui/src/lib/sample.ts`), the same way conventions are. It is not fetched at runtime.
 
 ```typescript
 // ui/src/lib/sample.ts
@@ -1276,7 +1276,7 @@ function safeParseWasmError(err: unknown): WasmError {
 
 **Progressive loading (`handleRawInputAsync`):** The handler shown above is the synchronous core. The editor and file/drop paths call `handleRawInputAsync`, which runs the same parse → flame → timeline → waterfall → service-graph sequence but `await`s a `requestAnimationFrame` between steps and updates `traceState.setLoading(phase, progress)` before each one. This lets the browser paint the loading progress bar and keeps the tab responsive on multi-MB traces (inputs ≥ 5 MB are labelled with their size). When `showLoading` is `false` (e.g. live-parse-as-you-type), it skips the per-step yields and progress updates. The synchronous `handleRawInput` is retained for callers that must complete within a single microtask.
 
-> **Note on `.jsonl` support:** JSONL (newline-delimited JSON) is **deferred to v2**. The MVP file picker accepts `.json` only. JSONL requires line-by-line parsing semantics that are not yet specified.
+`read_input` in `crates/widescope-core/src/parsers/mod.rs` accepts newline-delimited OTLP. Each non-empty line must be a JSON object with a `resourceSpans` array, and those arrays are merged into one document. The file picker offers `.json`, `.jsonl`, `.ndjson`, and `.zip` (`TRACE_FILE_ACCEPT` in `ui/src/lib/input.ts`).
 
 ---
 
@@ -1284,23 +1284,16 @@ function safeParseWasmError(err: unknown): WasmError {
 
 ### 10.1 Content Security Policy
 
-```html
-<meta http-equiv="Content-Security-Policy"
-      content="default-src 'self';
-               script-src 'self' 'wasm-unsafe-eval';
-               style-src 'self' 'unsafe-inline';
-               img-src 'self' data: blob:;
-               connect-src 'none';
-               font-src 'self';
-               object-src 'none';
-               base-uri 'self';
-               form-action 'none';">
+The hosted site sends this policy as the `Content-Security-Policy` response header in `ui/public/_headers`. `ui/index.html` and `ui/editor/index.html` have no CSP `<meta>` tag.
+
+```
+default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; connect-src 'self' https:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'none'
 ```
 
 | Directive | Value | Reason |
 |---|---|---|
-| `connect-src` | `'none'` | Blocks **all** `fetch()`, `XMLHttpRequest`, and WebSocket calls (same-origin included). This is the primary privacy enforcement layer. |
-| `script-src` | `'self' 'wasm-unsafe-eval'` | WASM instantiation; no `eval()` or inline scripts |
+| `connect-src` | `'self' https:` | Allows `fetch`, `XMLHttpRequest`, and `WebSocket` to the same origin and to `https:` URLs. The UI calls `fetch` only in `loadTraceFromUrl` (`ui/src/App.svelte`) for a `?trace=` URL, and opens an `EventSource` only in `connectLive` (`ui/src/lib/live.ts`) for a `?live=` URL. |
+| `script-src` | `'self' 'wasm-unsafe-eval' 'unsafe-eval'` | Scripts come from the same origin. WASM instantiation needs `wasm-unsafe-eval`. The header also allows `unsafe-eval`. |
 | `style-src` | `'self' 'unsafe-inline'` | Svelte scoped styles compile to inline `<style>` |
 | `img-src` | `'self' data: blob:` | PNG export via `Canvas.toBlob` |
 | `form-action` | `'none'` | No form submissions |
@@ -1313,20 +1306,20 @@ Browser-enforced guarantees (not app-level):
 
 ### 10.3 Privacy Guarantees and Caveats
 
-The app is **designed** not to make outbound network requests. Enforcement depends on deployment mode:
+The UI calls the network in two places. `loadTraceFromUrl` in `ui/src/App.svelte` fetches a `?trace=` URL. `connectLive` in `ui/src/lib/live.ts` opens an `EventSource` for a `?live=` URL. Other trace loads read a local file, the clipboard, IndexedDB, or a string bundled at build time.
 
 | Mode | Enforcement mechanism | Strength |
 |---|---|---|
-| **Hosted (GitHub Pages, self-hosted)** | CSP `connect-src: 'none'` meta tag + WASM sandbox | **Strong.** Browser enforces CSP. Two independent layers prevent exfiltration. |
-| **Local `file://`** | WASM sandbox only | **Moderate.** Browsers do not consistently enforce CSP meta tags for `file://` origins. The WASM module still cannot make network calls (no JS bridge is provided), but the JS shell is not CSP-constrained. |
-| **Single-file HTML export** | CSP meta tag + WASM sandbox | **Strong** if opened via a local HTTP server. **Moderate** if opened as `file://` (same caveat as above). |
+| **Hosted (Cloudflare Workers static assets)** | `Content-Security-Policy` header in `ui/public/_headers` (`connect-src 'self' https:`) and the WASM sandbox | The browser allows those calls when the URL is same-origin or `https:`. The Rust sources under `crates/widescope-core/src` do not call `fetch`. |
+| **Local `file://`** | WASM sandbox only | The hosted policy is an HTTP response header, so a `file://` page does not receive it. The JS shell is not CSP-constrained there. |
+| **Single-file HTML export** | WASM sandbox, plus a CSP header only when the file is served with one | A file opened as `file://` has the same limit as the row above. |
 
 **What we can claim:**
-- "The application is designed to make zero outbound network requests."
-- "In hosted deployments, this is enforced by Content Security Policy (`connect-src: 'none'`) and the WASM sandbox."
-- "The WASM module physically cannot make network calls — it has no network API bindings."
+- The UI fetches only for a `?trace=` URL and opens an event source only for a `?live=` URL.
+- On the hosted site, `ui/public/_headers` sets `connect-src 'self' https:`.
+- The Rust sources under `crates/widescope-core/src` do not call `fetch`, `js_sys`, or `web_sys`.
 
-**What we should not claim:** "It is impossible for any data to leave the browser under any circumstances." This overstates what `file://` mode can guarantee.
+**What we should not claim:** "It is impossible for any data to leave the browser." A `?trace=` or `?live=` URL is a network request, and a `file://` page does not get the hosted CSP header.
 
 ### 10.4 Data Lifecycle
 
@@ -1334,7 +1327,14 @@ The app is **designed** not to make outbound network requests. Enforcement depen
 2. Layout returned as JSON → rendered to Canvas/SVG
 3. On page close or new trace → previous data GC'd (JS) / dropped (WASM `RefCell` replaced)
 
-**No `localStorage`, `IndexedDB`, cookies, or persistent storage.** Each session is ephemeral. No trace data persists after the tab is closed or a new trace is loaded.
+The viewer does keep data after the tab closes.
+
+- `ui/src/App.svelte` writes `localStorage` keys `widescope:theme`, `widescope:view`, and `widescope:editor`. `ui/public/landing.js` reads and writes `widescope:theme`.
+- `ui/src/stores/budgets.ts` writes `widescope:budgets`.
+- `ui/src/stores/annotations.ts` writes span notes under the prefix `widescope:annotation:`.
+- `ui/src/lib/recent.ts` opens IndexedDB database `widescope`. `recent-meta` stores the name, time, size, and hash. `recent-blob` stores the trace JSON. `saveRecent` keeps the newest 5 traces.
+
+The files under `ui/` do not read or write `document.cookie`.
 
 ---
 
@@ -1743,9 +1743,9 @@ Natively accessible:
 | Svelte: DropZone | Drag-and-drop file loading |
 | Svelte: ErrorBanner | Parse error + warning display |
 | Sample trace | Bundled OTLP JSON (build-time), auto-loaded on first visit |
-| CSP | Full `connect-src: 'none'` policy |
-| CI | cargo test + wasm-pack build + vite build + Playwright |
-| Hosting | GitHub Pages |
+| CSP | Hosted header in `ui/public/_headers`, `connect-src 'self' https:` |
+| CI | `just check` and `just e2e` in `.github/workflows/ci.yml`. No deploy job. |
+| Hosting | Cloudflare Workers static assets (`wrangler.jsonc`) |
 
 **Deferred from MVP to reduce delivery risk** (all have since shipped):
 
