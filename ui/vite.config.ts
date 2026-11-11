@@ -1,4 +1,7 @@
+import fs from 'node:fs';
+import path from 'node:path';
 import { fileURLToPath, URL } from 'node:url';
+import type { Connect, Plugin } from 'vite';
 import { defineConfig } from 'vitest/config';
 import { svelte } from '@sveltejs/vite-plugin-svelte';
 // Resolves Svelte's browser condition under vitest so components can mount and
@@ -7,8 +10,47 @@ import { svelteTesting } from '@testing-library/svelte/vite';
 import wasm from 'vite-plugin-wasm';
 import { VitePWA } from 'vite-plugin-pwa';
 
+function directoryIndex(indexRoots: string[]): Connect.NextHandleFunction {
+  return (req, _res, next) => {
+    if ((req.method !== 'GET' && req.method !== 'HEAD') || !req.url) return next();
+    const queryAt = req.url.indexOf('?');
+    const pathOnly = queryAt === -1 ? req.url : req.url.slice(0, queryAt);
+    const search = queryAt === -1 ? '' : req.url.slice(queryAt);
+    let decoded = pathOnly;
+    try {
+      decoded = decodeURIComponent(pathOnly);
+    } catch {
+      return next();
+    }
+    if (decoded.includes('..') || path.posix.basename(decoded).includes('.')) return next();
+    const directory = decoded.endsWith('/') ? decoded : `${decoded}/`;
+    const rel = directory.replace(/^\/+/, '');
+    const found = indexRoots.some((indexRoot) => fs.existsSync(path.join(indexRoot, rel, 'index.html')));
+    if (found) req.url = `${directory}index.html${search}`;
+    next();
+  };
+}
+
+function publicDirectoryIndex(): Plugin {
+  return {
+    name: 'public-directory-index',
+    configureServer(server) {
+      server.middlewares.use(
+        directoryIndex([path.join(server.config.root, 'public'), server.config.root]),
+      );
+    },
+    configurePreviewServer(server) {
+      server.middlewares.use(
+        directoryIndex([path.resolve(server.config.root, server.config.build.outDir)]),
+      );
+    },
+  };
+}
+
 export default defineConfig({
+  appType: 'mpa',
   plugins: [
+    publicDirectoryIndex(),
     wasm(),
     svelte(),
     svelteTesting(),
@@ -43,9 +85,6 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,wasm,html,json,png,svg,ico,woff2}'],
-        // Multi-page site — disable the blanket NavigationRoute fallback to
-        // index.html so /editor/ loads editor/index.html. Cloudflare Pages
-        // handles SPA fallback via not_found_handling.
         navigateFallback: null,
         runtimeCaching: [
           {
@@ -100,16 +139,16 @@ export default defineConfig({
       // reaches today, so any drop fails the build. Raise them as coverage
       // grows; never lower one to make a build pass.
       thresholds: {
-        lines: 28,
-        functions: 21,
-        branches: 22,
-        statements: 22,
+        lines: 39,
+        functions: 27,
+        branches: 30,
+        statements: 30,
         // The logic layers carry the real bar. The large visualization
         // components are driven by the browser gate instead — asserting canvas
         // and layout behaviour through jsdom would test the mock, not the view.
-        'src/lib/**': { lines: 60, functions: 48, branches: 58, statements: 57 },
-        'src/stores/**': { lines: 82, functions: 82, branches: 69, statements: 82 },
-        'src/components/ui/**': { lines: 88, functions: 95, branches: 61, statements: 90 },
+        'src/lib/**': { lines: 71, functions: 57, branches: 68, statements: 68 },
+        'src/stores/**': { lines: 85, functions: 85, branches: 70, statements: 85 },
+        'src/components/ui/**': { lines: 88, functions: 96, branches: 62, statements: 91 },
       },
     },
   },

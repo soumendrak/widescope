@@ -51,7 +51,7 @@ flowchart LR
 **Key design points:**
 
 - **All data crosses the WASM↔JS boundary as JSON strings** (see [LLD §6](docs/LLD.md)). This keeps the contract debuggable and avoids `wasm-bindgen` type-marshalling complexity.
-- **No runtime fetch.** Conventions and the sample trace are bundled into the JS at build time using Vite `?raw` imports, so the viewer fetches nothing on its own. The hosted CSP (`ui/public/_headers`) allows `connect-src 'self' https:` only so it can open a `?trace=` or `?live=` URL you give it.
+- **Conventions and the sample trace are not fetched at runtime.** They are bundled into the JS at build time using Vite `?raw` imports. The browser loads the opened page from the same origin. `registerSW.js` (vite-plugin-pwa, `registerType: 'autoUpdate'`) registers `/sw.js`, and that service worker fetches the same-origin precache, which is not trace data. `loadWasm` in `ui/src/lib/wasm.ts` fetches the same-origin WASM binary. The hosted CSP (`ui/public/_headers`) allows `connect-src 'self' https:` for those same-origin fetches and for a `?trace=` or `?live=` URL you give it.
 - **WASM holds one trace at a time.** `parse_trace` replaces any prior trace. See [LLD §6.3](docs/LLD.md) for lifecycle semantics.
 - **Raw values are normative; `*_display` strings are convenience.** Durations, token counts, costs cross the boundary as raw numbers — the UI may use or ignore the pre-formatted strings.
 

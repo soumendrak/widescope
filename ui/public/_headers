@@ -23,6 +23,9 @@
 /docs/index.html
   Cache-Control: public, max-age=0, must-revalidate
 
+/404.html
+  Cache-Control: public, max-age=0, must-revalidate
+
 # Landing page scripts — externalized to satisfy the strict script-src CSP
 # (inline <script> is blocked). Not fingerprinted, so revalidate on each deploy.
 /redirect.js

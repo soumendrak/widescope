@@ -5,6 +5,7 @@
   import { installKeyboardRouter } from './lib/keyboard';
   import { viewOrder, shortcutOrder, resolveView, isViewName } from './lib/views';
   import { openFilePicker, handleFile, handleRawInputAsync } from './lib/input';
+  import { fetchTraceText, TraceFetchError } from './lib/traceUrl';
   import { parsePermalink, decodeTrace } from './lib/permalink';
   import { connectLive, disconnectLive } from './lib/live';
   import { loadRecent } from './lib/recent';
@@ -91,8 +92,17 @@
       try {
         await loadTraceFromUrl(permalink.traceUrl);
         permalinkLoaded = true;
-      } catch {
-        editorMessage = 'Failed to load trace from URL.';
+      } catch (err) {
+        if (err instanceof TraceFetchError) {
+          traceState.setError({
+            error_type: 'WideError',
+            code: err.code,
+            message: err.message,
+            context: null,
+          });
+        } else {
+          editorMessage = 'Failed to load trace from URL.';
+        }
       } finally {
         remoteTraceLoading = false;
       }
@@ -290,10 +300,7 @@
   }
 
   async function loadTraceFromUrl(url: string): Promise<void> {
-    const response = await fetch(url);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const text = await response.text();
-    await loadEditorText(text);
+    await loadEditorText(await fetchTraceText(url));
   }
 
   onMount(() => installKeyboardRouter({
