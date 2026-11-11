@@ -120,7 +120,7 @@ widescope/
 └── README.md
 ```
 
-**Key constraint:** The production artifact is a static folder — `index.html`, `app.js`, `widescope_core_bg.wasm`. No `node_modules` in dist. No runtime fetch — conventions and sample trace are bundled into JS at build time (see Sections 5.4 and 7.4). Single-file HTML export (v1) inlines WASM as base64 + all JS/CSS.
+**Key constraint:** The production artifact is a static folder — `index.html`, `app.js`, `widescope_core_bg.wasm`. No `node_modules` in dist. Conventions and the sample trace are bundled into JS at build time (see Sections 5.4 and 7.4), so those are not fetched at runtime. `loadWasm` in `ui/src/lib/wasm.ts` still fetches the same-origin `widescope_core_bg.wasm`. Single-file HTML export (v1) inlines WASM as base64 + all JS/CSS.
 
 ---
 
@@ -642,7 +642,7 @@ for each span in trace.spans:
 
 Conventions are embedded at build time. `ui/src/lib/conventions-bundle.ts` imports each conventions file with a Vite `?raw` import, and `loadWasm` in `ui/src/lib/wasm.ts` passes the joined JSON to the WASM `init` export. The hosted page does not fetch them.
 
-The hosted Content-Security-Policy is the response header in `ui/public/_headers`. Its `connect-src` value is `'self' https:`. That allows `fetch` and `EventSource` to the page origin and to `https:` URLs. The viewer uses that for a `?trace=` URL (`fetchTraceText` in `ui/src/lib/traceUrl.ts`) and a `?live=` URL (`connectLive` in `ui/src/lib/live.ts`).
+The hosted Content-Security-Policy is the response header in `ui/public/_headers`. Its `connect-src` value is `'self' https:`. That allows `fetch` and `EventSource` to the page origin and to `https:` URLs. The viewer uses that for the same-origin WASM binary (`loadWasm` in `ui/src/lib/wasm.ts`), a `?trace=` URL (`fetchTraceText` in `ui/src/lib/traceUrl.ts`), and a `?live=` URL (`connectLive` in `ui/src/lib/live.ts`).
 
 **MVP mechanism:** Vite imports conventions JSON as static string constants at build time using `?raw` imports:
 
@@ -664,7 +664,7 @@ export async function loadWasm(): Promise<void> {
 }
 ```
 
-No runtime fetch. No CSP conflict. Works identically across all deployment modes.
+The convention JSON is not fetched at runtime. No CSP conflict for that payload. Works identically across all deployment modes.
 
 **Per-deployment behavior:**
 
@@ -1292,7 +1292,7 @@ default-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'unsafe-eval'; style-sr
 
 | Directive | Value | Reason |
 |---|---|---|
-| `connect-src` | `'self' https:` | Allows `fetch`, `XMLHttpRequest`, and `WebSocket` to the same origin and to `https:` URLs. The UI calls `fetch` only in `fetchTraceText` (`ui/src/lib/traceUrl.ts`) for a `?trace=` URL, and opens an `EventSource` only in `connectLive` (`ui/src/lib/live.ts`) for a `?live=` URL. |
+| `connect-src` | `'self' https:` | Allows `fetch`, `XMLHttpRequest`, and `WebSocket` to the same origin and to `https:` URLs. `loadWasm` (`ui/src/lib/wasm.ts`) fetches the same-origin `widescope_core_bg.wasm`. `fetchTraceText` (`ui/src/lib/traceUrl.ts`) fetches a `?trace=` URL. `connectLive` (`ui/src/lib/live.ts`) opens an `EventSource` for a `?live=` URL. |
 | `script-src` | `'self' 'wasm-unsafe-eval' 'unsafe-eval'` | Scripts come from the same origin. WASM instantiation needs `wasm-unsafe-eval`. The header also allows `unsafe-eval`. |
 | `style-src` | `'self' 'unsafe-inline'` | Svelte scoped styles compile to inline `<style>` |
 | `img-src` | `'self' data: blob:` | PNG export via `Canvas.toBlob` |
@@ -1306,7 +1306,7 @@ Browser-enforced guarantees (not app-level):
 
 ### 10.3 Privacy Guarantees and Caveats
 
-The UI calls the network in two places. `fetchTraceText` in `ui/src/lib/traceUrl.ts` fetches a `?trace=` URL. `connectLive` in `ui/src/lib/live.ts` opens an `EventSource` for a `?live=` URL. Other trace loads read a local file, the clipboard, IndexedDB, or a string bundled at build time.
+The UI reaches the network from `loadWasm` in `ui/src/lib/wasm.ts`, which fetches the same-origin `widescope_core_bg.wasm`; from `fetchTraceText` in `ui/src/lib/traceUrl.ts`, which fetches a `?trace=` URL; and from `connectLive` in `ui/src/lib/live.ts`, which opens an `EventSource` for a `?live=` URL. Other trace loads read a local file, the clipboard, IndexedDB, or a string bundled at build time.
 
 | Mode | Enforcement mechanism | Strength |
 |---|---|---|
@@ -1315,7 +1315,7 @@ The UI calls the network in two places. `fetchTraceText` in `ui/src/lib/traceUrl
 | **Single-file HTML export** | WASM sandbox, plus a CSP header only when the file is served with one | A file opened as `file://` has the same limit as the row above. |
 
 **What we can claim:**
-- The UI fetches only for a `?trace=` URL and opens an event source only for a `?live=` URL.
+- The UI fetches the same-origin WASM binary from `loadWasm` (`ui/src/lib/wasm.ts`), fetches a trace for a `?trace=` URL, and opens an event source for a `?live=` URL.
 - On the hosted site, `ui/public/_headers` sets `connect-src 'self' https:`.
 - The Rust sources under `crates/widescope-core/src` do not call `fetch`, `js_sys`, or `web_sys`.
 
